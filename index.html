@@ -534,7 +534,8 @@ const ACTS={
     {n:"Antiguo túnel del Elba",p:0,h:0.75,pr:1,tr:"metro",top:1,note:"Landungsbrücken",ll:[53.5455,9.9662]},{n:"Elbphilharmonie Plaza (3–17 años)",p:3,h:0.75,pr:1,tr:"metro",top:1,note:"3 € (3–17 años) desde oct-2026 · reservar online · U3 Baumwall o bus 111",ll:[53.5413,9.9841],u:"https://www.elbphilharmonie.de/en/plaza"},
     {n:"Speicherstadt y HafenCity",p:0,h:1.5,pr:1,tr:"pie",top:1,ll:[53.544,9.992]},{n:"Ayuntamiento (Rathaus) + Jungfernstieg + Alster",p:0,h:1,tr:"pie",top:1,ll:[53.5503,9.9926],note:"Exterior gratis · visita guiada interior 8 € (opcional)"},
     {n:"Memorial St. Nikolai (torre)",until:16.5,p:7,h:1,tr:"pie",top:1,ll:[53.5475,9.9905],u:"https://gedenkstaetten-in-hamburg.de/en/memorials/show/mahnmal-st-nikolai"},{closed:[1,2,3,4,5,6],n:"Fischmarkt (solo domingo temprano)",p:0,h:1.5,closed:[1,2,3,4,5,6],tr:"metro",top:1,ll:[53.545,9.953]},
-    {n:"Chilehaus (Casa Chile)",p:0,h:0.33,tr:"pie",top:1,ll:[53.5481,10.0007],note:"Kontorhausviertel, a 5 min de la Speicherstadt"}]
+    {n:"Chilehaus (Casa Chile)",p:0,h:0.33,tr:"pie",top:1,ll:[53.5481,10.0007],note:"Kontorhausviertel, a 5 min de la Speicherstadt"},
+    {n:"Paseo nocturno por el puerto con luces (Lichterfahrt)",night:1,p:22,h:1.25,pr:1,tr:"metro",top:1,note:"🌙 Después de la cena · 1–1,5 h · ~22 € · U3 Landungsbrücken · revisar horario de salida y reservar",ll:[53.5458,9.97],u:"https://www.hamburg-tourism.de/themen-touren/rundfahrten-und-gaenge/hafenrundfahrten/"}]
 };
 // Lugares "de paso": se ven al caminar entre una actividad y otra
 const PASS={P:{2:.25,5:.25,6:.5,7:.33,11:.25},B:{8:.75,12:.25},H:{7:.5,10:.33},M:{0:.5,1:.25,2:.5}};
@@ -544,7 +545,7 @@ const LEGH={"K-M":2.75,"K-B":5.25,"K-P":7,"M-P":4.75,"M-B":4,"P-B":4.3,"K-H":5.3
 const DAYH=9;
 function kmBetween(a,b){const R=6371,t=x=>x*Math.PI/180;const dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 function proposeFill(c){const days=PLAN.filter(d=>d.segs.some(s=>s.city===c&&!s.whole));
-  const free=new Map();days.forEach(d=>{let f=0;d.segs.filter(s=>s.city===c&&!s.whole).forEach(s=>{const last=s.acts.length?Math.max(...s.acts.map(a=>a.st+(a.full?8:a.h))):s.st;f+=Math.max(0,s.en-last-(s.lunchAt!=null&&last<s.lunchAt?1:0))});free.set(d,f)});
+  const free=new Map();days.forEach(d=>{let f=0;d.segs.filter(s=>s.city===c&&!s.whole).forEach(s=>{const da=s.acts.filter(a=>!a.night);const last=da.length?Math.max(...da.map(a=>a.st+(a.full?8:a.h))):s.st;f+=Math.max(0,(s.en0??s.en)-last-(s.lunchAt!=null&&last<s.lunchAt?1:0))});free.set(d,f)});
   const unpl=(PLAN.feas&&PLAN.feas[c]?PLAN.feas[c].unpl:[]).map(a=>a.i);const pool=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>(!isSel(c,a.i)||unpl.includes(a.i))&&a.tr!=="fuera"&&!a.full);
   const pairs=[];pool.forEach(a=>days.forEach(d=>{if(a.closed&&a.closed.includes(d.date.getDay()))return;
     const pts=d.segs.filter(s=>s.city===c).flatMap(s=>s.acts.filter(x=>x.tr!=="fuera").map(x=>({ll:x.ll,n:x.n})));const ref=pts.length?pts:[{ll:hotelOf(c).ll,n:"el hotel"}];
@@ -576,9 +577,19 @@ function fillHtml(c){const r=proposeFill(c);const K=a=>aKeyG(c,a.i);
    ${restHtml(c,r)}
    <span class="recbtns"><button type="button" class="btn" data-fillapply="${c}">Aplicar propuesta</button><button type="button" class="btn alt" data-fillcancel="${c}">Cancelar</button></span>`}
 function moveH(a,b){if(!a||!b)return 0.25;const km=kmBetween(a,b);return km<=1.2?km*0.22:0.2+km*0.05}
-const CHECKIN=14, CHECKOUT=10, DAYSTART=9, DAYEND=20.5;
+const CHECKIN=14, CHECKOUT=10, DAYSTART=9, DAYEND=20.5, EVE=19.5;
 const hm=x=>{let t=Math.round(x*60);t=((t%1440)+1440)%1440;return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
 function schedule(legH,key){const dep=(key&&cfg.dep&&cfg.dep[key]!=null)?cfg.dep[key]:Math.min(12,Math.max(8,CHECKIN-legH));return {dep,arr:dep+legH}}
+// Puesta de sol y fin del crepúsculo civil (hora local de Europa central, con horario de verano)
+function sunOf(date,ll){const y=date.getFullYear(),n=Math.round((Date.UTC(y,date.getMonth(),date.getDate())-Date.UTC(y,0,0))/864e5),g=2*Math.PI/365*(n-1),
+  eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g)),
+  de=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g),
+  la=ll[0]*Math.PI/180,lsun=d=>{const n0=new Date(Date.UTC(y,d==="m"?2:9,31));return 31-n0.getUTCDay()},
+  dst=(m=>m>2&&m<9||(m===2&&date.getDate()>=lsun("m"))||(m===9&&date.getDate()<lsun("o")))(date.getMonth())?2:1,
+  t=z=>{const c=Math.cos(z*Math.PI/180)/(Math.cos(la)*Math.cos(de))-Math.tan(la)*Math.tan(de);const ha=Math.acos(Math.max(-1,Math.min(1,c)))*180/Math.PI;return (720-4*(ll[1]-ha)-eq)/60+dst};
+  return{set:t(90.833),dusk:t(96)}}
+function sunTag(a){if(a.tr==="fuera"||a.full)return"";const S=sunOf(a._date||new Date(),hotelOf(a.city).ll);
+  return a.st>=S.dusk-0.05?'<span class="sun nite" title="Ya es de noche">🌙</span>':a.st+a.h>S.set+0.15?'<span class="sun dusk" title="Termina con poca luz (atardecer)">🌇</span>':""}
 const toH=v=>{const [a,b]=v.split(":").map(Number);return a+(b||0)/60};
 const actSel={};
 const aKeyG=(c,i)=>c+":"+i;
@@ -800,6 +811,7 @@ const ATTR={
  "H:7":{y:"1886–1897",s:"Ayuntamiento neorrenacentista con 647 salas, más que el palacio de Buckingham.",h:["<b>Neorrenacentista</b> quiere decir que en el siglo XIX copiaron el estilo del Renacimiento (siglos XV–XVI): fachadas simétricas, columnas, frontones y mucha decoración escultórica. Era una forma de mostrar que Hamburgo era rica y orgullosa como las ciudades-estado italianas.","Se construyó sobre 4.000 pilotes de roble y sobrevivió a los bombardeos casi intacto. En la fachada hay 20 estatuas de emperadores."],v:"Patio con la fuente Hygieia (homenaje a la epidemia de cólera de 1892), la Alster interior y el paseo Jungfernstieg.",d:"Visita guiada al interior: 8 € (gratis solo hasta 14 años); el ticket se compra el mismo día en el vestíbulo, solo con tarjeta.",l:[["Wikipedia",WK("Ayuntamiento de Hamburgo")]],f:[["Rathaus",GI("Hamburger Rathaus")]]},
  "H:8":{y:"1874 · destruida en 1943",s:"Torre de una iglesia bombardeada, hoy memorial contra la guerra.",h:["Cuando se terminó en 1874, su torre de 147 m era el edificio más alto del mundo. En 1943 sirvió de punto de referencia a los pilotos de los bombarderos de la Operación Gomorra, y la iglesia quedó destruida. La ciudad decidió no reconstruirla y dejarla como memorial.","En la cripta hay un museo sobre la Operación Gomorra y sobre ciudades bombardeadas por Alemania, como Coventry (Inglaterra) y Varsovia."],v:"Las ruinas de la nave, el museo subterráneo y un ascensor de vidrio a 76 m con vista sobre el centro.",d:"Lean el contexto de Hamburgo (arriba) antes de ir.",l:[["Sitio oficial","https://www.mahnmal-st-nikolai.de/"],["Operación Gomorra",WK("Operación Gomorra")]],f:[["Hamburgo bombardeado (RAF, 1942–45)",GI("Hamburg 1943 Zerstörung")],["St. Nikolai hoy",GI("Mahnmal St. Nikolai")]]},
  "H:9":{y:"Desde 1703",s:"Mercado de pescado que funciona solo los domingos de madrugada.",h:["Nació en Altona en 1703. Los vendedores rematan a gritos («Aale-Dieter» es famoso), y hay música en vivo en la antigua lonja."],v:"En su estadía (lunes 15 a miércoles 17) no hay domingo: no se puede visitar.",d:"",l:[["Wikipedia",WK("Fischmarkt Hamburgo")]],f:[]},
+ "H:11":{y:"Paseo nocturno",s:"Paseo en barco por el puerto de Hamburgo de noche, con las grúas, los muelles, la Elbphilharmonie y la Speicherstadt iluminadas.",h:["Salen desde los muelles de Landungsbrücken. Según la marea, el barco entra o no a los canales de la Speicherstadt: si el agua está muy alta o muy baja, el recorrido sigue por el puerto y los terminales de contenedores.","En febrero oscurece cerca de las 17:30, así que cualquier salida después de la cena ya es de noche."],v:"El puerto de contenedores iluminado, la Elbphilharmonie de noche y los almacenes de ladrillo de la Speicherstadt con luces.",d:"Llevar ropa de abrigo: en febrero hace frío arriba del barco. Reservar en línea y revisar el horario de salida.",l:[["Paseos por el puerto (Hamburg Tourism)","https://www.hamburg-tourism.de/themen-touren/rundfahrten-und-gaenge/hafenrundfahrten/"],["Comparación de paseos","https://loving-travel.com/de/hafenrundfahrt-hamburg/"]],f:[["Lichterfahrt",GI("Lichterfahrt Hamburger Hafen")]]},
  "H:10":{y:"1922–1924 · UNESCO 2015",s:"Edificio de oficinas con forma de proa de barco, ícono del expresionismo de ladrillo, pagado con la fortuna del salitre chileno.",h:["Lo encargó el armador Henry Brarens Sloman, que hizo su fortuna exportando salitre desde Chile; por eso se llama «Casa Chile». Lo diseñó el arquitecto Fritz Höger entre 1922 y 1924.","<b>Arquitectura:</b> es el ejemplo más famoso del «expresionismo de ladrillo» (Backsteinexpressionismus). Usaron unos 4,8 millones de ladrillos clinker, cocidos a muy alta temperatura, con tonos que van del rojo al violeta oscuro. La punta del edificio, en la esquina de Pumpenstraße, parece la proa de un transatlántico. Las fachadas tienen ondulaciones y balcones en terraza que juegan con la luz.","Forma parte del barrio Kontorhaus («casas de oficinas»), Patrimonio de la Humanidad desde 2015 junto con la Speicherstadt. Adentro hay símbolos chilenos, como un cóndor y un sol."],v:"La «proa» desde la esquina Pumpenstraße/Burchardstraße, los patios interiores y las fachadas onduladas.",d:"De paso: unos 20 min, entre la Speicherstadt y el Rathaus. La mejor foto es desde el lado este, en la esquina en punta.",l:[["Wikipedia",WK("Chilehaus")],["UNESCO","https://whc.unesco.org/es/list/1467"]],f:[["La «proa» del Chilehaus",GI("Chilehaus Hamburg")],["Fachada de ladrillo clinker",GI("Chilehaus Fassade Klinker")]]},
  "B:0":{y:"1933–1945",s:"Museo gratis en el terreno donde estuvieron la central de la Gestapo, la dirección de las SS y la Oficina Central de Seguridad del Reich.",h:["<b>La Gestapo</b> («Geheime Staatspolizei») era la policía secreta del Estado nazi: vigilaba, detenía sin juicio y torturaba. En los sótanos de este edificio había celdas de interrogatorio.","<b>Las SS</b> («Schutzstaffel») empezaron como guardaespaldas de Hitler y, bajo Heinrich Himmler, se convirtieron en un Estado dentro del Estado: administraban los campos de concentración y exterminio y tenían su propio ejército (Waffen-SS). Desde aquí se planificó buena parte del Holocausto.","Tras la guerra el terreno quedó baldío, pegado al Muro. Se conserva uno de los tramos originales del Muro más largos de la ciudad."],v:"Exposición con fotos y documentos (gratis), restos de los sótanos y un tramo de 200 m del Muro.",d:"Al frente está el ex Ministerio del Aire de Göring, uno de los pocos edificios nazis grandes que siguen en pie.",l:[["Sitio oficial","https://www.topographie.de/"],["Wikipedia",WK("Topografía del terror")]],f:[["Prinz-Albrecht-Straße 8 (1933)",GI("Prinz-Albrecht-Straße 8 Gestapo 1933")],["El sitio hoy",GI("Topographie des Terrors Mauer")]]},
  "B:1":{y:"1923 · Puente aéreo 1948–49 · parque desde 2010",s:"Antiguo aeropuerto convertido en parque. Aquí aterrizó el Puente Aéreo que salvó a Berlín Occidental.",h:["El terminal, construido por los nazis entre 1936 y 1941, fue por años uno de los edificios más grandes del mundo.","<b>El bloqueo:</b> en junio de 1948 la URSS cortó todas las carreteras, trenes y canales hacia Berlín Occidental para obligar a los aliados a irse. EE.UU. y Gran Bretaña respondieron con un «puente aéreo»: durante casi 11 meses llevaron por avión comida, carbón y medicinas para 2 millones de personas. Hicieron unos 278.000 vuelos y en los peores días aterrizaba un avión cada pocos minutos.","El piloto Gail Halvorsen empezó a lanzar dulces atados a pequeños paracaídas para los niños: por eso les dicen «Rosinenbomber» (bombarderos de pasas). En mayo de 1949 la URSS levantó el bloqueo."],v:"La pista de 2 km donde se puede caminar o andar en bicicleta, el terminal desde afuera y el monumento al Puente Aéreo («Hungerharke», el rastrillo del hambre) en la Platz der Luftbrücke.",d:"Cierra al atardecer: en febrero, ir antes de las 17:00.",l:[["Bloqueo de Berlín",WK("Bloqueo de Berlín")],["Tempelhof",WK("Aeropuerto de Berlín-Tempelhof")]],f:[["Puente Aéreo 1948",GI("Berliner Luftbrücke Tempelhof 1948")],["Rosinenbomber",GI("Rosinenbomber Halvorsen candy")],["Tempelhofer Feld hoy",GI("Tempelhofer Feld")]]},
@@ -934,8 +946,9 @@ function buildPlan(){
   const feas={};
   ord.forEach(c=>{
     const sel=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>isSel(c,a.i));
-    const my=slots.filter(sl=>sl.city===c);const done=new Set();
-    const open=(a,sl)=>!(a.closed&&a.closed.includes(sl.d.date.getDay()));
+    if(sel.some(a=>a.night))days.filter(d=>d.night===c).forEach(d=>slots.push({d,city:c,st:EVE,en:EVE+3,cap:3,full:0,eve:1,lunch:0,net:3,items:[],load:0,anchor:hotelOf(c).ll}));
+    const my=slots.filter(sl=>sl.city===c);const done=new Set();const fits=(a,sl)=>!!a.night===!!sl.eve;
+    const open=(a,sl)=>fits(a,sl)&&!(a.closed&&a.closed.includes(sl.d.date.getDay()));
     sel.filter(a=>a.full).sort((a,b)=>score(b)-score(a)).forEach(a=>{const sl=(pinOf(a)&&my.find(x=>x.full&&!x.items.length&&onDay(x,a)&&open(a,x)))||my.find(x=>x.full&&!x.items.length&&open(a,x));if(sl){sl.items.push(a);sl.load=sl.net;sl.whole=1;done.add(a.i)}});
     const cen=sl=>{if(!sl.items.length)return sl.anchor;const s=sl.items.reduce((t,a)=>[t[0]+a.ll[0],t[1]+a.ll[1]],[0,0]);return[s[0]/sl.items.length,s[1]/sl.items.length]};
     // 1) asignar a tramo: cercanía a la zona del tramo + equilibrio de carga
@@ -971,10 +984,15 @@ function buildPlan(){
       for(const sl of my.filter(x=>!x.whole&&x.run&&open(a,x)&&(!pinOf(a)||!my.some(y=>!y.whole&&onDay(y,a))||onDay(x,a))).sort((x,y)=>kmBetween(cen(x),a.ll)-kmBetween(cen(y),a.ll))){
         sl.items.push(a);const r=sl.run();if(r.end<=sl.en+0.1&&!late(r)){apply(sl,r);done.add(a.i);break}sl.items.pop()}});
     const unpl=sel.filter(a=>!done.has(a.i)).sort((a,b)=>score(a)-score(b));
-    feas[c]={maxSlot:Math.max(0,...my.filter(x=>!x.whole).map(x=>x.net)),fullDays:my.filter(x=>x.whole).length,need:sel.reduce((t,a)=>t+(a.full?8:a.h),0),avail:my.reduce((t,x)=>t+x.net,0),unpl,sel,placed:sel.filter(a=>done.has(a.i))};
+    feas[c]={maxSlot:Math.max(0,...my.filter(x=>!x.whole&&!x.eve).map(x=>x.net)),fullDays:my.filter(x=>x.whole).length,need:sel.filter(a=>!a.night).reduce((t,a)=>t+(a.full?8:a.h),0),avail:my.filter(x=>!x.eve).reduce((t,x)=>t+x.net,0),unpl,sel,placed:sel.filter(a=>done.has(a.i))};
   });
-  slots.forEach(sl=>{sl.d.segs.push({city:sl.city,st:sl.st,en:sl.en,anchor:sl.anchor,acts:sl.seq||[],lunchAt:sl.lunchAt,whole:sl.whole});sl.d.acts.push(...(sl.seq||[]))});
-  days.forEach((d,i)=>{d.id=iso(d.date);d.first=i===0;d.cap=slots.filter(x=>x.d===d).reduce((t,x)=>t+x.net,0);d.used=d.acts.reduce((t,a)=>t+(a.full?8:a.h+(a.mv||0)),0)});
+  slots.filter(sl=>!sl.eve).forEach(sl=>{sl.d.segs.push({city:sl.city,st:sl.st,en:sl.en,en0:sl.en,anchor:sl.anchor,acts:sl.seq||[],lunchAt:sl.lunchAt,whole:sl.whole});sl.d.acts.push(...(sl.seq||[]))});
+  // paseos nocturnos: se agregan al final del recorrido del día, después de la cena
+  slots.filter(sl=>sl.eve&&sl.seq&&sl.seq.length).forEach(sl=>{const d=sl.d;const sg=[...d.segs].reverse().find(s=>s.city===sl.city&&!s.whole);
+    if(!sg){d.segs.push({city:sl.city,st:sl.st,en:sl.en,en0:sl.st,anchor:sl.anchor,acts:sl.seq,lunchAt:null});d.acts.push(...sl.seq);return}
+    let pos=sg.acts.length?sg.acts[sg.acts.length-1].ll:sg.anchor,t=sg.acts.length?Math.max(...sg.acts.map(a=>a.st+a.h)):sg.st;
+    sl.seq.forEach(a=>{const mv=moveH(pos,a.ll);const x={...a,mv,from:pos,st:Math.max(EVE+mv,t+mv),num:sg.acts.length+1};sg.acts.push(x);d.acts.push(x);t=x.st+a.h;pos=a.ll});sg.en=Math.max(sg.en,t)});
+  days.forEach((d,i)=>{d.id=iso(d.date);d.first=i===0;d.cap=slots.filter(x=>x.d===d&&!x.eve).reduce((t,x)=>t+x.net,0);d.used=d.acts.reduce((t,a)=>t+(a.night?0:a.full?8:a.h+(a.mv||0)),0)});
   days.feas=feas;
   return days;
 }
@@ -1217,7 +1235,7 @@ function renderDays(plan){
     else if(d.arrival)tl=`Llegada a ${CN[d.city]} · check-in desde ${hm(CHECKIN)}`;
     else if(d.final)tl=`Check-out ${CN[d.city]} 10:00 · dejar maletas en recepción · fin del viaje`;
     let h=`<div class="day-head"><span class="eyebrow">${pretty(d.date)} · ${CN[d.city]}</span><h3>${title}</h3>
-      <span class="muted" style="font-size:13px">${d.night?"Noche en "+hotelOf(d.night).name:"Sin noche de hotel"}</span></div>
+      <span class="muted" style="font-size:13px">${d.night?"Noche en "+hotelOf(d.night).name:"Sin noche de hotel"}</span>${(()=>{const S=sunOf(d.date,hotelOf(d.city).ll);return `<span class="sunline">🌇 Se pone el sol ${hm(S.set)} · 🌙 oscuro desde ${hm(S.dusk)}</span>`})()}</div>
       ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk"><h4>Comidas</h4>`;
     ["d","a","m","c"].forEach(k=>{const mi=mealPick(d,k);
       h+=`<label class="chk"><input type="checkbox" data-meal="${d.id}|${k}" ${mealOn(d,k)?"checked":""}><span class="t">${MEAL_LBL[k]}${mi[3]?' <span class="tag hotel" title="Se compra en el hotel">🏨 hotel</span>':""}<small>${mi[1]}${mi[2]?` · <a href="${mi[2]}" target="_blank" rel="noopener">fuente</a>`:""}</small></span><span class="p">${fmt(mi[0])}</span></label>${mealSel(d,k)}`});
@@ -1238,7 +1256,7 @@ function renderDays(plan){
         if(a.mv>0.05){const far=a.from&&kmBetween(a.from,a.ll)>1.2&&a.tr!=="fuera";const mins=Math.max(5,Math.round(a.mv*60/5)*5);const T=far?transitFor(a.city,a.from,a.ll):null;
           h+=far?(T?`<span class="mv tr ${T.mode}">↓ ${T.ico} <b>${T.name}</b>${a.num===1?" desde el hotel":""}: caminar ${walkMin(T.da)} min a «${T.from[2]}» → bajar en «${T.to[2]}» → caminar ${walkMin(T.db)} min · ~${mins} min en total · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver horario</a></span>`:`<span class="mv tr">↓ ~${mins} min en transporte público${a.num===1?" desde el hotel":""} · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`):`<span class="mv">↓ a pie ~${mins} min</span>`}
       h+=`<div class="actrow2 ${a.tr==="fuera"?"fuera":""}">
- <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span><span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl"><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
+ <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl"><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
  <div class="ar-meta">${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}<span class="dur">${durTxt(a)}</span>${where}<span class="tag ar-price ${a.p===0?"free":"price"}">${a.p?fmt(a.p)+(a.est?" est.":""):"gratis"}</span></div>
  ${(/\(.*?\)\s*$/.test(a.n)||a.note)?`<div class="ar-note">${[(a.n.match(/\((.*?)\)\s*$/)||[])[1],a.note].filter(Boolean).join(" · ")}</div>`:""}
  <div class="ar-links">${actLinks(a)} ${daySel(plan,a.city,aKeyG(a.city,a.i),dayPin[aKeyG(a.city,a.i)]||"","daysel")}${dayPin[aKeyG(a.city,a.i)]?'<span class="tag pinday">día fijado</span>':""}</div>
@@ -1253,7 +1271,7 @@ function renderDays(plan){
     });
     if(d.from&&!d.segs.some(s=>s.city===d.city))h+=`<div class="part-to">${eveningFree(d)}</div>`;
     if(d.from&&!arrDone)h+=arrRow(d);
-    {const segU=ss=>[ss.reduce((t,s)=>t+s.acts.reduce((u,a)=>u+(a.full?8:a.h+(a.mv||0)),0),0),ss.reduce((t,s)=>t+Math.max(0,s.en-s.st-(s.lunchAt!=null?1:0)),0)];
+    {const segU=ss=>[ss.reduce((t,s)=>t+s.acts.reduce((u,a)=>u+(a.night?0:a.full?8:a.h+(a.mv||0)),0),0),ss.reduce((t,s)=>t+Math.max(0,(s.en0??s.en)-s.st-(s.lunchAt!=null?1:0)),0)];
       const tu=(u,c,cls)=>`<span class="tused ${cls}">⏱ ${c<0.05?"Sin tiempo libre para atracciones (traslado)":`Tiempo usado ${u.toFixed(1)} de ${c.toFixed(1)} h disponibles`}</span>`;
       if(d.from){const F=segU(d.segs.filter(s=>s.city===d.from)),T=segU(d.segs.filter(s=>s.city===d.city));h+=tu(F[0],F[1],"part-from")+tu(T[0],T[1],"part-to")}
       else h+=tu(d.used,d.cap,"")}
@@ -1694,6 +1712,8 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 .ar-top{display:flex;align-items:flex-start;gap:8px}
 .ar-top .anum{flex:none;background:#b3261e;color:#fff;border-color:#b3261e;font-weight:700;min-width:1.75em;line-height:1.75em;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.25);margin:1px 0 0}
 .ar-top .st{flex:none;font-size:13px;opacity:.75;margin-top:3px}
+.ar-top .sun{flex:none;font-size:14px;margin:1px -2px 0 -4px;cursor:help}
+.sunline{display:block;font-size:12.5px;margin-top:3px;color:#5a4a7a;font-family:var(--f-mono)}
 .ar-name{flex:1;min-width:0;font-weight:700;font-size:15.5px;line-height:1.3}
 .ar-ctl{flex:none;display:flex;gap:4px;margin-left:6px}
 .ar-ctl .lk,.ar-ctl .rm{font-size:12px;padding:2px 5px;line-height:1;border:1px solid var(--line);background:var(--card);border-radius:4px;cursor:pointer;color:var(--muted)}
