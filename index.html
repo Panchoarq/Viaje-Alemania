@@ -1365,8 +1365,10 @@ function renderSummary(plan){
   legsOf(plan).forEach(l=>keys.push("leg:"+l.key));
   const nv=keys.filter(k=>verified[k]).length;$("tVer").textContent=`✓ ${nv} de ${keys.length} precios clave verificados`;
   const parts=[["Pasajes",sum.leg,"var(--ink)"],["Alojamiento",sum.hot,"var(--mun)"],["Comidas",sum.meal,"var(--pra)"],["Entradas",sum.act,"var(--ber)"],["Transporte urbano",sum.loc,"var(--ok)"]];
-  $("bar").innerHTML=parts.map(p=>`<span style="width:${(p[1]/sum.total*100).toFixed(2)}%;background:${p[2]}" title="${p[0]}"></span>`).join("");
-  $("legend").innerHTML=parts.map(p=>`<span><i style="background:${p[2]}"></i>${p[0]} <span class="num">${fmt(p[1])}</span> p/p</span>`).join("");
+  {const ICO={"Pasajes":"🚆","Alojamiento":"🛏️","Comidas":"🍽️","Entradas":"🎟️","Transporte urbano":"🚋"};const M=Math.max(...parts.map(p=>p[1]),0.01);
+   $("bar").className="dstrip sumstrip";
+   $("bar").innerHTML=parts.map(p=>`<div class="tkt" title="${p[0]}: ${fmt(p[1])} por persona"><span class="ti" aria-hidden="true">${ICO[p[0]]||"•"}</span><b class="num">${fmt(p[1])}</b><span class="tn">${p[0].replace(" urbano","")}</span><span class="tp num">${sum.total?Math.round(p[1]/sum.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[1]/M*100).toFixed(1)}%;background:${p[2]}"></span></span></div>`).join("");
+   $("legend").innerHTML="";}
 }
 let PLAN=[];
 function renderAll(rebuild){refreshNightDates();
@@ -1714,6 +1716,11 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 .fcard:has(.fillres:not(:empty)){grid-column:1/-1}
 .fcard:has(.fillres:not(:empty)) .fillres{columns:1}
 .fillres{position:relative}.fillx{float:right;margin:-4px -4px 6px 8px;font:600 12px var(--f-mono);padding:4px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer}.fillx:hover{background:var(--ink);color:var(--bg)}
+#bar.sumstrip{align-self:stretch;width:100%;box-sizing:border-box;display:flex;height:auto;background:none;border-radius:0;overflow:visible;padding:0 8px;gap:12px}
+#bar.sumstrip .tkt{padding:10px 8px 8px}#bar.sumstrip .ti{font-size:22px}#bar.sumstrip b{font-size:17px}#bar.sumstrip .tn{font-size:10.5px}
+#bar.sumstrip .tp{font-size:11px;color:var(--muted)}#bar.sumstrip .tm{height:5px}
+#legend:empty{display:none}
+@media (max-width:560px){#bar.sumstrip{flex-wrap:wrap;gap:8px}#bar.sumstrip .tkt{flex:1 1 30%}}
 /* Planos del día */
 .dmap{display:block;width:100%;height:auto;background:var(--land)}
 .m-land{fill:var(--land)}
