@@ -358,7 +358,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
 <div id="bootMsg" class="boot-msg">Cargando plan compartido…</div>
 <script>
 const SHARED=["ruta_daypin","ruta_cfg","ruta_prices","ruta_acts","ruta_verleg","ruta_hotel","ruta_rmode","ruta_mealopt","ruta_buy","ruta_lock","ruta_resetHB1","ruta_pass1","ruta_mucop2","ruta_genham1","ruta_genham2","ruta_add2","ruta_chile1"];
-const MEM={};let _ref=null,_ro=false,_timer=null,_busy=false,_again=false,_remote=null,_started=false;
+const MEM={};let _mode=null;let _ref=null,_ro=false,_timer=null,_busy=false,_again=false,_remote=null,_started=false;
 function _lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function _lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function _chip(t,cls){const c=document.getElementById("syncChip");if(!c)return;c.hidden=false;c.textContent=t;c.className="sync-chip "+(cls||"")}
@@ -368,9 +368,9 @@ const store={
 };
 function _snap(){const o={};SHARED.forEach(k=>{if(k in MEM)o[k]=MEM[k]});return o}
 function _same(a,b){return SHARED.every(k=>(a&&a[k])===(b&&b[k]))}
-function _queue(){if(!_ref||_ro)return;_chip("Guardando…","busy");clearTimeout(_timer);_timer=setTimeout(()=>{_timer=null;_save()},700)}
+function _queue(){if(_mode==="draft"){_lsSet("ruta_draft",JSON.stringify(_snap()));_chip("✏️ Borrador · cambios solo tuyos","busy");return}if(_mode==="preview"){_chip("👁 Vista previa · no se guarda","busy");return}if(!_ref||_ro)return;_chip("Guardando…","busy");clearTimeout(_timer);_timer=setTimeout(()=>{_timer=null;_save()},700)}
 async function _save(){if(_busy){_again=true;return}_busy=true;
-  try{await _ref.set(_snap());_remote=_snap();_chip("☁ Guardado para todos","ok")}
+  try{const _pv=_remote;await _ref.set(_snap());_remote=_snap();_chip("☁ Guardado para todos","ok");try{window.__grpSaved&&window.__grpSaved(_pv,_remote)}catch(e){}}
   catch(e){if(e&&(e.code==="invalid_argument"||e.code==="permission-denied")){_ro=true;_chip("Solo lectura · cambios solo en este navegador","ro")}else _chip("Sin conexión · reintentando","ro"),setTimeout(_queue,4000)}
   _busy=false;if(_again){_again=false;_save()}}
 function _start(){if(_started)return;_started=true;document.getElementById("bootMsg").remove();__main()}
@@ -380,7 +380,7 @@ async function _fbRef(){if(location.protocol!=="https:"&&location.hostname!=="lo
   try{const B="https://www.gstatic.com/firebasejs/10.12.2/";
     const [A,U,F]=await _tmo(Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]),8000);
     const app=A.initializeApp(FB_CFG);await _tmo(U.signInAnonymously(U.getAuth(app)),8000);
-    const d=F.doc(F.getFirestore(app),"plan","estado");const w=s=>({exists:s.exists(),data:()=>s.data()});
+    const db=F.getFirestore(app);window._FB={F,db};const d=F.doc(db,"plan","estado");const w=s=>({exists:s.exists(),data:()=>s.data()});
     return{get:async()=>w(await _tmo(F.getDoc(d),8000)),set:x=>F.setDoc(d,x),onSnapshot:(fn,err)=>F.onSnapshot(d,s=>{if(!s.metadata.hasPendingWrites)fn(w(s))},err)};
   }catch(e){console.warn("Firebase no disponible",e);return null}}
 async function _boot(){
@@ -391,11 +391,181 @@ async function _boot(){
   _ref=ref;
   let s=null;try{s=await _ref.get()}catch(e){}
   if(s&&s.exists){const d=s.data()||{};SHARED.forEach(k=>{if(typeof d[k]==="string"){MEM[k]=d[k];_lsSet(k,d[k])}else delete MEM[k]});_remote=_snap()}
+  if(window._FB&&s&&s.exists)try{const dr=_lsGet("ruta_draftOn")&&JSON.parse(_lsGet("ruta_draft")||"null");
+    if(dr){SHARED.forEach(k=>{if(typeof dr[k]==="string")MEM[k]=dr[k];else delete MEM[k]});_mode="draft"}
+    else{const pv=JSON.parse(_lsGet("ruta_preview")||"null");if(pv&&pv.changes){Object.entries(pv.changes).forEach(([k,v])=>{if(!SHARED.includes(k))return;if(v==null)delete MEM[k];else MEM[k]=v});_mode="preview"}}}catch(e){}
   _start();
-  if(s&&s.exists)_chip("☁ Plan compartido · en vivo","ok");else if(s){_queue()}else _chip("Sin conexión al plan compartido","ro");
-  try{_ref.onSnapshot(sn=>{if(!sn.exists)return;const d=sn.data()||{};_remote=d;if(_same(d,_snap())){document.getElementById("syncBar").hidden=true;return}if(_timer||_busy)return;document.getElementById("syncBar").hidden=false},()=>{})}catch(e){}
+  if(_mode)_chip(_mode==="draft"?"✏️ Borrador · cambios solo tuyos":"👁 Vista previa · no se guarda","busy");
+  else if(s&&s.exists)_chip("☁ Plan compartido · en vivo","ok");else if(s){_queue()}else _chip("Sin conexión al plan compartido","ro");
+  try{window.__grpStart&&window.__grpStart()}catch(e){console.warn(e)}
+  try{_ref.onSnapshot(sn=>{if(!sn.exists)return;const d=sn.data()||{};_remote=d;if(_mode)return;if(_same(d,_snap())){document.getElementById("syncBar").hidden=true;return}if(_timer||_busy)return;document.getElementById("syncBar").hidden=false},()=>{})}catch(e){}
 }
 document.getElementById("syncApply").onclick=()=>{const d=_remote||{};SHARED.forEach(k=>{if(typeof d[k]==="string")_lsSet(k,d[k])});location.reload()};
+</script>
+<script>
+// ===== Grupo: nombre, historial, respaldos, borrador, propuestas y votos, comentarios =====
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const slug=s=>String(s||"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"anonimo";
+const FLAGS=["ruta_resetHB1","ruta_pass1","ruta_mucop2","ruta_genham1","ruta_genham2","ruta_add2","ruta_chile1"];
+const ago=t=>{const m=Math.round((Date.now()-t)/60000);if(m<1)return"recién";if(m<60)return`hace ${m} min`;const h=Math.round(m/60);if(h<24)return`hace ${h} h`;const d=new Date(t);return d.toLocaleDateString("es-CL",{day:"numeric",month:"short"})+" "+d.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"})};
+let me=null;try{me=JSON.parse(localStorage.getItem("ruta_me")||"null")}catch(e){}
+const myName=()=>me&&me.name||"Anónimo",mySlug=()=>slug(myName());
+const S={log:[],props:[],cm:[],members:[],backups:null,tab:"act",target:null,on:false,err:""};
+let seen=+(localStorage.getItem("ruta_seen")||0);
+
+// ---------- Descripción legible de cambios ----------
+function J(v){try{return JSON.parse(v||"null")||{}}catch(e){return{}}}
+function actName(k){const G=window.__G;if(!G)return k;const [c,i]=k.split(":");const a=G.ACTS[c]&&G.ACTS[c][+i];return a?`«${a.n.replace(/\s*\(.*?\)\s*$/,"")}»`:k}
+function hotName(c,id){const G=window.__G;const h=G&&G.HOTELS[c]&&G.HOTELS[c].find(x=>x.id===id);return h?h.name:id}
+const fd=s=>{try{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("es-CL",{weekday:"short",day:"numeric",month:"short"})}catch(e){return s}};
+function describe(p,n){p=p||{};n=n||{};const out=[];const CN=(window.__G&&window.__G.CN)||{};
+  const keys=[...new Set([...Object.keys(p),...Object.keys(n)])].filter(k=>!FLAGS.includes(k)&&p[k]!==n[k]);
+  keys.forEach(k=>{const a=J(p[k]),b=J(n[k]);
+    if(k==="ruta_acts"){[...new Set([...Object.keys(a),...Object.keys(b)])].forEach(x=>{const [c,i]=x.split(":"),df=window.__G?window.__G.isDef(c,+i):false,av=x in a?!!a[x]:df,bv=x in b?!!b[x]:df;if(av!==bv)out.push(`${bv?"agregó":"quitó"} ${actName(x)}`)})}
+    else if(k==="ruta_daypin"){[...new Set([...Object.keys(a),...Object.keys(b)])].forEach(x=>{if(a[x]!==b[x])out.push(b[x]?`movió ${actName(x)} al ${fd(b[x])}`:`dejó ${actName(x)} en día automático`)})}
+    else if(k==="ruta_lock"){[...new Set([...Object.keys(a),...Object.keys(b)])].forEach(x=>{if(!!a[x]!==!!b[x])out.push(`${b[x]?"fijó":"soltó"} ${actName(x)}`)})}
+    else if(k==="ruta_hotel"){Object.keys(b).forEach(c=>{if(a[c]!==b[c])out.push(`cambió el hotel de ${CN[c]||c} a ${hotName(c,b[c])}`)})}
+    else if(k==="ruta_cfg"){if(a.start!==b.start)out.push(`cambió la fecha de inicio al ${fd(b.start)}`);
+      Object.keys(b.nights||{}).forEach(c=>{if((a.nights||{})[c]!==b.nights[c])out.push(`dejó ${b.nights[c]} noche${b.nights[c]>1?"s":""} en ${CN[c]||c}`)});
+      if(JSON.stringify(a.order)!==JSON.stringify(b.order))out.push(`cambió el orden de ciudades (${(b.order||[]).map(c=>CN[c]||c).join(" → ")})`);
+      if(JSON.stringify(a.dep||{})!==JSON.stringify(b.dep||{}))out.push("cambió el horario de un tren");
+      if(!out.length)out.push("cambió la configuración")}
+    else if(k==="ruta_prices")out.push("editó precios");
+    else if(k==="ruta_mealopt")out.push("cambió opciones de comida");
+    else if(k==="ruta_buy"){const ca=Object.values(a).filter(Boolean).length,cb=Object.values(b).filter(Boolean).length;out.push(cb>=ca?`marcó ${cb-ca||1} ítem${cb-ca>1?"s":""} de Trámites previos`:`desmarcó ${ca-cb} ítem${ca-cb>1?"s":""} de Trámites previos`)}
+    else if(k==="ruta_rmode")out.push("cambió el modo de pago de una habitación");
+    else if(k==="ruta_verleg")out.push("marcó un pasaje como verificado");
+    else out.push("cambió otros datos")});
+  return out}
+function diffKeys(p,n){const o={};[...new Set([...Object.keys(p||{}),...Object.keys(n||{})])].forEach(k=>{if((p||{})[k]!==(n||{})[k])o[k]=k in (n||{})?n[k]:null});return o}
+function pick(o,ks){const r={};ks.forEach(k=>r[k]=o&&k in o?o[k]:null);return r}
+
+// ---------- Firestore ----------
+const C=name=>_FB.F.collection(_FB.db,"plan","estado",name);
+const D=(name,id)=>_FB.F.doc(_FB.db,"plan","estado",name,id);
+function fail(e){console.warn(e);S.err=e&&e.code==="permission-denied"?"Falta actualizar las reglas de Firebase para usar estas funciones.":"No se pudo guardar (sin conexión).";render()}
+let lastLog=null,lastBackup=null;
+async function backup(why,data){try{await _FB.F.addDoc(C("backups"),{at:Date.now(),who:myName(),why,data:data||{}});lastBackup=Date.now();S.backups=null}catch(e){fail(e)}}
+const T0=Date.now();
+window.__grpSaved=async(prev,next)=>{if(!S.on||!prev||!Object.keys(prev).length||Date.now()-T0<4000)return;
+  const sum=describe(prev,next);if(!sum.length)return;
+  try{if(!lastBackup){const q=await _FB.F.getDocs(_FB.F.query(C("backups"),_FB.F.orderBy("at","desc"),_FB.F.limit(1)));lastBackup=q.empty?0:q.docs[0].data().at}
+    if(Date.now()-lastBackup>20*3600e3)await backup("Respaldo automático diario",prev);
+    const ks=Object.keys(diffKeys(prev,next));
+    if(lastLog&&Date.now()-lastLog.at<3*60e3){const P={...pick(prev,ks),...lastLog.prev};const all=Object.keys(P);const N=pick(next,all);
+      lastLog.prev=P;lastLog.at=Date.now();await _FB.F.updateDoc(D("log",lastLog.id),{at:lastLog.at,prev:P,next:N,sum:describe(P,N)})}
+    else{const P=pick(prev,ks),N=pick(next,ks);const r=await _FB.F.addDoc(C("log"),{who:myName(),at:Date.now(),prev:P,next:N,sum});lastLog={id:r.id,at:Date.now(),prev:P}}
+  }catch(e){fail(e)}};
+// Escribir en el plan oficial (deshacer, restaurar, aplicar propuesta) y recargar
+async function official(changes,why,logSum){if(_mode==="draft")return alert("Sal del borrador primero.");
+  if(_mode==="preview"){SHARED.forEach(k=>{if(_remote&&typeof _remote[k]==="string")MEM[k]=_remote[k];else delete MEM[k]});_mode=null;localStorage.removeItem("ruta_preview")}
+  const before=_snap();await backup(why,before);
+  Object.entries(changes).forEach(([k,v])=>{if(!SHARED.includes(k))return;if(v==null)delete MEM[k];else MEM[k]=v});
+  try{await _ref.set(_snap());const after=_snap();const ks=Object.keys(diffKeys(before,after));
+    if(ks.length)await _FB.F.addDoc(C("log"),{who:myName(),at:Date.now(),prev:pick(before,ks),next:pick(after,ks),sum:logSum||describe(before,after)});
+    SHARED.forEach(k=>{if(k in MEM)try{localStorage.setItem(k,MEM[k])}catch(e){}});location.reload()}catch(e){fail(e)}}
+
+// ---------- Nombre ----------
+function askName(force){if(me&&!force)return;const w=document.createElement("div");w.className="grp-modal";
+  w.innerHTML=`<div class="grp-mbox"><h3>¿Quién eres?</h3><p>Tu nombre aparece en el historial, las propuestas y los comentarios. Se pide una sola vez en este navegador.</p>
+  <input id="grpName" maxlength="30" placeholder="Ej.: Francisco (papá de Benja)" value="${esc(me&&me.name||"")}"><div class="grp-row"><button type="button" class="grp-pri" id="grpNameOk">Guardar</button>${force?'<button type="button" id="grpNameX">Cancelar</button>':'<button type="button" id="grpNameX">Ahora no</button>'}</div></div>`;
+  document.body.appendChild(w);const i=$("grpName");setTimeout(()=>i.focus(),50);
+  const ok=async()=>{const n=i.value.trim();if(!n)return i.focus();me={name:n};localStorage.setItem("ruta_me",JSON.stringify(me));w.remove();
+    try{await _FB.F.setDoc(D("members",slug(n)),{name:n,at:Date.now()},{merge:true})}catch(e){fail(e)}render()};
+  $("grpNameOk").onclick=ok;i.onkeydown=e=>{if(e.key==="Enter")ok()};$("grpNameX").onclick=()=>{if(!me){me={name:"Anónimo",skip:1};localStorage.setItem("ruta_me",JSON.stringify(me))}w.remove();render()}}
+
+// ---------- Borrador y vista previa ----------
+function startDraft(){if(_mode)return;localStorage.setItem("ruta_draftBase",JSON.stringify(_remote||_snap()));localStorage.setItem("ruta_draft",JSON.stringify(_snap()));localStorage.setItem("ruta_draftOn","1");location.reload()}
+function endModes(){["ruta_draftOn","ruta_draft","ruta_draftBase","ruta_preview"].forEach(k=>localStorage.removeItem(k));location.reload()}
+function draftDiff(){const base=J(localStorage.getItem("ruta_draftBase"));const cur=_snap();const ch=diffKeys(base,cur);FLAGS.forEach(k=>delete ch[k]);return{base,cur,ch,sum:describe(base,cur)}}
+async function propose(title){const {base,ch,cur}=draftDiff();if(!Object.keys(ch).length)return alert("El borrador no tiene cambios.");
+  const ks=Object.keys(ch);try{await _FB.F.addDoc(C("props"),{title:title||"Propuesta",who:myName(),ws:mySlug(),at:Date.now(),base:pick(base,ks),changes:ch,sum:describe(pick(base,ks),pick(cur,ks)),votes:{[mySlug()]:1},status:"open"});endModes()}catch(e){fail(e)}}
+function preview(p){localStorage.setItem("ruta_preview",JSON.stringify({id:p.id,title:p.title,who:p.who,changes:p.changes}));location.reload()}
+function banner(){if(!_mode)return;const b=document.createElement("div");b.className="grp-banner "+_mode;
+  if(_mode==="draft")b.innerHTML=`<span class="grp-stamp">BORRADOR</span><span class="grp-btxt">Tus cambios no afectan el plan oficial.</span><button type="button" data-g="openprop" class="grp-pri">Proponer…</button><button type="button" data-g="end">Descartar</button>`;
+  else{const pv=J(localStorage.getItem("ruta_preview"));b.innerHTML=`<span class="grp-stamp">VISTA PREVIA</span><span class="grp-btxt">Propuesta «${esc(pv.title)}» de ${esc(pv.who)}. Nada se guarda.</span><button type="button" data-g="vote" data-id="${esc(pv.id)}" data-v="1" class="grp-pri">👍 Apoyar</button><button type="button" data-g="vote" data-id="${esc(pv.id)}" data-v="-1">👎</button><button type="button" data-g="end">Salir</button>`}
+  document.body.appendChild(b);document.body.classList.add("grp-hasbanner")}
+
+// ---------- Votos ----------
+const need=()=>Math.floor(Math.max(1,S.members.length)/2)+1;
+const tally=p=>{const v=Object.values(p.votes||{});return{y:v.filter(x=>x>0).length,n:v.filter(x=>x<0).length}};
+async function vote(id,v){const p=S.props.find(x=>x.id===id);if(!p||p.status!=="open")return;
+  try{await _FB.F.updateDoc(D("props",id),{["votes."+mySlug()]:v});const votes={...p.votes,[mySlug()]:v};const t=tally({votes});
+    if(t.y>=need()){await _FB.F.updateDoc(D("props",id),{status:"applied",doneAt:Date.now()});localStorage.removeItem("ruta_preview");await official(p.changes,`Antes de aplicar la propuesta «${p.title}»`,[`aplicó la propuesta «${p.title}» (${t.y} votos a favor)`,...(p.sum||[])])}
+    else if(t.n>=need()){await _FB.F.updateDoc(D("props",id),{status:"rejected",doneAt:Date.now()});if(_mode==="preview")endModes()}
+    else if(_mode==="preview")endModes()}catch(e){fail(e)}}
+
+// ---------- Comentarios ----------
+const tLabel=t=>t.startsWith("a:")?actName(t.slice(2)):t.startsWith("d:")?"Día "+fd(t.slice(2)):"General";
+async function addCm(t,txt){txt=txt.trim();if(!txt)return;try{await _FB.F.addDoc(C("comments"),{t,who:myName(),at:Date.now(),txt:txt.slice(0,600)})}catch(e){fail(e)}}
+function paintCm(){const cnt={};S.cm.forEach(c=>cnt[c.t]=(cnt[c.t]||0)+1);document.querySelectorAll("[data-cm]").forEach(b=>{const n=cnt[b.dataset.cm]||0;b.classList.toggle("has",n>0);const i=b.querySelector("i");if(i)i.textContent=n||""})}
+
+// ---------- Panel ----------
+function unread(){const o=x=>x.who!==myName()&&x.at>seen;return S.log.filter(o).length+S.cm.filter(o).length+S.props.filter(p=>p.status==="open"&&!(p.votes||{})[mySlug()]).length}
+function openPanel(tab,target){S.tab=tab||S.tab;S.target=target||null;$("grpPanel").hidden=false;$("grpBack").hidden=false;seen=Date.now();localStorage.setItem("ruta_seen",seen);if(S.tab==="bak")loadBackups();render();
+  if(S.tab==="cm")setTimeout(()=>{const i=$("grpCmTxt");if(i)i.focus()},60)}
+function closePanel(){$("grpPanel").hidden=true;$("grpBack").hidden=true}
+async function loadBackups(){try{const q=await _FB.F.getDocs(_FB.F.query(C("backups"),_FB.F.orderBy("at","desc"),_FB.F.limit(40)));S.backups=q.docs.map(d=>({id:d.id,...d.data()}));
+  S.backups.slice(30).forEach(b=>_FB.F.deleteDoc(D("backups",b.id)).catch(()=>{}));S.backups=S.backups.slice(0,30);render()}catch(e){fail(e)}}
+const li=s=>s&&s.length?`<ul class="grp-sum">${s.slice(0,6).map(x=>`<li>${esc(x)}</li>`).join("")}${s.length>6?`<li class="muted">y ${s.length-6} cambio${s.length-6>1?"s":""} más</li>`:""}</ul>`:"";
+function body(){
+  if(S.tab==="act")return S.log.length?S.log.map(e=>`<div class="grp-item"><div class="grp-ih"><b>${esc(e.who)}</b><span class="muted">${ago(e.at)}</span>${_mode?"":`<button type="button" class="grp-mini" data-g="undo" data-id="${e.id}" title="Volver a como estaba antes de este cambio">↩ Deshacer</button>`}</div>${li(e.sum)}</div>`).join(""):`<p class="muted">Todavía no hay cambios registrados.</p>`;
+  if(S.tab==="prop"){let h="";
+    if(_mode==="draft"){const d=draftDiff();h+=`<div class="grp-item grp-new"><b>Enviar mi borrador como propuesta</b>${li(d.sum)||'<p class="muted">Aún no cambias nada en el borrador.</p>'}<input id="grpPT" maxlength="80" placeholder="Título, ej.: Cambiar hostal en Praga"><div class="grp-row"><button type="button" class="grp-pri" data-g="send">Enviar propuesta</button></div></div>`}
+    else if(!_mode)h+=`<div class="grp-item grp-new"><b>¿Quieres probar un cambio?</b><p class="muted">Abre un borrador: cambias lo que quieras sin tocar el plan oficial y después lo propones al grupo.</p><div class="grp-row"><button type="button" class="grp-pri" data-g="draft">✏️ Abrir borrador</button></div></div>`;
+    h+=`<p class="grp-note">Se aplica con mayoría absoluta: ${need()} de ${Math.max(1,S.members.length)} papás registrados.</p>`;
+    const st={open:"Abierta",applied:"✅ Aplicada",rejected:"✖ Rechazada",withdrawn:"Retirada"};
+    h+=S.props.length?S.props.map(p=>{const t=tally(p),mv=(p.votes||{})[mySlug()];
+      const stale=p.status==="open"&&Object.keys(p.base||{}).some(k=>((_remote||{})[k]??null)!==p.base[k]);
+      return `<div class="grp-item ${p.status}"><div class="grp-ih"><b>${esc(p.title)}</b><span class="grp-st">${st[p.status]||p.status}</span></div><div class="muted">${esc(p.who)} · ${ago(p.at)} · 👍 ${t.y} · 👎 ${t.n}</div>${li(p.sum)}
+        ${stale?'<p class="grp-warn">⚠ El plan cambió desde que se hizo esta propuesta: al aplicarla se reemplazan esas partes.</p>':""}
+        ${p.status==="open"?`<div class="grp-row">${_mode?"":`<button type="button" data-g="view" data-id="${p.id}">👁 Ver</button>`}<button type="button" class="${mv>0?"on":""}" data-g="vote" data-id="${p.id}" data-v="1">👍</button><button type="button" class="${mv<0?"on":""}" data-g="vote" data-id="${p.id}" data-v="-1">👎</button>${p.ws===mySlug()?`<button type="button" data-g="withdraw" data-id="${p.id}">Retirar</button>`:""}</div>`:""}</div>`}).join(""):`<p class="muted">No hay propuestas.</p>`;
+    return h}
+  if(S.tab==="cm"){const list=S.target?S.cm.filter(c=>c.t===S.target):[...S.cm].reverse().slice(0,60);
+    return `${S.target?`<div class="grp-ih"><b>💬 ${esc(tLabel(S.target))}</b><button type="button" class="grp-mini" data-g="alltc">Ver todos</button></div>`:""}
+      ${list.length?list.map(c=>`<div class="grp-item"><div class="grp-ih"><b>${esc(c.who)}</b><span class="muted">${ago(c.at)}</span>${c.who===myName()?`<button type="button" class="grp-mini" data-g="delcm" data-id="${c.id}" title="Borrar">✕</button>`:""}</div>${S.target?"":`<div class="grp-tg">${esc(tLabel(c.t))}</div>`}<p>${esc(c.txt)}</p></div>`).join(""):`<p class="muted">${S.target?"Sin comentarios aún. Escribe el primero.":"Sin comentarios. Toca 💬 en un día o una atracción para comentar."}</p>`}
+      <div class="grp-cmbox"><textarea id="grpCmTxt" rows="2" maxlength="600" placeholder="${S.target?"Escribe un comentario…":"Comentario general del viaje…"}"></textarea><button type="button" class="grp-pri" data-g="addcm">Enviar</button></div>`}
+  if(S.tab==="bak"){if(!S.backups)return`<p class="muted">Cargando…</p>`;
+    return `<p class="grp-note">Se guarda una copia automática cada día y antes de deshacer, restaurar o aplicar una propuesta.</p>`+(S.backups.length?S.backups.map(b=>`<div class="grp-item"><div class="grp-ih"><b>${ago(b.at)}</b>${_mode?"":`<button type="button" class="grp-mini" data-g="restore" data-id="${b.id}">Restaurar</button>`}</div><div class="muted">${esc(b.why)} · ${esc(b.who)}</div></div>`).join(""):`<p class="muted">Aún no hay respaldos.</p>`)}
+  return""}
+function render(){const btn=$("grpBtn");if(!btn)return;const n=unread();btn.innerHTML=`👤 ${esc(myName())}${n?` <b class="grp-badge">${n}</b>`:""}`;paintCm();
+  const p=$("grpPanel");if(p.hidden)return;const openN=S.props.filter(x=>x.status==="open").length;
+  p.innerHTML=`<div class="grp-head"><b>Grupo</b><span class="muted">${S.members.length} papá${S.members.length===1?"":"s"}</span><button type="button" class="grp-mini" data-g="name">Cambiar nombre</button><button type="button" class="grp-x" data-g="close" aria-label="Cerrar">✕</button></div>
+  <div class="grp-tabs" role="tablist">${[["act","Actividad"],["prop",`Propuestas${openN?` (${openN})`:""}`],["cm","Comentarios"],["bak","Respaldos"]].map(([k,t])=>`<button type="button" role="tab" aria-selected="${S.tab===k}" data-g="tab" data-t="${k}">${t}</button>`).join("")}</div>
+  ${S.err?`<p class="grp-warn">${esc(S.err)}</p>`:""}<div class="grp-body">${body()}</div>`}
+
+// ---------- Eventos ----------
+document.addEventListener("click",async e=>{const cm=e.target.closest("[data-cm]");if(cm&&S.on){e.preventDefault();openPanel("cm",cm.dataset.cm);return}
+  const b=e.target.closest("[data-g]");if(!b)return;const g=b.dataset.g,id=b.dataset.id;
+  if(g==="close")closePanel();else if(g==="tab"){S.tab=b.dataset.t;S.target=null;if(S.tab==="bak")loadBackups();render()}
+  else if(g==="name")askName(true);else if(g==="draft")startDraft();else if(g==="end")endModes();
+  else if(g==="openprop")openPanel("prop");else if(g==="send")propose(($("grpPT")||{}).value);
+  else if(g==="view"){const p=S.props.find(x=>x.id===id);if(p)preview(p)}
+  else if(g==="vote")vote(id,+b.dataset.v);
+  else if(g==="withdraw"){if(confirm("¿Retirar esta propuesta?"))_FB.F.updateDoc(D("props",id),{status:"withdrawn",doneAt:Date.now()}).catch(fail)}
+  else if(g==="undo"){const x=S.log.find(l=>l.id===id);if(x&&confirm(`¿Deshacer este cambio de ${x.who}?\n\n${(x.sum||[]).join("\n")}\n\nSi alguien cambió lo mismo después, también se revierte.`))official(x.prev||{},`Antes de deshacer un cambio de ${x.who}`,[`deshizo un cambio de ${x.who}`,...(x.sum||[]).slice(0,4)])}
+  else if(g==="restore"){const x=(S.backups||[]).find(l=>l.id===id);if(x&&confirm(`¿Restaurar el plan como estaba ${ago(x.at)}?\nAntes se guarda una copia del plan actual.`)){const ch={};SHARED.forEach(k=>ch[k]=x.data&&k in x.data?x.data[k]:null);official(ch,"Antes de restaurar un respaldo",[`restauró el respaldo de ${ago(x.at)}`])}}
+  else if(g==="alltc"){S.target=null;render()}
+  else if(g==="addcm"){const t=$("grpCmTxt");if(t&&t.value.trim()){await addCm(S.target||"g",t.value);t.value=""}}
+  else if(g==="delcm"){if(confirm("¿Borrar tu comentario?"))_FB.F.deleteDoc(D("comments",id)).catch(fail)}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("grpPanel")&&!$("grpPanel").hidden)closePanel()});
+
+// ---------- Inicio ----------
+window.__grpStart=()=>{if(!window._FB||!_ref)return;S.on=true;document.body.classList.add("grp");
+  const w=document.createElement("div");w.innerHTML=`<button id="grpBtn" class="grp-btn" type="button" title="Grupo: historial, propuestas, comentarios y respaldos"></button><div id="grpBack" class="grp-back" hidden></div><aside id="grpPanel" class="grp-panel" hidden aria-label="Grupo"></aside>`;
+  [...w.children].forEach(x=>document.body.appendChild(x));$("grpBtn").onclick=()=>$("grpPanel").hidden?openPanel():closePanel();$("grpBack").onclick=closePanel;
+  banner();render();askName();
+  if(me&&!me.skip)_FB.F.setDoc(D("members",mySlug()),{name:myName(),at:Date.now()},{merge:true}).catch(()=>{});
+  const F=_FB.F,sub=(q,fn)=>F.onSnapshot(q,s=>{fn(s.docs.map(d=>({id:d.id,...d.data()})));render()},e=>fail(e));
+  sub(F.query(C("log"),F.orderBy("at","desc"),F.limit(40)),a=>S.log=a);
+  sub(F.query(C("props"),F.orderBy("at","desc"),F.limit(30)),a=>S.props=a);
+  sub(F.query(C("comments"),F.orderBy("at","asc"),F.limit(400)),a=>S.cm=a);
+  sub(C("members"),a=>S.members=a.filter(m=>m.name&&m.name!=="Anónimo"));
+  const days=document.getElementById("days");let t=null;if(days)new MutationObserver(()=>{clearTimeout(t);t=setTimeout(paintCm,60)}).observe(days,{childList:true,subtree:true})};
+})();
+
 </script>
 <script>
 function __main(){
@@ -471,6 +641,7 @@ function stayHtml(id){const n=nightsOf(id),T=stayTotal(id),pp=T/PEOPLE,bf=(bfPri
   ${lu!=null?`<div class="stayl"><span>+ Colación p/p (${n} × ${fmt(lunchPrice[id]||0)})</span><b>${fmt(lu)}</b></div>`:""}
   <div class="stayl tot"><span>= Total por persona en ${CN[HCITY[id]]}</span><b>${fmt(tot)}</b></div>`}
 const hotelOf=c=>HOTELS[c].find(h=>h.id===sel[c]);
+window.__G={get ACTS(){return ACTS},HOTELS,CN,isDef:(c,i)=>{const a=ACTS[c]&&ACTS[c][i];return !!a&&!!(a.pr||((c==="H"||c==="B")&&a.top&&!a.full&&a.h<=1.5&&!/Fischmarkt/.test(a.n)))}};
 
 /* ---------- Comidas ---------- */
 const FOOD={
@@ -1234,7 +1405,7 @@ function renderDays(plan){
       tl=`<span class="part-from">${tl}</span><span class="part-to">Llegada desde ${CN[d.from]} · <b>${hm(d.arr)}</b> ${ai?ai.stName:""} → ${ai?ai.h.name:"hotel"} · check-in ~<b>${ai?hm(ai.atHotel):""}</b>`+(d.arrStart<18&&DAYEND-d.arrStart>=0.5?` · <b>${CN[d.city]}: actividades ${hm(d.arrStart)}–${hm(DAYEND)}</b>`:" · noche libre: cena cerca del hotel")+`</span>`;}
     else if(d.arrival)tl=`Llegada a ${CN[d.city]} · check-in desde ${hm(CHECKIN)}`;
     else if(d.final)tl=`Check-out ${CN[d.city]} 10:00 · dejar maletas en recepción · fin del viaje`;
-    let h=`<div class="day-head"><span class="eyebrow">${pretty(d.date)} · ${CN[d.city]}</span><h3>${title}</h3>
+    let h=`<div class="day-head"><span class="eyebrow">${pretty(d.date)} · ${CN[d.city]}</span><h3>${title}<button type="button" class="cm" data-cm="d:${d.id}" title="Comentarios del día">💬<i></i></button></h3>
       <span class="muted" style="font-size:13px">${d.night?"Noche en "+hotelOf(d.night).name:"Sin noche de hotel"}</span>${(()=>{const S=sunOf(d.date,hotelOf(d.city).ll);return `<span class="sunline">🌇 Se pone el sol ${hm(S.set)} · 🌙 oscuro desde ${hm(S.dusk)}</span>`})()}</div>
       ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk"><h4>Comidas</h4>`;
     ["d","a","m","c"].forEach(k=>{const mi=mealPick(d,k);
@@ -1256,7 +1427,7 @@ function renderDays(plan){
         if(a.mv>0.05){const far=a.from&&kmBetween(a.from,a.ll)>1.2&&a.tr!=="fuera";const mins=Math.max(5,Math.round(a.mv*60/5)*5);const T=far?transitFor(a.city,a.from,a.ll):null;
           h+=far?(T?`<span class="mv tr ${T.mode}">↓ ${T.ico} <b>${T.name}</b>${a.num===1?" desde el hotel":""}: caminar ${walkMin(T.da)} min a «${T.from[2]}» → bajar en «${T.to[2]}» → caminar ${walkMin(T.db)} min · ~${mins} min en total · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver horario</a></span>`:`<span class="mv tr">↓ ~${mins} min en transporte público${a.num===1?" desde el hotel":""} · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`):`<span class="mv">↓ a pie ~${mins} min</span>`}
       h+=`<div class="actrow2 ${a.tr==="fuera"?"fuera":""}">
- <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl"><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
+ <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl"><button type="button" class="cm" data-cm="a:${aKeyG(a.city,a.i)}" title="Comentarios">💬<i></i></button><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
  <div class="ar-meta">${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}<span class="dur">${durTxt(a)}</span>${where}<span class="tag ar-price ${a.p===0?"free":"price"}">${a.p?fmt(a.p)+(a.est?" est.":""):"gratis"}</span></div>
  ${(/\(.*?\)\s*$/.test(a.n)||a.note)?`<div class="ar-note">${[(a.n.match(/\((.*?)\)\s*$/)||[])[1],a.note].filter(Boolean).join(" · ")}</div>`:""}
  <div class="ar-links">${actLinks(a)} ${daySel(plan,a.city,aKeyG(a.city,a.i),dayPin[aKeyG(a.city,a.i)]||"","daysel")}${dayPin[aKeyG(a.city,a.i)]?'<span class="tag pinday">día fijado</span>':""}</div>
@@ -1807,6 +1978,57 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 .dmap .lnk{cursor:pointer}.dmap .m-pt.lnk:hover circle,.dmap .m-pt.lnk:focus circle{stroke:var(--ink);stroke-width:3px}.dmap .m-name.lnk:hover{text-decoration:underline}
 .dmap .m-lead{stroke:color-mix(in srgb,var(--ink) 55%,transparent);stroke-width:1px;vector-effect:non-scaling-stroke}
 .dmap .m-town circle{fill:color-mix(in srgb,var(--ink) 55%,transparent)}.dmap .m-town text{font-family:"Courier Prime",monospace;fill:color-mix(in srgb,var(--ink) 60%,transparent);paint-order:stroke;stroke:var(--land);stroke-width:2px;vector-effect:non-scaling-stroke}
+
+/* ===== Grupo ===== */
+.cm{display:none}
+body.grp .cm{display:inline-flex;align-items:center;gap:2px}
+body.grp .ar-ctl .cm{font-size:12px;padding:2px 5px;line-height:1;border:1px solid var(--line);background:var(--card);border-radius:4px;cursor:pointer;color:var(--muted);filter:grayscale(1);opacity:.45}
+body.grp .day-head h3 .cm{font-size:13px;padding:1px 5px;line-height:1.2;border:1px dashed var(--line);background:transparent;border-radius:4px;cursor:pointer;filter:grayscale(1);opacity:.45;vertical-align:middle;margin-left:6px}
+body.grp .cm.has{filter:none;opacity:1;border-color:#b3261e;border-style:solid}
+.cm i{font-style:normal;font:700 11px var(--f-mono,monospace);color:#b3261e}
+.grp-btn{position:fixed;right:12px;bottom:50px;z-index:60;font:600 12.5px system-ui,sans-serif;padding:7px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.25);background:#fffdf6;color:#222;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.22);max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grp-badge{display:inline-block;min-width:18px;padding:1px 5px;margin-left:4px;border-radius:999px;background:#b3261e;color:#fff;font-size:11px;text-align:center}
+.grp-back{position:fixed;inset:0;z-index:69;background:rgba(30,20,10,.25)}
+.grp-panel{position:fixed;top:0;right:0;bottom:0;z-index:70;width:min(420px,100vw);background:#fbf7ec;color:#2a2219;box-shadow:-6px 0 24px rgba(0,0,0,.25);display:flex;flex-direction:column;font:14px/1.4 Georgia,serif;
+  background-image:repeating-linear-gradient(#fbf7ec 0 25px,#e6dcc4 25px 26px)}
+.grp-panel[hidden],.grp-back[hidden]{display:none}
+.grp-head{display:flex;align-items:center;gap:8px;padding:14px 14px 8px;border-bottom:2px solid #2a2219}
+.grp-head b{font:700 17px var(--f-mono,monospace);letter-spacing:.06em;text-transform:uppercase}
+.grp-head .muted{flex:1;font-size:12.5px}
+.grp-x{font-size:16px;border:0;background:none;cursor:pointer;padding:4px 6px}
+.grp-tabs{display:flex;gap:2px;padding:8px 10px 0;border-bottom:1px solid #c9bb98;overflow-x:auto}
+.grp-tabs button{font:600 12px var(--f-mono,monospace);padding:7px 9px;border:1px solid #c9bb98;border-bottom:0;border-radius:6px 6px 0 0;background:#efe6cf;cursor:pointer;white-space:nowrap;color:#5a4a33}
+.grp-tabs button[aria-selected="true"]{background:#fffdf6;color:#2a2219;position:relative;top:1px}
+.grp-body{flex:1;overflow-y:auto;padding:10px 12px 24px;display:flex;flex-direction:column;gap:8px}
+.grp-item{background:#fffdf6;border:1px solid #d8cba9;border-radius:6px;padding:8px 10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.grp-item p{margin:4px 0 0}
+.grp-item.applied{border-left:4px solid #2e7d32}.grp-item.rejected,.grp-item.withdrawn{opacity:.6}
+.grp-item.open{border-left:4px solid #b3261e}
+.grp-new{border-style:dashed;background:#fff8e6}
+.grp-ih{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.grp-ih b{flex:0 1 auto}.grp-ih .muted{flex:1;font-size:12px}
+.grp-st{margin-left:auto;font:700 11px var(--f-mono,monospace);text-transform:uppercase;letter-spacing:.04em}
+.grp-sum{margin:4px 0 0;padding-left:18px;font-size:13px}.grp-sum li{margin:1px 0}
+.grp-tg{font:600 11.5px var(--f-mono,monospace);color:#7a5a2a;margin-top:2px}
+.grp-mini{margin-left:auto;font:600 11.5px system-ui,sans-serif;border:1px solid #c9bb98;background:#fff;border-radius:5px;padding:3px 7px;cursor:pointer}
+.grp-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.grp-row button,.grp-cmbox button,.grp-banner button,.grp-mbox button{font:600 12.5px system-ui,sans-serif;border:1px solid #9a8a66;background:#fff;border-radius:6px;padding:6px 10px;cursor:pointer;color:#2a2219}
+.grp-row button.on{background:#2a2219;color:#fff}
+button.grp-pri{background:#2a2219!important;color:#fff!important;border-color:#2a2219!important}
+.grp-note{font-size:12.5px;color:#5a4a33;margin:2px 0}
+.grp-warn{font-size:12.5px;color:#8e1d14;background:#fdecea;border:1px solid #f0b8b0;border-radius:6px;padding:6px 8px;margin:6px 0 0}
+.grp-panel input,.grp-cmbox textarea,.grp-mbox input{width:100%;box-sizing:border-box;font:14px Georgia,serif;padding:7px 9px;border:1px solid #b9a982;border-radius:6px;background:#fff;margin-top:6px}
+.grp-cmbox{position:sticky;bottom:-24px;background:#fbf7ec;padding:8px 0 4px;display:flex;gap:6px;align-items:flex-end}
+.grp-cmbox textarea{margin:0;resize:vertical}
+.grp-modal{position:fixed;inset:0;z-index:80;background:rgba(30,20,10,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.grp-mbox{background:#fbf7ec;border-radius:8px;padding:18px;max-width:380px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.35);font:14px/1.45 Georgia,serif;color:#2a2219}
+.grp-mbox h3{margin:0 0 6px;font:700 18px var(--f-mono,monospace)}
+.grp-banner{position:fixed;top:0;left:0;right:0;z-index:65;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 14px;background:#fff3c4;border-bottom:2px dashed #b3261e;font:600 13px system-ui,sans-serif;color:#3a2a00}
+.grp-banner.preview{background:#e6f0ff;border-bottom-color:#1f4b99}
+.grp-btxt{flex:1;min-width:160px}
+.grp-stamp{font:800 13px var(--f-mono,monospace);letter-spacing:.12em;color:#b3261e;border:2px solid #b3261e;border-radius:4px;padding:2px 7px;transform:rotate(-3deg);display:inline-block}
+.grp-banner.preview .grp-stamp{color:#1f4b99;border-color:#1f4b99}
+@media print{.grp-btn,.grp-panel,.grp-back,.grp-banner,.cm{display:none!important}}
+body.grp-hasbanner{padding-top:52px}
 </style>
 </body>
 </html>
