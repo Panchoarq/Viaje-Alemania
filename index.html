@@ -544,7 +544,7 @@ const DAYH=9;
 function kmBetween(a,b){const R=6371,t=x=>x*Math.PI/180;const dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 function proposeFill(c){const days=PLAN.filter(d=>d.segs.some(s=>s.city===c&&!s.whole));
   const free=new Map();days.forEach(d=>{let f=0;d.segs.filter(s=>s.city===c&&!s.whole).forEach(s=>{const last=s.acts.length?Math.max(...s.acts.map(a=>a.st+(a.full?8:a.h))):s.st;f+=Math.max(0,s.en-last-(s.lunchAt!=null&&last<s.lunchAt?1:0))});free.set(d,f)});
-  const pool=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>!isSel(c,a.i)&&a.tr!=="fuera"&&!a.full);
+  const unpl=(PLAN.feas&&PLAN.feas[c]?PLAN.feas[c].unpl:[]).map(a=>a.i);const pool=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>(!isSel(c,a.i)||unpl.includes(a.i))&&a.tr!=="fuera"&&!a.full);
   const pairs=[];pool.forEach(a=>days.forEach(d=>{if(a.closed&&a.closed.includes(d.date.getDay()))return;
     const pts=d.segs.filter(s=>s.city===c).flatMap(s=>s.acts.filter(x=>x.tr!=="fuera").map(x=>({ll:x.ll,n:x.n})));const ref=pts.length?pts:[{ll:hotelOf(c).ll,n:"el hotel"}];
     let best=ref[0],bk=1e9;ref.forEach(p=>{const k=kmBetween(p.ll,a.ll);if(k<bk){bk=k;best=p}});
@@ -553,10 +553,26 @@ function proposeFill(c){const days=PLAN.filter(d=>d.segs.some(s=>s.city===c&&!s.
   [3,6].forEach(lim=>pairs.forEach(p=>{if(used.has(p.a.i)||p.km>lim)return;const need=p.a.h+(p.km<=1.2?p.km*0.22:0.2+p.km*0.05)+0.15;const f=free.get(p.d);if(f<need)return;if(lim>3&&f<need+1)return;free.set(p.d,f-need);used.add(p.a.i);out.push(p)}));
   const rest=pool.filter(a=>!used.has(a.i));
   return {out:out.sort((x,y)=>x.d.date-y.d.date),rest,free}}
+function dayActs(d,c){return d.segs.filter(s=>s.city===c&&!s.whole).flatMap(s=>s.acts.filter(x=>x.tr!=="fuera"))}
+function bestDays(c,a){const days=PLAN.filter(d=>d.segs.some(s=>s.city===c&&!s.whole)&&!(a.closed&&a.closed.includes(d.date.getDay())));
+  return days.map(d=>{const pts=dayActs(d,c);const ref=pts.length?pts.map(x=>({ll:x.ll,n:x.n})):[{ll:hotelOf(c).ll,n:"el hotel"}];let bk=1e9,bn="";ref.forEach(p=>{const k=kmBetween(p.ll,a.ll);if(k<bk){bk=k;bn=p.n}});return {d,km:bk,near:bn}}).sort((x,y)=>x.km-y.km)}
+function kmTxt(k){return k<1?Math.round(k*1000)+" m":k.toFixed(1).replace(".",",")+" km"}
+function swapHtml(c,key,dayIso){const i=+key.split(":")[1],a={...ACTS[c][i],i,city:c};const d=PLAN.find(x=>iso(x.date)===dayIso);if(!d)return"";
+  const r=proposeFill(c);const free=r.free.get(d)||0;const need=a.h+0.35;const short=Math.max(0,need-free);
+  const acts=dayActs(d,c);const cen=acts.length?[acts.reduce((t,x)=>t+x.ll[0],0)/acts.length,acts.reduce((t,x)=>t+x.ll[1],0)/acts.length]:hotelOf(c).ll;
+  const cand=acts.filter(x=>!(x.city===c&&x.i===i)).map(x=>{const k=aKeyG(c,x.i);const gain=x.h+(x.mv||0);return {x,k,gain,ok:gain>=short-0.05,fixed:!!(lockSel[k]||dayPin[k]),far:kmBetween(x.ll,a.ll)}})
+    .sort((p,q)=>(q.ok-p.ok)||(p.fixed-q.fixed)||((p.x.top?1:0)-(q.x.top?1:0))||(q.far-p.far));
+  const head=`<p class="fillh">${a.n.replace(/\s*\(.*$/,"")} (${durTxt(a)}) → <b>${pretty(d.date)}</b></p><p class="muted" style="margin:0 0 6px">Tiempo libre ese día: ${free.toFixed(1)} h · necesita ~${need.toFixed(1)} h${short>0?` · <b>faltan ${short.toFixed(1)} h</b>`:" · <b>cabe sin sacar nada</b>"}</p>`;
+  if(short<=0)return head+`<span class="recbtns"><button type="button" class="btn" data-swapdo="${key}|${dayIso}|">Agregar ese día</button><button type="button" class="btn alt" data-fill="${c}">← Volver</button></span>`;
+  return head+`<p class="muted" style="margin:0 0 4px">Para hacer espacio, saca una de estas (las primeras liberan suficiente tiempo y son menos prioritarias):</p><ul class="swaplist">${cand.map(p=>`<li class="${p.ok?"ok":"no"}"><span><b class="num">${hm(p.x.st)}</b> ${p.x.n.replace(/\s*\(.*$/,"")}${p.x.top?' <span class="top">★</span>':""}${p.fixed?' <span class="tag pinday">fija</span>':""} <small class="muted">libera ~${p.gain.toFixed(1)} h${p.ok?"":" (no alcanza sola)"}</small></span><button type="button" class="btn sm${p.ok?"":" alt"}" data-swapdo="${key}|${dayIso}|${p.k}">Sacar y poner ${a.n.replace(/\s*\(.*$/,"").slice(0,22)}</button></li>`).join("")}</ul>
+   <span class="recbtns"><button type="button" class="btn alt" data-swapdo="${key}|${dayIso}|">Agregarla igual (el programa decide qué sale)</button><button type="button" class="btn alt" data-fill="${c}">← Volver</button></span>`}
+function restHtml(c,r){if(!r.rest.length)return"";const g=new Map();r.rest.forEach(a=>{const b=bestDays(c,a)[0];if(!b)return;const k=iso(b.d.date);if(!g.has(k))g.set(k,{d:b.d,items:[]});g.get(k).items.push({a,b})});
+  return `<div class="restbox"><p class="fillh">📍 Dónde encajarían las que no caben</p>${[...g.values()].sort((x,y)=>x.d.date-y.d.date).map(G=>`<div class="restday"><b>${pretty(G.d.date)}</b>${G.items.map(({a,b})=>`<div class="restit"><span>${a.n.replace(/\s*\(.*$/,"")}${a.top?' <span class="top">★</span>':""} <small class="muted">${durTxt(a)} · a ${kmTxt(b.km)} de ${b.near.replace(/\s*\(.*$/,"")}</small></span><button type="button" class="btn sm" data-swap="${aKeyG(c,a.i)}|${iso(G.d.date)}">Hacer espacio</button></div>`).join("")}</div>`).join("")}</div>`}
+function fillClose(c){return `<button type="button" class="fillx" data-fillcancel="${c}" aria-label="Cerrar panel">✕ Cerrar</button>`}
 function fillHtml(c){const r=proposeFill(c);const K=a=>aKeyG(c,a.i);
-  if(!r.out.length)return `<p class="muted">No encontré espacios libres cerca de las actividades de cada día para las atracciones pendientes. Opciones: agregar 1 noche, o sacar algo para hacer espacio.</p>`;
+  if(!r.out.length)return `<p class="muted">No queda tiempo libre cerca de lo programado. Abajo, el día donde lógicamente encaja cada atracción pendiente y qué sacar para hacerle espacio:</p>${restHtml(c,r)}`;
   return `<p class="fillh">Propuesta para el tiempo libre de cada día (primero lo que queda a ≤3 km de lo programado; si sobra tiempo, hasta 6 km):</p><ul class="filllist">${r.out.map(p=>`<li><label><input type="checkbox" data-fillpick="${K(p.a)}|${iso(p.d.date)}" checked> <b>${pretty(p.d.date)}</b> ← ${p.a.n.replace(/\s*\(.*$/,"")}${p.a.top?' <span class="top">★</span>':""} <small class="muted">${durTxt(p.a)} · a ${p.km<1?Math.round(p.km*1000)+" m":p.km.toFixed(1).replace(".",",")+" km"} de ${p.near.replace(/\s*\(.*$/,"")}</small></label></li>`).join("")}</ul>
-   ${r.rest.length?`<p class="muted" style="font-size:12.5px">Sin espacio cercano: ${r.rest.map(a=>a.n.replace(/\s*\(.*$/,"")).join(" · ")}</p>`:""}
+   ${restHtml(c,r)}
    <span class="recbtns"><button type="button" class="btn" data-fillapply="${c}">Aplicar propuesta</button><button type="button" class="btn alt" data-fillcancel="${c}">Cancelar</button></span>`}
 function moveH(a,b){if(!a||!b)return 0.25;const km=kmBetween(a,b);return km<=1.2?km*0.22:0.2+km*0.05}
 const CHECKIN=14, CHECKOUT=10, DAYSTART=9, DAYEND=20.5;
@@ -1048,7 +1064,7 @@ function renderFeas(plan){
       <span class="recbtns"><button type="button" class="btn" data-drop="${c}">Recomendación automática: dejar fuera las que no caben${lockedOut.length?" (sin tocar las fijas)":""}</button><button type="button" class="btn alt" data-addn="${c}">Agregar 1 noche en ${CN[c]}</button></span></div>`}
     if(over)h+=`<span class="eyebrow" style="margin-top:6px">No caben ahora</span>`+f.unpl.map(a=>`<label class="chk ${a.tr==="fuera"?"fuera":""}" style="--c:var(--bad)"><input type="checkbox" data-act="${aKeyG(c,a.i)}" checked><span class="t">${lockSel[aKeyG(c,a.i)]?"📌 ":""}${a.n}${trTag(a)}<small>${durTxt(a)}${a.closed?" · revisa días de apertura":""}</small></span></label>`).join("");
     const off=ACTS[c].map((a,i)=>({...a,i})).filter(a=>!isSel(c,a.i));
-    if(off.filter(a=>a.tr!=="fuera").length)h+=`<div class="fillbox"><button type="button" class="btn fillbtn" data-fill="${c}">✨ Proponer cómo llenar los espacios libres</button><div class="fillres" id="fill-${c}"></div></div>`;
+    if(off.filter(a=>a.tr!=="fuera").length||f.unpl.some(a=>a.tr!=="fuera"))h+=`<div class="fillbox"><button type="button" class="btn fillbtn" data-fill="${c}">✨ Llenar espacios libres · ver dónde encajan las pendientes</button><div class="fillres" id="fill-${c}"></div></div>`;
     if(off.length)h+=`<details class="pool"><summary>Agregar otras actividades (${off.length})</summary>${off.map(a=>`<div class="poolrow"><label class="chk ${a.tr==="fuera"?"fuera":""}"><input type="checkbox" data-act="${aKeyG(c,a.i)}"><span class="t">${a.n}${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}${a.top?'<span class="top">★ famosa</span>':""}<small>${durTxt(a)} · ${a.p?fmt(a.p):"gratis"} · ${actLinks({...a,city:c})}</small></span></label>${daySel(plan,c,aKeyG(c,a.i),"","poolday")}</div>`).join("")}</details>`;
     h+=`</div>`});
   const legend=`<div class="legendtr" style="grid-column:1/-1"><span class="eyebrow">Leyenda</span><span style="font-size:13px">📌 fija (no se saca automáticamente) · ✕ quita del programa · volver a agregar en “Agregar otras actividades”</span><span class="tr pie">a pie</span><span class="tr metro">metro/tranvía</span><span class="tr fuera">⟶ fuera de la ciudad</span><span class="top">★ atracción más famosa/demandada</span></div>`;
@@ -1378,7 +1394,9 @@ document.addEventListener("change",e=>{const t=e.target;
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset.vl)return;const [dk,f]=t.dataset.vl.split("|");
   verLeg[dk]=verLeg[dk]||{};verLeg[dk][f]=f==="price"?(t.value===""?null:+t.value):t.value;saveVerLeg();applyVerLeg();savePrices();renderCfg();renderAll(true)});
 document.addEventListener("click",e=>{
-  const fb=e.target.closest("[data-fill]");if(fb){const c=fb.dataset.fill;const box=document.getElementById("fill-"+c);if(box)box.innerHTML=fillHtml(c);return}
+  const sw=e.target.closest("[data-swap]");if(sw){const [k,day]=sw.dataset.swap.split("|");const c=k.split(":")[0];const box=document.getElementById("fill-"+c);if(box){box.innerHTML=fillClose(c)+swapHtml(c,k,day);box.scrollIntoView({block:"nearest"})}return}
+  const sd=e.target.closest("[data-swapdo]");if(sd){const [k,day,out]=sd.dataset.swapdo.split("|");if(out){actSel[out]=false;delete lockSel[out];delete dayPin[out];saveLock()}actSel[k]=true;dayPin[k]=day;saveDayPin();saveActs();renderAll(true);return}
+  const fb=e.target.closest("[data-fill]");if(fb){const c=fb.dataset.fill;const box=document.getElementById("fill-"+c);if(box){if(fb.classList.contains("fillbtn")&&box.innerHTML){box.innerHTML="";return}box.innerHTML=fillClose(c)+fillHtml(c)}return}
   const fc2=e.target.closest("[data-fillcancel]");if(fc2){const box=document.getElementById("fill-"+fc2.dataset.fillcancel);if(box)box.innerHTML="";return}
   const fa=e.target.closest("[data-fillapply]");if(fa){const c=fa.dataset.fillapply;document.querySelectorAll(`#fill-${c} [data-fillpick]`).forEach(x=>{if(!x.checked)return;const [k,day]=x.dataset.fillpick.split("|");actSel[k]=true;dayPin[k]=day});saveDayPin();saveActs();renderAll(true);return}
   const lk=e.target.closest("[data-lock]");if(lk){const k=lk.dataset.lock;if(lockSel[k])delete lockSel[k];else lockSel[k]=true;saveLock();renderAll(true);return}
@@ -1421,7 +1439,7 @@ applyVerLeg();renderCfg();renderAll(true);
 
 }
 _boot();
-(function(){const $x=id=>document.getElementById(id),dlg=$x("xferDlg"),msg=t=>$x("xferMsg").textContent=t;
+(function(){const $x=id=>document.getElementById(id),dlg=$x("xferDlg"),msg=t=>$x("xferMsg").textContent=t;if(/(^|\.)vercel\.app$/.test(location.hostname)){$x("xferBtn").hidden=true;return}
 $x("xferBtn").onclick=()=>{dlg.hidden=false;msg("")};$x("xferClose").onclick=()=>dlg.hidden=true;
 $x("xferExp").onclick=async()=>{const o={};SHARED.forEach(k=>{const v=k in MEM?MEM[k]:_lsGet(k);if(v!==null&&v!==undefined)o[k]=v});
   const t="RUTA1:"+JSON.stringify(o);$x("xferTxt").value=t;$x("xferTxt").select();
@@ -1687,6 +1705,15 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 .fillres:empty{display:none}.fillres{margin-top:8px;padding:10px 12px;border:1px dashed var(--c,var(--ink));border-radius:8px;background:color-mix(in srgb,var(--c,var(--ink)) 6%,var(--card));font-size:14px}
 .fillh{margin:0 0 6px;font-weight:600}.filllist{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:6px}.filllist label{cursor:pointer}.filllist small{display:block;margin-left:22px}
 .tused{display:block;margin-top:8px;color:#b3261e;font-weight:700;font-family:var(--f-mono);font-size:13px}
+.restbox{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.restday{margin:6px 0 10px}.restday>b{display:block;font-family:var(--f-mono);font-size:13px;margin-bottom:4px}
+.restit{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px dotted var(--line)}.restit small{display:block}
+.btn.sm{font-size:12px;padding:4px 8px;white-space:nowrap}
+.swaplist{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:6px}.swaplist li{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:5px 6px;border-radius:6px}
+.swaplist li.ok{background:color-mix(in srgb,var(--ok) 10%,transparent)}.swaplist li.no{opacity:.75}.swaplist small{display:block}
+.fcard:has(.fillres:not(:empty)){grid-column:1/-1}
+.fcard:has(.fillres:not(:empty)) .fillres{columns:1}
+.fillres{position:relative}.fillx{float:right;margin:-4px -4px 6px 8px;font:600 12px var(--f-mono);padding:4px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer}.fillx:hover{background:var(--ink);color:var(--bg)}
 /* Planos del día */
 .dmap{display:block;width:100%;height:auto;background:var(--land)}
 .m-land{fill:var(--land)}
