@@ -347,6 +347,13 @@ label.vchk input{accent-color:var(--ok);margin:0}
 
 <div id="syncChip" class="sync-chip" hidden></div>
 <div id="syncBar" class="sync-bar" hidden><span>Alguien guardó cambios en el plan.</span><button id="syncApply" type="button">Actualizar</button></div>
+<button id="xferBtn" class="xfer-btn" type="button" title="Exportar o importar el plan">⇄ Plan</button>
+<div id="xferDlg" class="xfer-dlg" hidden><div class="xfer-box">
+<h3>Exportar / importar plan</h3>
+<p>Exportar copia tu configuración (hoteles, precios, actividades, comidas, checklist). Pégala en la otra página con Importar.</p>
+<textarea id="xferTxt" rows="7" spellcheck="false" placeholder="Pega aquí el plan exportado…"></textarea>
+<div class="xfer-row"><button id="xferExp" type="button">Exportar y copiar</button><button id="xferImp" type="button">Importar</button><button id="xferClose" type="button">Cerrar</button></div>
+<p id="xferMsg" class="xfer-msg"></p></div></div>
 <div id="bootMsg" class="boot-msg">Cargando plan compartido…</div>
 <script>
 const SHARED=["ruta_cfg","ruta_prices","ruta_acts","ruta_verleg","ruta_hotel","ruta_rmode","ruta_mealopt","ruta_buy","ruta_lock","ruta_resetHB1","ruta_pass1","ruta_mucop2","ruta_genham1","ruta_genham2","ruta_add2","ruta_chile1"];
@@ -1203,6 +1210,17 @@ applyVerLeg();renderCfg();renderAll(true);
 
 }
 _boot();
+(function(){const $x=id=>document.getElementById(id),dlg=$x("xferDlg"),msg=t=>$x("xferMsg").textContent=t;
+$x("xferBtn").onclick=()=>{dlg.hidden=false;msg("")};$x("xferClose").onclick=()=>dlg.hidden=true;
+$x("xferExp").onclick=async()=>{const o={};SHARED.forEach(k=>{const v=k in MEM?MEM[k]:_lsGet(k);if(v!==null&&v!==undefined)o[k]=v});
+  const t="RUTA1:"+JSON.stringify(o);$x("xferTxt").value=t;$x("xferTxt").select();
+  try{await navigator.clipboard.writeText(t);msg("Copiado. Ahora pégalo en la otra página → Importar.")}catch(e){try{document.execCommand("copy");msg("Copiado.")}catch(_){msg("Selecciona el texto y cópialo (Ctrl+C).")}}};
+$x("xferImp").onclick=async()=>{let t=$x("xferTxt").value.trim();let o;try{o=JSON.parse(t.replace(/^RUTA1:/,""))}catch(e){msg("Texto no válido.");return}
+  if(!o||typeof o!=="object"||!Object.keys(o).some(k=>SHARED.includes(k))){msg("No contiene un plan.");return}
+  SHARED.forEach(k=>{if(typeof o[k]==="string"){MEM[k]=o[k];_lsSet(k,o[k])}else{delete MEM[k];try{localStorage.removeItem(k)}catch(e){}}});
+  if(_ref&&!_ro){msg("Guardando…");try{await _ref.set(_snap())}catch(e){msg("No se pudo guardar en línea; quedó en este navegador.")}}
+  msg("Importado. Recargando…");setTimeout(()=>location.reload(),600)};
+})();
 </script>
 
 <style>
@@ -1390,6 +1408,14 @@ header h1{font-family:"Courier Prime",ui-monospace,"Courier New",monospace !impo
 .sync-bar button{font:inherit;background:#3a2a00;color:#fff;border:0;border-radius:7px;padding:6px 10px;cursor:pointer}
 .boot-msg{padding:40px 16px;text-align:center;font:600 15px system-ui,sans-serif;opacity:.7}
 @media print{.sync-chip,.sync-bar{display:none}}
+.xfer-btn{position:fixed;left:12px;bottom:12px;z-index:60;font:600 12px system-ui,sans-serif;padding:7px 11px;border-radius:999px;border:1px solid rgba(0,0,0,.25);background:#fff;color:#222;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);opacity:.9}
+.xfer-dlg{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.xfer-box{background:#fffdf6;color:#222;border-radius:12px;padding:18px;max-width:520px;width:100%;font:14px/1.4 system-ui,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.xfer-box h3{margin:0 0 6px;font-size:17px}.xfer-box p{margin:0 0 10px}
+.xfer-box textarea{width:100%;box-sizing:border-box;font:12px ui-monospace,monospace;border:1px solid #bbb;border-radius:8px;padding:8px}
+.xfer-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.xfer-row button{font:600 13px system-ui,sans-serif;padding:8px 12px;border-radius:8px;border:0;background:#2b3a55;color:#fff;cursor:pointer}
+.xfer-row button#xferClose{background:#888}.xfer-msg{margin-top:8px!important;font-weight:600;color:#1f5d3a}
+@media print{.xfer-btn{display:none}}
 </style>
 </body>
 </html>
