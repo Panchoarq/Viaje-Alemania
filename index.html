@@ -1524,7 +1524,7 @@ function renderRail(plan){
      <div class="tk-main">
       <div class="tk-band"><span class="tk-op">${t.v?t.v.train+" · ":""}${P.op}</span><b>${CN[l.from]} → ${CN[l.to]}</b></div>${t.v?`<div class="tk-ok">✓ Verificado</div>`:""}
       <div class="tk-body">
-        <div class="tk-art">${P.bus?BUS_SVG:'<img class="tk-img" src="img/train.png" alt="Locomotora a vapor">'}</div>
+        <div class="tk-art">${P.bus?'<img class="tk-img" src="img/bus.png" alt="Bus antiguo">':'<img class="tk-img" src="img/train.png" alt="Locomotora a vapor">'}</div>
         <dl class="tk-f">
           <div><dt>Fecha</dt><dd class="hi">${pretty(l.date)}</dd></div>
           <div><dt>Salida</dt><dd class="hi">${hm(t.dep)}</dd></div>
@@ -1842,7 +1842,7 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 
 /* Pestañas de ciudad tipo carpeta con clip */
 #p-prog #daytabs,#p-hot #hottabs{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;padding:14px 0 0;margin:0;border-bottom:0}
-#hotels > .city[hidden]{display:none!important}#p-hot #hotels{margin-top:-1px}
+#hotels > .city[hidden]{display:none!important}#hottabs .dtab small{display:block;min-height:2.6em;line-height:1.3}#p-hot #hotels{margin-top:-1px}
 #p-hot #hotels > .city{background:var(--card);border:1px solid var(--line);border-top:0;padding:18px 20px 26px;border-radius:0 0 4px 4px}#p-hot #hotels > .city > h3{margin-top:0}
 #p-prog #days{margin-top:-18px}
 .dtab{flex:1 1 140px;font-family:"Courier Prime",ui-monospace,monospace;text-transform:uppercase;letter-spacing:.07em;border-radius:9px 9px 0 0;border:1px solid var(--line);border-bottom:0;border-top:4px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--card));color:var(--ink);padding:7px 12px 6px;position:relative;opacity:.85}
