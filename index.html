@@ -1954,6 +1954,14 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 /* Pestañas de ciudad tipo carpeta con clip */
 #p-prog #daytabs,#p-hot #hottabs{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;padding:14px 0 0;margin:0;border-bottom:0}
 #hotels > .city[hidden]{display:none!important}
+/* ===== Traslados y almuerzo ===== */
+.mv.tr{border:0!important;border-left:5px solid #b5432f!important;border-radius:3px!important;background:color-mix(in srgb,var(--ink) 4%,var(--card));box-shadow:0 1px 3px rgba(40,30,15,.12);padding:5px 8px 5px 9px!important;margin:6px 0!important;font-size:12.5px}
+.mv.tr.subway{border-left-color:#1f4fb5!important}
+.mv.tr.light_rail,.mv.tr.train{border-left-color:#1e8a3c!important}
+.mv.tr.bus{border-left-color:#8a3fa3!important}
+.mv.tr.tram{border-left-color:#c8401f!important}
+.lunch{border:0!important;border-left:5px solid #9a6a2f!important;border-radius:4px;padding:8px 10px!important;background:repeating-linear-gradient(135deg,color-mix(in srgb,#c8a06a 22%,var(--card)) 0 7px,color-mix(in srgb,#c8a06a 12%,var(--card)) 7px 14px);font-weight:600}
+.lunch b{color:#7a4a17}
 /* ===== Plegado del día (todas las pantallas) ===== */
 #days > .day .day-body{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)!important;grid-template-areas:"att com" "att tr" "att ." ;align-items:start}
 #days > .day .blk-att{grid-area:att}#days > .day .blk-com{grid-area:com}#days > .day .blk-tr{grid-area:tr}
@@ -1964,16 +1972,17 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 .actrow2 .ar-top{cursor:pointer}
 .actrow2:not(.open) .ar-ctl,.actrow2:not(.open) .ar-note,.actrow2:not(.open) .ar-links,.actrow2:not(.open) .why{display:none!important}
 .actrow2:not(.open) .ar-meta{display:none}
-.ar-pmini{display:none}
-.actrow2:not(.open) .ar-pmini{display:inline-block;flex:none;margin-left:auto;font:700 12px "Courier Prime",ui-monospace,monospace;background:var(--ink);color:var(--bg);padding:2px 6px;border-radius:3px;white-space:nowrap}
-.actrow2:not(.open) .ar-pmini.free{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink)}
+.actrow2 .ar-meta .ar-price{display:none}
+.ar-pmini{display:inline-block;flex:none;margin-left:auto;font:700 12px "Courier Prime",ui-monospace,monospace;background:var(--ink);color:var(--bg);padding:2px 6px;border-radius:3px;white-space:nowrap}
+.ar-pmini.free{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink)}
 .ar-latemini{display:none}
 .actrow2:not(.open) .ar-name:has(.ar-latemini)::after{content:none}
 .actrow2:not(.open) .ar-latemini{display:block;font:600 11.5px "Courier Prime",ui-monospace,monospace;color:#8e1d14;margin-top:2px}
 .actrow2:not(.open) .ar-name::after{content:" ▸";font-size:12px;color:var(--muted)}
 .actrow2.open{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 .actrow2.open .ar-top{flex-wrap:wrap}
-.actrow2.open .ar-ctl{display:flex;flex:1 1 100%;order:9;margin:6px 0 0 calc(1.75em + 8px);gap:5px;flex-wrap:wrap}
+.actrow2.open .ar-ctl{display:flex;flex:1 1 100%;order:9;margin:2px 0 0 calc(1.75em + 8px);gap:5px;flex-wrap:wrap}
+.actrow2.open{gap:6px}.actrow2.open .ar-top{row-gap:4px}
 .blk-att .mv.tr{display:block;max-width:100%;box-sizing:border-box;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .blk-att{min-width:0;max-width:100%}
 .blk-att .mv.tr.full{white-space:normal}
@@ -1999,13 +2008,16 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
   .actrow2.open .ar-ctl .mvb,.actrow2.open .ar-ctl .lk,.actrow2.open .ar-ctl .rm,.actrow2.open .ar-ctl .cm{font-size:14px;padding:6px 10px}
   .sync-chip{font-size:11px;padding:6px 9px;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sync-chip.ok{opacity:0;pointer-events:none;transition:opacity .4s 3s}
-  #days > .day{display:flex!important;flex-direction:column}
+  #days > .day:not([hidden]){display:flex!important;flex-direction:column}
   #days > .day > .day-head{order:0}#days > .day > .day-total{order:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
   #days > .day > .dstrip{order:2}#days > .day > .dtl{order:3}#days > .day > .day-body{order:4}
-  html #days > .day .dstrip{display:flex!important;flex-wrap:nowrap!important;gap:4px!important;padding:0!important}
-  html #days > .day .tkt{flex:1 1 0!important;padding:4px 2px!important;min-width:0}
-  html #days > .day .tkt .ti{font-size:14px}html #days > .day .tkt b{font-size:10.5px;letter-spacing:-.02em}
-  html #days > .day .tkt .tn,html #days > .day .tkt .tm{display:none}
+  html #days > .day .dstrip{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px!important;padding:0!important;width:100%;margin:6px 0 2px}
+  html #days > .day .tkt{padding:5px 1px!important;min-width:0}
+  html #days > .day .tkt .ti{font-size:15px}html #days > .day .tkt b{font-size:12px;letter-spacing:-.03em}
+  html #days > .day .tkt .tn{display:block;font-size:8.5px;letter-spacing:.02em}html #days > .day .tkt .tm{display:none}
+  .blk-com select,.blk-com label,.blk-com .chk{max-width:100%;min-width:0;box-sizing:border-box}
+  .blk-com select{width:auto!important;max-width:calc(100% - 30px)!important;min-width:0!important}
+  .blk-com,.day-body,#days > .day{min-width:0;max-width:100%}
   html #days > .day .tkt::before,html #days > .day .tkt::after{display:none}
   .hlp-btn{top:auto!important;bottom:12px;left:12px;right:auto}
   .xfer-btn{bottom:56px!important}
