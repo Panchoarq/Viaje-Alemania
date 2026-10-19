@@ -357,7 +357,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
 <p id="xferMsg" class="xfer-msg"></p></div></div>
 <div id="bootMsg" class="boot-msg">Cargando plan compartido…</div>
 <script>
-const SHARED=["ruta_daypin","ruta_cfg","ruta_prices","ruta_acts","ruta_verleg","ruta_hotel","ruta_rmode","ruta_mealopt","ruta_buy","ruta_lock","ruta_resetHB1","ruta_pass1","ruta_mucop2","ruta_genham1","ruta_genham2","ruta_add2","ruta_chile1"];
+const SHARED=["ruta_dayord","ruta_daypin","ruta_cfg","ruta_prices","ruta_acts","ruta_verleg","ruta_hotel","ruta_rmode","ruta_mealopt","ruta_buy","ruta_lock","ruta_resetHB1","ruta_pass1","ruta_mucop2","ruta_genham1","ruta_genham2","ruta_add2","ruta_chile1"];
 const MEM={};let _mode=null;let _ref=null,_ro=false,_timer=null,_busy=false,_again=false,_remote=null,_started=false;
 function _lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function _lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -432,6 +432,7 @@ function describe(p,n){p=p||{};n=n||{};const out=[];const CN=(window.__G&&window
       if(JSON.stringify(a.order)!==JSON.stringify(b.order))out.push(`cambió el orden de ciudades (${(b.order||[]).map(c=>CN[c]||c).join(" → ")})`);
       if(JSON.stringify(a.dep||{})!==JSON.stringify(b.dep||{}))out.push("cambió el horario de un tren");
       if(!out.length)out.push("cambió la configuración")}
+    else if(k==="ruta_dayord"){[...new Set([...Object.keys(a),...Object.keys(b)])].forEach(x=>{if(JSON.stringify(a[x])!==JSON.stringify(b[x])){const [d,c]=x.split(":");out.push(b[x]?`cambió a mano el orden del ${fd(d)} en ${CN[c]||c}`:`volvió al orden automático el ${fd(d)} en ${CN[c]||c}`)}})}
     else if(k==="ruta_prices")out.push("editó precios");
     else if(k==="ruta_mealopt")out.push("cambió opciones de comida");
     else if(k==="ruta_buy"){const ca=Object.values(a).filter(Boolean).length,cb=Object.values(b).filter(Boolean).length;out.push(cb>=ca?`marcó ${cb-ca||1} ítem${cb-ca>1?"s":""} de Trámites previos`:`desmarcó ${ca-cb} ítem${ca-cb>1?"s":""} de Trámites previos`)}
@@ -713,6 +714,12 @@ const ACTS={
     {n:"Chilehaus (Casa Chile)",p:0,h:0.33,tr:"pie",top:1,ll:[53.5481,10.0007],note:"Kontorhausviertel, a 5 min de la Speicherstadt"},
     {n:"Paseo nocturno por el puerto con luces (Lichterfahrt)",night:1,p:22,h:1.25,pr:1,tr:"metro",top:1,note:"🌙 Después de la cena · 1–1,5 h · ~22 € · U3 Landungsbrücken · revisar horario de salida y reservar",ll:[53.5458,9.97],u:"https://www.hamburg-tourism.de/themen-touren/rundfahrten-und-gaenge/hafenrundfahrten/"}]
 };
+// Techado (in) / se disfruta de noche (nightOk) / cierre en invierno (close, hora). Horarios de invierno publicados; verificar en enero.
+const META={"M:0":{nightOk:1},"M:1":{in:1,close:20},"M:2":{close:18},"M:3":{in:1,close:18},"M:7":{in:1,close:23},"M:8":{in:1,close:17},"M:9":{in:1,close:17},"M:10":{close:17.5},"M:11":{in:1,close:16},"M:12":{in:1,close:18},"M:13":{in:1,close:18},
+ "P:0":{close:16},"P:1":{in:1,close:16.5},"P:3":{close:18},"P:5":{nightOk:1},"P:6":{nightOk:1},"P:8":{nightOk:1,close:22},"P:9":{in:1,close:17},"P:10":{close:18},
+ "B:0":{in:1,close:20},"B:2":{in:1,close:20},"B:3":{in:1,close:20},"B:4":{in:1,close:20,closed:[0]},"B:6":{in:1,close:19},"B:7":{in:1,close:18},"B:8":{nightOk:1},"B:9":{in:1,nightOk:1,close:24},"B:12":{nightOk:1},"B:13":{in:1,nightOk:1,close:22},"B:14":{in:1,close:21},"B:15":{in:1,close:18},"B:16":{in:1,close:16.5},"B:5":{close:16},
+ "H:0":{in:1,close:18},"H:3":{close:18},"H:4":{in:1,nightOk:1},"H:5":{nightOk:1,close:24},"H:6":{nightOk:1},"H:7":{nightOk:1},"H:8":{close:17},"H:10":{nightOk:1}};
+Object.entries(META).forEach(([k,v])=>{const [c,i]=k.split(":");if(ACTS[c]&&ACTS[c][+i])Object.assign(ACTS[c][+i],v)});
 // Lugares "de paso": se ven al caminar entre una actividad y otra
 const PASS={P:{2:.25,5:.25,6:.5,7:.33,11:.25},B:{8:.75,12:.25},H:{7:.5,10:.33},M:{0:.5,1:.25,2:.5}};
 Object.entries(PASS).forEach(([c,m])=>Object.entries(m).forEach(([i,h])=>{const a=ACTS[c][+i];if(a){a.pass=1;a.h=h}}));
@@ -781,6 +788,9 @@ let lockSel={};try{lockSel=JSON.parse(store.getItem("ruta_lock")||"{}")}catch(e)
 function saveLock(){try{store.setItem("ruta_lock",JSON.stringify(lockSel))}catch(e){}}
 let dayPin={};try{dayPin=JSON.parse(store.getItem("ruta_daypin")||"{}")}catch(e){}
 function saveDayPin(){try{store.setItem("ruta_daypin",JSON.stringify(dayPin))}catch(e){}}
+let dayOrd={};try{dayOrd=JSON.parse(store.getItem("ruta_dayord")||"{}")}catch(e){}
+function saveDayOrd(){try{store.setItem("ruta_dayord",JSON.stringify(dayOrd))}catch(e){}}
+const isLate=a=>(a.until&&a.st>a.until+0.01)||(a.close&&a.st+a.h>a.close+0.01);
 function cityDays(plan,c){return plan.filter(d=>d.segs.some(s=>s.city===c))}
 function daySel(plan,c,k,cur,cls){const ds=cityDays(plan,c);return `<select class="${cls}" data-pin="${k}" aria-label="Elegir día">${cls==="daysel"?`<option value="">📅 Día automático</option>`:`<option value="">+ Agregar (día automático)</option>`}${ds.map(d=>`<option value="${iso(d.date)}" ${cur===iso(d.date)?"selected":""}>${cls==="daysel"?"📅 ":"+ "}${pretty(d.date)}</option>`).join("")}</select>`}
 function saveActs(){try{store.setItem("ruta_acts",JSON.stringify(actSel))}catch(e){}}
@@ -1136,7 +1146,8 @@ function buildPlan(){
       if(best){best.items.push(a);best.load+=a.h+0.3;done.add(a.i)}
     });
     // 2) ordenar dentro del tramo (vecino más cercano) y calcular horarios
-    const late=r=>r.seq.some(a=>a.until&&a.st>a.until);const apply=(sl,r)=>{r.seq.forEach((a,k)=>a.num=k+1);sl.seq=r.seq;sl.lunchAt=r.lunchAt;sl.end=r.end};
+    const late=r=>r.seq.some(isLate);const sumMv=r=>r.seq.reduce((t,a)=>t+(a.mv||0),0);
+    const apply=(sl,r)=>{r.seq.forEach((a,k)=>a.num=k+1);sl.seq=r.seq;sl.lunchAt=r.lunchAt;sl.end=r.end;sl.man=r.man;if(r.man){const ra=sl.run(true);sl.dTr=Math.round((sumMv(r)-sumMv(ra))*60)}};
     my.forEach(sl=>{if(sl.whole){const a=sl.items[0];sl.seq=[{...a,mv:0,st:sl.st,num:1}];sl.lunchAt=null;return}
       const sim=order=>{let pos=sl.anchor,t=sl.st,seq=[],lunchAt=null;
         for(const a of order){const mv=moveH(pos,a.ll);
@@ -1144,25 +1155,36 @@ function buildPlan(){
           seq.push({...a,mv,st:t+mv,from:pos});t+=mv+a.h;pos=a.ll}
         if(sl.lunch&&lunchAt===null){lunchAt=Math.max(t,12);if(lunchAt<=14.5)t=Math.max(t,lunchAt+1);else lunchAt=null}
         return{seq,lunchAt,end:t}};
-      const run=()=>{let pos=sl.anchor,t=sl.st,rest=[...sl.items],nn=[];
+      const okey=iso(sl.d.date)+":"+sl.city;
+      const lenFrom=(o,st)=>o.reduce((s,a,k)=>s+kmBetween(k?o[k-1].ll:st,a.ll),0);
+      const opt2=(o,st)=>{let best=[...o],bl=lenFrom(best,st),imp=true,it=0;while(imp&&it++<40){imp=false;for(let i=0;i<best.length-1;i++)for(let j=i+1;j<best.length;j++){const x=[...best.slice(0,i),...best.slice(i,j+1).reverse(),...best.slice(j+1)];const l=lenFrom(x,st);if(l<bl-0.01){best=x;bl=l;imp=true}}}return best};
+      const run=(auto)=>{const man=!auto&&!sl.eve&&dayOrd[okey];
+        if(man){const key=a=>a.city+":"+a.i;let o=man.map(k=>sl.items.find(a=>key(a)===k)).filter(Boolean);
+          sl.items.filter(a=>!o.includes(a)).forEach(a=>{let bi=o.length,bl=1e9;for(let k=0;k<=o.length;k++){const x=[...o.slice(0,k),a,...o.slice(k)];const l=lenFrom(x,sl.anchor);if(l<bl){bl=l;bi=k}}o.splice(bi,0,a)});
+          return{...sim(o),man:1}}
+        let pos=sl.anchor,t=sl.st,rest=[...sl.items],nn=[];
         while(rest.length){let bi=0,bd=1e9;rest.forEach((a,k)=>{const x=kmBetween(pos,a.ll)+(a.until?(a.until-t<2.5?-50:0):0);if(x<bd){bd=x;bi=k}});
           const a=rest.splice(bi,1)[0];t+=moveH(pos,a.ll)+a.h;pos=a.ll;nn.push(a)}
         // 2-opt: recorrido más corto partiendo del hotel (sin volver)
-        const len=o=>o.reduce((s,a,k)=>s+kmBetween(k?o[k-1].ll:sl.anchor,a.ll),0);let best=[...nn],bl=len(best),imp=true,it=0;
-        while(imp&&it++<40){imp=false;for(let i=0;i<best.length-1;i++)for(let j=i+1;j<best.length;j++){const o=[...best.slice(0,i),...best.slice(i,j+1).reverse(),...best.slice(j+1)];const l=len(o);if(l<bl-0.01){best=o;bl=l;imp=true}}}
-        const r1=sim(best);return late(r1)?sim(nn):r1};
+        const best=opt2(nn,sl.anchor);
+        // luz del día: lo techado puede ir al final si sigue abierto; lo al aire libre conviene antes de que oscurezca
+        const S=sunOf(sl.d.date,sl.anchor);const dark=r=>r.seq.reduce((t,a)=>t+((a.in||a.nightOk||a.tr==="fuera"||a.full)?0:Math.max(0,a.st+a.h-Math.max(a.st,S.dusk))),0);
+        const cands=[best,nn];const out=best.filter(a=>!a.in),inn=best.filter(a=>a.in);
+        if(out.length&&inn.length){const o1=opt2(out,sl.anchor);cands.push([...o1,...opt2(inn,o1[o1.length-1].ll)])}
+        let br=null,bc=1e9;cands.forEach(o=>{const r=sim(o);if(late(r))return;const c=lenFrom(o,sl.anchor)+3*dark(r);if(c<bc-0.01){bc=c;br=r}});
+        return br||sim(nn)};
       sl.run=run;let r=run();
-      while((r.end>sl.en+0.1||late(r))&&sl.items.length){const drop=[...sl.items].sort((a,b)=>score(a)-score(b)||b.h-a.h)[0];sl.items=sl.items.filter(x=>x!==drop);done.delete(drop.i);r=run()}
+      while((r.end>sl.en+0.1||(!r.man&&late(r)))&&sl.items.length){const drop=[...sl.items].sort((a,b)=>score(a)-score(b)||b.h-a.h)[0];sl.items=sl.items.filter(x=>x!==drop);done.delete(drop.i);r=run()}
       apply(sl,r);
     });
     // 3) reintentar lo que no cupo en otro tramo de la ciudad
     sel.filter(a=>!a.full&&!done.has(a.i)).sort((a,b)=>score(b)-score(a)).forEach(a=>{
       for(const sl of my.filter(x=>!x.whole&&x.run&&open(a,x)&&(!pinOf(a)||!my.some(y=>!y.whole&&onDay(y,a))||onDay(x,a))).sort((x,y)=>kmBetween(cen(x),a.ll)-kmBetween(cen(y),a.ll))){
-        sl.items.push(a);const r=sl.run();if(r.end<=sl.en+0.1&&!late(r)){apply(sl,r);done.add(a.i);break}sl.items.pop()}});
+        sl.items.push(a);const r=sl.run();if(r.end<=sl.en+0.1&&(r.man||!late(r))){apply(sl,r);done.add(a.i);break}sl.items.pop()}});
     const unpl=sel.filter(a=>!done.has(a.i)).sort((a,b)=>score(a)-score(b));
     feas[c]={maxSlot:Math.max(0,...my.filter(x=>!x.whole&&!x.eve).map(x=>x.net)),fullDays:my.filter(x=>x.whole).length,need:sel.filter(a=>!a.night).reduce((t,a)=>t+(a.full?8:a.h),0),avail:my.filter(x=>!x.eve).reduce((t,x)=>t+x.net,0),unpl,sel,placed:sel.filter(a=>done.has(a.i))};
   });
-  slots.filter(sl=>!sl.eve).forEach(sl=>{sl.d.segs.push({city:sl.city,st:sl.st,en:sl.en,en0:sl.en,anchor:sl.anchor,acts:sl.seq||[],lunchAt:sl.lunchAt,whole:sl.whole});sl.d.acts.push(...(sl.seq||[]))});
+  slots.filter(sl=>!sl.eve).forEach(sl=>{sl.d.segs.push({city:sl.city,st:sl.st,en:sl.en,en0:sl.en,anchor:sl.anchor,acts:sl.seq||[],lunchAt:sl.lunchAt,whole:sl.whole,man:sl.man,dTr:sl.dTr||0,okey:iso(sl.d.date)+":"+sl.city});sl.d.acts.push(...(sl.seq||[]))});
   // paseos nocturnos: se agregan al final del recorrido del día, después de la cena
   slots.filter(sl=>sl.eve&&sl.seq&&sl.seq.length).forEach(sl=>{const d=sl.d;const sg=[...d.segs].reverse().find(s=>s.city===sl.city&&!s.whole);
     if(!sg){d.segs.push({city:sl.city,st:sl.st,en:sl.en,en0:sl.st,anchor:sl.anchor,acts:sl.seq,lunchAt:null});d.acts.push(...sl.seq);return}
@@ -1432,13 +1454,14 @@ function renderDays(plan){
         if(a.mv>0.05){const far=a.from&&kmBetween(a.from,a.ll)>1.2&&a.tr!=="fuera";const mins=Math.max(5,Math.round(a.mv*60/5)*5);const T=far?transitFor(a.city,a.from,a.ll):null;
           h+=far?(T?`<span class="mv tr ${T.mode}">↓ ${T.ico} <b>${T.name}</b>${a.num===1?" desde el hotel":""}: caminar ${walkMin(T.da)} min a «${T.from[2]}» → bajar en «${T.to[2]}» → caminar ${walkMin(T.db)} min · ~${mins} min en total · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver horario</a></span>`:`<span class="mv tr">↓ ~${mins} min en transporte público${a.num===1?" desde el hotel":""} · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`):`<span class="mv">↓ a pie ~${mins} min</span>`}
       h+=`<div class="actrow2 ${a.tr==="fuera"?"fuera":""}">
- <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl"><button type="button" class="cm" data-cm="a:${aKeyG(a.city,a.i)}" title="Comentarios">💬<i></i></button><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
- <div class="ar-meta">${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}<span class="dur">${durTxt(a)}</span>${where}<span class="tag ar-price ${a.p===0?"free":"price"}">${a.p?fmt(a.p)+(a.est?" est.":""):"gratis"}</span></div>
+ <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl">${!a.night&&!a.full&&sg.acts.filter(x=>!x.night).length>1?`<button type="button" class="mvb" data-mvo="${sg.okey}|${aKeyG(a.city,a.i)}|-1" title="Subir (antes en el día)" ${sg.acts.filter(x=>!x.night)[0]===a?"disabled":""}>↑</button><button type="button" class="mvb" data-mvo="${sg.okey}|${aKeyG(a.city,a.i)}|1" title="Bajar (después en el día)" ${sg.acts.filter(x=>!x.night).slice(-1)[0]===a?"disabled":""}>↓</button>`:""}<button type="button" class="cm" data-cm="a:${aKeyG(a.city,a.i)}" title="Comentarios">💬<i></i></button><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
+ <div class="ar-meta">${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}<span class="dur">${durTxt(a)}</span>${where}${isLate(a)?`<span class="tag late">⚠ ${a.close&&a.st+a.h>a.close+0.01?"cierra "+hm(a.close):"última entrada "+hm(a.until)}</span>`:""}${a.in?'<span class="tag indoor" title="Techado">🏛 techado</span>':""}<span class="tag ar-price ${a.p===0?"free":"price"}">${a.p?fmt(a.p)+(a.est?" est.":""):"gratis"}</span></div>
  ${(/\(.*?\)\s*$/.test(a.n)||a.note)?`<div class="ar-note">${[(a.n.match(/\((.*?)\)\s*$/)||[])[1],a.note].filter(Boolean).join(" · ")}</div>`:""}
  <div class="ar-links">${actLinks(a)} ${daySel(plan,a.city,aKeyG(a.city,a.i),dayPin[aKeyG(a.city,a.i)]||"","daysel")}${dayPin[aKeyG(a.city,a.i)]?'<span class="tag pinday">día fijado</span>':""}</div>
  ${(ATTR[a.city+":"+a.i]||whyOf(a))?`<details class="why"><summary>¿Por qué vale la pena?</summary>${ATTR[a.city+":"+a.i]?ATTR[a.city+":"+a.i].s:whyOf(a)} <a href="#" data-ficha="${a.city}:${a.i}">Ver ficha completa →</a></details>`:""}
 </div>`;});
       if(sg.lunchAt!=null&&!lp)h+=lunchRow();
+      if(sg.man)h+=`<div class="manord">✋ <b>Orden manual</b>${sg.dTr>2?` · +${sg.dTr} min de traslados vs. automático`:sg.dTr<-2?` · ${-sg.dTr} min menos de traslados`:""}${sg.acts.some(isLate)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-mvreset="${sg.okey}">↺ Orden automático</button></div>`;
       const ru=routeUrl(sg);const depAfter=d.from&&sg.city===d.from&&sg.acts.length;
       if(ru){const fh=routeStartsAtHotel(sg);const nums=sg.acts.map(x=>x.num);h+=`<a class="route" href="${ru}" target="_blank" rel="noopener">🗺 Ver recorrido ${d.segs.length>1?"en "+CN[sg.city]+" ":"del día "}en Google Maps (${fh?`A = hotel, luego ${nums.join("→")}`:`A = atracción 1, luego ${nums.slice(1).join("→")}`})</a>`;if(!fh)h+=`<span class="mv">El hotel queda lejos de la primera atracción: llegar en tranvía/metro (ver arriba) y desde ahí recorrer a pie.</span>`}
       if(depAfter)h+=depRow(d);
@@ -1596,6 +1619,10 @@ document.addEventListener("click",e=>{
   const fb=e.target.closest("[data-fill]");if(fb){const c=fb.dataset.fill;const box=document.getElementById("fill-"+c);if(box){if(fb.classList.contains("fillbtn")&&box.innerHTML){box.innerHTML="";return}box.innerHTML=fillClose(c)+fillHtml(c)}return}
   const fc2=e.target.closest("[data-fillcancel]");if(fc2){const box=document.getElementById("fill-"+fc2.dataset.fillcancel);if(box)box.innerHTML="";return}
   const fa=e.target.closest("[data-fillapply]");if(fa){const c=fa.dataset.fillapply;document.querySelectorAll(`#fill-${c} [data-fillpick]`).forEach(x=>{if(!x.checked)return;const [k,day]=x.dataset.fillpick.split("|");actSel[k]=true;dayPin[k]=day});saveDayPin();saveActs();renderAll(true);return}
+  const mo=e.target.closest("[data-mvo]");if(mo){const [okey,ak,dir]=mo.dataset.mvo.split("|"),dt=okey.split(":")[0];
+    const d=PLAN.find(x=>iso(x.date)===dt);const sg=d&&d.segs.find(x=>x.okey===okey);if(!sg)return;const o=sg.acts.filter(x=>!x.night).map(x=>aKeyG(x.city,x.i));
+    const i=o.indexOf(ak),j=i+(+dir);if(i<0||j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];dayOrd[okey]=o;saveDayOrd();renderAll(true);return}
+  const mr=e.target.closest("[data-mvreset]");if(mr){delete dayOrd[mr.dataset.mvreset];saveDayOrd();renderAll(true);return}
   const lk=e.target.closest("[data-lock]");if(lk){const k=lk.dataset.lock;if(lockSel[k])delete lockSel[k];else lockSel[k]=true;saveLock();renderAll(true);return}
   const dt=e.target.closest("[data-dtab]");if(dt){progCity=dt.dataset.dtab;try{store.setItem("ruta_progcity",progCity)}catch(_){}renderDayTabs(PLAN);try{$("daytabs").scrollIntoView({block:"start",behavior:"smooth"})}catch(_){}return}
   const fz=e.target.closest("[data-ficha]");if(fz){e.preventDefault();openFicha(fz.dataset.ficha);return}
@@ -1892,6 +1919,11 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 .sunline{display:block;font-size:12.5px;margin-top:3px;color:#5a4a7a;font-family:var(--f-mono)}
 .ar-name{flex:1;min-width:0;font-weight:700;font-size:15.5px;line-height:1.3}
 .ar-ctl{flex:none;display:flex;gap:4px;margin-left:6px}
+.ar-ctl .mvb{font:700 12px var(--f-mono,monospace);padding:2px 5px;line-height:1;border:1px solid var(--line);background:var(--card);border-radius:4px;cursor:pointer;color:var(--muted)}
+.ar-ctl .mvb:disabled{opacity:.25;cursor:default}
+.tag.late{background:#fdecea;color:#8e1d14;border-color:#f0b8b0}.tag.indoor{opacity:.75}
+.manord{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;margin:6px 0;padding:6px 8px;border:1px dashed #b3261e;border-radius:6px;background:color-mix(in srgb,#b3261e 5%,transparent)}
+.manord button{margin-left:auto;font:600 12px system-ui,sans-serif;border:1px solid var(--line);background:var(--card);border-radius:5px;padding:4px 8px;cursor:pointer}
 .ar-ctl .lk,.ar-ctl .rm{font-size:12px;padding:2px 5px;line-height:1;border:1px solid var(--line);background:var(--card);border-radius:4px;cursor:pointer;color:var(--muted)}
 .ar-ctl .lk{filter:grayscale(1);opacity:.5}.ar-ctl .lk[aria-pressed="true"]{filter:none;opacity:1;border-color:var(--stamp)}
 .ar-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding-left:2px}
