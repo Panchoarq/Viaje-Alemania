@@ -474,10 +474,10 @@ function ask(msg,yes,onYes){const w=document.createElement("div");w.className="g
   w.onclick=e=>{const a=e.target.closest("[data-a]");if(e.target===w||a){w.remove();if(a&&a.dataset.a==="y"&&onYes)onYes()}};document.body.appendChild(w)}
 const say=m=>ask(m);
 // ---------- Nombre ----------
-function askName(force){if(me&&!force)return;const w=document.createElement("div");w.className="grp-modal";
+function askName(force){if(me&&!force)return;if(document.querySelector(".grp-modal.name"))return;const w=document.createElement("div");w.className="grp-modal name";
   w.innerHTML=`<div class="grp-mbox"><h3>¿Quién eres?</h3><p>Tu nombre aparece en el historial, las propuestas y los comentarios. Se pide una sola vez en este navegador.</p>
-  <input id="grpName" maxlength="30" placeholder="Ej.: Francisco (papá de Benja)" value="${esc(me&&me.name||"")}"><div class="grp-row"><button type="button" class="grp-pri" id="grpNameOk">Guardar</button>${force?'<button type="button" id="grpNameX">Cancelar</button>':'<button type="button" id="grpNameX">Ahora no</button>'}</div></div>`;
-  document.body.appendChild(w);const i=$("grpName");setTimeout(()=>i.focus(),50);
+  <input id="grpName" type="text" maxlength="30" autocomplete="name" autocapitalize="words" enterkeyhint="done" placeholder="Ej.: Francisco (papá de Benja)" value="${esc(me&&me.name||"")}"><div class="grp-row"><button type="button" class="grp-pri" id="grpNameOk">Guardar</button>${force?'<button type="button" id="grpNameX">Cancelar</button>':'<button type="button" id="grpNameX">Ahora no</button>'}</div></div>`;
+  document.body.appendChild(w);const i=$("grpName");setTimeout(()=>{try{i.focus()}catch(e){}},50);w.addEventListener("pointerdown",e=>{if(e.target===w||e.target.closest(".grp-mbox")&&!e.target.closest("button,input"))setTimeout(()=>i.focus(),0)});
   const ok=async()=>{const n=i.value.trim();if(!n)return i.focus();me={name:n};localStorage.setItem("ruta_me",JSON.stringify(me));w.remove();
     try{await _FB.F.setDoc(D("members",slug(n)),{name:n,at:Date.now()},{merge:true})}catch(e){fail(e)}render()};
   $("grpNameOk").onclick=ok;i.onkeydown=e=>{if(e.key==="Enter")ok()};$("grpNameX").onclick=()=>{if(!me){me={name:"Anónimo",skip:1};localStorage.setItem("ruta_me",JSON.stringify(me))}w.remove();render()}}
@@ -2175,6 +2175,8 @@ button.grp-pri{background:#2a2219!important;color:#fff!important;border-color:#2
 .grp-banner.preview .grp-stamp{color:#1f4b99;border-color:#1f4b99}
 @media print{.grp-btn,.grp-panel,.grp-back,.grp-banner,.cm{display:none!important}}
 body.grp-hasbanner{padding-top:52px}
+
+.grp-mbox input{font-size:16px!important;-webkit-user-select:text;user-select:text;pointer-events:auto;position:relative;z-index:1}
 /* ===== Ayuda ===== */
 .hlp-btn{position:fixed;top:12px;right:12px;z-index:62;width:36px;height:36px;border-radius:50%;border:2px solid #2a2219;background:#fffdf6;color:#2a2219;font:800 19px/1 "Courier Prime",ui-monospace,monospace;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.22)}
 .hlp-btn:hover{background:#2a2219;color:#fffdf6}
