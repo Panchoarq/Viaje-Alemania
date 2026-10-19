@@ -1224,7 +1224,8 @@ function buildPlan(){
   const fd={date,city:last,night:null,slept:last,acts:[],segs:[],final:1};days.push(fd);
   mk(fd,last,DAYSTART,DAYSTART+3,0);
   // almuerzo: si el tramo cubre 12:30–14:00 se reserva ~1 h
-  slots.forEach(sl=>{sl.lunch=sl.st<=12.75&&sl.en>=14?1:0;sl.net=sl.cap-sl.lunch;sl.items=[];sl.load=0});
+  slots.forEach(sl=>{sl.lunch=(sl.st<=12.75&&sl.en>=14)||(sl.st>12.75&&sl.st<=14.5&&sl.en>=sl.st+2)?1:0;// llegando entre 12:45 y 14:30 se parte almorzando
+   sl.net=sl.cap-sl.lunch;sl.items=[];sl.load=0});
   const score=a=>(a.pr?2:0)+(a.top?2.5:0)+(lockSel[a.city+":"+a.i]?100:0)+(dayPin[a.city+":"+a.i]?100:0);const pinOf=a=>dayPin[a.city+":"+a.i];const onDay=(sl,a)=>!pinOf(a)||iso(sl.d.date)===pinOf(a);
   const feas={};
   ord.forEach(c=>{
