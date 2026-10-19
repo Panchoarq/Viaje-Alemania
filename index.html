@@ -572,6 +572,103 @@ window.__grpStart=()=>{if(!window._FB||!_ref)return;S.on=true;document.body.clas
   const days=document.getElementById("days");let t=null;if(days)new MutationObserver(()=>{clearTimeout(t);t=setTimeout(paintCm,60)}).observe(days,{childList:true,subtree:true})};
 })();
 
+// ===== Ayuda (?) =====
+(function(){
+const H=[
+["inicio","Cómo funciona",`
+<p>Esta página es el plan compartido del viaje. <b>Todo lo que cambias se guarda solo y lo ven todos</b>: no hay botón de guardar. Abajo a la derecha, el aviso <b>«☁ Guardado para todos»</b> confirma que quedó grabado.</p>
+<p>Si otra persona cambia algo mientras tienes la página abierta, arriba aparece <b>«Alguien guardó cambios en el plan · Actualizar»</b>. Tócalo para ver la versión nueva.</p>
+<p>El plan se recorre por las pestañas de arriba, en orden: <b>1 · Configurar</b> → <b>2 · Programa</b> → <b>3 · Alojamiento</b> → <b>4 · Pasajes</b> → <b>5 · Trámites previos</b> → <b>6 · Atracciones</b>. Los totales de arriba (total del grupo, por persona, promedio diario y las 5 categorías de gasto) se recalculan con cada cambio.</p>
+<p>Para ponerse de acuerdo entre papás, usa el botón <b>👤 Grupo</b> (abajo a la derecha). Ver la sección «Grupo».</p>`],
+["cfg","1 · Configurar",`
+<ul>
+<li><b>Fecha de inicio:</b> el día que llegan a la primera ciudad. Todo el calendario se mueve con esta fecha.</li>
+<li><b>Orden de ciudades y noches:</b> cambia el orden con los selectores y el número de noches en cada ciudad. El mapa muestra la ruta resultante.</li>
+<li><b>Trenes y buses entre ciudades:</b> bajo cada ciudad aparece el tramo, con su hora de salida y llegada. Si dice <b>✓ verificado</b>, ese horario y precio se revisaron a mano (ver «Verificado y estimado»).</li>
+<li><b>Estilo de comida, moneda, tipo de cambio y residencia:</b> cambian cómo se calculan y muestran los gastos (por ejemplo, ver todo en pesos chilenos).</li>
+</ul>
+<p>Cambiar fechas, orden o noches <b>rearma el programa completo</b>. Las atracciones con 📌 o con día elegido se respetan.</p>`],
+["prog","2 · Programa",`
+<p>Hay una pestaña por ciudad y una hoja por día. Cada día muestra los costos, las comidas, las atracciones en orden con su hora, los traslados y un plano.</p>
+<h4>Cómo arma el día el programa (automático)</h4>
+<ol>
+<li><b>Reparte</b> las atracciones elegidas entre los días de la ciudad, juntando las que están cerca y equilibrando las horas.</li>
+<li><b>Ordena</b> cada día por cercanía, partiendo desde el hotel, para caminar y viajar lo menos posible.</li>
+<li><b>Considera la luz:</b> trata de dejar lo que es al aire libre antes de que oscurezca y lo techado (🏛) al final, pero solo si ese lugar sigue abierto a esa hora.</li>
+<li><b>Respeta horarios:</b> no deja nada después de su cierre, reserva el almuerzo cerca de las 12:30–14:00 y deja los paseos nocturnos para después de la cena.</li>
+</ol>
+<h4>Controles de cada atracción</h4>
+<ul>
+<li><b>↑ ↓</b> — subir o bajar la atracción dentro del día (orden manual). Se recalculan horas, traslados y mapa. El día queda marcado <b>«✋ Orden manual»</b> con los minutos extra de traslado. <b>↺ Orden automático</b> lo deja como antes.</li>
+<li><b>📅 Día</b> — elegir en qué día va. «Día automático» deja que el programa decida.</li>
+<li><b>📌</b> — fijar: el programa nunca la saca, aunque falte tiempo.</li>
+<li><b>✕</b> — quitarla del programa. Se puede volver a agregar desde la lista de pendientes.</li>
+<li><b>💬</b> — comentarios de los papás sobre esa atracción (también hay 💬 en el título de cada día).</li>
+<li><b>sitio · mapa · ¿Por qué vale la pena?</b> — página oficial, ubicación y la ficha con historia y fotos.</li>
+</ul>
+<h4>Marcas y avisos</h4>
+<ul>
+<li><b>🌇</b> la atracción termina con poca luz · <b>🌙</b> ya es de noche. Arriba de cada día se indica a qué hora se pone el sol y desde cuándo está oscuro.</li>
+<li><b>🏛 techado</b> — museo o lugar bajo techo, bueno para la tarde o si llueve.</li>
+<li><b>⚠ cierra 17:00 / última entrada</b> — con ese orden se llega tarde. Mueve la atracción o vuelve al orden automático.</li>
+<li><b>Tiempo usado X de Y h</b> — cuánto del día está ocupado.</li>
+</ul>
+<h4>Agregar actividades</h4>
+<p>Arriba de las pestañas, el recuadro de cada ciudad indica si todo cabe. Ahí están las actividades no incluidas: márcalas para agregarlas, o usa <b>✨ Llenar espacios libres</b>, que propone en qué día encaja cada una (y si hay que sacar otra). Si no caben, puedes dejar fuera las menos importantes o agregar una noche.</p>
+<h4>Comidas, traslados y plano</h4>
+<p>Cada comida tiene un selector (hotel, comida rápida, etc.) que cambia el costo del día. Los traslados indican qué línea tomar y dónde bajarse. El plano se amplía al tocarlo, y los números llevan a la ficha de cada atracción. <b>Ver recorrido en Google Maps</b> abre la ruta del día desde el hotel.</p>`],
+["hot","3 · Alojamiento",`
+<ul>
+<li>Una pestaña por ciudad. Debajo están las alternativas de hotel; <b>marca el círculo</b> del que se elige (queda <b>✔ Elegido</b>) y todo el plan se recalcula con ese hotel: costos, traslados y rutas.</li>
+<li><b>Tarifa alojamiento 5 pers.:</b> el precio de la habitación para los 5, por noche o por la estadía completa (selector al lado). <b>Este valor se ingresa a mano</b> después de revisarlo en el sitio del hotel o en Booking.</li>
+<li><b>Desayuno:</b> precio por persona; también se puede editar.</li>
+<li><b>Menores y autorización de padres:</b> qué exige cada hotel para jóvenes de 16 años y el formulario que hay que firmar.</li>
+<li><b>Ver disponibilidad en fechas:</b> abre Booking con las fechas y los huéspedes ya cargados.</li>
+<li><b>Costo por persona:</b> desglose de cuánto paga cada joven en esa ciudad.</li>
+</ul>`],
+["rail","4 · Pasajes y Eurail",`
+<ul>
+<li>Un boleto por cada tramo entre ciudades, con fecha, salida, llegada, número de tren o bus y estaciones (en rojo).</li>
+<li><b>Cómo llegar a la estación:</b> a qué hora salir del hotel, con cuánta anticipación llegar y qué transporte tomar. Si la salida es después del check-out, avisa que hay que pedir guardar las maletas.</li>
+<li><b>Precio p/p:</b> se escribe a mano tras revisar el precio real en Deutsche Bahn, ČD o RegioJet. Los enlaces «Comprar en…» llevan directo al sitio.</li>
+<li><b>Editar boleto verificado:</b> para pegar los datos exactos del tren que se encontró (número, horas, estaciones).</li>
+<li>Al final se compara si conviene un pase Eurail o comprar los pasajes por separado.</li>
+</ul>`],
+["ver","Verificado y estimado",`
+<p class="hlp-key"><b>«Verificado» significa que una persona revisó ese dato a mano</b> — en este caso Francisco — en el sitio oficial del hotel, de Booking, de Deutsche Bahn, ČD o RegioJet. <b>La aplicación no busca precios sola ni los actualiza automáticamente.</b></p>
+<ul>
+<li><b>Precios de hoteles y pasajes:</b> se ingresan a mano después de consultarlos. Al confirmarlos se marca la casilla <b>✓ Verificado por mí</b>.</li>
+<li><b>Estimado:</b> un valor aproximado (rango típico o promedio) que sirve para calcular el presupuesto mientras no se confirme el precio real.</li>
+<li>El presupuesto total mezcla ambos. Arriba, «X de 14 precios clave verificados» indica cuántos ya están confirmados.</li>
+<li>Los precios cambian con el tiempo y según la fecha de compra: conviene volver a verificarlos antes de pagar.</li>
+<li>Los horarios de cierre de museos y atracciones son los de invierno publicados; conviene confirmarlos en enero.</li>
+</ul>`],
+["buy","5 · Trámites previos",`
+<p>Lista de lo que hay que hacer antes del viaje: documentos, autorización notarial de los padres, seguro, tarjetas, reservas con cupo (museos, Reichstag, Miniatur Wunderland) y los boletos de transporte en cada ciudad. Al marcar un ítem queda tachado <b>para todos</b>, así se sabe qué falta.</p>`],
+["att","6 · Atracciones",`
+<p>El contexto histórico de cada ciudad y una ficha por atracción: qué es, su historia, qué ver y consejos, con enlaces y fotos. Sirve para preparar a los jóvenes antes de ir. Las que ya están en el programa llevan el sello <b>EN EL PROGRAMA</b>; para agregar o quitar atracciones se usa la pestaña Programa.</p>`],
+["grp","Grupo (papás)",`
+<ul>
+<li><b>👤 Tu nombre</b> (abajo a la derecha) abre el panel. El número rojo indica novedades.</li>
+<li><b>Actividad:</b> quién cambió qué y cuándo. <b>↩ Deshacer</b> revierte un cambio.</li>
+<li><b>Propuestas:</b> <b>✏️ Abrir borrador</b> para probar cambios sin tocar el plan oficial; luego <b>Proponer</b>. Los demás la miran con <b>👁 Ver</b> y votan 👍/👎. Se aplica sola con <b>mayoría absoluta</b> (más de la mitad de los papás registrados).</li>
+<li><b>Comentarios:</b> conversaciones por día o por atracción (botón 💬).</li>
+<li><b>Respaldos:</b> copias automáticas del plan; <b>Restaurar</b> vuelve a una versión anterior.</li>
+</ul>`]];
+const $=id=>document.getElementById(id);
+function open(sec){const cur=sec||((document.querySelector('.tabs [aria-selected="true"]')||{}).dataset||{}).tab||"inicio";const w=$("hlpDlg");
+  w.innerHTML=`<div class="hlp-box" role="dialog" aria-label="Ayuda"><div class="hlp-head"><b>? Ayuda</b><button type="button" class="hlp-x" data-hlpx aria-label="Cerrar">✕</button></div>
+  <nav class="hlp-nav">${H.map(([k,t])=>`<button type="button" data-hlp="${k}" aria-pressed="${k===cur}">${t}</button>`).join("")}</nav>
+  <div class="hlp-body">${H.map(([k,t,b])=>`<section id="hlp-${k}"><h3>${t}</h3>${b}</section>`).join("")}</div></div>`;
+  w.hidden=false;const s=$("hlp-"+cur);if(s)s.scrollIntoView({block:"start"})}
+document.addEventListener("click",e=>{const n=e.target.closest("[data-hlp]");if(n){const s=$("hlp-"+n.dataset.hlp);document.querySelectorAll("[data-hlp]").forEach(b=>b.setAttribute("aria-pressed",b===n));if(s)s.scrollIntoView({block:"start",behavior:"smooth"});return}
+  if(e.target.closest("[data-hlpx]")||e.target.id==="hlpDlg"){$("hlpDlg").hidden=true;return}
+  if(e.target.closest("#hlpBtn"))open()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("hlpDlg")&&!$("hlpDlg").hidden)$("hlpDlg").hidden=true});
+const w=document.createElement("div");w.innerHTML=`<button id="hlpBtn" class="hlp-btn" type="button" title="Ayuda: cómo funciona" aria-label="Ayuda">?</button><div id="hlpDlg" class="hlp-dlg" hidden></div>`;
+[...w.children].forEach(x=>document.body.appendChild(x));
+})();
+
 </script>
 <script>
 function __main(){
@@ -2078,6 +2175,27 @@ button.grp-pri{background:#2a2219!important;color:#fff!important;border-color:#2
 .grp-banner.preview .grp-stamp{color:#1f4b99;border-color:#1f4b99}
 @media print{.grp-btn,.grp-panel,.grp-back,.grp-banner,.cm{display:none!important}}
 body.grp-hasbanner{padding-top:52px}
+/* ===== Ayuda ===== */
+.hlp-btn{position:fixed;top:12px;right:12px;z-index:62;width:36px;height:36px;border-radius:50%;border:2px solid #2a2219;background:#fffdf6;color:#2a2219;font:800 19px/1 "Courier Prime",ui-monospace,monospace;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+.hlp-btn:hover{background:#2a2219;color:#fffdf6}
+body.grp-hasbanner .hlp-btn{top:60px}
+.hlp-dlg{position:fixed;inset:0;z-index:75;background:rgba(30,20,10,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.hlp-dlg[hidden]{display:none}
+.hlp-box{width:min(820px,100%);max-height:min(88vh,900px);display:flex;flex-direction:column;background:#fbf7ec;color:#2a2219;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.4);font:15px/1.5 Georgia,serif;overflow:hidden}
+.hlp-head{display:flex;align-items:center;padding:12px 16px;border-bottom:2px solid #2a2219}
+.hlp-head b{flex:1;font:700 18px "Courier Prime",monospace;letter-spacing:.06em;text-transform:uppercase}
+.hlp-x{border:0;background:none;font-size:18px;cursor:pointer;padding:4px 8px}
+.hlp-nav{display:flex;gap:4px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid #d8cba9;background:#f3ead4}
+.hlp-nav button{font:600 12px "Courier Prime",monospace;padding:5px 9px;border:1px solid #c9bb98;border-radius:999px;background:#fffdf6;cursor:pointer;color:#5a4a33}
+.hlp-nav button[aria-pressed="true"]{background:#2a2219;color:#fff;border-color:#2a2219}
+.hlp-body{overflow-y:auto;padding:4px 20px 28px;scroll-padding-top:8px}
+.hlp-body section{padding-top:14px;border-bottom:1px dashed #d8cba9;padding-bottom:10px}
+.hlp-body h3{margin:4px 0 8px;font:700 19px "Courier Prime",monospace;color:#a8352b}
+.hlp-body h4{margin:12px 0 4px;font:700 14px "Courier Prime",monospace;text-transform:uppercase;letter-spacing:.05em}
+.hlp-body ul,.hlp-body ol{padding-left:20px;margin:6px 0}.hlp-body li{margin:4px 0}.hlp-body p{margin:6px 0}
+.hlp-key{background:#fff3c4;border-left:4px solid #a8352b;padding:8px 10px;border-radius:4px}
+@media (max-width:560px){.hlp-dlg{padding:0}.hlp-box{max-height:100vh;height:100%;border-radius:0}.hlp-btn{width:32px;height:32px;font-size:17px;top:8px;right:8px}}
+@media print{.hlp-btn,.hlp-dlg{display:none!important}}
 </style>
 </body>
 </html>
