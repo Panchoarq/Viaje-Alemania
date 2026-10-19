@@ -1524,14 +1524,14 @@ function renderRail(plan){
      <div class="tk-main">
       <div class="tk-band"><span class="tk-op">${t.v?t.v.train+" · ":""}${P.op}</span><b>${CN[l.from]} → ${CN[l.to]}</b></div>${t.v?`<div class="tk-ok">✓ Verificado</div>`:""}
       <div class="tk-body">
-        <div class="tk-art">${P.bus?BUS_SVG:LOCO_SVG}</div>
+        <div class="tk-art">${P.bus?BUS_SVG:'<img class="tk-img" src="img/train.png" alt="Locomotora a vapor">'}</div>
         <dl class="tk-f">
-          <div><dt>Fecha</dt><dd>${pretty(l.date)}</dd></div>
-          <div><dt>Salida</dt><dd>${hm(t.dep)}</dd></div>
-          <div><dt>Llegada</dt><dd>${hm(t.arr)}</dd></div>
+          <div><dt>Fecha</dt><dd class="hi">${pretty(l.date)}</dd></div>
+          <div><dt>Salida</dt><dd class="hi">${hm(t.dep)}</dd></div>
+          <div><dt>Llegada</dt><dd class="hi">${hm(t.arr)}</dd></div>
           <div><dt>Viajeros</dt><dd>5 · 2.ª clase</dd></div>
-          <div class="wide"><dt>Servicio</dt><dd>${t.v?`${t.v.train} · ${durStr(t.h)}`:`${P.mode} · ${P.dur} (sugerido)`}</dd></div>
-          <div class="wide"><dt>Estaciones</dt><dd>${t.v?`${t.v.from} → ${t.v.to}${t.v.stops?" · "+t.v.stops:""}`:P.st}</dd></div>
+          <div class="wide"><dt>Servicio</dt><dd class="hi">${t.v?`${t.v.train} · ${durStr(t.h)}`:`${P.mode} · ${P.dur} (sugerido)`}</dd></div>
+          <div class="wide"><dt>Estaciones</dt><dd class="hi">${t.v?`${t.v.from} → ${t.v.to}${t.v.stops?" · "+t.v.stops:""}`:P.st}</dd></div>
         </dl>
         <div class="tk-price"><small>Precio p/p</small><b>${fmt(legPrice[l.key])}</b><small>${P.range}</small></div>
       </div>
@@ -1732,7 +1732,9 @@ label.chk.fuera{background:repeating-linear-gradient(-45deg,color-mix(in srgb,va
 .tk-band{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--tk-acc);color:var(--tk-on);padding:8px 12px;outline:1px solid var(--tk-on);outline-offset:-4px}
 .tk-band b{font-family:"Playfair Display",Georgia,serif;font-size:clamp(20px,3.4vw,28px);letter-spacing:.04em;text-transform:uppercase}
 .tk-op{font-family:"Courier Prime",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-.tk-body{display:grid;grid-template-columns:110px minmax(0,1fr) 92px;gap:12px;align-items:center}
+.tk-body{display:grid;grid-template-columns:190px minmax(0,1fr) 92px;gap:12px;align-items:center}
+.tk-art .tk-img{width:100%;height:auto;display:block}
+dl.tk-f dd.hi{color:#a8352b;font-weight:700}
 .tk-art{color:var(--tk-acc)} .tk-art svg{width:100%;height:auto;display:block}
 dl.tk-f{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;margin:0;border:1px solid color-mix(in srgb,var(--tk-ink) 45%,transparent);padding:8px 10px}
 dl.tk-f .wide{grid-column:1/-1}
@@ -1763,7 +1765,8 @@ dl.tk-f dd{margin:0;font-family:"Courier Prime",monospace;font-size:15px;letter-
 .legs[data-tk="C"] .tk-price{background:transparent;color:var(--tk-ink);outline:none;border:1px solid var(--tk-ink);border-radius:2px;height:auto;padding:10px 4px}
 .legs[data-tk="C"] .tk-stub{background:#d9574a;color:#fff3e8;border-left:2px dashed #3a2418}
 .legs[data-tk="C"] .tk-v{font-family:"Courier Prime",monospace;letter-spacing:.2em;border:none}
-@media (max-width:560px){.tk-body{grid-template-columns:80px minmax(0,1fr)}.tk-price{grid-column:1/-1;justify-self:end;width:80px;height:80px}.ticket{grid-template-columns:minmax(0,1fr) 52px}.tk-v{font-size:15px}}
+@media (max-width:760px){.tk-body{grid-template-columns:130px minmax(0,1fr) 92px}}
+@media (max-width:560px){.tk-body{grid-template-columns:minmax(0,1fr)}.tk-art{width:min(230px,80%);margin:0 auto}.tk-price{grid-column:1/-1;justify-self:end;width:80px;height:80px}.ticket{grid-template-columns:minmax(0,1fr) 52px}.tk-v{font-size:15px}}
 /* Timbre 16 años */
 label.opt{position:relative}
 label.opt .links-row{padding-right:118px}
