@@ -1560,7 +1560,7 @@ function renderDays(plan){
         if(a.mv>0.05){const far=a.from&&kmBetween(a.from,a.ll)>1.2&&a.tr!=="fuera";const mins=Math.max(5,Math.round(a.mv*60/5)*5);const T=far?transitFor(a.city,a.from,a.ll):null;
           h+=far?(T?`<span class="mv tr ${T.mode}">↓ ${T.ico} <b>${T.name}</b>${a.num===1?" desde el hotel":""}: caminar ${walkMin(T.da)} min a «${T.from[2]}» → bajar en «${T.to[2]}» → caminar ${walkMin(T.db)} min · ~${mins} min en total · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver horario</a></span>`:`<span class="mv tr">↓ ~${mins} min en transporte público${a.num===1?" desde el hotel":""} · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`):`<span class="mv">↓ a pie ~${mins} min</span>`}
       h+=`<div class="actrow2 ${a.tr==="fuera"?"fuera":""}" data-k="${aKeyG(a.city,a.i)}">
- <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}</span><span class="ar-ctl">${!a.night&&!a.full&&sg.acts.filter(x=>!x.night).length>1?`<button type="button" class="mvb" data-mvo="${sg.okey}|${aKeyG(a.city,a.i)}|-1" title="Subir (antes en el día)" ${sg.acts.filter(x=>!x.night)[0]===a?"disabled":""}>↑</button><button type="button" class="mvb" data-mvo="${sg.okey}|${aKeyG(a.city,a.i)}|1" title="Bajar (después en el día)" ${sg.acts.filter(x=>!x.night).slice(-1)[0]===a?"disabled":""}>↓</button>`:""}<button type="button" class="cm" data-cm="a:${aKeyG(a.city,a.i)}" title="Comentarios">💬<i></i></button><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
+ <div class="ar-top"><b class="num anum">${a.num}</b><span class="st num">${hm(a.st)}</span>${sunTag({...a,_date:d.date})}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}${isLate(a)?`<small class="ar-latemini">⚠ ${a.close&&a.st+a.h>a.close+0.01?"cierra "+hm(a.close):"última entrada "+hm(a.until)}</small>`:""}</span><span class="ar-pmini ${a.p===0?"free":""}">${a.p?fmt(a.p):"gratis"}</span><span class="ar-ctl">${!a.night&&!a.full&&sg.acts.filter(x=>!x.night).length>1?`<button type="button" class="mvb" data-mvo="${sg.okey}|${aKeyG(a.city,a.i)}|-1" title="Subir (antes en el día)" ${sg.acts.filter(x=>!x.night)[0]===a?"disabled":""}>↑</button><button type="button" class="mvb" data-mvo="${sg.okey}|${aKeyG(a.city,a.i)}|1" title="Bajar (después en el día)" ${sg.acts.filter(x=>!x.night).slice(-1)[0]===a?"disabled":""}>↓</button>`:""}<button type="button" class="cm" data-cm="a:${aKeyG(a.city,a.i)}" title="Comentarios">💬<i></i></button><button type="button" class="lk" data-lock="${aKeyG(a.city,a.i)}" aria-pressed="${!!lockSel[aKeyG(a.city,a.i)]}" title="${lockSel[aKeyG(a.city,a.i)]?"Fija: no se saca automáticamente (clic para soltar)":"Fijar: que no se saque automáticamente"}">📌</button><button type="button" class="rm" data-rm="${aKeyG(a.city,a.i)}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
  <div class="ar-meta">${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}<span class="dur">${durTxt(a)}</span>${where}${isLate(a)?`<span class="tag late">⚠ ${a.close&&a.st+a.h>a.close+0.01?"cierra "+hm(a.close):"última entrada "+hm(a.until)}</span>`:""}${a.in?'<span class="tag indoor" title="Techado">🏛 techado</span>':""}<span class="tag ar-price ${a.p===0?"free":"price"}">${a.p?fmt(a.p)+(a.est?" est.":""):"gratis"}</span></div>
  ${(/\(.*?\)\s*$/.test(a.n)||a.note)?`<div class="ar-note">${[(a.n.match(/\((.*?)\)\s*$/)||[])[1],a.note].filter(Boolean).join(" · ")}</div>`:""}
  <div class="ar-links">${actLinks(a)} ${daySel(plan,a.city,aKeyG(a.city,a.i),dayPin[aKeyG(a.city,a.i)]||"","daysel")}${dayPin[aKeyG(a.city,a.i)]?'<span class="tag pinday">día fijado</span>':""}</div>
@@ -1963,13 +1963,17 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 .blk-com:not(.open) > :not(h4),.blk-tr:not(.open) > :not(h4){display:none!important}
 .actrow2 .ar-top{cursor:pointer}
 .actrow2:not(.open) .ar-ctl,.actrow2:not(.open) .ar-note,.actrow2:not(.open) .ar-links,.actrow2:not(.open) .why{display:none!important}
-.actrow2:not(.open) .ar-meta > :not(.ar-price):not(.late){display:none}
-.actrow2:not(.open) .ar-meta{justify-content:flex-end;margin-top:-22px;pointer-events:none}
-.actrow2:not(.open) .ar-name{padding-right:70px}
+.actrow2:not(.open) .ar-meta{display:none}
+.ar-pmini{display:none}
+.actrow2:not(.open) .ar-pmini{display:inline-block;flex:none;margin-left:auto;font:700 12px "Courier Prime",ui-monospace,monospace;background:var(--ink);color:var(--bg);padding:2px 6px;border-radius:3px;white-space:nowrap}
+.actrow2:not(.open) .ar-pmini.free{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink)}
+.ar-latemini{display:none}
+.actrow2:not(.open) .ar-name:has(.ar-latemini)::after{content:none}
+.actrow2:not(.open) .ar-latemini{display:block;font:600 11.5px "Courier Prime",ui-monospace,monospace;color:#8e1d14;margin-top:2px}
 .actrow2:not(.open) .ar-name::after{content:" ▸";font-size:12px;color:var(--muted)}
 .actrow2.open{background:color-mix(in srgb,var(--ink) 4%,transparent)}
-.actrow2.open .ar-ctl{display:flex;margin:4px 0 0;flex-wrap:wrap}
 .actrow2.open .ar-top{flex-wrap:wrap}
+.actrow2.open .ar-ctl{display:flex;flex:1 1 100%;order:9;margin:6px 0 0 calc(1.75em + 8px);gap:5px;flex-wrap:wrap}
 .blk-att .mv.tr{display:block;max-width:100%;box-sizing:border-box;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .blk-att{min-width:0;max-width:100%}
 .blk-att .mv.tr.full{white-space:normal}
