@@ -459,7 +459,7 @@ window.__grpSaved=async(prev,next)=>{if(!S.on||!prev||!Object.keys(prev).length|
     else{const P=pick(prev,ks),N=pick(next,ks);const r=await _FB.F.addDoc(C("log"),{who:myName(),at:Date.now(),prev:P,next:N,sum});lastLog={id:r.id,at:Date.now(),prev:P}}
   }catch(e){fail(e)}};
 // Escribir en el plan oficial (deshacer, restaurar, aplicar propuesta) y recargar
-async function official(changes,why,logSum){if(_mode==="draft")return alert("Sal del borrador primero.");
+async function official(changes,why,logSum){if(_mode==="draft")return say("Sal del borrador primero.");
   if(_mode==="preview"){SHARED.forEach(k=>{if(_remote&&typeof _remote[k]==="string")MEM[k]=_remote[k];else delete MEM[k]});_mode=null;localStorage.removeItem("ruta_preview")}
   const before=_snap();await backup(why,before);
   Object.entries(changes).forEach(([k,v])=>{if(!SHARED.includes(k))return;if(v==null)delete MEM[k];else MEM[k]=v});
@@ -467,6 +467,11 @@ async function official(changes,why,logSum){if(_mode==="draft")return alert("Sal
     if(ks.length)await _FB.F.addDoc(C("log"),{who:myName(),at:Date.now(),prev:pick(before,ks),next:pick(after,ks),sum:logSum||describe(before,after)});
     SHARED.forEach(k=>{if(k in MEM)try{localStorage.setItem(k,MEM[k])}catch(e){}});location.reload()}catch(e){fail(e)}}
 
+// ---------- Confirmación dentro de la página (sin diálogos del navegador) ----------
+function ask(msg,yes,onYes){const w=document.createElement("div");w.className="grp-modal";
+  w.innerHTML=`<div class="grp-mbox"><p style="white-space:pre-line;margin:0 0 10px">${esc(msg)}</p><div class="grp-row">${yes?`<button type="button" class="grp-pri" data-a="y">${esc(yes)}</button><button type="button" data-a="n">Cancelar</button>`:`<button type="button" class="grp-pri" data-a="n">Entendido</button>`}</div></div>`;
+  w.onclick=e=>{const a=e.target.closest("[data-a]");if(e.target===w||a){w.remove();if(a&&a.dataset.a==="y"&&onYes)onYes()}};document.body.appendChild(w)}
+const say=m=>ask(m);
 // ---------- Nombre ----------
 function askName(force){if(me&&!force)return;const w=document.createElement("div");w.className="grp-modal";
   w.innerHTML=`<div class="grp-mbox"><h3>¿Quién eres?</h3><p>Tu nombre aparece en el historial, las propuestas y los comentarios. Se pide una sola vez en este navegador.</p>
@@ -480,7 +485,7 @@ function askName(force){if(me&&!force)return;const w=document.createElement("div
 function startDraft(){if(_mode)return;localStorage.setItem("ruta_draftBase",JSON.stringify(_remote||_snap()));localStorage.setItem("ruta_draft",JSON.stringify(_snap()));localStorage.setItem("ruta_draftOn","1");location.reload()}
 function endModes(){["ruta_draftOn","ruta_draft","ruta_draftBase","ruta_preview"].forEach(k=>localStorage.removeItem(k));location.reload()}
 function draftDiff(){const base=J(localStorage.getItem("ruta_draftBase"));const cur=_snap();const ch=diffKeys(base,cur);FLAGS.forEach(k=>delete ch[k]);return{base,cur,ch,sum:describe(base,cur)}}
-async function propose(title){const {base,ch,cur}=draftDiff();if(!Object.keys(ch).length)return alert("El borrador no tiene cambios.");
+async function propose(title){const {base,ch,cur}=draftDiff();if(!Object.keys(ch).length)return say("El borrador no tiene cambios.");
   const ks=Object.keys(ch);try{await _FB.F.addDoc(C("props"),{title:title||"Propuesta",who:myName(),ws:mySlug(),at:Date.now(),base:pick(base,ks),changes:ch,sum:describe(pick(base,ks),pick(cur,ks)),votes:{[mySlug()]:1},status:"open"});endModes()}catch(e){fail(e)}}
 function preview(p){localStorage.setItem("ruta_preview",JSON.stringify({id:p.id,title:p.title,who:p.who,changes:p.changes}));location.reload()}
 function banner(){if(!_mode)return;const b=document.createElement("div");b.className="grp-banner "+_mode;
@@ -544,12 +549,12 @@ document.addEventListener("click",async e=>{const cm=e.target.closest("[data-cm]
   else if(g==="openprop")openPanel("prop");else if(g==="send")propose(($("grpPT")||{}).value);
   else if(g==="view"){const p=S.props.find(x=>x.id===id);if(p)preview(p)}
   else if(g==="vote")vote(id,+b.dataset.v);
-  else if(g==="withdraw"){if(confirm("¿Retirar esta propuesta?"))_FB.F.updateDoc(D("props",id),{status:"withdrawn",doneAt:Date.now()}).catch(fail)}
-  else if(g==="undo"){const x=S.log.find(l=>l.id===id);if(x&&confirm(`¿Deshacer este cambio de ${x.who}?\n\n${(x.sum||[]).join("\n")}\n\nSi alguien cambió lo mismo después, también se revierte.`))official(x.prev||{},`Antes de deshacer un cambio de ${x.who}`,[`deshizo un cambio de ${x.who}`,...(x.sum||[]).slice(0,4)])}
-  else if(g==="restore"){const x=(S.backups||[]).find(l=>l.id===id);if(x&&confirm(`¿Restaurar el plan como estaba ${ago(x.at)}?\nAntes se guarda una copia del plan actual.`)){const ch={};SHARED.forEach(k=>ch[k]=x.data&&k in x.data?x.data[k]:null);official(ch,"Antes de restaurar un respaldo",[`restauró el respaldo de ${ago(x.at)}`])}}
+  else if(g==="withdraw"){ask("¿Retirar esta propuesta?","Retirar",()=>_FB.F.updateDoc(D("props",id),{status:"withdrawn",doneAt:Date.now()}).catch(fail))}
+  else if(g==="undo"){const x=S.log.find(l=>l.id===id);if(x)ask(`¿Deshacer este cambio de ${x.who}?\n\n${(x.sum||[]).map(t=>"• "+t).join("\n")}\n\nSi alguien cambió lo mismo después, también se revierte.`,"↩ Deshacer",()=>official(x.prev||{},`Antes de deshacer un cambio de ${x.who}`,[`deshizo un cambio de ${x.who}`,...(x.sum||[]).slice(0,4)]))}
+  else if(g==="restore"){const x=(S.backups||[]).find(l=>l.id===id);if(x)ask(`¿Restaurar el plan como estaba ${ago(x.at)}?\nAntes se guarda una copia del plan actual.`,"Restaurar",()=>{const ch={};SHARED.forEach(k=>ch[k]=x.data&&k in x.data?x.data[k]:null);official(ch,"Antes de restaurar un respaldo",[`restauró el respaldo de ${ago(x.at)}`])})}
   else if(g==="alltc"){S.target=null;render()}
   else if(g==="addcm"){const t=$("grpCmTxt");if(t&&t.value.trim()){await addCm(S.target||"g",t.value);t.value=""}}
-  else if(g==="delcm"){if(confirm("¿Borrar tu comentario?"))_FB.F.deleteDoc(D("comments",id)).catch(fail)}});
+  else if(g==="delcm"){ask("¿Borrar tu comentario?","Borrar",()=>_FB.F.deleteDoc(D("comments",id)).catch(fail))}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("grpPanel")&&!$("grpPanel").hidden)closePanel()});
 
 // ---------- Inicio ----------
