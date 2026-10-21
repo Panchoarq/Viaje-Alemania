@@ -648,6 +648,22 @@ const H=[
 <p>Lista de lo que hay que hacer antes del viaje: documentos, autorización notarial de los padres, seguro, tarjetas, reservas con cupo (museos, Reichstag, Miniatur Wunderland) y los boletos de transporte en cada ciudad. Al marcar un ítem queda tachado <b>para todos</b>, así se sabe qué falta.</p>`],
 ["att","6 · Atracciones",`
 <p>El contexto histórico de cada ciudad y una ficha por atracción: qué es, su historia, qué ver y consejos, con enlaces y fotos. Sirve para preparar a los jóvenes antes de ir. Las que ya están en el programa llevan el sello <b>EN EL PROGRAMA</b>; para agregar o quitar atracciones se usa la pestaña Programa.</p>`],
+["seg","Seguridad",`
+<p>Ninguna de estas ciudades es peligrosa en general, pero hay <b>zonas puntuales</b> donde hay que tener más cuidado, sobre todo de noche. En los planos se ven como <b>círculos rojos achurados</b>, y cada día avisa con <b>⚠ Zona de precaución</b> si el recorrido o el hotel quedan cerca.</p>
+<ul>
+<li><b>Berlín:</b> Alexanderplatz (a 1,2 km del hotel), Warschauer Brücke, Kottbusser Tor, Görlitzer Park, Hermannplatz — lista oficial de la policía de Berlín (2026).</li>
+<li><b>Hamburgo:</b> Hauptbahnhof y St. Georg; Reeperbahn (St. Pauli) de noche.</li>
+<li><b>Múnich:</b> Hauptbahnhof y Alter Botanischer Garten (prohibición de armas todo el día).</li>
+<li><b>Praga:</b> parque Vrchlického sady (estación central), Plaza Wenceslao de noche, carteristas en Puente Carlos, Reloj Astronómico y tranvía 22.</li>
+</ul>
+<h4>Reglas simples</h4>
+<ul>
+<li>Andar siempre en grupo; de noche, volver juntos al hotel.</li>
+<li>Mochila adelante en multitudes y en el metro; celular guardado, no en el bolsillo de atrás.</li>
+<li>No cambiar dinero en la calle; pagar con tarjeta.</li>
+<li>Guardar foto del pasaporte en el celular y la dirección del hotel.</li>
+<li>Emergencias en toda Europa: <b>112</b> · Policía Alemania: <b>110</b> · Policía Chequia: <b>158</b>.</li>
+</ul>`],
 ["grp","Grupo (papás)",`
 <ul>
 <li><b>👤 Tu nombre</b> (abajo a la derecha) abre el panel. El número rojo indica novedades.</li>
@@ -813,6 +829,21 @@ const ACTS={
     {n:"Paseo nocturno por el puerto con luces (Lichterfahrt)",night:1,p:22,h:1.25,pr:1,tr:"metro",top:1,note:"🌙 Después de la cena · 1–1,5 h · ~22 € · U3 Landungsbrücken · revisar horario de salida y reservar",ll:[53.5458,9.97],u:"https://www.hamburg-tourism.de/themen-touren/rundfahrten-und-gaenge/hafenrundfahrten/"}]
 };
 // Techado (in) / se disfruta de noche (nightOk) / cierre en invierno (close, hora). Horarios de invierno publicados; verificar en enero.
+// Zonas de precaución (fuentes: Policía de Berlín kbO 2026, Hamburgo, Ciudad de Múnich, OSAC/guías de Praga)
+const ZONES={
+ B:[{n:"Alexanderplatz",ll:[52.5219,13.4132],r:330,t:"Lugar con más delitos según la policía de Berlín: robos, carteristas y peleas. De noche no quedarse en la plaza; volver al hotel en grupo."},
+    {n:"Warschauer Brücke",ll:[52.5057,13.4489],r:300,t:"Robos y venta de drogas, sobre todo de noche. Cruzar sin detenerse."},
+    {n:"Kottbusser Tor",ll:[52.4991,13.4180],r:260,t:"Drogas y robos. Evitar."},
+    {n:"Görlitzer Park",ll:[52.4966,13.4375],r:380,t:"Venta de drogas y robos. No entrar al parque."},
+    {n:"Hermannplatz",ll:[52.4867,13.4243],r:300,t:"Drogas y robos. Evitar de noche."}],
+ H:[{n:"Hauptbahnhof y St. Georg",ll:[53.5528,10.0085],r:450,t:"Drogas y carteristas en la estación y las calles de St. Georg. Celular y billetera guardados; no quedarse."},
+    {n:"Reeperbahn (St. Pauli)",ll:[53.5497,9.9600],r:420,t:"Barrio rojo y vida nocturna. De día se puede pasar; de noche no ir."}],
+ M:[{n:"Hauptbahnhof y Alter Botanischer Garten",ll:[48.1415,11.5630],r:380,t:"Drogas y peleas; hay prohibición de armas todo el día. No cruzar el parque de noche."}],
+ P:[{n:"Vrchlického sady (parque de la estación)",ll:[50.0837,14.4352],r:200,t:"Parque frente a la estación central: drogas y robos. Ir por la calle, no por el parque."},
+    {n:"Plaza Wenceslao (de noche)",ll:[50.0812,14.4270],r:360,t:"De noche: estafas, cambio de dinero en la calle y bares con cuenta inflada. No cambiar plata en la calle."},
+    {n:"Puente Carlos",ll:[50.0865,14.4114],r:170,t:"Carteristas entre la multitud. Mochila adelante y celular en la mano solo para fotos."},
+    {n:"Reloj Astronómico",ll:[50.0870,14.4207],r:160,t:"Carteristas mientras la gente mira el reloj. Mochila adelante."}]};
+const zonesNear=(c,pts)=>(ZONES[c]||[]).filter(z=>pts.some(p=>p&&kmBetween(p,z.ll)*1000<=z.r+120));
 const META={"M:0":{nightOk:1},"M:1":{in:1,close:20},"M:2":{close:18},"M:3":{in:1,close:18},"M:7":{in:1,close:23},"M:8":{in:1,close:17},"M:9":{in:1,close:17},"M:10":{close:17.5},"M:11":{in:1,close:16},"M:12":{in:1,close:18},"M:13":{in:1,close:18},
  "P:0":{close:16},"P:1":{in:1,close:16.5},"P:3":{close:18},"P:5":{nightOk:1},"P:6":{nightOk:1},"P:8":{nightOk:1,close:22},"P:9":{in:1,close:17},"P:10":{close:18},
  "B:0":{in:1,close:20},"B:2":{in:1,close:20},"B:3":{in:1,close:20},"B:4":{in:1,close:20,closed:[0]},"B:6":{in:1,close:19},"B:7":{in:1,close:18},"B:8":{nightOk:1},"B:9":{in:1,nightOk:1,close:24},"B:12":{nightOk:1},"B:13":{in:1,nightOk:1,close:22},"B:14":{in:1,close:21},"B:15":{in:1,close:18},"B:16":{in:1,close:16.5},"B:5":{close:16},
@@ -1444,7 +1475,7 @@ function mapDefs(){if(_defsDone||typeof MAPS==="undefined")return;_defsDone=true
   const g=Object.entries(MAPS).map(([c,m])=>`<g id="mb-${c}"><rect x="-50" y="-50" width="${m.W+100}" height="${m.H+100}" class="m-land"/><path class="m-park" d="${m.park}"/><path class="m-water" d="${m.water}"/><path class="m-river" d="${m.river}"/><path class="m-rail" d="${m.rail}"/><path class="m-r3" d="${m.r3}"/><path class="m-r2c" d="${m.r2}"/><path class="m-r1c" d="${m.r1}"/><path class="m-r2" d="${m.r2}"/><path class="m-r1" d="${m.r1}"/></g>`).join("");
   const rg=typeof REGM==="undefined"?"":Object.entries(REGM).map(([c,m])=>`<g id="rb-${c}"><rect x="-200" y="-200" width="${m.W+400}" height="${m.H+400}" class="m-land"/><path class="m-park" d="${m.forest}"/><path class="m-river" d="${m.river}"/><path class="m-water" d="${m.water}"/><path class="m-rail" d="${m.rail}"/><path class="m-r1c" d="${m.mway}"/><path class="m-r1" d="${m.mway}"/></g>`).join("");
   const d=document.createElement("div");d.style.cssText="position:absolute;width:0;height:0;overflow:hidden";d.setAttribute("aria-hidden","true");
-  d.innerHTML=`<svg width="0" height="0"><defs>${g}${rg}<pattern id="m-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="m-hl"/></pattern></defs></svg>`;document.body.appendChild(d)}
+  d.innerHTML=`<svg width="0" height="0"><defs>${g}${rg}<pattern id="m-riskh" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="5" height="5" fill="rgba(179,38,30,.10)"/><line x1="0" y1="0" x2="0" y2="5" stroke="rgba(179,38,30,.45)" stroke-width="1.2"/></pattern><pattern id="m-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="m-hl"/></pattern></defs></svg>`;document.body.appendChild(d)}
 function segMap(d,sg){const c=sg.city;const pr=mproj(c);if(!pr)return null;
   const acts=sg.acts.filter(a=>a.tr!=="fuera"&&inMap(c,a.ll));if(!acts.length)return null;
   const hotel=sg.anchor,pts=[];const legs=[];let prev=hotel;
@@ -1457,6 +1488,9 @@ function segMap(d,sg){const c=sg.city;const pr=mproj(c);if(!pr)return null;
   return {c,pr,acts,legs,hotel,ls,vb:[cx-w/2,cy-h/2,w,h]}}
 function mapSvg(M,big){const {c,pr,acts,legs,hotel,ls}=M;const v0=M.vb;const vb=big?[v0[0]-v0[2]*0.07,v0[1]-v0[3]*0.1,v0[2]*1.27,v0[3]*1.2]:v0;const u=vb[2]/100;const L=MAPS[c];
   let s=`<svg class="dmap" viewBox="${vb.map(v=>v.toFixed(1)).join(" ")}" role="img" aria-label="Plano del recorrido en ${CN[c]}"><use href="#mb-${c}"/>`;
+  (typeof ZONES!=="undefined"&&ZONES[c]||[]).forEach(z=>{const p=pr(z.ll),q=pr([z.ll[0]+z.r/111320,z.ll[1]]);const r=Math.abs(q[1]-p[1]);
+    if(p[0]+r<vb[0]||p[0]-r>vb[0]+vb[2]||p[1]+r<vb[1]||p[1]-r>vb[1]+vb[3])return;
+    s+=`<g class="m-risk"><title>Precaución: ${z.n}</title><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r.toFixed(1)}"/>${big?`<text x="${p[0].toFixed(1)}" y="${(p[1]-r-u*0.6).toFixed(1)}" font-size="${(u*1.7).toFixed(2)}" text-anchor="middle">⚠ ${z.n}</text>`:""}</g>`});
   if(big)s+=L.lab.filter(l=>l[0]>vb[0]&&l[0]<vb[0]+vb[2]&&l[1]>vb[1]&&l[1]<vb[1]+vb[3]).map(l=>l[3]==="road"?`<text class="m-lab road" x="${l[0]}" y="${l[1]}" font-size="${(u*1.6).toFixed(2)}" transform="rotate(${l[5]} ${l[0]} ${l[1]})" text-anchor="middle">${l[2]}</text>`:`<text class="m-lab ${l[3]}" x="${l[0]}" y="${l[1]}" font-size="${(u*(l[4]>20000?2.3:1.9)).toFixed(2)}" text-anchor="middle">${l[2]}</text>`).join("");
   legs.forEach(l=>{const a=pr(l.from),b=pr(l.to);
     if(l.far&&l.t){const s1=pr([l.t.from[0],l.t.from[1]]),s2=pr([l.t.to[0],l.t.to[1]]);
@@ -1581,6 +1615,7 @@ function renderDays(plan){
  ${(ATTR[a.city+":"+a.i]||whyOf(a))?`<details class="why"><summary>¿Por qué vale la pena?</summary>${ATTR[a.city+":"+a.i]?ATTR[a.city+":"+a.i].s:whyOf(a)} <a href="#" data-ficha="${a.city}:${a.i}">Ver ficha completa →</a></details>`:""}
 </div>`;});
       if(sg.lunchAt!=null&&!lp)h+=lunchRow();
+      {const zs=zonesNear(sg.city,[sg.anchor,...sg.acts.filter(x=>x.tr!=="fuera").map(x=>x.ll)]);if(zs.length)h+=`<details class="riskbox"><summary>⚠ Zona${zs.length>1?"s":""} de precaución: ${zs.map(z=>z.n).join(" · ")}</summary>${zs.map(z=>`<p><b>${z.n}:</b> ${z.t}</p>`).join("")}<p class="muted">Emergencias en toda Europa: <b>112</b>${sg.city==="P"?"":" · Policía Alemania: <b>110</b>"}${sg.city==="P"?" · Policía Chequia: <b>158</b>":""}</p></details>`}
       if(sg.man)h+=`<div class="manord">✋ <b>Orden manual</b>${sg.dTr>2?` · +${sg.dTr} min de traslados vs. automático`:sg.dTr<-2?` · ${-sg.dTr} min menos de traslados`:""}${sg.acts.some(isLate)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-mvreset="${sg.okey}">↺ Orden automático</button></div>`;
       const ru=routeUrl(sg);const depAfter=d.from&&sg.city===d.from&&sg.acts.length;
       if(ru){const fh=routeStartsAtHotel(sg);const nums=sg.acts.map(x=>x.num);h+=`<a class="route" href="${ru}" target="_blank" rel="noopener">🗺 Ver recorrido ${d.segs.length>1?"en "+CN[sg.city]+" ":"del día "}en Google Maps (${fh?`A = hotel, luego ${nums.join("→")}`:`A = atracción 1, luego ${nums.slice(1).join("→")}`})</a>`;if(!fh)h+=`<span class="mv">El hotel queda lejos de la primera atracción: llegar en tranvía/metro (ver arriba) y desde ahí recorrer a pie.</span>`}
@@ -1968,6 +2003,12 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 /* Pestañas de ciudad tipo carpeta con clip */
 #p-prog #daytabs,#p-hot #hottabs{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;padding:14px 0 0;margin:0;border-bottom:0}
 #hotels > .city[hidden]{display:none!important}
+/* ===== Zonas de precaución ===== */
+.riskbox{margin:8px 0;border-left:5px solid #b3261e;border-radius:4px;background:repeating-linear-gradient(135deg,color-mix(in srgb,#b3261e 9%,var(--card)) 0 6px,color-mix(in srgb,#b3261e 4%,var(--card)) 6px 12px);padding:6px 10px;font-size:13.5px}
+.riskbox summary{cursor:pointer;font-weight:700;color:#8e1d14;list-style:none}
+.riskbox summary::-webkit-details-marker{display:none}
+.riskbox summary::after{content:" ▸";font-weight:400}.riskbox[open] summary::after{content:" ▾"}
+.riskbox p{margin:6px 0 0}
 /* ===== Traslados y almuerzo ===== */
 .mv.tr{border:0!important;border-left:5px solid #b5432f!important;border-radius:3px!important;background:color-mix(in srgb,var(--ink) 4%,var(--card));box-shadow:0 1px 3px rgba(40,30,15,.12);padding:5px 8px 5px 9px!important;margin:6px 0!important;font-size:12.5px}
 .mv.tr.subway{border-left-color:#1f4fb5!important}
@@ -2164,6 +2205,17 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 #bar.sumstrip .tp{font-size:11px;color:var(--muted)}#bar.sumstrip .tm{height:5px}
 #legend:empty{display:none}
 @media (max-width:560px){#bar.sumstrip{flex-wrap:wrap;gap:8px}#bar.sumstrip .tkt{flex:1 1 30%}}
+/* ===== Portada de inicio ===== */
+button.sticker{border:0;cursor:pointer;font:inherit}
+.cover{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:#efe6d2;background-image:linear-gradient(rgba(91,139,201,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(91,139,201,.18) 1px,transparent 1px);background-size:24px 24px;cursor:pointer;transition:opacity .7s ease}
+.cover.out{opacity:0;pointer-events:none}
+.cover figure{margin:0;background:#fffdf6;padding:10px 10px 14px;border-radius:6px;box-shadow:0 2px 0 rgba(0,0,0,.06),0 18px 40px rgba(40,25,10,.35);transform:rotate(-2deg) scale(.96);animation:covIn .9s cubic-bezier(.2,.8,.2,1) forwards;position:relative;max-width:min(92vw,620px)}
+.cover figure::after{content:"";position:absolute;top:-12px;left:50%;width:90px;height:26px;margin-left:-45px;background:rgba(233,220,180,.85);transform:rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.cover img{display:block;width:100%;max-height:78vh;object-fit:contain;border-radius:3px}
+.cover small{font:600 12px "Courier Prime",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6b5a44}
+@keyframes covIn{to{transform:rotate(-2deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){.cover figure{animation:none;transform:rotate(-2deg)}.cover{transition:none}}
 /* Planos del día */
 .dmap{display:block;width:100%;height:auto;background:var(--land)}
 .m-land{fill:var(--land)}
@@ -2227,6 +2279,9 @@ html:root[data-paper="1"] #days > .day > .day-body::after{content:"";position:ab
 .dmap .lnk{cursor:pointer}.dmap .m-pt.lnk:hover circle,.dmap .m-pt.lnk:focus circle{stroke:var(--ink);stroke-width:3px}.dmap .m-name.lnk:hover{text-decoration:underline}
 .dmap .m-lead{stroke:color-mix(in srgb,var(--ink) 55%,transparent);stroke-width:1px;vector-effect:non-scaling-stroke}
 .dmap .m-town circle{fill:color-mix(in srgb,var(--ink) 55%,transparent)}.dmap .m-town text{font-family:"Courier Prime",monospace;fill:color-mix(in srgb,var(--ink) 60%,transparent);paint-order:stroke;stroke:var(--land);stroke-width:2px;vector-effect:non-scaling-stroke}
+
+.m-risk circle{fill:url(#m-riskh);fill-opacity:1;stroke:#b3261e;stroke-width:.6;stroke-dasharray:2 1.4;opacity:.85}
+.m-risk text{fill:#8e1d14;font-weight:700;font-family:"Courier Prime",ui-monospace,monospace;paint-order:stroke;stroke:#fffdf6;stroke-width:.6}
 
 /* ===== Grupo ===== */
 .cm{display:none}
@@ -2302,22 +2357,11 @@ body.grp-hasbanner .hlp-btn{top:60px}
 .hlp-key{background:#fff3c4;border-left:4px solid #a8352b;padding:8px 10px;border-radius:4px}
 @media (max-width:560px){.hlp-dlg{padding:0}.hlp-box{max-height:100vh;height:100%;border-radius:0}.hlp-btn{width:32px;height:32px;font-size:17px;top:8px;right:8px}}
 @media print{.hlp-btn,.hlp-dlg{display:none!important}}
-
-/* ===== Portada de inicio ===== */
-button.sticker{border:0;cursor:pointer;font:inherit}
-.cover{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
-  background:#efe6d2;background-image:linear-gradient(rgba(91,139,201,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(91,139,201,.18) 1px,transparent 1px);background-size:24px 24px;cursor:pointer;transition:opacity .7s ease}
-.cover.out{opacity:0;pointer-events:none}
-.cover figure{margin:0;background:#fffdf6;padding:10px 10px 14px;border-radius:6px;box-shadow:0 2px 0 rgba(0,0,0,.06),0 18px 40px rgba(40,25,10,.35);transform:rotate(-2deg) scale(.96);animation:covIn .9s cubic-bezier(.2,.8,.2,1) forwards;position:relative;max-width:min(92vw,620px)}
-.cover figure::after{content:"";position:absolute;top:-12px;left:50%;width:90px;height:26px;margin-left:-45px;background:rgba(233,220,180,.85);transform:rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
-.cover img{display:block;width:100%;max-height:78vh;object-fit:contain;border-radius:3px}
-.cover small{font:600 12px "Courier Prime",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6b5a44}
-@keyframes covIn{to{transform:rotate(-2deg) scale(1)}}
-@media (prefers-reduced-motion:reduce){.cover figure{animation:none;transform:rotate(-2deg)}.cover{transition:none}}
 </style>
 <script>(function(){const c=document.getElementById("cover");let shown=false;try{shown=sessionStorage.getItem("ruta_cover")==="1"}catch(e){}
   const hide=()=>{c.classList.add("out");setTimeout(()=>c.hidden=true,750)};
   const show=()=>{c.hidden=false;c.classList.remove("out");clearTimeout(c._t);c._t=setTimeout(hide,2800)};
   c.addEventListener("click",hide);document.getElementById("logoBtn").addEventListener("click",show);
-  if(shown)c.hidden=true;else{try{sessionStorage.setItem("ruta_cover","1")}catch(e){}c._t=setTimeout(hide,2800)}})();</script></body>
+  if(shown)c.hidden=true;else{try{sessionStorage.setItem("ruta_cover","1")}catch(e){}c._t=setTimeout(hide,2800)}})();</script>
+</body>
 </html>
