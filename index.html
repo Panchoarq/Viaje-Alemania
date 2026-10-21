@@ -165,9 +165,10 @@ label.vchk input{accent-color:var(--ok);margin:0}
 .anum{display:inline-block;min-width:1.5em;text-align:center;border:1.5px solid currentColor;border-radius:50%;font-size:12px;line-height:1.4em;margin-right:2px}.st{font-size:13px;opacity:.75}.lunch{font-size:14px;padding:6px 10px;margin:4px 0;border:1px dashed var(--line,#999);border-radius:6px}.route{display:block;margin:10px 0 6px;font-weight:600}.seg{display:block;margin-top:10px}
 </style>
 
+<div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
 <div class="wrap">
   <header class="has-sticker">
-    <a class="sticker" href="img/sticker-big.jpg" target="_blank" rel="noopener" title="Ver afiche completo"><img src="img/sticker.jpg" alt="Afiche Deutschland 2027: ruta Santiago → Hamburgo → Berlín → Praga → Múnich con cinco viajeros"></a>
+    <button type="button" class="sticker" id="logoBtn" title="Ver portada"><img src="img/logo-marcopolo.jpg" alt="Marco Polo · Planifica · Explora · Vive"></button>
     <span class="eyebrow" id="hdrMeta">5 viajeros · 16 años</span>
     <h1 id="h1">Ruta Múnich · Praga · Berlín</h1>
     <div class="route" id="route" aria-label="Ruta"></div>
@@ -2301,6 +2302,22 @@ body.grp-hasbanner .hlp-btn{top:60px}
 .hlp-key{background:#fff3c4;border-left:4px solid #a8352b;padding:8px 10px;border-radius:4px}
 @media (max-width:560px){.hlp-dlg{padding:0}.hlp-box{max-height:100vh;height:100%;border-radius:0}.hlp-btn{width:32px;height:32px;font-size:17px;top:8px;right:8px}}
 @media print{.hlp-btn,.hlp-dlg{display:none!important}}
+
+/* ===== Portada de inicio ===== */
+button.sticker{border:0;cursor:pointer;font:inherit}
+.cover{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:#efe6d2;background-image:linear-gradient(rgba(91,139,201,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(91,139,201,.18) 1px,transparent 1px);background-size:24px 24px;cursor:pointer;transition:opacity .7s ease}
+.cover.out{opacity:0;pointer-events:none}
+.cover figure{margin:0;background:#fffdf6;padding:10px 10px 14px;border-radius:6px;box-shadow:0 2px 0 rgba(0,0,0,.06),0 18px 40px rgba(40,25,10,.35);transform:rotate(-2deg) scale(.96);animation:covIn .9s cubic-bezier(.2,.8,.2,1) forwards;position:relative;max-width:min(92vw,620px)}
+.cover figure::after{content:"";position:absolute;top:-12px;left:50%;width:90px;height:26px;margin-left:-45px;background:rgba(233,220,180,.85);transform:rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.cover img{display:block;width:100%;max-height:78vh;object-fit:contain;border-radius:3px}
+.cover small{font:600 12px "Courier Prime",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6b5a44}
+@keyframes covIn{to{transform:rotate(-2deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){.cover figure{animation:none;transform:rotate(-2deg)}.cover{transition:none}}
 </style>
-</body>
+<script>(function(){const c=document.getElementById("cover");let shown=false;try{shown=sessionStorage.getItem("ruta_cover")==="1"}catch(e){}
+  const hide=()=>{c.classList.add("out");setTimeout(()=>c.hidden=true,750)};
+  const show=()=>{c.hidden=false;c.classList.remove("out");clearTimeout(c._t);c._t=setTimeout(hide,2800)};
+  c.addEventListener("click",hide);document.getElementById("logoBtn").addEventListener("click",show);
+  if(shown)c.hidden=true;else{try{sessionStorage.setItem("ruta_cover","1")}catch(e){}c._t=setTimeout(hide,2800)}})();</script></body>
 </html>
