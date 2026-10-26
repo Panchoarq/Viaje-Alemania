@@ -103,7 +103,7 @@ textarea{min-height:70px;resize:vertical}
 .sync.busy{background:#6b5a1e}.sync.ro{background:#6b2a1e}.sync.hide{opacity:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* programa París */
-.pdays{display:grid;gap:8px;margin-top:12px}
+.pdays{display:grid;gap:14px;margin-top:12px}
 .pfree{font:12.5px var(--f-mono);color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:7px 10px;background:color-mix(in srgb,var(--blue) 4%,var(--paper))}
 .pday{border:1px solid var(--line);border-left:5px solid var(--red);border-radius:6px;background:var(--paper)}
 .pdh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;border:0;background:none;padding:11px 10px;text-align:left;cursor:pointer}
@@ -126,6 +126,42 @@ textarea{min-height:70px;resize:vertical}
 .pcat{display:grid;gap:4px;max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:6px;background:#fffef9}
 .pci{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:7px 4px;border-bottom:1px dotted var(--line);font-size:14.5px;cursor:pointer}
 .pci input{width:20px;height:20px;min-height:0;margin-top:2px}
+/* día París estilo Alemania */
+.pday2{border:1px solid var(--line);border-top:5px solid var(--red);border-radius:6px;background:var(--paper);padding:12px 14px 14px;display:grid;gap:10px;box-shadow:0 2px 0 rgba(0,0,0,.03),0 6px 14px rgba(40,25,10,.08)}
+.pd-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.pd-head h3{margin:2px 0 0;font:700 17px/1.25 var(--f-body);text-transform:none;letter-spacing:0;color:var(--ink)}
+.pd-tot{text-align:right;display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap}
+.pd-tot b{font:700 20px var(--f-mono)}.pd-tot small{font:12px var(--f-mono);color:var(--muted)}
+.pd-strip{display:flex;flex-wrap:wrap;gap:6px 14px;font:12.5px var(--f-mono);color:var(--muted);border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:6px 0}
+.pd-strip b{color:var(--ink)}
+.pd-body{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);grid-template-areas:"att com" "att tr" "att .";gap:12px 22px;align-items:start}
+.pb-att{grid-area:att;display:grid;gap:4px;min-width:0}.pb-com{grid-area:com}.pb-tr{grid-area:tr}
+.pblk{min-width:0;display:grid;gap:6px}
+.pblk>h4{margin:0;font:600 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pb-com>h4,.pb-tr>h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 0 6px;border-top:2px solid var(--ink);user-select:none}
+.pb-com>h4::after,.pb-tr>h4::after{content:"▸ ver";font-weight:400;letter-spacing:0;text-transform:none}
+.pb-com.open>h4::after,.pb-tr.open>h4::after{content:"▾ ocultar"}
+.pb-com:not(.open)>:not(h4),.pb-tr:not(.open)>:not(h4){display:none!important}
+.pmv{font:12px var(--f-mono);color:var(--muted);padding-left:30px}.pmv.m{color:var(--blue)}
+.pdur{display:block;font:11.5px var(--f-mono);color:var(--muted);font-weight:400}
+.route{display:block;margin:8px 0 2px;font:600 13px var(--f-mono)}
+label.pchk{display:flex;gap:8px;align-items:flex-start;font-size:14px;cursor:pointer;padding:2px 0}
+label.pchk input{width:18px;height:18px;min-height:0;margin-top:2px;accent-color:var(--red)}
+label.pchk .t{flex:1;min-width:0}label.pchk .t small{display:block;color:var(--muted);font-size:12px}
+.pchk .p,.pline .p{font:13px var(--f-mono);color:var(--muted);white-space:nowrap}
+.pmsel{width:auto!important;max-width:calc(100% - 26px)!important;margin-left:26px;min-height:32px!important;padding:3px 6px!important;font-size:13px!important}
+.pline{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:3px 0;border-bottom:1px dotted var(--line)}
+.pline small{display:block;color:var(--muted);font:11.5px var(--f-mono)}.pline.tot{font-weight:700;border-bottom:0}
+.pnote{font-size:12px;margin:2px 0}
+.pmap{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:6px;margin-top:4px}
+.pm-bg{fill:#f3ecdc}.pm-seine{fill:none;stroke:#9cc3d8;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.pm-l{stroke-width:2.2;stroke:var(--red)}.pm-l.w{stroke-dasharray:3 4;stroke:var(--ink);opacity:.7}.pm-l.m{stroke:var(--blue)}.pm-l.back{opacity:.35}
+.pm-a circle{fill:var(--red);stroke:#fff;stroke-width:1.5}.pm-a text{fill:#fff;font:700 11px var(--f-mono);text-anchor:middle}
+.pm-h rect{fill:var(--ink)}.pm-h text{fill:#fff;font:700 13px var(--f-body);text-anchor:middle}
+.pm-sc line{stroke:var(--ink);stroke-width:2}.pm-sc text{font:10px var(--f-mono);fill:var(--muted);text-anchor:middle}
+.pm-leg{display:flex;flex-wrap:wrap;gap:4px 12px;font:11.5px var(--f-mono);color:var(--muted)}
+.pm-leg i{display:inline-block;width:18px;height:0;border-top:2px dashed var(--ink);vertical-align:middle;margin-right:4px}.pm-leg i.m{border-top:2.5px solid var(--blue)}
+@media (max-width:640px){.pd-body{display:flex;flex-direction:column;gap:10px}.pday2{padding:10px 10px 12px}.pd-head h3{font-size:15.5px}.pmv{padding-left:8px}}
 /* mapa de escapadas */
 .fmwrap{margin:6px 0 4px}
 .frmap{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#dfe9ee}
@@ -223,7 +259,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},mealOpt:ST.mealOpt||{},by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -236,7 +272,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.mealOpt=d.mealOpt||{};render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -434,6 +470,79 @@ function buildPA(){const days=parisDays();const base=BASES[ST.base]||BASES["Otro
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
 function routeUrl(p){const base=BASES[ST.base]||BASES["Otro / centro"];const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
   return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
+// ===== Día de París con la lógica de Alemania: atracciones + anexo Comidas + Traslados y plano =====
+const PA_MEAL_LBL={d:"Desayuno",a:"Almuerzo",m:"Media tarde",c:"Cena"};
+// precios aproximados por persona (París 2026, verificar)
+const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12]],
+  a:[["Formule de bistró (plato + postre)",18],["Crêpe o sándwich al paso",9],["Brasserie",28]],
+  m:[["Pastelería / macarons",6],["Chocolate caliente en café",8]],
+  c:[["Bistró de barrio",28],["Algo al paso / supermercado",12],["Restaurante especial",50]]};
+const PA_MEAL_DEF={d:true,a:true,m:false,c:true};
+const METRO=2.5;// boleto metro/RER/bus por viaje (aprox.)
+let paBlk=new Set();
+const mealOnP=(d,k)=>{const m=ST.meals||{};return (d+"|"+k) in m?!!m[d+"|"+k]:PA_MEAL_DEF[k]};
+const mealIxP=(d,k)=>{const i=(ST.mealOpt||{})[d+"|"+k]|0;return Math.min(i,PA_MEAL[k].length-1)};
+function legsOfDay(p){const base=BASES[ST.base]||BASES["Otro / centro"];const L=[];let pos=base,nm="alojamiento";
+  p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
+  if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
+  return L.map(l=>{const d=km(l.from,l.to);return {...l,d,metro:d>1.2,min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
+const trUrl=(a,b,m)=>`https://www.google.com/maps/dir/?api=1&origin=${a.join(",")}&destination=${b.join(",")}&travelmode=${m?"transit":"walking"}`;
+// Sena aproximada (lat,lng) de este a oeste
+const SEINE=[[48.8255,2.4100],[48.8300,2.3880],[48.8360,2.3760],[48.8430,2.3650],[48.8490,2.3600],[48.8515,2.3540],[48.8545,2.3480],[48.8575,2.3410],[48.8590,2.3350],[48.8615,2.3270],[48.8640,2.3200],[48.8645,2.3080],[48.8635,2.3010],[48.8605,2.2935],[48.8560,2.2870],[48.8495,2.2790],[48.8440,2.2740],[48.8380,2.2690],[48.8300,2.2630]];
+function dayMap(p,legs){const base=BASES[ST.base]||BASES["Otro / centro"];const pts=[base,...p.seq.map(a=>a.ll)];
+  let la0=Math.min(...pts.map(x=>x[0])),la1=Math.max(...pts.map(x=>x[0])),lo0=Math.min(...pts.map(x=>x[1])),lo1=Math.max(...pts.map(x=>x[1]));
+  const kx=Math.cos(48.86*Math.PI/180);let w=(lo1-lo0)*kx,h=la1-la0;const mn=0.012;
+  if(w<mn){const c=(lo0+lo1)/2;lo0=c-mn/kx/2;lo1=c+mn/kx/2;w=mn}if(h<mn){const c=(la0+la1)/2;la0=c-mn/2;la1=c+mn/2;h=mn}
+  const pad=0.18;const W=300,Hh=Math.round(Math.max(150,Math.min(260,W*(h/w))));const sx=W/(w*(1+2*pad)),sy=Hh/(h*(1+2*pad));const s=Math.min(sx,sy);
+  const cx=(lo0+lo1)/2,cy=(la0+la1)/2;const P=ll=>[(W/2+(ll[1]-cx)*kx*s).toFixed(1),(Hh/2-(ll[0]-cy)*s).toFixed(1)];
+  const seine=SEINE.map(P).map(q=>q.join(",")).join(" ");
+  let g=`<polyline points="${seine}" class="pm-seine"/>`;
+  legs.forEach(l=>{const a=P(l.from),b=P(l.to);g+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="pm-l ${l.metro?"m":"w"}${l.k?"":" back"}"/>`});
+  const hb=P(base);g+=`<g class="pm-h" transform="translate(${hb[0]},${hb[1]})"><rect x="-8" y="-8" width="16" height="16" rx="3"/><text y="4.5">⌂</text></g>`;
+  p.seq.forEach((a,k)=>{const q=P(a.ll);g+=`<g class="pm-a" transform="translate(${q[0]},${q[1]})"><circle r="9"/><text y="4">${k+1}</text></g>`});
+  // escala 1 km
+  const km1=s/111;g+=`<g class="pm-sc" transform="translate(10,${Hh-10})"><line x1="0" y1="0" x2="${(km1).toFixed(1)}" y2="0"/><text x="${(km1/2).toFixed(1)}" y="-4">1 km</text></g>`;
+  return `<svg class="pmap" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Plano del día"><rect width="${W}" height="${Hh}" class="pm-bg"/>${g}</svg>
+  <div class="pm-leg"><span><i class="w"></i>a pie</span><span><i class="m"></i>metro/RER</span><span>⌂ alojamiento</span><span class="muted">Sena aprox.</span></div>`}
+function dayCost(p){const ent=p.seq.reduce((t,a)=>t+a.p,0);let meal=0;["d","a","m","c"].forEach(k=>{if(mealOnP(p.d,k))meal+=PA_MEAL[k][mealIxP(p.d,k)][1]});
+  const legs=legsOfDay(p);const nm=legs.filter(l=>l.metro).length;return {ent,meal,tr:nm*METRO,nm,legs,total:ent+meal+nm*METRO}}
+function dayCard(p,days){const c=dayCost(p);const legs=c.legs;const id=p.d;const oc=paBlk.has(id+"|com"),ot=paBlk.has(id+"|tr");
+  const title=p.seq.map(a=>a.n.replace(/\s*\(.*?\)/,"")).join(" · ");
+  let h=`<article class="pday2" data-day="${id}"><div class="pd-head"><div><span class="eyebrow">${pretty(p.d)} · París</span><h3>${title}</h3></div>
+    <div class="pd-tot"><span class="eyebrow">Por persona</span><b>${fmtE(c.total)}</b><small>los 2: ${fmtE(c.total*2)}</small></div></div>
+    <div class="pd-strip"><span>🎟️ Entradas <b>${fmtE(c.ent)}</b></span><span>🍽️ Comidas <b>${fmtE(c.meal)}</b></span><span>🚇 Transporte <b>${fmtE(c.tr)}</b></span></div>
+    <div class="pd-body"><div class="pblk pb-att"><h4>Atracciones</h4>
+    ${p.first?`<p class="note">Llegada en Eurostar: la tarde queda libre para panoramas cerca.</p>`:p.ret?`<p class="note">Vuelta de escapada: solo la tarde.</p>`:""}`;
+  let lp=false;const lunch=()=>`<div class="plunch">🍽 <b>${hm(p.seq.lunch)}</b> Almuerzo con calma (~1 h)</div>`;
+  p.seq.forEach((a,k)=>{const l=legs[k];
+    if(p.seq.lunch&&!lp&&a.st>p.seq.lunch){h+=lunch();lp=true}
+    h+=`<span class="pmv ${l.metro?"m":""}">↓ ${l.metro?`~${l.min} min en metro/RER`:`a pie ~${l.min} min`}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">cómo llegar</a></span>`;
+    const op=paOpen.has(p.d+"|"+a.id);
+    h+=`<div class="pact${op?" open":""}">
+        <button class="pat" data-pact="${p.d}|${a.id}"><span class="pn">${k+1}</span><span class="pt">${hm(a.st)}</span><span class="pnm">${a.n}${a.top?' <span class="star">★</span>':""}${a.in?' <span class="pin">🏛</span>':""}${a.closed?' <span class="pw">⚠ cerrado ese día</span>':a.late?` <span class="pw">⚠ cierra ${hm(a.close)}</span>`:""}<small class="pdur">🕐 ~${String(a.h).replace(".",",")} h</small></span><span class="pp ${a.p?"":"free"}">${fmtE(a.p)}</span></button>
+        ${op?`<div class="pdet"><p><b>${a.s}</b></p><p><b>Qué ver:</b> ${a.v}</p><p><b>Consejo:</b> ${a.d}</p>
+          <p class="muted">🕐 visita ~${String(a.h).replace(".",",")} h${a.close?` · cierra ${hm(a.close)} (invierno)`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}</p>
+          <div class="act"><a class="btn alt sm" href="${a.u}" target="_blank" rel="noopener">Sitio</a><a class="btn alt sm" href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa</a>
+          <select data-papin="${a.id}" aria-label="Elegir día" style="width:auto;min-height:34px;padding:4px 8px;font-size:14px"><option value="">📅 Día automático</option>${days.map(x=>`<option value="${x.d}" ${(ST.paPin||{})[a.id]===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>
+          <button class="btn alt sm" data-paoff="${a.id}">✕ Quitar</button></div></div>`:""}</div>`});
+  if(p.seq.lunch&&!lp)h+=lunch();
+  const back=legs[legs.length-1];
+  h+=`<span class="pmv ${back.metro?"m":""}">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en metro/RER`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>
+    <a class="route" href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (A = alojamiento, luego ${p.seq.map((_,k)=>k+1).join("→")})</a></div>`;
+  // Comidas
+  h+=`<div class="pblk pb-com${oc?" open":""}"><h4 data-pblk="${id}|com"><span>Comidas · ${fmtE(c.meal)}</span></h4>`;
+  ["d","a","m","c"].forEach(k=>{const on=mealOnP(p.d,k),i=mealIxP(p.d,k),o=PA_MEAL[k];
+    h+=`<label class="pchk"><input type="checkbox" data-pmeal="${p.d}|${k}" ${on?"checked":""}><span class="t">${PA_MEAL_LBL[k]}<small>${o[i][0]}</small></span><span class="p">${fmtE(o[i][1])}</span></label>
+    ${o.length>1?`<select class="pmsel" data-pmopt="${p.d}|${k}" aria-label="Opción ${PA_MEAL_LBL[k]}">${o.map((x,j)=>`<option value="${j}" ${j===i?"selected":""}>${x[0]} · ${fmtE(x[1])}</option>`).join("")}</select>`:""}`});
+  h+=`<p class="muted pnote">Precios aproximados por persona: verificar en el lugar.</p></div>`;
+  // Traslados y plano
+  h+=`<div class="pblk pb-tr${ot?" open":""}"><h4 data-pblk="${id}|tr"><span>Traslados y plano · ${fmtE(c.tr)}</span></h4>
+    ${legs.map(l=>`<div class="pline"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn}<small>${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span><span class="p">${l.metro?fmtE(METRO):"—"}</span></div>`).join("")}
+    <div class="pline tot"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en metro/RER × ~${fmtE(METRO)}</span><span class="p">${fmtE(c.tr)}</span></div>
+    <p class="muted pnote">Boleto único metro/RER/bus en la app Bonjour RATP o tarjeta Navigo Easy. Si hay muchos días seguidos, conviene el pase Navigo semanal (lunes a domingo).</p>
+    ${dayMap(p,legs)}</div>`;
+  return h+`</div></article>`}
+
 let paOpen=new Set(),paCat=false,paFilt="todas";
 function paris(){const days=parisDays();
   if(!days.length)return `<div class="sheet panel"><span class="eyebrow">Programa en París</span><h2>Días en París</h2><div class="empty">Completa las fechas del tren a París y del vuelo de regreso para armar los días.</div></div>`;
@@ -446,18 +555,7 @@ function paris(){const days=parisDays();
   ${R.unpl.length?`<p class="warn">No caben ${R.unpl.length}: ${R.unpl.map(a=>a.n).join(", ")}. Cambia a ritmo intenso o quita otras.</p>`:""}
   <div class="pdays">`;
   let free=[];const flush=()=>{if(!free.length)return;h+=`<div class="pfree">${free.length===1?"Día libre":free.length+" días libres"}: ${free.map(x=>pretty(x.d)).join(" · ")}</div>`;free=[]};
-  R.plan.forEach(p=>{if(!p.seq.length){free.push(p);return}flush();const o=paOpen.has(p.d);
-    h+=`<div class="pday${o?" open":""}"><button class="pdh" data-pday="${p.d}"><span class="pdd">${pretty(p.d)}</span><span class="pdn">${p.seq.map(a=>a.n.replace(/\s*\(.*?\)/,"")).join(" · ")}</span><span class="pdc">${fmtE(p.seq.reduce((t,a)=>t+a.p,0))}</span></button>
-    ${o?`<div class="pdb">${p.first?`<p class="note">Llegada en Eurostar: la tarde queda libre para panoramas cerca.</p>`:p.ret?`<p class="note">Vuelta de escapada: solo la tarde.</p>`:""}
-      ${p.seq.map((a,k)=>`${p.seq.lunch&&a.st>p.seq.lunch&&(k===0||p.seq[k-1].st<p.seq.lunch)?`<div class="plunch">🍽 <b>${hm(p.seq.lunch)}</b> Almuerzo</div>`:""}<div class="pact${paOpen.has(p.d+"|"+a.id)?" open":""}">
-        <button class="pat" data-pact="${p.d}|${a.id}"><span class="pn">${k+1}</span><span class="pt">${hm(a.st)}</span><span class="pnm">${a.n}${a.top?' <span class="star">★</span>':""}${a.in?' <span class="pin">🏛</span>':""}${a.closed?' <span class="pw">⚠ cerrado ese día</span>':a.late?` <span class="pw">⚠ cierra ${hm(a.close)}</span>`:""}</span><span class="pp ${a.p?"":"free"}">${fmtE(a.p)}</span></button>
-        ${paOpen.has(p.d+"|"+a.id)?`<div class="pdet"><p><b>${a.s}</b></p><p><b>Qué ver:</b> ${a.v}</p><p><b>Consejo:</b> ${a.d}</p>
-          <p class="muted">🕐 visita ~${String(a.h).replace(".",",")} h${a.close?` · cierra ${hm(a.close)} (invierno)`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}</p>
-          <div class="act"><a class="btn alt sm" href="${a.u}" target="_blank" rel="noopener">Sitio</a><a class="btn alt sm" href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa</a>
-          <select data-papin="${a.id}" aria-label="Elegir día" style="width:auto;min-height:34px;padding:4px 8px;font-size:14px"><option value="">📅 Día automático</option>${days.map(x=>`<option value="${x.d}" ${(ST.paPin||{})[a.id]===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>
-          <button class="btn alt sm" data-paoff="${a.id}">✕ Quitar</button></div></div>`:""}</div>`).join("")}
-      ${p.seq.lunch&&!p.seq.some(a=>a.st>p.seq.lunch)?`<div class="plunch">🍽 <b>${hm(p.seq.lunch)}</b> Almuerzo</div>`:""}
-      <p><a href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (desde el alojamiento)</a></p></div>`:""}</div>`});
+  R.plan.forEach(p=>{if(!p.seq.length){free.push(p);return}flush();h+=dayCard(p,days)});
   flush();
   return h+`</div><p class="muted" style="font-size:13px;margin-top:12px">Precios de adulto no residente en la UE, temporada 2026: verificar al comprar. Horarios de cierre de invierno.</p></div>`}
 function catalog(){const fl=[["todas","Todas"],["top","★ Imperdibles"],["in","🏛 Techadas"],["free","Gratis"],["xmas","🎄 Navidad"]];
@@ -469,7 +567,9 @@ function bindParis(){const b=$("#paBase");if(!b)return;
   $("#paCatBtn").onclick=()=>{paCat=!paCat;render()};
   document.querySelectorAll("[data-paf]").forEach(x=>x.onclick=()=>{paFilt=x.dataset.paf;render()});
   document.querySelectorAll("[data-pasel]").forEach(x=>x.onchange=()=>{ST.paSel=ST.paSel||{};ST.paSel[x.dataset.pasel]=x.checked;save();render()});
-  document.querySelectorAll("[data-pday]").forEach(x=>x.onclick=()=>{const k=x.dataset.pday;paOpen.has(k)?paOpen.delete(k):paOpen.add(k);render()});
+  document.querySelectorAll("[data-pblk]").forEach(x=>x.onclick=()=>{const k=x.dataset.pblk;paBlk.has(k)?paBlk.delete(k):paBlk.add(k);x.parentNode.classList.toggle("open")});
+  document.querySelectorAll("[data-pmeal]").forEach(x=>x.onchange=()=>{ST.meals=ST.meals||{};ST.meals[x.dataset.pmeal]=x.checked;save();render()});
+  document.querySelectorAll("[data-pmopt]").forEach(x=>x.onchange=()=>{ST.mealOpt=ST.mealOpt||{};ST.mealOpt[x.dataset.pmopt]=+x.value;save();render()});
   document.querySelectorAll("[data-pact]").forEach(x=>x.onclick=()=>{const k=x.dataset.pact;paOpen.has(k)?paOpen.delete(k):paOpen.add(k);render()});
   document.querySelectorAll("[data-papin]").forEach(x=>x.onchange=()=>{ST.paPin=ST.paPin||{};if(x.value)ST.paPin[x.dataset.papin]=x.value;else delete ST.paPin[x.dataset.papin];if(x.value)paOpen.add(x.value);save();render()});
   document.querySelectorAll("[data-paoff]").forEach(x=>x.onclick=()=>{ST.paSel=ST.paSel||{};ST.paSel[x.dataset.paoff]=false;save();render()})}
