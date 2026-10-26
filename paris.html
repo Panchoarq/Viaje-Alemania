@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Viaje a París · Marco Polo</title>
+<meta name="theme-color" content="#efe6d2">
+<link rel="icon" href="img/logo-marcopolo.jpg">
+<link rel="apple-touch-icon" href="img/logo-marcopolo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: cuaderno de viaje en papel, una columna para iPhone; barra fija con pestañas; tarjetas tipo ficha. */
+:root{--paper:#fffdf6;--desk:#efe6d2;--ink:#2a2219;--muted:#76695a;--line:#d8cba9;--red:#a8352b;--blue:#2e4f8f;--ok:#2e6b4f;--warm:#f6efdd;
+  --grid:rgba(91,139,201,.18);--f-mono:"Courier Prime",ui-monospace,Menlo,monospace;--f-body:"Source Serif 4",Georgia,serif;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;background:var(--desk);color:var(--ink);font:16px/1.45 var(--f-body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:820px;margin:0 auto;padding-block:16px 90px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--blue)}
+.eyebrow{font:700 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font:700 26px/1.15 var(--f-mono);margin:4px 0 2px;text-wrap:balance}
+h2{font:700 20px/1.2 var(--f-body);margin:0 0 6px;text-wrap:balance}
+h3{font:700 12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+.muted{color:var(--muted)}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 0 rgba(0,0,0,.04),0 10px 24px rgba(40,25,10,.12);padding:18px 16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:8px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);font:700 15px var(--f-body);cursor:pointer;text-decoration:none}
+.btn.alt{background:var(--paper);color:var(--ink)}
+.btn.sm{min-height:34px;padding:5px 11px;font-size:13.5px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible,.chip:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+label.f{display:grid;gap:4px;font:600 13px var(--f-mono);letter-spacing:.04em;color:var(--muted)}
+input,select,textarea{width:100%;min-height:44px;padding:9px 11px;border:1px solid #b9a982;border-radius:7px;background:#fff;font-size:16px}
+textarea{min-height:70px;resize:vertical}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px}
+.stack{display:grid;gap:12px}
+/* cabecera */
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.hdr img{width:58px;height:58px;object-fit:cover;border-radius:6px;border:4px solid var(--paper);box-shadow:0 4px 10px rgba(40,25,10,.25);transform:rotate(-4deg)}
+.hdr .who{margin-left:auto;font:12px var(--f-mono);color:var(--muted);text-align:right}
+.hdr .who button{border:0;background:none;color:var(--blue);text-decoration:underline;cursor:pointer;padding:0;font:inherit}
+/* pestañas */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:4px;padding:8px 0 0;background:var(--desk);overflow-x:auto;scrollbar-width:none}
+.tab{flex:1 0 auto;font:700 12.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;padding:10px 12px 9px;border:1px solid var(--line);border-bottom:0;border-top:4px solid var(--c,var(--blue));border-radius:9px 9px 0 0;background:color-mix(in srgb,var(--c,var(--blue)) 9%,var(--paper));cursor:pointer;color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--paper);padding-top:12px}
+.panel{border-top:0;border-radius:0 0 6px 6px}
+/* login */
+.gate{max-width:440px;margin:6vh auto 0;text-align:center}
+.gate .logo{width:200px;margin:0 auto 14px;background:var(--paper);padding:8px 8px 11px;border-radius:6px;transform:rotate(-2deg);box-shadow:0 12px 26px rgba(40,25,10,.25)}
+.gate .logo img{display:block;width:100%;border-radius:3px}
+.gbtn{width:100%;background:#fff;color:#1f1f1f;border:1px solid #9a9a9a}
+.or{display:flex;align-items:center;gap:10px;margin:14px 0;font:12px var(--f-mono);color:var(--muted)}
+.or::before,.or::after{content:"";flex:1;border-top:1px dashed var(--line)}
+.note{font-size:14px;border-left:4px solid var(--blue);background:color-mix(in srgb,var(--blue) 7%,var(--paper));padding:8px 10px;border-radius:4px;text-align:left}
+.note.bad{border-color:var(--red);background:color-mix(in srgb,var(--red) 7%,var(--paper))}
+/* asistente */
+.steps{display:flex;gap:6px;margin:4px 0 14px}
+.steps span{flex:1;height:5px;border-radius:3px;background:#e2d7bd}
+.steps span.on{background:var(--red)}
+.wnav{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+/* línea de tiempo */
+.tl{display:grid;gap:0;margin:0;padding:0;list-style:none}
+.tl li{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px dashed var(--line)}
+.tl .d{font:700 12.5px/1.25 var(--f-mono);color:var(--red);font-variant-numeric:tabular-nums}
+.tl b{display:block}
+.tl small{color:var(--muted);font-size:13.5px}
+/* calendario */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-top:6px}
+.cal .h{font:700 10.5px var(--f-mono);text-align:center;color:var(--muted)}
+.cal .c{aspect-ratio:1;min-width:0;border-radius:5px;display:grid;place-items:center;font:700 12px var(--f-mono);background:#ece3cd;color:#a89a7c;position:relative}
+.cal .c.pa{background:color-mix(in srgb,var(--blue) 16%,var(--paper));color:var(--ink)}
+.cal .c.es{background:var(--c);color:#fff}
+.cal .c.tr{outline:2px solid var(--red);outline-offset:-2px}
+.cal .m{grid-column:1/-1;font:700 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;margin-top:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font:12px var(--f-mono);color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+/* escapadas */
+.filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.chip{flex:none;font:700 12.5px var(--f-mono);padding:7px 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.esc{display:grid;gap:10px}
+.card{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;background:var(--paper);padding:12px 12px 10px;display:grid;gap:6px}
+.card .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card .top b{font:700 18px/1.2 var(--f-body)}
+.card .flag{font-size:18px}
+.pills{display:flex;flex-wrap:wrap;gap:5px}
+.pill{font:700 11.5px var(--f-mono);padding:2px 7px;border-radius:3px;background:var(--warm);border:1px dashed var(--line);white-space:nowrap}
+.pill.train{background:color-mix(in srgb,var(--blue) 12%,var(--paper));border-color:transparent;color:var(--blue)}
+.card p{margin:0;font-size:14.5px}
+.card .act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card.sel{box-shadow:0 0 0 2px var(--c)}
+.plan{border:1px dashed var(--c);border-radius:6px;padding:10px;display:grid;gap:8px;background:color-mix(in srgb,var(--c) 5%,var(--paper))}
+.warn{font-size:13.5px;color:var(--red)}
+/* elegidas */
+.mine{display:grid;gap:8px}
+.mine .it{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;padding:9px 10px;background:var(--paper)}
+.mine .it .dt{font:700 12.5px var(--f-mono);color:var(--muted)}
+.empty{border:1px dashed var(--line);border-radius:6px;padding:14px;text-align:center;color:var(--muted);font-size:14.5px}
+.sync{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));font:600 12px system-ui,sans-serif;padding:7px 11px;border-radius:999px;background:#1f3d2b;color:#fff;opacity:.92;transition:opacity .4s}
+.sync.busy{background:#6b5a1e}.sync.ro{background:#6b2a1e}.sync.hide{opacity:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="muted" style="text-align:center;margin-top:20vh">Cargando…</p></div>
+<div class="sync hide" id="sync"></div>
+
+<script type="module">
+// ===== Datos: escapadas desde París (tiempos de tren directos típicos; verificar horarios al comprar) =====
+const ESC=[
+ {id:"bru",n:"Bruselas y Brujas",p:"🇧🇪",k:"noche",tr:"1 h 22 (Eurostar) · Brujas +1 h",nt:"2–3",c:"#b8860b",
+  t:"Grand-Place, cómics, chocolate y waffles; al día siguiente Brujas, la ciudad medieval de canales.",tags:["Bélgica","canales","chocolate"]},
+ {id:"ams",n:"Ámsterdam",p:"🇳🇱",k:"noche",tr:"3 h 20 (Eurostar directo)",nt:"2–3",c:"#d2691e",
+  t:"Canales, Rijksmuseum, Museo Van Gogh y Casa de Ana Frank (reservar con semanas).",tags:["Países Bajos","museos","canales"]},
+ {id:"col",n:"Colonia",p:"🇩🇪",k:"noche",tr:"3 h 15 (Eurostar directo)",nt:"1–2",c:"#7a5c3e",
+  t:"La catedral gótica más grande de Alemania, justo frente a la estación; paseo por el Rin.",tags:["Alemania","catedral"]},
+ {id:"lil",n:"Lille",p:"🇫🇷",k:"ambos",tr:"1 h (TGV)",nt:"1",c:"#8b3a3a",
+  t:"Centro flamenco con la Grand-Place y la Vieille Bourse; buena combinación con Brujas.",tags:["Francia","flamenco"]},
+ {id:"rei",n:"Reims y Champaña",p:"🇫🇷",k:"ambos",tr:"45 min (TGV)",nt:"0–1",c:"#9a7b2f",
+  t:"Catedral de las coronaciones y visita a una casa de champaña con cava subterránea.",tags:["Francia","catedral","día"]},
+ {id:"str",n:"Estrasburgo y Colmar",p:"🇫🇷",k:"noche",tr:"1 h 46 (TGV) · Colmar +30 min",nt:"2–3",c:"#2f6b4f",
+  t:"La Petite France, catedral con reloj astronómico y los pueblos de colores de Alsacia.",tags:["Francia","Alsacia"]},
+ {id:"lyo",n:"Lyon",p:"🇫🇷",k:"noche",tr:"1 h 56 (TGV)",nt:"2",c:"#a8352b",
+  t:"Capital gastronómica: Vieux Lyon, traboules (pasajes secretos) y la colina de Fourvière.",tags:["Francia","comida"]},
+ {id:"dij",n:"Dijon y Borgoña",p:"🇫🇷",k:"noche",tr:"1 h 35 (TGV)",nt:"1–2",c:"#7b3f6e",
+  t:"Palacio de los Duques, techos de tejas de colores y los viñedos de la Borgoña.",tags:["Francia","vino"]},
+ {id:"bdx",n:"Burdeos",p:"🇫🇷",k:"noche",tr:"2 h 05 (TGV)",nt:"2",c:"#6b1f3a",
+  t:"El Espejo de Agua, la Cité du Vin y escapada a Saint-Émilion.",tags:["Francia","vino"]},
+ {id:"loi",n:"Castillos del Loira",p:"🇫🇷",k:"ambos",tr:"1 h–1 h 15 a Tours (TGV)",nt:"1–2",c:"#4f7a2f",
+  t:"Chambord, Chenonceau y Amboise (donde está la tumba de Leonardo da Vinci).",tags:["Francia","castillos"]},
+ {id:"nor",n:"Normandía: Rouen y Étretat",p:"🇫🇷",k:"noche",tr:"1 h 10 a Rouen · Étretat +1 h 30 bus",nt:"2",c:"#3c6e8f",
+  t:"Catedral de Rouen pintada por Monet y los acantilados blancos de Étretat.",tags:["Francia","costa"]},
+ {id:"msm",n:"Mont-Saint-Michel",p:"🇫🇷",k:"noche",tr:"~3 h 30 (TGV a Rennes + bus)",nt:"1",c:"#5b6b7a",
+  t:"La abadía sobre el islote que queda rodeado por el mar con la marea alta.",tags:["Francia","ícono"]},
+ {id:"gin",n:"Ginebra y Annecy",p:"🇨🇭",k:"noche",tr:"3 h 10 (TGV Lyria)",nt:"2",c:"#b3261e",
+  t:"El lago Lemán con su chorro de agua y, a 1 hora, Annecy, la «Venecia de los Alpes».",tags:["Suiza","lagos"]},
+ {id:"ver",n:"Versalles",p:"🇫🇷",k:"dia",tr:"40 min (RER C)",nt:"0",c:"#a07a1f",
+  t:"El palacio de Luis XIV, el Salón de los Espejos y los jardines. Reservar horario online.",tags:["Francia","palacio","día"]},
+ {id:"giv",n:"Giverny",p:"🇫🇷",k:"dia",tr:"45 min a Vernon + bus",nt:"0",c:"#5f8f4f",
+  t:"La casa y el jardín de Monet con el estanque de los nenúfares (abre desde abril).",tags:["Francia","jardín","día"]},
+ {id:"fon",n:"Fontainebleau",p:"🇫🇷",k:"dia",tr:"40 min (Transilien R)",nt:"0",c:"#6e5a2f",
+  t:"Palacio de Napoleón, menos lleno que Versalles, y un bosque enorme.",tags:["Francia","palacio","día"]},
+ {id:"cha",n:"Chantilly",p:"🇫🇷",k:"dia",tr:"25 min (TER)",nt:"0",c:"#7a6a3a",
+  t:"Castillo con la segunda colección de pintura antigua de Francia y las Grandes Caballerizas.",tags:["Francia","castillo","día"]}
+];
+const FB={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
+const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has("demo");
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DOW=["dom","lun","mar","mié","jue","vie","sáb"],MON=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const D=s=>{if(!s)return null;const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const add=(s,n)=>{const d=D(s);d.setDate(d.getDate()+n);return iso(d)};
+const pretty=s=>{const d=D(s);return d?`${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`:"—"};
+const nights=(a,b)=>Math.round((D(b)-D(a))/864e5);
+
+// ===== Estado compartido =====
+let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="todas",open=null,saveT=null;
+try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
+function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
+function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+
+// ===== Ingreso =====
+async function boot(){
+  if(DEMO){try{ST=Object.assign(ST,JSON.parse(localStorage.getItem("paris_demo")||"{}"))}catch(e){}user={email:"demo@local",displayName:"Modo demo"};return render()}
+  const B="https://www.gstatic.com/firebasejs/10.12.2/";
+  const [A,U,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+  F=FS;const fa=A.initializeApp(FB),auth=U.getAuth(fa),db=FS.getFirestore(fa);ref=FS.doc(db,"trips","paris");
+  window._auth={U,auth};
+  if(U.isSignInWithEmailLink(auth,location.href)){let em="";try{em=localStorage.getItem("paris_email")||""}catch(e){}
+    if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
+  U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
+let unsub=null;
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;render()},e=>{gate(null,true)})}
+function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
+  <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
+  ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
+  <p class="muted">Entra con tu cuenta para ver y editar el plan. Solo las personas invitadas pueden verlo.</p>
+  ${msg?`<p class="note bad">${esc(msg)}</p>`:""}
+  <button class="btn gbtn" id="g"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.5 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.1 7.1-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.6-4-13.5-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>Entrar con Google</button>
+  <div class="or">o con un link a tu correo</div>
+  <form id="mf" class="stack"><input type="email" id="em" required placeholder="tu@correo.com" autocomplete="email"><button class="btn alt" type="submit">Enviarme el link</button></form>
+  <p id="mm" class="muted" style="font-size:14px"></p>`}
+  <p style="margin-top:22px"><a href="/">← Volver a Marco Polo</a></p></div>`;
+  const g=$("#g");if(g)g.onclick=async()=>{const {U,auth}=window._auth;try{await U.signInWithPopup(auth,new U.GoogleAuthProvider())}catch(e){if(e.code!=="auth/popup-closed-by-user")gate("No se pudo entrar con Google ("+e.code+").")}};
+  const mf=$("#mf");if(mf)mf.onsubmit=async ev=>{ev.preventDefault();const {U,auth}=window._auth;const em=$("#em").value.trim();
+    try{await U.sendSignInLinkToEmail(auth,em,{url:location.origin+location.pathname,handleCodeInApp:true});try{localStorage.setItem("paris_email",em)}catch(e){}$("#mm").textContent="Listo: revisa tu correo y abre el link desde este mismo teléfono."}catch(e){$("#mm").textContent="No se pudo enviar ("+e.code+")."}};
+  const o=$("#out");if(o)o.onclick=()=>window._auth.U.signOut(window._auth.auth)}
+
+// ===== Asistente =====
+const STEPS=[
+ {t:"Vuelo de ida",s:"Santiago → Londres",f:[["ida_fecha","Fecha de salida","date"],["ida_vuelo","Aerolínea y número de vuelo","text","Ej.: LATAM LA704"],["ida_llega","Llegada a Londres (fecha)","date"],["ida_aerop","Aeropuerto de llegada","select",["Heathrow","Gatwick","Stansted","Otro"]]]},
+ {t:"Londres",s:"Dos semanas con una amiga (previa al viaje)",f:[["lon_dir","Dónde se quedan en Londres (barrio o dirección)","text","Ej.: Camden"],["lon_notas","Notas (opcional)","textarea","Planes en Londres, contacto de la amiga…"]]},
+ {t:"Londres → París",s:"Inicio oficial del viaje",f:[["eur_fecha","Fecha del tren a París","date"],["eur_hora","Hora de salida","time"],["eur_tren","Tren","text","Eurostar · St Pancras → Gare du Nord"]]},
+ {t:"Base en París",s:"El punto de partida de todos los recorridos",f:[["par_dir","Dirección del alojamiento en París","text","Calle, número, barrio"],["par_tipo","Tipo de alojamiento","select",["Departamento","Hotel","Casa de amigos","Por definir"]]]},
+ {t:"Regreso",s:"Salida de París",f:[["vue_fecha","Fecha del vuelo de regreso","date"],["vue_vuelo","Aerolínea y número de vuelo","text","Ej.: Air France AF406"],["vue_aerop","Aeropuerto","select",["Charles de Gaulle (CDG)","Orly (ORY)","Otro"]]]}];
+function wizard(){const k=Math.min(ST.step||0,STEPS.length-1),S=STEPS[k],W=ST.wiz;
+  return `<div class="sheet"><span class="eyebrow">Configuración · paso ${k+1} de ${STEPS.length}</span>
+  <div class="steps">${STEPS.map((_,i)=>`<span class="${i<=k?"on":""}"></span>`).join("")}</div>
+  <h2>${S.t}</h2><p class="muted" style="margin:0 0 12px">${S.s}</p>
+  <form id="wf" class="stack">${S.f.map(([id,lab,ty,ex])=>`<label class="f">${lab}${ty==="select"?`<select name="${id}"><option value="">—</option>${ex.map(o=>`<option ${W[id]===o?"selected":""}>${o}</option>`).join("")}</select>`:ty==="textarea"?`<textarea name="${id}" placeholder="${esc(ex||"")}">${esc(W[id]||"")}</textarea>`:`<input type="${ty}" name="${id}" value="${esc(W[id]||"")}" placeholder="${esc(ex||"")}">`}</label>`).join("")}
+  ${k===2&&W.eur_fecha&&W.vue_fecha?`<p class="note">En París: <b>${nights(W.eur_fecha,W.vue_fecha)} noches</b>, del ${pretty(W.eur_fecha)} al ${pretty(W.vue_fecha)}.</p>`:""}
+  <div class="wnav"><button type="button" class="btn alt" id="wb" ${k===0?"disabled":""}>← Atrás</button><button type="submit" class="btn">${k===STEPS.length-1?"Terminar ✓":"Siguiente →"}</button></div></form>
+  <p class="muted" style="font-size:13.5px;margin-top:12px">Puedes dejar campos en blanco y completarlos después en «Resumen».</p></div>`}
+function bindWizard(){const f=$("#wf");if(!f)return;const keep=()=>{new FormData(f).forEach((v,k)=>ST.wiz[k]=String(v))};
+  f.onsubmit=e=>{e.preventDefault();keep();if((ST.step||0)>=STEPS.length-1){ST.wiz.done=1;ST.step=STEPS.length;tab="escapadas"}else ST.step=(ST.step||0)+1;save();render();scrollTo(0,0)};
+  $("#wb").onclick=()=>{keep();ST.step=Math.max(0,(ST.step||0)-1);save();render()}}
+
+// ===== Resumen: línea de tiempo + calendario =====
+function timeline(){const W=ST.wiz,it=[];
+  if(W.ida_fecha)it.push([W.ida_fecha,"✈ Santiago → Londres",[W.ida_vuelo,W.ida_aerop&&"llega a "+W.ida_aerop].filter(Boolean).join(" · ")]);
+  if(W.ida_llega)it.push([W.ida_llega,"🇬🇧 Londres con la amiga",[W.lon_dir,W.eur_fecha&&nights(W.ida_llega,W.eur_fecha)+" noches"].filter(Boolean).join(" · ")]);
+  if(W.eur_fecha)it.push([W.eur_fecha,"🚄 Londres → París (inicio del viaje)",[W.eur_hora,W.eur_tren].filter(Boolean).join(" · ")]);
+  [...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini)).forEach(e=>{const x=ESC.find(z=>z.id===e.id);if(!x)return;it.push([e.ini,`${x.p} ${x.n}`,e.fin===e.ini?"Excursión de un día":`${nights(e.ini,e.fin)} noche${nights(e.ini,e.fin)>1?"s":""} · vuelve ${pretty(e.fin)} · tren ${x.tr}`])});
+  if(W.vue_fecha)it.push([W.vue_fecha,"✈ París → Santiago",[W.vue_vuelo,W.vue_aerop].filter(Boolean).join(" · ")]);
+  it.sort((a,b)=>a[0].localeCompare(b[0]));
+  return it.length?`<ol class="tl">${it.map(([d,t,s])=>`<li><span class="d">${pretty(d).replace(" ","<br>")}</span><span><b>${esc(t)}</b><small>${esc(s||"")}</small></span></li>`).join("")}</ol>`:`<div class="empty">Completa la configuración para ver la línea de tiempo.</div>`}
+function calendar(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";
+  const map={};ST.esc.forEach(e=>{const x=ESC.find(z=>z.id===e.id);if(!x)return;let d=e.ini;for(let i=0;i<=Math.max(0,nights(e.ini,e.fin));i++){map[d]=map[d]||[];map[d].push({x,first:d===e.ini,last:d===e.fin});d=add(d,1)}});
+  let s=`<div class="cal">`,d=W.eur_fecha,m=-1;const first=D(d);const lead=(first.getDay()+6)%7;
+  ["L","M","M","J","V","S","D"].forEach(h=>s+=`<span class="h">${h}</span>`);
+  s+=`<span class="m">${MON[first.getMonth()]}</span>`;
+  for(let i=0;i<lead;i++)s+=`<span></span>`;
+  while(d<=W.vue_fecha){const dd=D(d);if(dd.getMonth()!==m&&d!==W.eur_fecha&&dd.getDate()===1){s+=`<span class="m">${MON[dd.getMonth()]}</span>`;for(let i=0;i<(dd.getDay()+6)%7;i++)s+=`<span></span>`}m=dd.getMonth();
+    const E=map[d];const c=E?E[0].x.c:"";const tr=E&&(E[0].first||E[0].last);s+=`<span class="c ${E?"es":"pa"} ${tr?"tr":""}" style="${c?`--c:${c}`:""}" title="${pretty(d)}${E?" · "+E.map(z=>z.x.n).join(", "):" · París"}">${dd.getDate()}</span>`;d=add(d,1)}
+  return s+`</div><div class="legend"><span><i style="background:color-mix(in srgb,#2e4f8f 16%,#fffdf6)"></i>París</span><span><i style="background:#a8352b"></i>Escapada</span><span><i style="outline:2px solid #a8352b;outline-offset:-2px;background:#fff"></i>Día de tren</span></div>`}
+function resumen(){const W=ST.wiz,n=W.eur_fecha&&W.vue_fecha?nights(W.eur_fecha,W.vue_fecha):null,ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0);
+  return `<div class="sheet panel"><span class="eyebrow">Resumen del viaje</span><h2>${n!=null?`${n} noches en Francia · ${n-ne} en París · ${ne} en escapadas`:"Viaje a París"}</h2>
+  <h3>Calendario en Francia</h3>${calendar()||`<div class="empty">Indica la fecha del tren a París y la del vuelo de regreso.</div>`}
+  <h3>Línea de tiempo</h3>${timeline()}
+  <p style="margin-top:14px"><button class="btn alt sm" id="edit">✎ Editar vuelos, fechas y alojamiento</button></p></div>`}
+
+// ===== Escapadas =====
+function overlap(ini,fin,skip){return ST.esc.some(e=>e!==skip&&!(fin<e.ini||ini>e.fin))}
+function escapadas(){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
+  const list=ESC.filter(x=>filt==="todas"||(filt==="noche"&&x.k!=="dia")||(filt==="dia"&&x.k!=="noche")||(filt==="fuera"&&x.p!=="🇫🇷"));
+  return `<div class="sheet panel"><span class="eyebrow">Escapadas desde París · máx. ~3 h en tren</span><h2>Elige a dónde ir</h2>
+  <p class="muted" style="margin:0 0 10px">Cualquier día de la semana sirve. Toca «Agregar», elige la fecha de ida y cuántas noches.</p>
+  <h3>Elegidas (${ST.esc.length})</h3>
+  ${ST.esc.length?`<div class="mine">${[...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini)).map(e=>{const x=ESC.find(z=>z.id===e.id);const n=nights(e.ini,e.fin);return `<div class="it" style="--c:${x.c}"><span>${x.p}</span><span><b>${x.n}</b><br><span class="dt">${pretty(e.ini)}${n?` → ${pretty(e.fin)} · ${n} noche${n>1?"s":""}`:" · ida y vuelta"}</span></span><button class="btn alt sm" data-del="${e.ini}|${e.id}" aria-label="Quitar ${x.n}">✕</button></div>`}).join("")}</div>`:`<div class="empty">Todavía no eligen escapadas.</div>`}
+  <h3>Ideas</h3>
+  <div class="filters">${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}</div>
+  <div class="esc" style="margin-top:10px">${list.map(x=>{const sel=ST.esc.some(e=>e.id===x.id);return `<div class="card ${sel?"sel":""}" style="--c:${x.c}">
+    <div class="top"><span class="flag">${x.p}</span><b>${x.n}</b></div>
+    <div class="pills"><span class="pill train">🚄 ${x.tr}</span><span class="pill">${x.k==="dia"?"Excursión de un día":x.nt==="0–1"?"De un día o 1 noche":"Sugerido: "+x.nt+" noche"+(x.nt==="1"?"":"s")}</span></div>
+    <p>${x.t}</p>
+    ${open===x.id?planForm(x,lim):`<div class="act"><button class="btn sm" data-open="${x.id}">${sel?"+ Agregar otra fecha":"+ Agregar"}</button>${sel?`<span class="muted" style="font-size:13px">✓ elegida</span>`:""}</div>`}</div>`}).join("")}</div></div>`}
+function planForm(x,lim){const W=ST.wiz;const def=W.eur_fecha?add(W.eur_fecha,3):"";const n0=x.k==="dia"?0:parseInt(x.nt)||1;
+  return `<form class="plan" data-plan="${x.id}"><div class="row2"><label class="f">Fecha de ida<input type="date" name="ini" value="${def}" ${lim?`min="${W.eur_fecha}" max="${W.vue_fecha}"`:""} required></label>
+  <label class="f">Noches<select name="n">${[0,1,2,3,4].map(n=>`<option value="${n}" ${n===n0?"selected":""}>${n?n+" noche"+(n>1?"s":""):"Solo el día"}</option>`).join("")}</select></label></div>
+  <p class="warn" id="pw-${x.id}"></p><div class="act"><button class="btn sm" type="submit">Guardar</button><button class="btn alt sm" type="button" data-close>Cancelar</button></div></form>`}
+
+// ===== París (programa) =====
+function paris(){return `<div class="sheet panel"><span class="eyebrow">Programa en París</span><h2>Días en París</h2>
+  <div class="empty">Aquí va el programa día por día en París, igual que en el Viaje a Alemania: atracciones, plano, comidas, orden automático y manual. <b>Se arma en la fase 2</b>, con la dirección del alojamiento como punto de partida.</div></div>`}
+
+// ===== Render =====
+function render(){if(!user)return;
+  const W=ST.wiz;const conf=W.done;
+  const tabs=[["resumen","Resumen","#2e4f8f"],["paris","París","#a8352b"],["escapadas","Escapadas","#2f6b4f"]];
+  if(!conf&&tab!=="config")tab="config";
+  app.innerHTML=`<div class="hdr"><img src="img/logo-marcopolo.jpg" alt=""><div><span class="eyebrow">Marco Polo</span><h1>Viaje a París</h1></div>
+   <div class="who">${esc(user.displayName||user.email)}<br>${DEMO?"":`<button id="so">Salir</button> · `}<a href="/">Viajes</a></div></div>
+   ${tab==="config"?wizard():`<div class="tabs" role="tablist">${tabs.map(([k,t,c])=>`<button class="tab" role="tab" style="--c:${c}" data-tab="${k}" aria-selected="${tab===k}">${t}</button>`).join("")}</div>
+   ${tab==="resumen"?resumen():tab==="paris"?paris():escapadas()}`}`;
+  bindWizard();
+  const so=$("#so");if(so)so.onclick=()=>window._auth.U.signOut(window._auth.auth);
+  const ed=$("#edit");if(ed)ed.onclick=()=>{ST.step=0;tab="config";ST.wiz.done=0;render();scrollTo(0,0)};
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("paris_tab",tab)}catch(e){}render()});
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{filt=b.dataset.f;render()});
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{open=b.dataset.open;render()});
+  document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{open=null;render()});
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const [ini,id]=b.dataset.del.split("|");ST.esc=ST.esc.filter(e=>!(e.ini===ini&&e.id===id));save();render()});
+  document.querySelectorAll("form[data-plan]").forEach(f=>{const id=f.dataset.plan,w=$("#pw-"+id);
+    const chk=()=>{const ini=f.ini.value,n=+f.n.value,fin=ini?add(ini,n):"";let m="";
+      if(ini&&W.eur_fecha&&(ini<W.eur_fecha||fin>W.vue_fecha))m="⚠ Queda fuera de las fechas en Francia.";else if(ini&&overlap(ini,fin))m="⚠ Se cruza con otra escapada ya elegida.";
+      else if(ini)m=`Vuelven a París el ${pretty(fin)}.`;w.textContent=m;w.style.color=m.startsWith("⚠")?"":"var(--ok)";return !m.startsWith("⚠")};
+    f.oninput=chk;chk();
+    f.onsubmit=e=>{e.preventDefault();if(!chk())return;ST.esc.push({id,ini:f.ini.value,fin:add(f.ini.value,+f.n.value)});open=null;save();render()}})}
+boot();
+</script>
+</body>
+</html>
