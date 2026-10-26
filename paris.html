@@ -102,6 +102,30 @@ textarea{min-height:70px;resize:vertical}
 .sync{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));font:600 12px system-ui,sans-serif;padding:7px 11px;border-radius:999px;background:#1f3d2b;color:#fff;opacity:.92;transition:opacity .4s}
 .sync.busy{background:#6b5a1e}.sync.ro{background:#6b2a1e}.sync.hide{opacity:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* programa París */
+.pdays{display:grid;gap:8px;margin-top:12px}
+.pfree{font:12.5px var(--f-mono);color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:7px 10px;background:color-mix(in srgb,var(--blue) 4%,var(--paper))}
+.pday{border:1px solid var(--line);border-left:5px solid var(--red);border-radius:6px;background:var(--paper)}
+.pdh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;border:0;background:none;padding:11px 10px;text-align:left;cursor:pointer}
+.pdd{font:700 12.5px var(--f-mono);color:var(--red);white-space:nowrap}
+.pdn{font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pday.open .pdn{white-space:normal}
+.pdc{font:700 12px var(--f-mono);color:var(--muted)}
+.pdb{padding:0 10px 10px;display:grid;gap:6px}
+.pact{border-top:1px dashed var(--line)}
+.pat{display:grid;grid-template-columns:24px 42px minmax(0,1fr) auto;gap:6px;align-items:center;width:100%;border:0;background:none;padding:9px 0;text-align:left;cursor:pointer}
+.pn{width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font:700 11.5px var(--f-mono);display:grid;place-items:center}
+.pt{font:13px var(--f-mono);color:var(--muted)}
+.pnm{font:600 15px/1.25 var(--f-body);min-width:0}
+.star{color:var(--red);font-size:12px}.pin{font-size:12px}
+.pw{display:block;font:700 11.5px var(--f-mono);color:var(--red)}
+.pp{font:700 12px var(--f-mono);background:var(--ink);color:var(--paper);padding:2px 6px;border-radius:3px;white-space:nowrap}
+.pp.free{background:#e6dcc0;color:var(--ink)}
+.pdet{padding:0 0 10px 30px;display:grid;gap:6px;font-size:14.5px}.pdet p{margin:0}
+.plunch{border-left:5px solid #9a6a2f;border-radius:4px;padding:6px 10px;font-size:14px;background:repeating-linear-gradient(135deg,#efe2c8 0 7px,#f6ecd8 7px 14px)}
+.pcat{display:grid;gap:4px;max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:6px;background:#fffef9}
+.pci{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:7px 4px;border-bottom:1px dotted var(--line);font-size:14.5px;cursor:pointer}
+.pci input{width:20px;height:20px;min-height:0;margin-top:2px}
 </style>
 </head>
 <body>
@@ -162,7 +186,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -175,7 +199,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -254,9 +278,163 @@ function planForm(x,lim){const W=ST.wiz;const def=W.eur_fecha?add(W.eur_fecha,3)
   <label class="f">Noches<select name="n">${[0,1,2,3,4].map(n=>`<option value="${n}" ${n===n0?"selected":""}>${n?n+" noche"+(n>1?"s":""):"Solo el día"}</option>`).join("")}</select></label></div>
   <p class="warn" id="pw-${x.id}"></p><div class="act"><button class="btn sm" type="submit">Guardar</button><button class="btn alt sm" type="button" data-close>Cancelar</button></div></form>`}
 
-// ===== París (programa) =====
-function paris(){return `<div class="sheet panel"><span class="eyebrow">Programa en París</span><h2>Días en París</h2>
-  <div class="empty">Aquí va el programa día por día en París, igual que en el Viaje a Alemania: atracciones, plano, comidas, orden automático y manual. <b>Se arma en la fase 2</b>, con la dirección del alojamiento como punto de partida.</div></div>`}
+// ===== Programa en París (fase 2) =====
+// Precios adulto no residente UE, temporada 2026 (verificar antes de comprar). close = hora de cierre en invierno. cl = días cerrado (0=dom..6=sáb).
+const PA=[
+ {id:"louvre",n:"Museo del Louvre",ll:[48.8606,2.3376],h:3,p:32,in:1,close:18,cl:[2],top:1,z:"Louvre",
+  s:"El museo más visitado del mundo, en el antiguo palacio de los reyes de Francia.",v:"La Gioconda, la Venus de Milo, la Victoria de Samotracia, los departamentos de Egipto y los apartamentos de Napoleón III.",d:"Reservar hora en línea (obligatorio). Desde enero de 2026 los visitantes de fuera de la UE pagan 32 €. Entrar por el Carrousel, con menos fila.",u:"https://www.louvre.fr/es"},
+ {id:"orsay",n:"Museo de Orsay",ll:[48.8600,2.3266],h:2.5,p:16,in:1,close:18,cl:[1],top:1,z:"Orsay",
+  s:"Antigua estación de tren convertida en el gran museo del impresionismo.",v:"Monet, Renoir, Van Gogh, Degas; el reloj gigante del 5.º piso con vista al Sena.",d:"Jueves abre hasta las 21:45. Reservar en línea.",u:"https://www.musee-orsay.fr/es"},
+ {id:"orang",n:"Museo de la Orangerie",ll:[48.8638,2.3227],h:1.25,p:12.5,in:1,close:18,cl:[2],z:"Concordia",
+  s:"Pequeño museo en el jardín de las Tullerías hecho para los Nenúfares de Monet.",v:"Las dos salas ovaladas con los 8 paneles de Nenúfares; colección Walter-Guillaume.",d:"Combina con Orsay en el mismo día (están a 10 min a pie).",u:"https://www.musee-orangerie.fr/es"},
+ {id:"eiffel",n:"Torre Eiffel",ll:[48.8584,2.2945],h:2.5,p:36.1,top:1,close:23,z:"Eiffel",
+  s:"El símbolo de París, construida para la Exposición Universal de 1889.",v:"Vista desde la cima (276 m); al anochecer, el centelleo de luces cada hora en punto.",d:"Comprar en línea con semanas. Subir al atardecer (~17:00 en invierno) para ver París de día y de noche.",u:"https://www.toureiffel.paris/es"},
+ {id:"troca",eve:1,n:"Trocadéro (mirador de la Torre)",ll:[48.8620,2.2876],h:0.5,p:0,z:"Eiffel",night:0,
+  s:"La explanada con la mejor foto de la Torre Eiffel, al otro lado del Sena.",v:"La torre de frente; de noche, el centelleo.",d:"Gratis. Ir de noche o temprano para evitar gente.",u:"https://www.google.com/maps/search/?api=1&query=Trocadero+Paris"},
+ {id:"arc",n:"Arco de Triunfo",ll:[48.8738,2.2950],h:1,p:16,close:22.5,top:1,z:"Campos Elíseos",
+  s:"Arco de Napoleón en lo alto de los Campos Elíseos, con la tumba del soldado desconocido.",v:"La terraza con vista a las 12 avenidas en estrella y a la Torre Eiffel.",d:"Se llega por un túnel subterráneo (no cruzar la rotonda). Bonito al atardecer.",u:"https://www.paris-arc-de-triomphe.fr/es"},
+ {id:"champs",eve:1,n:"Campos Elíseos con luces de Navidad",ll:[48.8698,2.3076],h:1,p:0,z:"Campos Elíseos",xmas:1,
+  s:"La avenida más famosa de París, iluminada de fin de noviembre a comienzos de enero.",v:"Las luces de los árboles desde la Concordia hasta el Arco.",d:"Ir de noche. Cuidar celulares en la multitud.",u:"https://www.google.com/maps/search/?api=1&query=Champs-Elysees"},
+ {id:"notre",n:"Catedral de Notre-Dame",ll:[48.8530,2.3499],h:1,p:0,in:1,close:19,top:1,z:"Île de la Cité",
+  s:"Reabrió en diciembre de 2024 tras el incendio de 2019 y la restauración.",v:"La nave restaurada, los rosetones y el tesoro; afuera, las gárgolas y el punto cero de Francia.",d:"Gratis, con reserva opcional de hora en línea para no hacer fila.",u:"https://www.notredamedeparis.fr/es/"},
+ {id:"chapelle",n:"Sainte-Chapelle",ll:[48.8554,2.3450],h:0.75,p:13,in:1,close:17,top:1,z:"Île de la Cité",
+  s:"Capilla gótica de 1248 con 1.113 escenas en vitrales.",v:"La capilla alta en un día con sol: las paredes son casi solo vidrio de colores.",d:"Ir con sol. Hay entrada combinada con la Conciergerie.",u:"https://www.sainte-chapelle.fr/es"},
+ {id:"concier",n:"Conciergerie",ll:[48.8560,2.3459],h:1,p:13,in:1,close:18,z:"Île de la Cité",
+  s:"Palacio medieval que fue prisión durante la Revolución; aquí estuvo María Antonieta.",v:"La Sala de la Gente de Armas y la celda reconstruida de la reina.",d:"Usar la entrada combinada con la Sainte-Chapelle.",u:"https://www.paris-conciergerie.fr/es"},
+ {id:"latin",n:"Barrio Latino y Shakespeare and Company",ll:[48.8526,2.3471],h:1.5,p:0,z:"Barrio Latino",
+  s:"El barrio de la Sorbona, con calles medievales y la librería más famosa de París.",v:"Rue de la Huchette, la librería frente a Notre-Dame, la Sorbona.",d:"Buen lugar para almorzar barato (crepes, falafel).",u:"https://shakespeareandcompany.com/"},
+ {id:"panth",n:"Panteón",ll:[48.8462,2.3459],h:1,p:13,in:1,close:18,z:"Barrio Latino",
+  s:"Templo donde están enterrados Victor Hugo, Marie Curie y otros grandes de Francia.",v:"El péndulo de Foucault y la cripta.",d:"Combina con el Jardín de Luxemburgo.",u:"https://www.paris-pantheon.fr/es"},
+ {id:"luxem",n:"Jardín de Luxemburgo",ll:[48.8462,2.3372],h:1,p:0,z:"Barrio Latino",
+  s:"El jardín preferido de los parisinos, frente al Senado.",v:"El palacio, la Fuente Médici y los veleritos del estanque.",d:"Cierra al atardecer en invierno.",close:16.75,u:"https://www.google.com/maps/search/?api=1&query=Jardin+du+Luxembourg"},
+ {id:"stgerm",n:"Saint-Germain-des-Prés",ll:[48.8540,2.3336],h:1,p:0,z:"Saint-Germain",
+  s:"El barrio de los cafés literarios: Les Deux Magots y Café de Flore.",v:"La iglesia más antigua de París y las calles de galerías.",d:"Un café en Les Deux Magots es caro pero es parte de la experiencia.",u:"https://www.google.com/maps/search/?api=1&query=Saint-Germain-des-Pres"},
+ {id:"sacre",n:"Montmartre y Sacré-Cœur",ll:[48.8867,2.3431],h:2.5,p:0,top:1,z:"Montmartre",
+  s:"La colina de los pintores, coronada por la basílica blanca.",v:"Vista desde la escalinata, Place du Tertre con pintores, el muro de los «Te amo», la Maison Rose.",d:"Gratis (cúpula 7 €). Cuidado con los vendedores de pulseras al pie de la escalinata.",u:"https://www.sacre-coeur-montmartre.com/"},
+ {id:"moulin",n:"Moulin Rouge (exterior) y Pigalle",ll:[48.8841,2.3322],h:0.5,p:0,z:"Montmartre",
+  s:"El cabaret del molino rojo, inventor del cancán.",v:"La fachada iluminada.",d:"Ver de pasada al bajar de Montmartre; la zona de Pigalle de noche no es para quedarse.",u:"https://www.moulinrouge.fr/"},
+ {id:"opera",n:"Ópera Garnier",ll:[48.8720,2.3316],h:1.25,p:15,in:1,close:17,top:1,z:"Ópera",
+  s:"El palacio de la ópera de 1875 que inspiró «El fantasma de la ópera».",v:"La gran escalera, el Gran Foyer dorado y el techo de Chagall.",d:"Visita libre con hora reservada en línea.",u:"https://www.operadeparis.fr/es/visitas/palacio-garnier"},
+ {id:"lafay",n:"Galeries Lafayette: cúpula y terraza",ll:[48.8738,2.3320],h:1,p:0,in:1,close:20.5,xmas:1,z:"Ópera",
+  s:"La gran tienda con cúpula art nouveau y el árbol de Navidad gigante.",v:"La cúpula, el árbol de Navidad (desde mediados de noviembre) y la terraza gratis con vista a la Ópera.",d:"Gratis. Las vitrinas navideñas animadas de afuera son un clásico.",u:"https://haussmann.galerieslafayette.com/es/"},
+ {id:"catac",n:"Catacumbas de París",ll:[48.8338,2.3324],h:1.5,p:29,in:1,close:20.5,cl:[1],top:1,z:"Montparnasse",
+  s:"Túneles a 20 m bajo tierra con los huesos de seis millones de parisinos.",v:"El osario con paredes de cráneos y huesos.",d:"Solo con entrada en línea con hora; se agotan. Hay 131 escalones de bajada.",u:"https://www.catacombes.paris.fr/es"},
+ {id:"montp",n:"Torre Montparnasse (mirador)",ll:[48.8421,2.3219],h:1,p:20,in:1,close:22.5,z:"Montparnasse",
+  s:"El único rascacielos del centro: desde arriba se ve París con la Torre Eiffel incluida.",v:"La terraza del piso 59 al atardecer.",d:"Más barato y con menos fila que la Torre Eiffel.",u:"https://www.tourmontparnasse56.com/es/"},
+ {id:"rodin",n:"Museo Rodin",ll:[48.8553,2.3159],h:1.25,p:14,in:1,close:18.5,cl:[1],z:"Inválidos",
+  s:"La casa y el jardín del escultor Auguste Rodin.",v:"El Pensador y La Puerta del Infierno en el jardín; El Beso adentro.",d:"El jardín se puede recorrer aunque haga frío.",u:"https://www.musee-rodin.fr/es"},
+ {id:"inval",n:"Los Inválidos y tumba de Napoleón",ll:[48.8550,2.3125],h:1.5,p:15,in:1,close:18,top:1,z:"Inválidos",
+  s:"El hospital militar de Luis XIV, con la cúpula dorada que guarda la tumba de Napoleón.",v:"La tumba de Napoleón y el Museo del Ejército (armaduras, Primera y Segunda Guerra).",d:"Combina con el Museo Rodin, al lado.",u:"https://www.musee-armee.fr/es"},
+ {id:"marais",n:"Le Marais y Place des Vosges",ll:[48.8556,2.3655],h:2,p:0,top:1,z:"Le Marais",
+  s:"El barrio medieval mejor conservado, con la plaza más antigua de París.",v:"Place des Vosges, rue des Rosiers (falafel de L'As du Fallafel), tiendas y patios escondidos.",d:"Los domingos está todo abierto, a diferencia del resto de París.",u:"https://www.google.com/maps/search/?api=1&query=Place+des+Vosges"},
+ {id:"picasso",n:"Museo Picasso",ll:[48.8598,2.3624],h:1.5,p:16,in:1,close:18,cl:[1],z:"Le Marais",
+  s:"La mayor colección del mundo de Picasso, en un palacio del siglo XVII.",v:"Obras de todas sus épocas, del período azul al cubismo.",d:"Primer domingo de cada mes, gratis (reservar).",u:"https://www.museepicassoparis.fr/es"},
+ {id:"carnav",n:"Museo Carnavalet (historia de París)",ll:[48.8574,2.3626],h:1.25,p:0,in:1,close:18,cl:[1],z:"Le Marais",
+  s:"Gratis: la historia de París desde la prehistoria hasta hoy.",v:"Los letreros antiguos de tiendas, la Revolución y la habitación de Proust.",d:"Gratis. Buen plan para un día de lluvia.",u:"https://www.carnavalet.paris.fr/es"},
+ {id:"lachaise",n:"Cementerio Père-Lachaise",ll:[48.8614,2.3933],h:1.5,p:0,close:17.5,z:"Este",
+  s:"El cementerio más visitado del mundo, como un parque con tumbas monumentales.",v:"Las tumbas de Jim Morrison, Oscar Wilde, Édith Piaf y Chopin.",d:"Descargar el plano antes; es enorme.",u:"https://www.google.com/maps/search/?api=1&query=Pere+Lachaise"},
+ {id:"lumi",n:"Atelier des Lumières",ll:[48.8620,2.3807],h:1.25,p:17,in:1,close:19,z:"Este",
+  s:"Exposición inmersiva: pinturas famosas proyectadas en paredes y piso con música.",v:"La exposición del momento (cambia cada temporada).",d:"Reservar hora. Ideal para día de lluvia.",u:"https://www.atelier-lumieres.com/es"},
+ {id:"canal",n:"Canal Saint-Martin",ll:[48.8710,2.3650],h:1,p:0,z:"Canal Saint-Martin",
+  s:"El canal de los puentes de hierro y las esclusas, con cafés jóvenes.",v:"Las pasarelas verdes y las esclusas; el Hôtel du Nord.",d:"Buen plan de tarde con algo para comer.",u:"https://www.google.com/maps/search/?api=1&query=Canal+Saint-Martin"},
+ {id:"buttes",n:"Parque Buttes-Chaumont",ll:[48.8809,2.3828],h:1,p:0,z:"Canal Saint-Martin",close:17.5,
+  s:"Parque con acantilado, cascada y un templete sobre una isla.",v:"La vista desde el Templo de la Sibila.",d:"Cierra al atardecer en invierno.",u:"https://www.google.com/maps/search/?api=1&query=Buttes-Chaumont"},
+ {id:"petitp",n:"Petit Palais",ll:[48.8660,2.3146],h:1,p:0,in:1,close:18,cl:[1],z:"Concordia",
+  s:"Museo de Bellas Artes de la ciudad, gratis, en un palacio de 1900.",v:"El jardín interior con café y la colección de pintura.",d:"Gratis. Frente al Grand Palais, que reabrió en 2025.",u:"https://www.petitpalais.paris.fr/es"},
+ {id:"tuileries",n:"Tullerías y Concordia (mercado de Navidad)",ll:[48.8634,2.3275],h:1.25,p:0,xmas:1,z:"Concordia",
+  s:"El jardín entre el Louvre y la Concordia; en diciembre, mercado de Navidad y rueda de la fortuna.",v:"El obelisco de Luxor, la noria y los puestos de vino caliente y crepes.",d:"Mercado de Navidad aprox. mediados de noviembre a comienzos de enero (confirmar fechas).",u:"https://www.google.com/maps/search/?api=1&query=Jardin+des+Tuileries"},
+ {id:"vivienne",n:"Galerie Vivienne y Palais-Royal",ll:[48.8664,2.3398],h:1,p:0,z:"Louvre",
+  s:"Los pasajes cubiertos del siglo XIX y el jardín del Palais-Royal con las columnas de Buren.",v:"Galerie Vivienne, las columnas a rayas y el jardín.",d:"Combina con el Louvre el mismo día.",u:"https://www.google.com/maps/search/?api=1&query=Galerie+Vivienne"},
+ {id:"bourse",n:"Bourse de Commerce",ll:[48.8628,2.3428],h:1.25,p:15,in:1,close:19,cl:[2],z:"Louvre",
+  s:"Antigua bolsa redonda transformada por Tadao Ando en museo de arte contemporáneo.",v:"La cúpula pintada y el cilindro de hormigón interior.",d:"Para quienes les guste el arte contemporáneo y la arquitectura.",u:"https://www.pinaultcollection.com/es/boursedecommerce"},
+ {id:"seine",eve:1,n:"Crucero por el Sena",ll:[48.8640,2.3015],h:1.25,p:17,top:1,z:"Eiffel",
+  s:"Paseo en barco de una hora por los monumentos a orillas del Sena.",v:"Notre-Dame, el Louvre, los puentes y la Torre Eiffel iluminada.",d:"Hacerlo de noche (desde ~18:00) para ver todo iluminado.",u:"https://www.bateaux-mouches.fr/es"},
+ {id:"marmot",n:"Museo Marmottan Monet",ll:[48.8592,2.2674],h:1.25,p:14,in:1,close:18,cl:[1],z:"Oeste",
+  s:"La mayor colección de Monet del mundo, incluida «Impresión, sol naciente».",v:"El cuadro que dio nombre al impresionismo y los Nenúfares tardíos.",d:"Menos gente que Orsay.",u:"https://www.marmottan.fr/es/"},
+ {id:"flv",n:"Fondation Louis Vuitton",ll:[48.8766,2.2633],h:1.5,p:16,in:1,close:20,cl:[2],z:"Oeste",
+  s:"Edificio de Frank Gehry como un velero de vidrio, con exposiciones de arte.",v:"Las terrazas del techo y la exposición del momento.",d:"Para fans de la arquitectura.",u:"https://www.fondationlouisvuitton.fr/es"},
+ {id:"evol",n:"Gran Galería de la Evolución",ll:[48.8424,2.3561],h:1.5,p:13,in:1,close:18,cl:[2],z:"Jardín de Plantas",
+  s:"El museo de historia natural: una manada de animales disecados en una nave de hierro y vidrio.",v:"El desfile de animales y la sala de especies extintas.",d:"En el Jardín de Plantas, cerca del Barrio Latino.",u:"https://www.mnhn.fr/es"},
+ {id:"brancly",n:"Museo del Quai Branly",ll:[48.8609,2.2978],h:1.5,p:14,in:1,close:19,cl:[1],z:"Eiffel",
+  s:"Artes de África, Asia, Oceanía y América, al pie de la Torre Eiffel.",v:"El muro vegetal de la fachada y la colección de América precolombina.",d:"Combina con la Torre Eiffel el mismo día.",u:"https://www.quaibranly.fr/es/"}
+];
+const BASES={"Le Marais":[48.8590,2.3600],"Saint-Germain":[48.8540,2.3336],"Barrio Latino":[48.8490,2.3470],"Montmartre":[48.8860,2.3400],"Ópera / Grands Boulevards":[48.8710,2.3330],"Torre Eiffel / 7.º":[48.8560,2.3000],"Bastille":[48.8530,2.3690],"Canal Saint-Martin":[48.8710,2.3650],"Montparnasse":[48.8420,2.3240],"Batignolles":[48.8840,2.3200],"Belleville":[48.8720,2.3770],"Campos Elíseos":[48.8700,2.3070],"15.º (Grenelle)":[48.8430,2.2950],"Otro / centro":[48.8566,2.3522]};
+const km=(a,b)=>{const R=6371,t=x=>x*Math.PI/180;const d1=t(b[0]-a[0]),d2=t(b[1]-a[1]);const h=Math.sin(d1/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+const hm=x=>{const t=Math.round(x*60);return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
+const mv=(a,b)=>{const k=km(a,b);return k<=1.2?k*0.22:0.25+k*0.06};
+const isDefSel=a=>!!a.top;
+const paSel=a=>ST.paSel&&a.id in ST.paSel?!!ST.paSel[a.id]:isDefSel(a);
+const fmtE=v=>v?v.toLocaleString("es-CL",{maximumFractionDigits:2})+" €":"gratis";
+
+function parisDays(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return[];const out=[];
+  const escDays=new Set();ST.esc.forEach(e=>{let d=e.ini;const n=Math.max(0,nights(e.ini,e.fin));for(let i=0;i<=n;i++){if(!(n>0&&i===n))escDays.add(d);d=add(d,1)}});
+  for(let d=W.eur_fecha;d<W.vue_fecha;d=add(d,1)){if(escDays.has(d))continue;out.push({d,first:d===W.eur_fecha,ret:ST.esc.some(e=>e.fin===d&&e.fin!==e.ini)})}
+  return out}
+// Arma el programa: agrupa por zona, reparte zonas en los días (dejando días libres), ordena por cercanía desde la base
+function buildPA(){const days=parisDays();const base=BASES[ST.base]||BASES["Otro / centro"];
+  const sel=PA.filter(paSel),pin=ST.paPin||{};const plan=days.map(x=>({...x,acts:[],cap:x.first||x.ret?3:5.5}));
+  const byDay=d=>plan.find(p=>p.d===d);
+  sel.filter(a=>pin[a.id]&&byDay(pin[a.id])).forEach(a=>byDay(pin[a.id]).acts.push(a));
+  const rest=sel.filter(a=>!(pin[a.id]&&byDay(pin[a.id])));
+  const zones={};rest.forEach(a=>(zones[a.z]=zones[a.z]||[]).push(a));
+  const zl=Object.values(zones).sort((x,y)=>y.reduce((t,a)=>t+(a.top?2:0)+a.h,0)-x.reduce((t,a)=>t+(a.top?2:0)+a.h,0));
+  const load=p=>p.acts.reduce((t,a)=>t+a.h+0.3,0);
+  const okDay=(p,a)=>!(a.cl&&a.cl.includes(D(p.d).getDay()));
+  // ritmo: usar un día de cada 2 (o todos si "intenso")
+  const step=ST.ritmo==="intenso"?1:2;let ix=plan.findIndex(p=>!p.first)+1;if(ix<1)ix=0;
+  zl.forEach(z=>{let left=[...z];while(left.length){let tries=0,p=null;
+      while(tries<plan.length){const c=plan[(ix+tries*1)%Math.max(1,plan.length)];if(c&&load(c)+left[0].h<=c.cap&&!c.acts.length&&okDay(c,left[0])){p=c;break}tries++}
+      if(!p)p=plan.filter(c=>load(c)+left[0].h<=c.cap&&okDay(c,left[0])).sort((a,b)=>load(a)-load(b))[0];
+      if(!p)break;while(left.length&&load(p)+left[0].h+0.3<=p.cap+0.01&&okDay(p,left[0]))p.acts.push(left.shift());
+      ix=(plan.indexOf(p)+step)%Math.max(1,plan.length)}});
+  plan.forEach(p=>{let pos=base,t=p.first||p.ret?14.5:9.5,rest=p.acts.filter(a=>!a.eve),seq=[];const eves=p.acts.filter(a=>a.eve);
+    // abiertos: los que cierran antes van primero
+    while(rest.length){rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});const a=rest.shift();t+=mv(pos,a.ll);
+      if(t>=12.5&&t<13.75&&!seq.lunch){seq.lunch=t;t+=1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;pos=a.ll}
+    eves.forEach(a=>{t=Math.max(t+mv(pos,a.ll),18);seq.push({...a,st:t,late:false,closed:false});t+=a.h;pos=a.ll});
+    p.seq=seq;p.end=t});
+  return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
+function routeUrl(p){const base=BASES[ST.base]||BASES["Otro / centro"];const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
+  return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
+let paOpen=new Set(),paCat=false,paFilt="todas";
+function paris(){const days=parisDays();
+  if(!days.length)return `<div class="sheet panel"><span class="eyebrow">Programa en París</span><h2>Días en París</h2><div class="empty">Completa las fechas del tren a París y del vuelo de regreso para armar los días.</div></div>`;
+  const R=buildPA();const used=R.plan.filter(p=>p.seq.length).length;
+  let h=`<div class="sheet panel"><span class="eyebrow">Programa en París</span><h2>${days.length} días en París · ${used} con panorama</h2>
+  <div class="row2"><label class="f">Barrio del alojamiento<select id="paBase">${Object.keys(BASES).map(k=>`<option ${(ST.base||"Otro / centro")===k?"selected":""}>${k}</option>`).join("")}</select></label>
+  <label class="f">Ritmo<select id="paRitmo"><option value="tranquilo" ${ST.ritmo!=="intenso"?"selected":""}>Tranquilo · día libre entre medio</option><option value="intenso" ${ST.ritmo==="intenso"?"selected":""}>Intenso · todos los días</option></select></label></div>
+  <p style="margin:12px 0 4px"><button class="btn alt sm" id="paCatBtn">${paCat?"▾ Ocultar atracciones":"▸ Elegir atracciones"} (${PA.filter(paSel).length} de ${PA.length})</button></p>
+  ${paCat?catalog():""}
+  ${R.unpl.length?`<p class="warn">No caben ${R.unpl.length}: ${R.unpl.map(a=>a.n).join(", ")}. Cambia a ritmo intenso o quita otras.</p>`:""}
+  <div class="pdays">`;
+  let free=[];const flush=()=>{if(!free.length)return;h+=`<div class="pfree">${free.length===1?"Día libre":free.length+" días libres"}: ${free.map(x=>pretty(x.d)).join(" · ")}</div>`;free=[]};
+  R.plan.forEach(p=>{if(!p.seq.length){free.push(p);return}flush();const o=paOpen.has(p.d);
+    h+=`<div class="pday${o?" open":""}"><button class="pdh" data-pday="${p.d}"><span class="pdd">${pretty(p.d)}</span><span class="pdn">${p.seq.map(a=>a.n.replace(/\s*\(.*?\)/,"")).join(" · ")}</span><span class="pdc">${fmtE(p.seq.reduce((t,a)=>t+a.p,0))}</span></button>
+    ${o?`<div class="pdb">${p.first?`<p class="note">Llegada en Eurostar: la tarde queda libre para panoramas cerca.</p>`:p.ret?`<p class="note">Vuelta de escapada: solo la tarde.</p>`:""}
+      ${p.seq.map((a,k)=>`${p.seq.lunch&&a.st>p.seq.lunch&&(k===0||p.seq[k-1].st<p.seq.lunch)?`<div class="plunch">🍽 <b>${hm(p.seq.lunch)}</b> Almuerzo</div>`:""}<div class="pact${paOpen.has(p.d+"|"+a.id)?" open":""}">
+        <button class="pat" data-pact="${p.d}|${a.id}"><span class="pn">${k+1}</span><span class="pt">${hm(a.st)}</span><span class="pnm">${a.n}${a.top?' <span class="star">★</span>':""}${a.in?' <span class="pin">🏛</span>':""}${a.closed?' <span class="pw">⚠ cerrado ese día</span>':a.late?` <span class="pw">⚠ cierra ${hm(a.close)}</span>`:""}</span><span class="pp ${a.p?"":"free"}">${fmtE(a.p)}</span></button>
+        ${paOpen.has(p.d+"|"+a.id)?`<div class="pdet"><p><b>${a.s}</b></p><p><b>Qué ver:</b> ${a.v}</p><p><b>Consejo:</b> ${a.d}</p>
+          <p class="muted">🕐 visita ~${String(a.h).replace(".",",")} h${a.close?` · cierra ${hm(a.close)} (invierno)`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}</p>
+          <div class="act"><a class="btn alt sm" href="${a.u}" target="_blank" rel="noopener">Sitio</a><a class="btn alt sm" href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa</a>
+          <select data-papin="${a.id}" aria-label="Elegir día" style="width:auto;min-height:34px;padding:4px 8px;font-size:14px"><option value="">📅 Día automático</option>${days.map(x=>`<option value="${x.d}" ${(ST.paPin||{})[a.id]===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>
+          <button class="btn alt sm" data-paoff="${a.id}">✕ Quitar</button></div></div>`:""}</div>`).join("")}
+      ${p.seq.lunch&&!p.seq.some(a=>a.st>p.seq.lunch)?`<div class="plunch">🍽 <b>${hm(p.seq.lunch)}</b> Almuerzo</div>`:""}
+      <p><a href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (desde el alojamiento)</a></p></div>`:""}</div>`});
+  flush();
+  return h+`</div><p class="muted" style="font-size:13px;margin-top:12px">Precios de adulto no residente en la UE, temporada 2026: verificar al comprar. Horarios de cierre de invierno.</p></div>`}
+function catalog(){const fl=[["todas","Todas"],["top","★ Imperdibles"],["in","🏛 Techadas"],["free","Gratis"],["xmas","🎄 Navidad"]];
+  const L=PA.filter(a=>paFilt==="todas"||(paFilt==="top"&&a.top)||(paFilt==="in"&&a.in)||(paFilt==="free"&&!a.p)||(paFilt==="xmas"&&a.xmas));
+  return `<div class="filters" style="margin:8px 0">${fl.map(([k,t])=>`<button class="chip" data-paf="${k}" aria-pressed="${paFilt===k}">${t}</button>`).join("")}</div>
+  <div class="pcat">${L.map(a=>`<label class="pci"><input type="checkbox" data-pasel="${a.id}" ${paSel(a)?"checked":""}><span><b>${a.n}</b>${a.top?' <span class="star">★</span>':""}<br><small class="muted">${a.z} · ~${String(a.h).replace(".",",")} h · ${fmtE(a.p)}${a.in?" · 🏛":""}${a.xmas?" · 🎄":""}</small></span></label>`).join("")}</div>`}
+function bindParis(){const b=$("#paBase");if(!b)return;
+  b.onchange=()=>{ST.base=b.value;save();render()};$("#paRitmo").onchange=e=>{ST.ritmo=e.target.value;save();render()};
+  $("#paCatBtn").onclick=()=>{paCat=!paCat;render()};
+  document.querySelectorAll("[data-paf]").forEach(x=>x.onclick=()=>{paFilt=x.dataset.paf;render()});
+  document.querySelectorAll("[data-pasel]").forEach(x=>x.onchange=()=>{ST.paSel=ST.paSel||{};ST.paSel[x.dataset.pasel]=x.checked;save();render()});
+  document.querySelectorAll("[data-pday]").forEach(x=>x.onclick=()=>{const k=x.dataset.pday;paOpen.has(k)?paOpen.delete(k):paOpen.add(k);render()});
+  document.querySelectorAll("[data-pact]").forEach(x=>x.onclick=()=>{const k=x.dataset.pact;paOpen.has(k)?paOpen.delete(k):paOpen.add(k);render()});
+  document.querySelectorAll("[data-papin]").forEach(x=>x.onchange=()=>{ST.paPin=ST.paPin||{};if(x.value)ST.paPin[x.dataset.papin]=x.value;else delete ST.paPin[x.dataset.papin];if(x.value)paOpen.add(x.value);save();render()});
+  document.querySelectorAll("[data-paoff]").forEach(x=>x.onclick=()=>{ST.paSel=ST.paSel||{};ST.paSel[x.dataset.paoff]=false;save();render()})}
 
 // ===== Render =====
 function render(){if(!user)return;
@@ -267,7 +445,7 @@ function render(){if(!user)return;
    <div class="who">${esc(user.displayName||user.email)}<br>${DEMO?"":`<button id="so">Salir</button> · `}<a href="/">Viajes</a></div></div>
    ${tab==="config"?wizard():`<div class="tabs" role="tablist">${tabs.map(([k,t,c])=>`<button class="tab" role="tab" style="--c:${c}" data-tab="${k}" aria-selected="${tab===k}">${t}</button>`).join("")}</div>
    ${tab==="resumen"?resumen():tab==="paris"?paris():escapadas()}`}`;
-  bindWizard();
+  bindWizard();bindParis();
   const so=$("#so");if(so)so.onclick=()=>window._auth.U.signOut(window._auth.auth);
   const ed=$("#edit");if(ed)ed.onclick=()=>{ST.step=0;tab="config";ST.wiz.done=0;render();scrollTo(0,0)};
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("paris_tab",tab)}catch(e){}render()});
