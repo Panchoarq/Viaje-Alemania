@@ -161,7 +161,89 @@ label.pchk .t{flex:1;min-width:0}label.pchk .t small{display:block;color:var(--m
 .pm-sc line{stroke:var(--ink);stroke-width:2}.pm-sc text{font:10px var(--f-mono);fill:var(--muted);text-anchor:middle}
 .pm-leg{display:flex;flex-wrap:wrap;gap:4px 12px;font:11.5px var(--f-mono);color:var(--muted)}
 .pm-leg i{display:inline-block;width:18px;height:0;border-top:2px dashed var(--ink);vertical-align:middle;margin-right:4px}.pm-leg i.m{border-top:2.5px solid var(--blue)}
-@media (max-width:640px){.pd-body{display:flex;flex-direction:column;gap:10px}.pday2{padding:10px 10px 12px}.pd-head h3{font-size:15.5px}.pmv{padding-left:8px}}
+@media (max-width:640px){.pd-body{display:flex;flex-direction:column;gap:10px}.pd-body>.pblk{width:100%}.pday2{padding:10px 10px 12px}.pd-head h3{font-size:15.5px}.pmv{padding-left:8px}}
+
+.sunline{display:block;font:12px var(--f-mono);color:var(--muted);margin-top:3px}
+.pact{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:6px}.pact>.pdet{grid-column:1/-1}
+.pord{display:flex;flex-direction:column;gap:2px}.pord button{width:30px;height:24px;min-height:0;padding:0;border:1px solid var(--line);border-radius:4px;background:var(--paper);font:700 13px var(--f-mono);cursor:pointer;color:var(--ink)}.pord button:disabled{opacity:.3;cursor:default}
+.riskbox{margin:8px 0;border-left:5px solid #b3261e;border-radius:4px;background:repeating-linear-gradient(135deg,color-mix(in srgb,#b3261e 9%,var(--paper)) 0 6px,color-mix(in srgb,#b3261e 4%,var(--paper)) 6px 12px);padding:6px 10px;font-size:13.5px}
+.riskbox summary{cursor:pointer;font-weight:700;color:#8e1d14;list-style:none}.riskbox summary::-webkit-details-marker{display:none}
+.riskbox summary::after{content:" ▸";font-weight:400}.riskbox[open] summary::after{content:" ▾"}.riskbox p{margin:6px 0 0}
+.manord{font-size:13px;padding:6px 10px;border:1px dashed var(--line);border-radius:6px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}.manord button{font:600 12.5px var(--f-mono);border:1px solid var(--line);background:var(--paper);border-radius:4px;padding:3px 8px;cursor:pointer}
+.ctx p{max-width:72ch}.tlsvg{width:100%;height:auto;max-width:760px;display:block;margin:6px 0 4px;color:var(--ink)}
+.fichas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:22px;margin-top:6px}
+.ficha{position:relative;background:color-mix(in srgb,#d8b979 22%,var(--paper));color:var(--ink);border:1px solid color-mix(in srgb,#8a6b2f 45%,var(--line));border-radius:2px 10px 4px 4px;padding:30px 20px 18px;min-width:0;box-shadow:0 2px 0 color-mix(in srgb,#8a6b2f 30%,transparent);display:flex;flex-direction:column;gap:10px}
+.ficha .ftab{position:absolute;top:-14px;left:16px;background:color-mix(in srgb,#d8b979 40%,var(--paper));border:1px solid color-mix(in srgb,#8a6b2f 45%,var(--line));border-bottom:0;border-radius:6px 6px 0 0;padding:3px 12px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;font-weight:700}
+.ficha header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.ficha h3{font-size:23px;margin:0}.fy{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.fstamp{font-family:var(--f-mono);font-size:11px;font-weight:700;letter-spacing:.1em;color:#b0261c;border:2px solid currentColor;padding:1px 6px;transform:rotate(-3deg);display:inline-block}
+.fstamp.ok{color:#2e7d32}
+.flead{font-size:16.5px;font-style:italic;margin:0}
+.flab{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:2px;border-bottom:1px dashed var(--line)}
+.ficha p{margin:4px 0;font-size:15px;line-height:1.55}
+.fnote{background:color-mix(in srgb,#fff59a 35%,transparent);padding:6px 10px;border-left:3px solid #d4b400}
+.fphotos{display:flex;flex-wrap:wrap;gap:16px;padding-top:8px}
+.polaroid{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;width:150px;padding:10px 10px 8px;background:#fdfbf4;color:#2a2620;border:1px solid #d9d2c0;box-shadow:0 2px 4px rgba(0,0,0,.18);text-decoration:none;transform:rotate(-1.5deg)}
+.polaroid:nth-child(even){transform:rotate(1.6deg)}.polaroid:hover,.polaroid:focus-visible{transform:rotate(0) scale(1.03)}
+.polaroid .ph{width:100%;height:76px;display:grid;place-items:center;font-size:30px;background:repeating-linear-gradient(45deg,#e7e1d0 0 6px,#efe9da 6px 12px)}
+.polaroid .cap{font-size:13px;text-align:center;line-height:1.25;font-weight:600}.polaroid .go{font-size:11px;color:#6d6455;font-family:var(--f-mono)}
+.polaroid .clip{position:absolute;top:-12px;left:18px;width:14px;height:34px;border:3px solid #8f969c;border-radius:8px;border-bottom-color:transparent}
+.flinks{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.ficha.flash{outline:3px solid var(--red);outline-offset:3px}
+.brief{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.mitem{border:1px solid var(--line);padding:10px 12px;border-radius:4px;min-width:0}.mitem small{display:block;color:var(--muted);font-size:12.5px}.mitem p{margin:4px 0 0;font-size:14px}
+.polaroid{width:190px}.polaroid img.ph{width:100%;height:120px;object-fit:cover;display:block;background:#ddd}.polaroid .ph{height:120px}.credit{font-size:11px;color:var(--muted);margin:2px 0 0}
+
+
+.ctx.card,.media.card,.card.brf{--c:#8a6b2f;padding:14px 16px}.ctx h2,.media h2{margin:2px 0 8px}.ctx p{font-size:15px;margin:6px 0}
+.fmeta{font:12.5px var(--f-mono);color:var(--muted)}
+.polaroid img.ph{background:#ddd}
+@media (max-width:640px){.ficha{padding:28px 14px 14px}.ficha h3{font-size:20px}.polaroid{width:calc(50% - 10px)}.polaroid img.ph,.polaroid .ph{height:100px}}
+.ficha h3{font:700 23px/1.2 var(--f-body);text-transform:none;letter-spacing:0;color:var(--ink)}
+
+/* alojamiento */
+.htabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.htab{font:inherit;text-align:left;cursor:pointer;padding:8px 12px;border:1px solid var(--line);border-top:4px solid #6b4f8f;background:var(--paper);color:var(--ink);border-radius:6px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.htab b{font:700 14px var(--f-body)}.htab small{font:11.5px var(--f-mono);color:var(--muted)}.htab[aria-selected="true"]{background:#6b4f8f;color:#fff;border-color:#6b4f8f}.htab[aria-selected="true"] small{color:#fff;opacity:.85}
+.hstay{border:1px solid var(--line);border-radius:0 6px 6px 6px;padding:12px 14px;margin-top:-1px;background:var(--paper)}.hstay h3{margin:0 0 8px;font:700 16px var(--f-body)}
+.hotels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;margin:10px 0}
+.hopt{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#fffef9;display:grid;gap:8px}.hopt.on{box-shadow:0 0 0 2px #6b4f8f}
+.opt-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.opt-top .name{font:700 16px var(--f-body)}.opt-top input{width:18px;height:18px;min-height:0;accent-color:#6b4f8f;vertical-align:-3px}
+.pill{font:700 11px var(--f-mono);padding:2px 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}.hopt.on .pill{background:#6b4f8f;color:#fff;border-color:#6b4f8f}
+dl.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;margin:0;font-size:14px;align-items:center}dl.facts dt{font:700 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}dl.facts dd{margin:0;min-width:0}
+dl.facts input,dl.facts select{width:100%;min-height:34px;padding:4px 8px;font-size:14px}.pricebox{display:flex;gap:6px;align-items:center}.pricebox select{width:auto}
+.links-row{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px}.lnk{border:0;background:none;color:var(--red);font:inherit;cursor:pointer;padding:0}
+.hadd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border:1px dashed var(--line);border-radius:6px;padding:10px}.hadd input{flex:1 1 220px;min-height:38px}
+@media (max-width:640px){dl.facts{grid-template-columns:1fr}dl.facts dt{margin-top:4px}}
+/* boletos */
+.legs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:18px}
+.ticket{--tk-bg:#f1e6cf;--tk-ink:#2b2622;--tk-acc:#2b2622;--tk-on:#f1e6cf;display:grid;grid-template-columns:minmax(0,1fr) 64px;background:var(--tk-bg);color:var(--tk-ink);min-width:0;box-shadow:inset 0 0 0 10px var(--tk-bg),inset 0 0 0 12px #a8352b;
+  -webkit-mask:radial-gradient(circle at 0 9px,#0000 6px,#000 6.5px) 0 0/51% 18px repeat-y,radial-gradient(circle at 100% 9px,#0000 6px,#000 6.5px) 100% 0/51% 18px repeat-y;mask:radial-gradient(circle at 0 9px,#0000 6px,#000 6.5px) 0 0/51% 18px repeat-y,radial-gradient(circle at 100% 9px,#0000 6px,#000 6.5px) 100% 0/51% 18px repeat-y;filter:drop-shadow(0 4px 6px rgba(0,0,0,.18))}
+.tk-main{padding:18px 14px 16px 24px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.tk-band{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;border-bottom:2px solid #a8352b;padding:4px 8px 8px}
+.tk-band b{font:700 clamp(20px,3.8vw,30px) var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.tk-op{font:12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.tk-ok{align-self:flex-start;font:700 12px var(--f-mono);color:#2e7d32;border:2px solid currentColor;padding:1px 8px;transform:rotate(-3deg)}
+.tk-body{display:grid;grid-template-columns:150px minmax(0,1fr) 88px;gap:12px;align-items:center}
+.tk-art{color:#55504a}.tk-art .tk-img,.tk-art svg{width:100%;height:auto;display:block}
+dl.tk-f{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;margin:0;border:1px solid color-mix(in srgb,var(--tk-ink) 45%,transparent);padding:8px 10px}
+dl.tk-f .wide{grid-column:1/-1}dl.tk-f dt{font:700 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;opacity:.8}dl.tk-f dd{margin:0;font:14.5px var(--f-mono)}dl.tk-f dd.hi{color:#a8352b;font-weight:700}
+.tk-price{width:88px;height:88px;border-radius:50%;color:#a8352b;border:2px solid #a8352b;outline:2px solid #a8352b;outline-offset:-7px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.tk-price b{font:700 18px var(--f-mono);line-height:1.1}.tk-price small{font:9px var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.tk-edit summary{cursor:pointer;font:700 12.5px var(--f-mono)}.tk-foot{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;padding-top:8px;border-top:1px dashed color-mix(in srgb,var(--tk-ink) 50%,transparent);margin-top:6px}
+.tk-foot label{display:flex;flex-direction:column;font:700 11px var(--f-mono);gap:2px}.tk-foot input{background:#fffaf0;color:#2a2420;border:1px solid var(--tk-acc);min-height:34px;padding:4px 6px;font-size:14px}
+.tk-foot label.vchk{flex-direction:row;align-items:center;gap:6px}.tk-foot label.vchk input{width:18px;height:18px;min-height:0}
+.tk-links{font:700 13px var(--f-mono)}.tk-links a{color:var(--tk-ink)}
+.tk-stub{background:var(--tk-bg);border-left:2px solid #a8352b;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 4px;writing-mode:vertical-rl;transform:rotate(180deg)}
+.tk-v{font:700 17px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid #a8352b;padding:8px 4px}.tk-no{font:12px var(--f-mono)}
+@media (max-width:640px){.tk-body{grid-template-columns:minmax(0,1fr) 80px}.tk-art{grid-column:1/-1;max-width:170px;margin:0 auto}.tk-price{width:80px;height:80px}.ticket{grid-template-columns:minmax(0,1fr) 44px}.tk-main{padding:16px 10px 14px 18px}.tk-v{font-size:14px}}
+/* consejos y espectáculos */
+.ckl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:4px 16px}
+.ficha .brief{gap:8px;font-size:14.5px;line-height:1.5}
+.ficha.show.off{opacity:.62}.ficha.show .fy{font-weight:700}
+.hstay h3,.ficha.tipsf h3{text-transform:none;letter-spacing:0;color:var(--ink)}
+.tk-price small{font-size:8px;padding:0 10px;line-height:1.2}
 /* mapa de escapadas */
 .fmwrap{margin:6px 0 4px}
 .frmap{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#dfe9ee}
@@ -259,7 +341,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},mealOpt:ST.mealOpt||{},by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -272,7 +354,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.mealOpt=d.mealOpt||{};render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -463,13 +545,232 @@ function buildPA(){const days=parisDays();const base=BASES[ST.base]||BASES["Otro
       ix=(plan.indexOf(p)+step)%Math.max(1,plan.length)}});
   plan.forEach(p=>{let pos=base,t=p.first||p.ret?14.5:9.5,rest=p.acts.filter(a=>!a.eve),seq=[];const eves=p.acts.filter(a=>a.eve);
     // abiertos: los que cierran antes van primero
-    while(rest.length){rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});const a=rest.shift();t+=mv(pos,a.ll);
+    const ord=(ST.paOrd||{})[p.d];p.man=!!(ord&&ord.length);const oi=a=>{const i=ord?ord.indexOf(a.id):-1;return i<0?99:i};
+    while(rest.length){if(p.man)rest.sort((a,b)=>oi(a)-oi(b));else rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});const a=rest.shift();t+=mv(pos,a.ll);
       if(t>=12.5&&t<13.75&&!seq.lunch){seq.lunch=t;t+=1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;pos=a.ll}
     eves.forEach(a=>{t=Math.max(t+mv(pos,a.ll),18);seq.push({...a,st:t,late:false,closed:false});t+=a.h;pos=a.ll});
     p.seq=seq;p.end=t});
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
 function routeUrl(p){const base=BASES[ST.base]||BASES["Otro / centro"];const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
   return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
+function sunOf(date,ll){const y=date.getFullYear(),n=Math.round((Date.UTC(y,date.getMonth(),date.getDate())-Date.UTC(y,0,0))/864e5),g=2*Math.PI/365*(n-1),
+  eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g)),
+  de=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g),
+  la=ll[0]*Math.PI/180,lsun=d=>{const n0=new Date(Date.UTC(y,d==="m"?2:9,31));return 31-n0.getUTCDay()},
+  dst=(m=>m>2&&m<9||(m===2&&date.getDate()>=lsun("m"))||(m===9&&date.getDate()<lsun("o")))(date.getMonth())?2:1,
+  t=z=>{const c=Math.cos(z*Math.PI/180)/(Math.cos(la)*Math.cos(de))-Math.tan(la)*Math.tan(de);const ha=Math.acos(Math.max(-1,Math.min(1,c)))*180/Math.PI;return (720-4*(ll[1]-ha)-eq)/60+dst};
+  return{set:t(90.833),dusk:t(96)}}
+// zonas de precaución (orientativo; fuentes en Consejos)
+const ZONES_PA=[
+ {n:"Gare du Nord · Gare de l'Est · La Chapelle–Stalingrad",ll:[48.8830,2.3600],r:700,t:"Alrededores de las estaciones con hurtos frecuentes y, hacia La Chapelle y Stalingrad, venta y consumo de drogas en la calle. Llegar y salir directo; no quedarse de noche."},
+ {n:"Châtelet–Les Halles",ll:[48.8620,2.3470],r:400,t:"Estación subterránea enorme con muchos carteristas; de noche hay grupos y peleas. De día, sin problema con atención."},
+ {n:"Pigalle y Barbès",ll:[48.8822,2.3375],r:350,t:"Zona de cabarets y bares; de noche, oferta de shows «gratis» que terminan en cobros abusivos. No entrar a locales que invitan desde la calle."},
+ {n:"Escalinata del Sacré-Cœur",ll:[48.8855,2.3431],r:250,t:"Estafa de la pulsera: te amarran un hilo a la muñeca y luego exigen pago. Esconder las manos y seguir caminando."},
+ {n:"Torre Eiffel y Trocadéro",ll:[48.8600,2.2930],r:500,t:"Carteristas en filas, juego de la bolita (trileros) y falsas recolecciones de firmas para distraer. No firmar nada ni apostar."},
+ {n:"Louvre y metro línea 1",ll:[48.8610,2.3360],r:400,t:"Carteristas en las filas y en los vagones de la línea 1. Mochila adelante y celular guardado en las puertas del metro."},
+ {n:"Campos Elíseos en Navidad",ll:[48.8698,2.3076],r:600,t:"Multitudes de noche con las luces: hurtos de celulares. Ir con el teléfono en bolsillo interior."}];
+const zonesNearPA=pts=>ZONES_PA.filter(z=>pts.some(p=>p&&km(p,z.ll)*1000<=z.r+120));
+function tlSVG(tl){const W=720,H=96,pad=40,step=(W-2*pad)/(tl.length-1);
+  let g=`<svg class="tlsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Línea de tiempo"><line x1="${pad}" y1="40" x2="${W-pad}" y2="40" stroke="currentColor" stroke-width="2"/>`;
+  tl.forEach((e,i)=>{const x=pad+i*step;g+=`<circle cx="${x}" cy="40" r="6" fill="var(--stamp)"/><text x="${x}" y="24" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor" font-family="Courier Prime,monospace">${e[0]}</text><text x="${x}" y="66" text-anchor="middle" font-size="12.5" fill="currentColor">${e[1]}</text>`});
+  return g+"</svg>"}
+
+// ===== Atracciones de París: fichas tipo expediente (como Alemania) =====
+const GIq=q=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(q);
+const WKq=t=>"https://es.wikipedia.org/wiki/"+encodeURIComponent(t.replace(/ /g,"_"));
+// f: [pie de foto, artículo de Wikipedia en español del que se toma la imagen]
+const PA_F={
+ louvre:{y:"Fortaleza de 1190 · museo desde 1793",h:["Empezó como una fortaleza que el rey Felipe Augusto levantó hacia 1190 para defender París; sus cimientos todavía se ven en el subsuelo del museo. Con los siglos se convirtió en palacio real, hasta que Luis XIV se mudó a Versalles en 1682.","La Revolución lo abrió como museo público en 1793. En 1989 se inauguró la pirámide de vidrio del arquitecto I. M. Pei, muy criticada al principio y hoy uno de los símbolos de la ciudad."],v:"La Gioconda (detrás de un vidrio y siempre con multitud), la Venus de Milo, la Victoria de Samotracia en lo alto de una escalera, las antigüedades egipcias y los salones dorados de Napoleón III.",d:"Es inmenso: elegir 3 o 4 salas y no intentar verlo todo.",w:"Museo del Louvre",f:[["La pirámide","Pirámide del Louvre"],["La Gioconda","La Gioconda"],["Victoria de Samotracia","Victoria alada de Samotracia"]]},
+ orsay:{y:"Estación de 1900 · museo desde 1986",h:["Se construyó como estación de tren para la Exposición Universal de 1900. Sus andenes quedaron cortos para los trenes modernos y en 1939 dejó de usarse para viajes largos; estuvo a punto de ser demolida.","En 1986 se reabrió como museo del arte de 1848 a 1914: la mayor colección de pintura impresionista y postimpresionista del mundo."],v:"Monet, Renoir, Degas, Cézanne, Van Gogh (su autorretrato y «La noche estrellada sobre el Ródano»), la nave central con esculturas y el reloj gigante del quinto piso.",d:"Ir directo al quinto piso (impresionistas) y bajar después.",w:"Museo de Orsay",f:[["La nave central","Museo de Orsay"],["El reloj del 5.º piso","Museo de Orsay"]]},
+ orang:{y:"Invernadero de 1852 · Nenúfares desde 1927",h:["Era el invernadero de los naranjos del jardín de las Tullerías. Claude Monet donó a Francia sus grandes paneles de Nenúfares al terminar la Primera Guerra Mundial, como homenaje a la paz.","Las dos salas ovaladas se diseñaron según sus indicaciones, con luz natural desde el techo; se abrieron en 1927, meses después de su muerte."],v:"Los ocho paneles de Nenúfares que rodean al visitante; abajo, Renoir, Cézanne, Matisse y Picasso.",d:"Sentarse en el centro de la sala unos minutos: la idea de Monet era un lugar para descansar la vista.",w:"Museo de la Orangerie",f:[["Sala de los Nenúfares","Nenúfares (Monet)"]]},
+ eiffel:{y:"Construida en 1887–1889",h:["Gustave Eiffel la construyó para la Exposición Universal de 1889, en el centenario de la Revolución. Tiene 18.000 piezas de hierro y 2,5 millones de remaches, y se armó en solo dos años.","Debía desmontarse a los 20 años. La salvó la radio: se usó como antena militar y de transmisión. Fue la estructura más alta del mundo hasta 1930."],v:"París completo desde la cima (276 m de altura de la plataforma), el piso de vidrio del primer nivel y, de noche, el centelleo de 20.000 ampolletas durante 5 minutos cada hora en punto.",d:"Cada 7 años se repinta a mano con unas 60 toneladas de pintura. En invierno el hierro se contrae y la torre mide unos centímetros menos.",w:"Torre Eiffel",f:[["La torre","Torre Eiffel"],["Desde el Campo de Marte","Campo de Marte (París)"]]},
+ troca:{y:"Palacio de Chaillot, 1937",h:["La explanada pertenece al Palacio de Chaillot, construido para la Exposición Internacional de 1937 en lugar de un palacio anterior. En 1948 allí se firmó la Declaración Universal de los Derechos Humanos."],v:"La foto de frente a la Torre Eiffel, los jardines y fuentes que bajan hasta el Sena.",d:"A la hora en punto, de noche, se ve el centelleo de la torre desde aquí.",w:"Palacio de Chaillot",f:[["La torre desde Trocadéro","Trocadéro"]]},
+ arc:{y:"Encargado en 1806 · terminado en 1836",h:["Napoleón lo encargó en 1806 tras la victoria de Austerlitz, pero no lo vio terminado: se completó en 1836 bajo el rey Luis Felipe. En sus paredes están grabados los nombres de batallas y generales.","Bajo el arco descansa desde 1921 el Soldado Desconocido de la Primera Guerra Mundial; su llama se reaviva cada tarde a las 18:30."],v:"La terraza con las 12 avenidas que salen en forma de estrella, la vista a los Campos Elíseos y a La Défense.",d:"La rotonda que lo rodea no tiene semáforos ni líneas: no intentar cruzarla, usar el túnel.",w:"Arco de Triunfo de París",f:[["El arco","Arco de Triunfo de París"],["La estrella de avenidas","Plaza Charles de Gaulle"]]},
+ champs:{y:"Avenida trazada en el siglo XVII",h:["Nació como un paseo arbolado diseñado por André Le Nôtre, el jardinero de Versalles, en 1667. Hoy es el lugar de los grandes desfiles: el del 14 de julio y la llegada del Tour de Francia."],v:"Casi 2 km de luces en los árboles, desde la Plaza de la Concordia hasta el Arco de Triunfo.",d:"El encendido de las luces es a fines de noviembre y suelen quedar hasta comienzos de enero.",w:"Campos Elíseos",f:[["Luces de Navidad","Campos Elíseos"]]},
+ notre:{y:"Iniciada en 1163 · reabierta en 2024",h:["Su construcción duró casi dos siglos. Durante la Revolución fue saqueada y convertida en «Templo de la Razón». La novela de Victor Hugo, «Nuestra Señora de París» (1831), provocó su gran restauración del siglo XIX.","El 15 de abril de 2019 un incendio destruyó el techo y la aguja. Tras cinco años de trabajo con técnicas medievales, reabrió el 7 de diciembre de 2024."],v:"La piedra limpia por primera vez en siglos, los rosetones del siglo XIII, la nueva aguja y, en la plaza, la placa del «punto cero» desde donde se miden las distancias de Francia.",d:"La entrada es gratis; reservar hora en línea evita la fila.",w:"Catedral de Notre Dame de París",f:[["Fachada","Catedral de Notre Dame de París"],["Rosetón","Catedral de Notre Dame de París"]]},
+ chapelle:{y:"Consagrada en 1248",h:["El rey Luis IX (San Luis) la construyó para guardar la corona de espinas de Cristo, que había comprado al emperador de Constantinopla por una suma mayor que el costo de la capilla.","Las paredes de la capilla alta son casi solo vitrales: 15 ventanales de 15 m con 1.113 escenas de la Biblia, dos tercios originales del siglo XIII."],v:"La capilla baja, pintada de azul y oro, y luego la escalera de caracol que desemboca en la capilla alta.",d:"Ir con día soleado y en la mañana. Hay control de seguridad del Palacio de Justicia.",w:"Santa Capilla",f:[["Los vitrales","Santa Capilla"]]},
+ concier:{y:"Palacio del siglo XIV · prisión revolucionaria",h:["Fue parte del palacio de los reyes de Francia en la Edad Media. Después se convirtió en cárcel y durante el Terror (1793–1794) pasaron por aquí unos 2.700 presos rumbo a la guillotina.","María Antonieta estuvo presa en una celda de la Conciergerie durante sus últimos 76 días, en 1793."],v:"La Sala de la Gente de Armas, una de las salas góticas más grandes de Europa, y la capilla expiatoria donde estuvo la celda de la reina.",d:"Hay una tablet de realidad aumentada («Histopad») que muestra cómo era cada sala.",w:"Conciergerie",f:[["Sala de la Gente de Armas","Conciergerie"]]},
+ latin:{y:"Sorbona desde 1257",h:["Se llama así porque los estudiantes de la Sorbona hablaban latín, la lengua de la universidad medieval. En mayo de 1968 fue el centro de las protestas estudiantiles."],v:"La librería Shakespeare and Company, las calles medievales de Saint-Séverin y la Huchette, la fachada de la Sorbona.",d:"En la librería no se pueden tomar fotos adentro; arriba hay una sala de lectura con un piano.",w:"Barrio Latino",f:[["Shakespeare and Company","Shakespeare and Company"]]},
+ panth:{y:"Terminado en 1790",h:["Luis XV lo mandó construir como iglesia de Santa Genoveva, pero se terminó con la Revolución, que lo convirtió en mausoleo de los grandes hombres de la patria.","En 1851 Léon Foucault colgó aquí su péndulo de 67 m para demostrar que la Tierra gira. En la cripta están Voltaire, Rousseau, Victor Hugo, Marie Curie y Joséphine Baker."],v:"El péndulo de Foucault oscilando bajo la cúpula y la cripta.",d:"Desde abril a octubre se puede subir a la columnata de la cúpula; en invierno no.",w:"Panteón de París",f:[["Péndulo de Foucault","Péndulo de Foucault"]]},
+ luxem:{y:"Palacio de 1615–1631",h:["María de Médici, viuda de Enrique IV, mandó construir el palacio y el jardín para recordar su Florencia natal. Hoy el palacio es la sede del Senado francés."],v:"La Fuente Médici, las estatuas de reinas de Francia y los veleritos de madera en el estanque.",d:"Las sillas verdes metálicas son un símbolo del jardín: se pueden mover libremente.",w:"Jardín de Luxemburgo",f:[["Palacio y estanque","Jardín de Luxemburgo"]]},
+ sacre:{y:"Construida entre 1875 y 1914",h:["La basílica se construyó tras la guerra con Prusia y la Comuna de París, en el punto más alto de la ciudad (130 m). Su piedra blanca se limpia sola con la lluvia.","Montmartre era un pueblo de molinos y viñas fuera de París. A fines del siglo XIX llegaron artistas pobres: Renoir, Toulouse-Lautrec, Van Gogh y Picasso vivieron aquí."],v:"La vista desde la escalinata, la Place du Tertre con pintores, la viña de Montmartre, el muro de los «Te amo» en 250 idiomas.",d:"Subir en el funicular con un boleto de metro normal. La escalinata tiene la estafa de la pulsera: no dar la mano.",w:"Basílica del Sagrado Corazón (París)",f:[["La basílica","Basílica del Sagrado Corazón (París)"],["Place du Tertre","Plaza del Tertre"]]},
+ moulin:{y:"Abierto en 1889",h:["El cabaret abrió el mismo año que la Torre Eiffel. Ahí nació el cancán moderno y Toulouse-Lautrec pintó sus afiches más famosos."],v:"El molino rojo iluminado en el Boulevard de Clichy.",d:"El show es para mayores de 6 años, pero es caro; con ver la fachada basta.",w:"Moulin Rouge",f:[["La fachada","Moulin Rouge"]]},
+ opera:{y:"Inaugurada en 1875",h:["Charles Garnier ganó el concurso con solo 35 años. Durante la construcción encontraron agua subterránea y tuvieron que hacer un depósito bajo el edificio: de ahí nace la leyenda del lago del fantasma.","En 1896 se cayó un contrapeso de la gran lámpara y murió una persona: Gaston Leroux usó el hecho en «El fantasma de la ópera» (1910)."],v:"La gran escalera de mármol, el Gran Foyer dorado como Versalles y el techo de la sala pintado por Chagall en 1964.",d:"El palco 5 está reservado «al fantasma» y tiene una placa en la puerta.",w:"Ópera Garnier",f:[["La gran escalera","Ópera Garnier"],["Techo de Chagall","Ópera Garnier"]]},
+ lafay:{y:"Cúpula de 1912",h:["Las Galerías Lafayette abrieron en 1894; la cúpula de vidrio y acero art nouveau, de 43 m de altura, es de 1912. Cada Navidad se instala bajo ella un árbol gigante con un tema distinto."],v:"La cúpula y el árbol de Navidad, el piso de vidrio que sobresale en el vacío y la terraza gratis con vista a la Ópera y a la Torre Eiffel.",d:"Las vitrinas animadas de Navidad de las Galerías y de Printemps, al lado, se ven desde la vereda.",w:"Galerías Lafayette",f:[["La cúpula","Galerías Lafayette"]]},
+ catac:{y:"Osario desde 1786",h:["Debajo de París hay cientos de kilómetros de antiguas canteras de donde salió la piedra de la ciudad. A fines del siglo XVIII los cementerios estaban colapsados y los huesos se trasladaron de noche a estos túneles.","Hoy hay restos de unos seis millones de personas, ordenados en paredes de cráneos y huesos largos. La entrada dice: «¡Alto! Aquí está el imperio de la muerte»."],v:"Un recorrido de 1,5 km a 20 m de profundidad entre paredes de huesos.",d:"Hace 14 °C todo el año. Son 131 escalones de bajada y 112 de subida; no hay baños.",w:"Catacumbas de París",f:[["Osario","Catacumbas de París"]]},
+ inval:{y:"Fundado en 1670",h:["Luis XIV lo construyó como hospital y residencia para soldados heridos o ancianos. La iglesia de la cúpula dorada se terminó en 1706.","En 1840 los restos de Napoleón fueron traídos desde la isla de Santa Elena; descansa en seis ataúdes encajados uno dentro de otro, bajo la cúpula."],v:"La tumba de Napoleón en pórfido rojo y el Museo del Ejército: armaduras medievales y salas de las dos guerras mundiales.",d:"Para quienes les gusta la historia, el museo de las guerras mundiales vale más que la tumba.",w:"Los Inválidos",f:[["La cúpula dorada","Los Inválidos"],["Tumba de Napoleón","Los Inválidos"]]},
+ rodin:{y:"Hôtel Biron, 1730",h:["Auguste Rodin alquiló habitaciones en esta mansión desde 1908 y propuso donar toda su obra al Estado a cambio de que se convirtiera en su museo, que abrió en 1919."],v:"El Pensador y La Puerta del Infierno en el jardín, El Beso en el interior y las obras de Camille Claudel.",d:"Con poco tiempo, el jardín solo es una opción más barata.",w:"Museo Rodin",f:[["El Pensador","El pensador"]]},
+ marais:{y:"Place des Vosges, 1612",h:["Era un pantano («marais») que se drenó en la Edad Media. En el siglo XVII la nobleza construyó aquí sus mansiones; la Place des Vosges, inaugurada en 1612, es la plaza planificada más antigua de París.","Desde el siglo XIX es también el barrio judío (el «Pletzl»), con la rue des Rosiers como centro."],v:"La Place des Vosges con la casa de Victor Hugo, los patios de las mansiones, la rue des Rosiers.",d:"Abre los domingos, cuando casi todo París cierra.",w:"Le Marais",f:[["Place des Vosges","Plaza de los Vosgos"]]},
+ picasso:{y:"Hôtel Salé, 1656 · museo desde 1985",h:["Al morir Picasso, sus herederos pagaron el impuesto a la herencia con obras de arte. Así el Estado formó esta colección, instalada en una mansión del siglo XVII."],v:"Más de 5.000 obras de todas sus épocas, desde el período azul al cubismo, con esculturas y cerámicas.",d:"El primer domingo del mes es gratis con reserva.",w:"Museo Picasso (París)",f:[["El edificio","Museo Picasso (París)"]]},
+ lachaise:{y:"Abierto en 1804",h:["Napoleón lo abrió fuera de la ciudad de entonces y al principio nadie quería enterrar ahí a sus muertos. Para darle prestigio se trasladaron los restos de Molière y La Fontaine, y funcionó."],v:"Tumbas de Chopin, Oscar Wilde, Jim Morrison, Édith Piaf y el Muro de los Federados de la Comuna.",d:"Bajar un plano o usar la app antes; son 44 hectáreas en pendiente.",w:"Cementerio del Père-Lachaise",f:[["Avenidas del cementerio","Cementerio del Père-Lachaise"]]},
+ seine:{y:"Barcos desde 1949",h:["Los «bateaux-mouches» toman su nombre de los astilleros de Lyon donde se fabricaban. El Sena y sus orillas en París son Patrimonio de la Humanidad desde 1991."],v:"De noche: Notre-Dame, el Louvre, los puentes iluminados y la Torre Eiffel centelleando.",d:"Sentarse en la cubierta abierta aunque haga frío: llevar gorro y guantes.",w:"Sena",f:[["El Sena de noche","Sena"]]},
+ tuileries:{y:"Jardín de 1564 · obelisco de 1836",h:["El jardín era del palacio de las Tullerías, que se quemó en 1871. En la Plaza de la Concordia estuvo la guillotina: allí ejecutaron a Luis XVI y María Antonieta en 1793.","El obelisco de Luxor, de más de 3.000 años, fue un regalo de Egipto y se instaló en 1836."],v:"El obelisco, las fuentes, la rueda de la fortuna y el mercado de Navidad.",d:"Desde la Concordia se ve en línea recta el eje Louvre–Arco de Triunfo–La Défense.",w:"Jardín de las Tullerías",f:[["Plaza de la Concordia","Plaza de la Concordia"]]},
+ evol:{y:"Galería de 1889 · reabierta en 1994",h:["El Jardín de Plantas nació en 1635 como jardín de plantas medicinales del rey. La gran galería de hierro y vidrio se inauguró en 1889 y se renovó en 1994."],v:"El desfile de animales africanos, la ballena y la sala de especies extinguidas o amenazadas.",d:"Al lado está la casa de fieras, uno de los zoológicos más antiguos del mundo.",w:"Gran Galería de la Evolución",f:[["El desfile","Gran Galería de la Evolución"]]},
+ montp:{y:"Inaugurada en 1973",h:["Con 210 m fue el edificio más alto de Francia. Fue tan criticada que, pocos años después, se prohibieron los edificios de más de 7 pisos en el centro de París."],v:"La terraza del piso 59 con la Torre Eiffel en la vista.",d:"El chiste parisino: es la mejor vista de París porque es el único lugar desde donde no se ve la Torre Montparnasse.",w:"Torre Montparnasse",f:[["La torre","Torre Montparnasse"]]},
+ canal:{y:"Abierto en 1825",h:["Napoleón mandó construirlo para llevar agua potable a París. Tiene 4,5 km y nueve esclusas; la mitad corre bajo tierra."],v:"Las pasarelas de hierro verde, las esclusas y el Hôtel du Nord, famoso por una película de 1938.",d:"Por la tarde se llena de jóvenes en las orillas.",w:"Canal Saint-Martin",f:[["Pasarelas","Canal Saint-Martin"]]},
+ stgerm:{y:"Abadía del siglo VI",h:["El barrio nació alrededor de una abadía benedictina. Después de la Segunda Guerra Mundial sus cafés fueron el centro de los existencialistas: Sartre, Simone de Beauvoir y Camus escribían en el Café de Flore y Les Deux Magots."],v:"La iglesia de Saint-Germain-des-Prés (la más antigua de París), los dos cafés históricos y las calles de galerías.",d:"Un chocolate caliente en Les Deux Magots es caro, pero es un clásico.",w:"Saint-Germain-des-Prés",f:[["La iglesia","Iglesia de Saint-Germain-des-Prés"]]},
+ bourse:{y:"Rotonda de 1767 · museo desde 2021",h:["Fue mercado de granos y después Bolsa de Comercio. El empresario François Pinault encargó al arquitecto japonés Tadao Ando transformarla en museo: un cilindro de hormigón dentro de la rotonda histórica."],v:"La cúpula de vidrio con un mural del siglo XIX y el cilindro de hormigón.",d:"Muy recomendable para quienes estudian arquitectura.",w:"Bolsa de Comercio de París",f:[["La rotonda","Bolsa de Comercio de París"]]}
+};
+const CTX_PA={t:"París en 2.000 años",tl:[["52 a.C.","Lutecia romana"],["1163","Notre-Dame"],["1789","Revolución"],["1853","Haussmann"],["1889","Torre Eiffel"],["1944","Liberación"],["2024","JJ.OO."]],
+ p:["París nació en la Île de la Cité, una isla del Sena donde vivía la tribu celta de los parisios. Los romanos la llamaron Lutecia. En la Edad Media se convirtió en la capital de los reyes de Francia y en una de las ciudades más grandes de Europa.",
+ "En 1789 empezó aquí la Revolución Francesa con la toma de la Bastilla. El rey fue guillotinado en 1793 y, años después, Napoleón se coronó emperador en Notre-Dame.",
+ "El París que se ve hoy es en gran parte obra del barón Haussmann, que entre 1853 y 1870 demolió calles medievales para abrir grandes avenidas con edificios de piedra de la misma altura, balcones y techos grises.",
+ "A fines del siglo XIX y comienzos del XX fue la capital mundial del arte: impresionistas, Picasso y escritores de todo el mundo. Durante la Segunda Guerra Mundial estuvo ocupada por Alemania entre 1940 y 1944."]};
+const MEDIA_PA=[
+ ["Ratatouille","Película animada · 2007","Un ratón que quiere ser chef en un restaurante de París: tejados, cocinas y el Sena.","Todo público"],
+ ["Medianoche en París","Película · Woody Allen, 2011","Un escritor viaja de noche al París de los años 20 y conoce a Hemingway, Picasso y Dalí.","+13"],
+ ["Amélie","Película · 2001","Una joven en Montmartre que decide cambiar la vida de los demás. Se ve el Café des Deux Moulins.","+14"],
+ ["Hugo","Película · Martin Scorsese, 2011","Un niño vive escondido en los relojes de la estación Montparnasse en los años 30.","Todo público"],
+ ["Lupin","Serie · Netflix, 2021","Un ladrón de guante blanco con escenas en el Louvre, Étretat y el Jardín de Luxemburgo.","+16"],
+ ["El jorobado de Notre-Dame","Novela · Victor Hugo, 1831","La novela que salvó a la catedral; también la versión animada de Disney (1996).",""],
+ ["París era una fiesta","Libro · Ernest Hemingway, 1964","Memorias del escritor joven y pobre en el París de los años 20.",""],
+ ["Los miserables","Novela · Victor Hugo, 1862","Las barricadas de 1832 y las cloacas de París.",""],
+ ["Emily in Paris","Serie · Netflix","Una visión turística y liviana de París; útil para reconocer lugares como la Place de l'Estrapade.","+13"]];
+const wkCache={};
+async function wkThumb(t){if(t in wkCache)return wkCache[t];wkCache[t]=null;
+  try{const r=await fetch("https://es.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t.replace(/ /g,"_")));if(r.ok){const j=await r.json();wkCache[t]=(j.thumbnail&&j.thumbnail.source)||null}}catch(e){}
+  return wkCache[t]}
+function hydratePhotos(){document.querySelectorAll("img[data-wk]:not([src])").forEach(async im=>{const u=await wkThumb(im.dataset.wk);if(u){im.src=u}else{const s=document.createElement("span");s.className="ph";s.textContent="📷";im.replaceWith(s)}})}
+function paFicha(a,i){const x=PA_F[a.id];const sel=paSel(a);
+  return `<article class="ficha" id="fpa-${a.id}"><div class="ftab">EXP. PAR-${String(i+1).padStart(2,"0")} · ${a.z.toUpperCase()}</div>
+   <header><h3>${a.n.replace(/\s*\(.*?\)\s*$/,"")}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
+   <p class="flead">${a.s}</p>
+   ${x.h&&x.h.length?`<div class="fhist"><span class="flab">Historia</span>${x.h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   <div><span class="flab">Qué van a ver</span><p>${x.v||a.v}</p></div>
+   <div class="fnote"><span class="flab">Dato / consejo</span>${x.d?`<p>${x.d}</p>`:""}<p><b>Práctico:</b> ${a.d}</p></div>
+   <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${fmtE(a.p)}${a.close?` · cierra ${hm(a.close)}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
+   ${x.f&&x.f.length?`<div class="fphotos">${x.f.filter((f,j,A)=>A.findIndex(g=>g[1]===f[1])===j).map(f=>`<a class="polaroid" href="${GIq(f[0]+" "+a.n.replace(/\s*\(.*?\)/,"")+" París")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${f[1]}" alt="${f[0]}" loading="lazy"><span class="cap">${f[0]}</span><span class="go">más fotos →</span></a>`).join("")}</div><p class="credit">Fotos: Wikipedia / Wikimedia Commons · ${[...new Set(x.f.map(f=>f[1]))].map(t=>`<a href="${WKq(t)}" target="_blank" rel="noopener">${t}</a>`).join(" · ")}</p>`:""}
+   <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="${WKq(x.w||a.n)}" target="_blank" rel="noopener">Wikipedia ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a>
+   <button type="button" class="btn alt sm" data-fsel="${a.id}">${sel?"✕ Quitar del programa":"+ Agregar al programa"}</button></div>
+  </article>`}
+let attFilt="todas";
+function atracciones(){const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
+  const L=PA.filter(a=>PA_F[a.id]).filter(a=>attFilt==="todas"||(attFilt==="prog"&&paSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
+  L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));
+  const rest=PA.filter(a=>!PA_F[a.id]);
+  return `<div class="sheet panel"><section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${CTX_PA.t}</h2>${tlSVG(CTX_PA.tl)}${CTX_PA.p.map(p=>`<p>${p}</p>`).join("")}</section>
+   <div class="filters" style="margin:16px 0 22px">${fl.map(([k,t])=>`<button class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div>
+   <div class="fichas">${L.map(a=>paFicha(a,PA.indexOf(a))).join("")}</div>
+   ${rest.length?`<div class="card" style="margin-top:22px"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
+   <section class="card media" style="margin-top:22px"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas, series y libros · París</h2><div class="mgrid">${MEDIA_PA.map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas.</p></section>
+   <p class="muted" style="font-size:13px;margin-top:12px">Las fichas de las escapadas están en la pestaña Escapadas (📖 Ver ficha).</p></div>`}
+function bindAtt(){document.querySelectorAll("[data-attf]").forEach(x=>x.onclick=()=>{attFilt=x.dataset.attf;render()});
+  document.querySelectorAll("[data-fsel]").forEach(x=>x.onclick=()=>{const a=PA.find(q=>q.id===x.dataset.fsel);ST.paSel=ST.paSel||{};ST.paSel[a.id]=!paSel(a);save();render()});
+  hydratePhotos()}
+
+// ===== Alojamiento =====
+const uid=()=>Math.random().toString(36).slice(2,8);
+function stays(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return[];
+  const escN=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0);
+  const L=[{k:"par",n:"París",p:"🇫🇷",ini:W.eur_fecha,fin:W.vue_fecha,nn:nights(W.eur_fecha,W.vue_fecha)-escN,city:"Paris"}];
+  ST.esc.filter(e=>nights(e.ini,e.fin)>0).sort((a,b)=>a.ini<b.ini?-1:1).forEach(e=>{const x=ESC.find(q=>q.id===e.id)||{n:e.id,p:""};L.push({k:"esc-"+e.id+"-"+e.ini,n:x.n,p:x.p,ini:e.ini,fin:e.fin,nn:nights(e.ini,e.fin),city:x.n})});
+  return L}
+const hotList=k=>((ST.hot||{})[k]||[]);
+function hotNightPP(k){const S=stays().find(s=>s.k===k);const h=hotList(k).find(x=>x.sel);if(!h||!S||!+h.price)return 0;return (h.mode==="t"?+h.price/Math.max(1,S.nn):+h.price)/2}
+let hotTab="par";
+const bkUrl=(q,ci,co)=>`https://www.booking.com/searchresults.es.html?ss=${encodeURIComponent(q)}&checkin=${ci}&checkout=${co}&group_adults=2&no_rooms=1&group_children=0`;
+function alojamiento(){const S=stays();
+  if(!S.length)return `<div class="sheet panel"><span class="eyebrow">Alojamiento</span><h2>Dónde dormir</h2><div class="empty">Completa las fechas del viaje para ver las estadías.</div></div>`;
+  if(!S.some(s=>s.k===hotTab))hotTab=S[0].k;const s=S.find(x=>x.k===hotTab);const L=hotList(s.k);
+  let h=`<div class="sheet panel"><span class="eyebrow">Alojamiento</span><h2>Dónde dormir · ${S.reduce((t,x)=>t+x.nn,0)} noches</h2>
+   <div class="htabs" role="tablist">${S.map(x=>{const sel=hotList(x.k).find(y=>y.sel);return `<button type="button" role="tab" class="htab" data-htab="${x.k}" aria-selected="${x.k===hotTab}"><b>${x.p} ${x.n}</b><small>${x.nn} ${x.nn===1?"noche":"noches"} · ${sel?esc(sel.n):"sin elegir"}</small></button>`}).join("")}</div>
+   <div class="hstay"><h3>${s.n} · ${s.nn} ${s.nn===1?"noche":"noches"} · ${pretty(s.ini)} → ${pretty(s.fin)}</h3>
+   ${s.k==="par"&&ST.esc.some(e=>nights(e.ini,e.fin)>0)?`<p class="note">Las noches de las escapadas no cuentan aquí: si mantienen el alojamiento de París mientras viajan, súmenlas al precio total.</p>`:""}
+   <p class="act"><a class="btn alt sm" href="${bkUrl(s.city,s.ini,s.fin)}" target="_blank" rel="noopener">🔎 Buscar en Booking (2 adultos, estas fechas)</a><a class="btn alt sm" href="https://www.airbnb.cl/s/${encodeURIComponent(s.city)}/homes?checkin=${s.ini}&checkout=${s.fin}&adults=2" target="_blank" rel="noopener">Airbnb</a></p>
+   <div class="hotels">`;
+  L.forEach(o=>{const pp=o.price?(o.mode==="t"?+o.price/Math.max(1,s.nn):+o.price)/2:0;
+    h+=`<div class="hopt${o.sel?" on":""}"><div class="opt-top"><label><input type="radio" name="hsel-${s.k}" data-hsel="${s.k}|${o.id}" ${o.sel?"checked":""}> <span class="name">${esc(o.n)}</span></label><span class="pill">${o.sel?"✔ Elegido":"Alternativa"}</span></div>
+     <dl class="facts"><dt>Dirección</dt><dd><input data-hf="${s.k}|${o.id}|addr" value="${esc(o.addr||"")}" placeholder="Calle, número, barrio"></dd>
+     <dt>Tarifa (2 personas)</dt><dd><span class="pricebox"><input type="number" step="1" data-hf="${s.k}|${o.id}|price" value="${o.price||""}" style="width:96px"> € <select data-hf="${s.k}|${o.id}|mode"><option value="n" ${o.mode!=="t"?"selected":""}>por noche</option><option value="t" ${o.mode==="t"?"selected":""}>total estadía</option></select></span></dd>
+     <dt>Desayuno</dt><dd><select data-hf="${s.k}|${o.id}|bf"><option value="">Sin dato</option><option ${o.bf==="Incluido"?"selected":""}>Incluido</option><option ${o.bf==="No incluido"?"selected":""}>No incluido</option><option ${o.bf==="Cocina propia"?"selected":""}>Cocina propia</option></select></dd>
+     <dt>Notas</dt><dd><input data-hf="${s.k}|${o.id}|note" value="${esc(o.note||"")}" placeholder="Metro cercano, check-in, cancelación…"></dd>
+     <dt>Costo por persona</dt><dd><b>${pp?fmtE(pp)+" por noche · "+fmtE(pp*s.nn)+" total":"—"}</b></dd></dl>
+     <div class="links-row">${o.url?`<a href="${esc(o.url)}" target="_blank" rel="noopener">Ver reserva / sitio →</a>`:""}<a href="${bkUrl(o.n+" "+s.city,s.ini,s.fin)}" target="_blank" rel="noopener">Disponibilidad →</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((o.addr||o.n)+" "+s.city)}" target="_blank" rel="noopener">Mapa →</a><a href="${GIq(o.n+" "+s.city)}" target="_blank" rel="noopener">Fotos →</a><button type="button" class="lnk" data-hdel="${s.k}|${o.id}">✕ Eliminar</button></div></div>`});
+  if(!L.length)h+=`<div class="empty">Todavía no hay hoteles para ${s.n}. Agreguen opciones para compararlas.</div>`;
+  h+=`</div><form class="hadd" data-hadd="${s.k}"><b>+ Agregar alojamiento</b><input name="n" required placeholder="Nombre del hotel o departamento"><input name="url" type="url" placeholder="Enlace (Booking, Airbnb, sitio) — opcional"><button class="btn sm">Agregar</button></form></div></div>`;
+  return h}
+function bindHot(){document.querySelectorAll("[data-htab]").forEach(x=>x.onclick=()=>{hotTab=x.dataset.htab;render()});
+  const get=k=>{ST.hot=ST.hot||{};ST.hot[k]=ST.hot[k]||[];return ST.hot[k]};
+  document.querySelectorAll("form[data-hadd]").forEach(f=>f.onsubmit=e=>{e.preventDefault();const L=get(f.dataset.hadd);L.push({id:uid(),n:f.n.value.trim(),url:f.url.value.trim(),price:"",mode:"n",sel:!L.length});save();render()});
+  document.querySelectorAll("[data-hsel]").forEach(x=>x.onchange=()=>{const [k,id]=x.dataset.hsel.split("|");get(k).forEach(o=>o.sel=o.id===id);save();render()});
+  document.querySelectorAll("[data-hf]").forEach(x=>x.onchange=()=>{const [k,id,f]=x.dataset.hf.split("|");const o=get(k).find(q=>q.id===id);if(o){o[f]=x.value;save();render()}});
+  document.querySelectorAll("[data-hdel]").forEach(x=>x.onclick=()=>{const [k,id]=x.dataset.hdel.split("|");const o=get(k).find(q=>q.id===id);if(!o)return;if(x.dataset.arm!=="1"){x.dataset.arm="1";x.textContent="¿Eliminar? toca de nuevo";return}ST.hot[k]=get(k).filter(q=>q.id!==id);if(ST.hot[k].length&&!ST.hot[k].some(q=>q.sel))ST.hot[k][0].sel=true;save();render()})}
+
+// ===== Pasajes =====
+const PLANE_SVG=`<svg viewBox="0 0 120 70" aria-hidden="true"><g fill="currentColor"><path d="M8 38 L100 30 Q114 30 114 36 Q114 42 100 42 L8 40 Z"/><path d="M50 36 L30 10 L40 10 L72 35 Z"/><path d="M50 38 L30 64 L40 64 L72 39 Z"/><path d="M12 38 L4 22 L12 22 L24 36 Z"/></g><g fill="var(--tk-bg)"><circle cx="60" cy="36" r="1.6"/><circle cx="68" cy="35.6" r="1.6"/><circle cx="76" cy="35.2" r="1.6"/><circle cx="84" cy="34.8" r="1.6"/><circle cx="92" cy="34.4" r="1.6"/></g></svg>`;
+function tickets(){const W=ST.wiz,T=[];
+  if(W.ida_fecha)T.push({k:"ida",m:"✈",op:"Vuelo",from:"Santiago",to:"Londres",d:W.ida_fecha,serv:W.ida_vuelo||"",st:"SCL → "+(W.ida_aerop||"Londres"),link:["Buscar vuelo","https://www.google.com/travel/flights?q="+encodeURIComponent("SCL LHR "+W.ida_fecha)]});
+  if(W.eur_fecha)T.push({k:"eur",m:"🚄",op:"Eurostar",from:"Londres",to:"París",d:W.eur_fecha,dep:W.eur_hora||"",serv:W.eur_tren||"Eurostar",st:"St Pancras → Gare du Nord",link:["Eurostar","https://www.eurostar.com/es-es"]});
+  ST.esc.slice().sort((a,b)=>a.ini<b.ini?-1:1).forEach(e=>{const x=ESC.find(q=>q.id===e.id)||{n:e.id};const X=EXT[e.id]||{};
+    T.push({k:"e-"+e.id+"-"+e.ini+"-i",m:"🚆",op:"Tren",from:"París",to:x.n,d:e.ini,serv:x.tr||"",st:X.how||"",ref:X.cost||"",link:["SNCF Connect","https://www.sncf-connect.com/"]});
+    T.push({k:"e-"+e.id+"-"+e.ini+"-v",m:"🚆",op:"Tren",from:x.n,to:"París",d:e.fin,serv:x.tr||"",st:"",ref:X.cost||"",link:["SNCF Connect","https://www.sncf-connect.com/"]})});
+  if(W.vue_fecha)T.push({k:"vue",m:"✈",op:"Vuelo",from:"París",to:"Santiago",d:W.vue_fecha,serv:W.vue_vuelo||"",st:(W.vue_aerop||"CDG")+" → SCL",link:["Buscar vuelo","https://www.google.com/travel/flights?q="+encodeURIComponent("CDG SCL "+W.vue_fecha)]});
+  return T}
+function pasajes(){const T=tickets();const tk=ST.tk||{};const tot=T.reduce((t,x)=>t+(+((tk[x.k]||{}).p)||0),0);
+  if(!T.length)return `<div class="sheet panel"><span class="eyebrow">Pasajes</span><h2>Vuelos y trenes</h2><div class="empty">Completa la configuración del viaje.</div></div>`;
+  return `<div class="sheet panel"><span class="eyebrow">Pasajes</span><h2>Vuelos y trenes · ${T.length} tramos</h2>
+   <p class="muted" style="margin:0 0 14px">Total ingresado por persona: <b>${fmtE(tot)}</b>${tot?` · los 2: <b>${fmtE(tot*2)}</b>`:""}. Al comprar, anoten hora, código y precio, y marquen ✓ verificado.</p>
+   <div class="legs" data-tk="B">${T.map((x,ix)=>{const v=tk[x.k]||{};const no=x.d.slice(8,10)+x.d.slice(5,7)+"-"+String(ix+1).padStart(2,"0");
+    return `<article class="ticket"><div class="tk-main">
+     <div class="tk-band"><span class="tk-op">${esc(v.s||x.serv||x.op)}</span><b>${esc(x.from)} → ${esc(x.to)}</b></div>${v.ok?`<div class="tk-ok">✓ Verificado</div>`:""}
+     <div class="tk-body"><div class="tk-art">${x.m==="✈"?PLANE_SVG:'<img class="tk-img" src="img/train.png" alt="Locomotora">'}</div>
+      <dl class="tk-f"><div><dt>Fecha</dt><dd class="hi">${pretty(x.d)}</dd></div><div><dt>Viajeros</dt><dd>2</dd></div>
+       <div><dt>Salida</dt><dd class="hi">${esc(v.dep||x.dep||"—")}</dd></div><div><dt>Llegada</dt><dd class="hi">${esc(v.arr||"—")}</dd></div>
+       ${x.st?`<div class="wide"><dt>Ruta</dt><dd>${esc(x.st)}</dd></div>`:""}${x.ref&&!v.p?`<div class="wide"><dt>Referencia</dt><dd>${esc(x.ref)}</dd></div>`:""}${v.loc?`<div class="wide"><dt>Código de reserva</dt><dd class="hi">${esc(v.loc)}</dd></div>`:""}</dl>
+      <div class="tk-price"><small>Precio p/p</small><b>${v.p?fmtE(+v.p):"—"}</b><small>${v.ok?"pagado":"por comprar"}</small></div></div>
+     <details class="tk-edit"><summary>✎ Datos de la compra</summary><div class="tk-foot">
+      <label>Servicio<input data-tkf="${x.k}|s" value="${esc(v.s||"")}" placeholder="${esc(x.serv||"Ej.: TGV 6611")}"></label>
+      <label>Sale<input type="time" data-tkf="${x.k}|dep" value="${esc(v.dep||x.dep||"")}"></label><label>Llega<input type="time" data-tkf="${x.k}|arr" value="${esc(v.arr||"")}"></label>
+      <label>Precio p/p €<input type="number" step="0.01" data-tkf="${x.k}|p" value="${esc(v.p||"")}"></label><label>Código<input data-tkf="${x.k}|loc" value="${esc(v.loc||"")}"></label>
+      <label class="vchk"><input type="checkbox" data-tkf="${x.k}|ok" ${v.ok?"checked":""}> ✓ verificado</label></div></details>
+     <div class="tk-links"><a href="${x.link[1]}" target="_blank" rel="noopener">${x.link[0]} →</a></div></div>
+     <div class="tk-stub"><span class="tk-v">${x.m==="✈"?"Vuelo":"Tren"}</span><span class="tk-no">N.º ${no}</span></div></article>`}).join("")}</div></div>`}
+function bindTk(){document.querySelectorAll("[data-tkf]").forEach(x=>x.onchange=()=>{const [k,f]=x.dataset.tkf.split("|");ST.tk=ST.tk||{};ST.tk[k]=ST.tk[k]||{};ST.tk[k][f]=x.type==="checkbox"?x.checked:x.value;save();render()})}
+
+// ===== Consejos =====
+const TIPS=[
+ ["🛂","Antes de viajar",["Pasaporte vigente al menos 3 meses después de la salida de Europa. Chilenos no necesitan visa para turismo (hasta 90 días en el espacio Schengen).","Reino Unido exige la ETA (autorización electrónica) a chilenos: £20 desde abril de 2026, válida 2 años. Se pide en la app oficial «UK ETA» o en gov.uk.","En el espacio Schengen funciona el EES desde 2025: en la primera entrada toman huellas y foto en la frontera. Puede haber filas largas: llegar con tiempo al Eurostar (St Pancras pide ~90 min antes).","El ETIAS europeo aún no está en vigor (no tiene fecha confirmada): no hay que pedirlo para este viaje. Desconfiar de sitios que lo cobren.","Seguro de viaje con cobertura médica en Europa (mínimo 30.000 € es lo habitual para Schengen)."]],
+ ["🚇","Moverse en París",["Boleto único metro/RER/tren: 2,55 € · bus/tranvía: 2,05 €. Se cargan en el celular con la app Bonjour RATP o en la tarjeta Navigo Easy (2 €).","Aeropuertos CDG y Orly: boleto especial de 14 € (RER B a CDG; metro 14 a Orly).","Pase Navigo semanal: 32,40 € de lunes a domingo, viajes ilimitados incluidos los aeropuertos. Conviene desde ~13 viajes en la semana.","Guardar el boleto hasta la salida: hay controles con multa.","Se camina mucho: zapatos cómodos e impermeables."]],
+ ["🔒","Seguridad",["Carteristas en metro línea 1, Châtelet, Torre Eiffel, Sacré-Cœur y multitudes navideñas. Mochila adelante y celular en bolsillo interior.","Estafas típicas: pulsera en Montmartre, petición de firmas, «anillo de oro» encontrado en el suelo y juego de la bolita.","Emergencias 112 · Policía 17 · Ambulancia 15. Consulado de Chile en París: guardar dirección y teléfono.","Las zonas de precaución se marcan en cada día del programa."]],
+ ["💶","Dinero y pagos",["Se paga con tarjeta casi en todas partes, incluso montos bajos. Llevar algo de efectivo para mercados.","En la tarjeta, elegir pagar en euros (no en pesos) para evitar la conversión cara del comercio.","La propina va incluida («service compris»). Se acostumbra redondear o dejar 1–2 € si el servicio fue bueno.","Pedir «une carafe d'eau»: el agua de la llave es gratis en restaurantes."]],
+ ["🕐","Horarios y costumbres",["Decir «Bonjour» al entrar a una tienda y «Merci, au revoir» al salir: es muy importante para los franceses.","Muchos museos cierran lunes (Orsay, Rodin, Picasso) o martes (Louvre, Orangerie). El programa ya lo considera.","Los domingos cierran muchas tiendas; Le Marais sigue abierto.","Restaurantes: almuerzo 12:00–14:00 y cena desde 19:30; fuera de ese horario muchas cocinas están cerradas."]],
+ ["🧥","Clima y equipaje",["Fines de noviembre y diciembre: entre 3 y 9 °C, días cortos (oscurece cerca de las 17:00) y lluvia frecuente.","Capas, abrigo impermeable, gorro, guantes y paraguas plegable.","Enchufes tipo E, 230 V: los enchufes chilenos de dos patas redondas entran; los de tres en línea necesitan adaptador.","Baños públicos gratis: las «sanisettes» grises en la calle."]],
+ ["📱","Celular",["Una eSIM europea (Holafly, Airalo u otra) suele salir más barata que el roaming.","Descargar Google Maps sin conexión de París y la app Bonjour RATP.","Wi-Fi gratis en estaciones, museos y parques municipales («Paris Wi-Fi»)."]]];
+const CHECK=[["eta","ETA de Reino Unido aprobada"],["seguro","Seguro de viaje contratado"],["pasaporte","Pasaportes vigentes (3+ meses)"],["eurostar","Eurostar comprado"],["aloj","Alojamiento en París reservado"],["louvre","Hora del Louvre reservada"],["eiffel","Entrada Torre Eiffel comprada"],["catac","Catacumbas reservadas"],["esim","eSIM o plan de datos"],["apps","Apps: Bonjour RATP, Google Maps sin conexión"],["copia","Copia digital de pasaportes y seguro"]];
+function consejos(){const ck=ST.chk||{};const n=CHECK.filter(c=>ck[c[0]]).length;
+  return `<div class="sheet panel"><span class="eyebrow">Consejos</span><h2>Para viajar tranquilos</h2>
+   <article class="ficha tipsf"><div class="ftab">FICHA · CHECKLIST</div><header><h3>Antes de salir</h3><span class="fy">${n} de ${CHECK.length} listos</span></header>
+   <div class="ckl">${CHECK.map(c=>`<label class="pchk"><input type="checkbox" data-chk="${c[0]}" ${ck[c[0]]?"checked":""}><span class="t">${c[1]}</span></label>`).join("")}</div></article>
+   <div class="fichas" style="margin-top:26px">${TIPS.map((t,i)=>`<article class="ficha"><div class="ftab">CONSEJO ${String(i+1).padStart(2,"0")}</div><header><h3>${t[0]} ${t[1]}</h3></header><ul class="brief">${t[2].map(x=>`<li>${x}</li>`).join("")}</ul></article>`).join("")}</div>
+   <p class="muted" style="font-size:12.5px;margin-top:14px">Fuentes: <a href="https://www.bonjour-ratp.fr/titres-tarifs/" target="_blank" rel="noopener">RATP (tarifas)</a> · <a href="https://www.gov.uk/guidance/apply-for-an-electronic-travel-authorisation-eta" target="_blank" rel="noopener">gov.uk (ETA)</a> · <a href="https://travel-europe.europa.eu/" target="_blank" rel="noopener">UE: EES y ETIAS</a> · <a href="https://www.diplomatie.gouv.fr/" target="_blank" rel="noopener">Diplomatie.gouv.fr</a>. Precios 2026, verificar antes de viajar.</p></div>`}
+function bindTips(){document.querySelectorAll("[data-chk]").forEach(x=>x.onchange=()=>{ST.chk=ST.chk||{};ST.chk[x.dataset.chk]=x.checked;save();render()})}
+
+// ===== Espectáculos y eventos =====
+// ini/fin: fechas (aprox. si ap=1). esc: id de escapada relacionada
+const SHOWS=[
+ {n:"Fête des Lumières",top:1,w:"Lyon",e:"✨",ini:"2026-12-05",fin:"2026-12-08",esc:"lyo",t:"Durante cuatro noches, Lyon se llena de proyecciones e instalaciones de luz en fachadas, plazas y parques; los vecinos ponen velas en las ventanas (los «lumignons») el 8 de diciembre. Es uno de los festivales de luz más grandes del mundo.",d:"Reservar alojamiento y tren con mucha anticipación: se llena. Las instalaciones funcionan de 20:00 a 23:30 aprox. Mucha multitud: celulares guardados.",u:"https://www.fetedeslumieres.lyon.fr/"},
+ {n:"Luces de Navidad de los Campos Elíseos",w:"París",e:"🎄",ini:"2026-11-22",fin:"2027-01-06",ap:1,t:"Casi 400 árboles iluminados desde la Concordia hasta el Arco de Triunfo.",d:"El encendido es un domingo de fines de noviembre, con multitud. Después, cualquier noche.",u:"https://www.champselysees-paris.org/"},
+ {n:"Árbol y vitrinas de Navidad de Galeries Lafayette y Printemps",w:"París",e:"🛍️",ini:"2026-11-12",fin:"2027-01-03",ap:1,t:"El árbol gigante bajo la cúpula y las vitrinas animadas del Boulevard Haussmann.",d:"Ir a última hora de la tarde, cuando ya está oscuro.",u:"https://haussmann.galerieslafayette.com/"},
+ {n:"Mercados de Navidad",w:"París",e:"🥨",ini:"2026-11-20",fin:"2026-12-31",ap:1,t:"Tullerías, La Défense (el más grande), Saint-Germain-des-Prés y frente a Notre-Dame: vino caliente, crepes y artesanía.",d:"Las fechas exactas de cada mercado se publican en noviembre.",u:"https://parisjetaime.com/"},
+ {n:"Festival de luces del Jardín de Plantas",w:"París",e:"🦕",ini:"2026-11-16",fin:"2027-01-17",ap:1,t:"Recorrido nocturno con figuras gigantes de seda iluminadas (cada año un tema: animales, océanos, dinosaurios…).",d:"Entrada con hora en línea. Cerca del Barrio Latino.",u:"https://www.jardindesplantesdeparis.fr/"},
+ {n:"Conciertos de Navidad a la luz de las velas",w:"París",e:"🎻",ini:"2026-12-01",fin:"2026-12-24",ap:1,t:"Música clásica (Vivaldi, Bach, Ave María) en la Sainte-Chapelle, la Madeleine o Saint-Eustache.",d:"La Sainte-Chapelle de noche, con los vitrales, es una experiencia única.",u:"https://www.sainte-chapelle.fr/es"},
+ {n:"Ballet u ópera en Garnier o Bastille",w:"París",e:"🩰",ini:"2026-11-01",fin:"2026-12-31",al:1,t:"La Ópera de París tiene funciones casi todas las noches; en diciembre suele haber ballet clásico.",d:"Las entradas baratas (desde ~15 €) son de visibilidad reducida y se agotan; revisar la cartelera ya.",u:"https://www.operadeparis.fr/es"},
+ {n:"Moulin Rouge: show «Féerie»",w:"París",e:"💃",ini:"2026-11-01",fin:"2026-12-31",al:1,t:"El cabaret clásico con cancán, dos funciones cada noche.",d:"Caro y para adultos; reservar en el sitio oficial, no a revendedores en la calle.",u:"https://www.moulinrouge.fr/"},
+ {n:"Centelleo de la Torre Eiffel",w:"París",e:"🗼",ini:"2026-01-01",fin:"2027-12-31",al:1,t:"Cada hora en punto desde el anochecer hasta la 1:00, durante 5 minutos.",d:"Verlo desde Trocadéro o desde un barco en el Sena.",u:"https://www.toureiffel.paris/es"},
+ {n:"Navidad en Disneyland Paris",w:"Marne-la-Vallée",e:"🏰",ini:"2026-11-08",fin:"2027-01-06",ap:1,t:"Desfile y castillo de Navidad, a 40 min de París en RER A.",d:"Días de semana tienen menos gente. Comprar entrada con fecha en línea.",u:"https://www.disneylandparis.com/es-es/"},
+ {n:"Salon du Cheval de Paris",w:"París · Porte de Versailles",e:"🐎",ini:"2026-12-04",fin:"2026-12-06",t:"Feria ecuestre con espectáculos y competencias de salto.",d:"Para quienes les gustan los caballos.",u:"https://www.salon-cheval.com/"},
+ {n:"Mercado de Navidad de Estrasburgo",w:"Estrasburgo",e:"🎅",esc:"str",ini:"2026-11-27",fin:"2026-12-24",ap:1,t:"El «Christkindelsmärik», el mercado de Navidad más antiguo de Francia, con el gran abeto de la Place Kléber.",d:"Combina con la escapada a Estrasburgo (1 h 50 en TGV).",u:"https://noel.strasbourg.eu/"}];
+function espectaculos(){const W=ST.wiz,a=W.eur_fecha,b=W.vue_fecha;const inT=s=>a&&b&&s.ini<=b&&s.fin>=a;
+  const L=SHOWS.slice().sort((x,y)=>(inT(y)-inT(x))||((y.top|0)-(x.top|0))||((x.al|0)-(y.al|0))||(x.ini<y.ini?-1:1));
+  return `<div class="sheet panel"><span class="eyebrow">Espectáculos y eventos</span><h2>Qué pasa mientras están</h2>
+   ${a&&b?`<p class="muted">Viaje en Francia: ${pretty(a)} → ${pretty(b)}. Los eventos marcados coinciden con sus fechas.</p>`:""}
+   <div class="fichas">${L.map((s,i)=>{const ok=inT(s);const e=s.esc&&ESC.find(q=>q.id===s.esc);const chosen=s.esc&&ST.esc.some(q=>q.id===s.esc);
+    return `<article class="ficha show${ok?"":" off"}"><div class="ftab">${s.e} ${s.w.toUpperCase()}</div><header><h3>${s.n}</h3><span class="fy">${s.al?"Todas las noches · ver cartelera":`${pretty(s.ini)} → ${pretty(s.fin)}${s.ap?" (aprox.)":""}`}</span>${ok?'<span class="fstamp ok">EN SUS FECHAS</span>':'<span class="fstamp">FUERA DE FECHAS</span>'}</header>
+     <p class="flead">${s.t}</p><div class="fnote"><span class="flab">Consejo</span><p>${s.d}</p></div>
+     <div class="flinks"><a href="${s.u}" target="_blank" rel="noopener">Sitio oficial ↗</a>${e?(chosen?`<span class="tag">✓ escapada elegida</span>`:`<a href="#" data-goesc="${s.esc}">Ver escapada a ${e.n} →</a>`):""}</div></article>`}).join("")}</div>
+   <p class="muted" style="font-size:12.5px;margin-top:14px">Fuentes: <a href="https://icalendrier.fr/evenements/fete-des-lumieres" target="_blank" rel="noopener">iCalendrier (Fête des Lumières 2026)</a> · <a href="https://www.parisinsidersguide.com/paris-events-in-december.html" target="_blank" rel="noopener">Paris Insiders Guide</a>. Las fechas marcadas «aprox.» se confirman en noviembre.</p></div>`}
+function bindShows(){document.querySelectorAll("[data-goesc]").forEach(x=>x.onclick=e=>{e.preventDefault();tab="escapadas";escPick=x.dataset.goesc;try{localStorage.setItem("paris_tab",tab)}catch(_){}render();scrollTo(0,0)})}
+
 // ===== Día de París con la lógica de Alemania: atracciones + anexo Comidas + Traslados y plano =====
 const PA_MEAL_LBL={d:"Desayuno",a:"Almuerzo",m:"Media tarde",c:"Cena"};
 // precios aproximados por persona (París 2026, verificar)
@@ -478,7 +779,7 @@ const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12
   m:[["Pastelería / macarons",6],["Chocolate caliente en café",8]],
   c:[["Bistró de barrio",28],["Algo al paso / supermercado",12],["Restaurante especial",50]]};
 const PA_MEAL_DEF={d:true,a:true,m:false,c:true};
-const METRO=2.5;// boleto metro/RER/bus por viaje (aprox.)
+const METRO=2.55;// boleto metro/RER (RATP 2026)
 let paBlk=new Set();
 const mealOnP=(d,k)=>{const m=ST.meals||{};return (d+"|"+k) in m?!!m[d+"|"+k]:PA_MEAL_DEF[k]};
 const mealIxP=(d,k)=>{const i=(ST.mealOpt||{})[d+"|"+k]|0;return Math.min(i,PA_MEAL[k].length-1)};
@@ -505,12 +806,12 @@ function dayMap(p,legs){const base=BASES[ST.base]||BASES["Otro / centro"];const 
   return `<svg class="pmap" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Plano del día"><rect width="${W}" height="${Hh}" class="pm-bg"/>${g}</svg>
   <div class="pm-leg"><span><i class="w"></i>a pie</span><span><i class="m"></i>metro/RER</span><span>⌂ alojamiento</span><span class="muted">Sena aprox.</span></div>`}
 function dayCost(p){const ent=p.seq.reduce((t,a)=>t+a.p,0);let meal=0;["d","a","m","c"].forEach(k=>{if(mealOnP(p.d,k))meal+=PA_MEAL[k][mealIxP(p.d,k)][1]});
-  const legs=legsOfDay(p);const nm=legs.filter(l=>l.metro).length;return {ent,meal,tr:nm*METRO,nm,legs,total:ent+meal+nm*METRO}}
-function dayCard(p,days){const c=dayCost(p);const legs=c.legs;const id=p.d;const oc=paBlk.has(id+"|com"),ot=paBlk.has(id+"|tr");
+  const legs=legsOfDay(p);const nm=legs.filter(l=>l.metro).length;const hot=hotNightPP("par");return {ent,meal,hot,tr:nm*METRO,nm,legs,total:ent+meal+hot+nm*METRO}}
+function dayCard(p,days){const c=dayCost(p);const SUN=sunOf(D(p.d),PARIS);const nonEve=p.seq.filter(a=>!a.eve);const legs=c.legs;const id=p.d;const oc=paBlk.has(id+"|com"),ot=paBlk.has(id+"|tr");
   const title=p.seq.map(a=>a.n.replace(/\s*\(.*?\)/,"")).join(" · ");
-  let h=`<article class="pday2" data-day="${id}"><div class="pd-head"><div><span class="eyebrow">${pretty(p.d)} · París</span><h3>${title}</h3></div>
+  let h=`<article class="pday2" data-day="${id}"><div class="pd-head"><div><span class="eyebrow">${pretty(p.d)} · París</span><h3>${title}</h3>${(()=>{const S=sunOf(D(p.d),PARIS);return `<span class="sunline">🌇 Se pone el sol ${hm(S.set)} · 🌙 oscuro desde ${hm(S.dusk)}</span>`})()}</div>
     <div class="pd-tot"><span class="eyebrow">Por persona</span><b>${fmtE(c.total)}</b><small>los 2: ${fmtE(c.total*2)}</small></div></div>
-    <div class="pd-strip"><span>🎟️ Entradas <b>${fmtE(c.ent)}</b></span><span>🍽️ Comidas <b>${fmtE(c.meal)}</b></span><span>🚇 Transporte <b>${fmtE(c.tr)}</b></span></div>
+    <div class="pd-strip"><span>🎟️ Entradas <b>${fmtE(c.ent)}</b></span><span>🍽️ Comidas <b>${fmtE(c.meal)}</b></span><span>🚇 Transporte <b>${fmtE(c.tr)}</b></span><span>🛏️ Alojamiento <b>${c.hot?fmtE(c.hot):"—"}</b></span></div>
     <div class="pd-body"><div class="pblk pb-att"><h4>Atracciones</h4>
     ${p.first?`<p class="note">Llegada en Eurostar: la tarde queda libre para panoramas cerca.</p>`:p.ret?`<p class="note">Vuelta de escapada: solo la tarde.</p>`:""}`;
   let lp=false;const lunch=()=>`<div class="plunch">🍽 <b>${hm(p.seq.lunch)}</b> Almuerzo con calma (~1 h)</div>`;
@@ -519,7 +820,8 @@ function dayCard(p,days){const c=dayCost(p);const legs=c.legs;const id=p.d;const
     h+=`<span class="pmv ${l.metro?"m":""}">↓ ${l.metro?`~${l.min} min en metro/RER`:`a pie ~${l.min} min`}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">cómo llegar</a></span>`;
     const op=paOpen.has(p.d+"|"+a.id);
     h+=`<div class="pact${op?" open":""}">
-        <button class="pat" data-pact="${p.d}|${a.id}"><span class="pn">${k+1}</span><span class="pt">${hm(a.st)}</span><span class="pnm">${a.n}${a.top?' <span class="star">★</span>':""}${a.in?' <span class="pin">🏛</span>':""}${a.closed?' <span class="pw">⚠ cerrado ese día</span>':a.late?` <span class="pw">⚠ cierra ${hm(a.close)}</span>`:""}<small class="pdur">🕐 ~${String(a.h).replace(".",",")} h</small></span><span class="pp ${a.p?"":"free"}">${fmtE(a.p)}</span></button>
+        <button class="pat" data-pact="${p.d}|${a.id}"><span class="pn">${k+1}</span><span class="pt">${hm(a.st)}</span><span class="pnm">${a.n}${a.top?' <span class="star">★</span>':""}${a.in?' <span class="pin">🏛</span>':""}${a.closed?' <span class="pw">⚠ cerrado ese día</span>':a.late?` <span class="pw">⚠ cierra ${hm(a.close)}</span>`:""}<small class="pdur">🕐 ~${String(a.h).replace(".",",")} h${!a.in?(a.st>=SUN.dusk-0.05?' · <span title="Ya es de noche">🌙 de noche</span>':a.st+a.h>SUN.set+0.15?' · <span title="Termina con poca luz">🌇 con poca luz</span>':""):""}</small></span><span class="pp ${a.p?"":"free"}">${fmtE(a.p)}</span></button>
+        ${!a.eve&&nonEve.length>1?`<span class="pord"><button type="button" data-pmv="${p.d}|${a.id}|-1" aria-label="Subir" ${nonEve[0].id===a.id?"disabled":""}>↑</button><button type="button" data-pmv="${p.d}|${a.id}|1" aria-label="Bajar" ${nonEve[nonEve.length-1].id===a.id?"disabled":""}>↓</button></span>`:""}
         ${op?`<div class="pdet"><p><b>${a.s}</b></p><p><b>Qué ver:</b> ${a.v}</p><p><b>Consejo:</b> ${a.d}</p>
           <p class="muted">🕐 visita ~${String(a.h).replace(".",",")} h${a.close?` · cierra ${hm(a.close)} (invierno)`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}</p>
           <div class="act"><a class="btn alt sm" href="${a.u}" target="_blank" rel="noopener">Sitio</a><a class="btn alt sm" href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa</a>
@@ -528,6 +830,8 @@ function dayCard(p,days){const c=dayCost(p);const legs=c.legs;const id=p.d;const
   if(p.seq.lunch&&!lp)h+=lunch();
   const back=legs[legs.length-1];
   h+=`<span class="pmv ${back.metro?"m":""}">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en metro/RER`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>
+    ${(()=>{const zs=zonesNearPA([BASES[ST.base]||BASES["Otro / centro"],...p.seq.map(a=>a.ll)]);return zs.length?`<details class="riskbox"><summary>⚠ Zona${zs.length>1?"s":""} de precaución: ${zs.map(z=>z.n).join(" · ")}</summary>${zs.map(z=>`<p><b>${z.n}:</b> ${z.t}</p>`).join("")}<p class="muted">Emergencias: <b>112</b> · Policía: <b>17</b> · Ambulancia (SAMU): <b>15</b></p></details>`:""})()}
+    ${p.man?`<div class="manord">✋ <b>Orden manual</b>${p.seq.some(a=>a.late||a.closed)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-pmreset="${p.d}">↺ Orden automático</button></div>`:""}
     <a class="route" href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (A = alojamiento, luego ${p.seq.map((_,k)=>k+1).join("→")})</a></div>`;
   // Comidas
   h+=`<div class="pblk pb-com${oc?" open":""}"><h4 data-pblk="${id}|com"><span>Comidas · ${fmtE(c.meal)}</span></h4>`;
@@ -568,6 +872,8 @@ function bindParis(){const b=$("#paBase");if(!b)return;
   document.querySelectorAll("[data-paf]").forEach(x=>x.onclick=()=>{paFilt=x.dataset.paf;render()});
   document.querySelectorAll("[data-pasel]").forEach(x=>x.onchange=()=>{ST.paSel=ST.paSel||{};ST.paSel[x.dataset.pasel]=x.checked;save();render()});
   document.querySelectorAll("[data-pblk]").forEach(x=>x.onclick=()=>{const k=x.dataset.pblk;paBlk.has(k)?paBlk.delete(k):paBlk.add(k);x.parentNode.classList.toggle("open")});
+  document.querySelectorAll("[data-pmv]").forEach(x=>x.onclick=e=>{e.stopPropagation();const [d,id,dir]=x.dataset.pmv.split("|");const R=buildPA();const pl=R.plan.find(q=>q.d===d);if(!pl)return;const ids=pl.seq.filter(a=>!a.eve).map(a=>a.id);const i=ids.indexOf(id),j=i+(+dir);if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];ST.paOrd=ST.paOrd||{};ST.paOrd[d]=ids;save();render()});
+  document.querySelectorAll("[data-pmreset]").forEach(x=>x.onclick=()=>{ST.paOrd=ST.paOrd||{};delete ST.paOrd[x.dataset.pmreset];save();render()});
   document.querySelectorAll("[data-pmeal]").forEach(x=>x.onchange=()=>{ST.meals=ST.meals||{};ST.meals[x.dataset.pmeal]=x.checked;save();render()});
   document.querySelectorAll("[data-pmopt]").forEach(x=>x.onchange=()=>{ST.mealOpt=ST.mealOpt||{};ST.mealOpt[x.dataset.pmopt]=+x.value;save();render()});
   document.querySelectorAll("[data-pact]").forEach(x=>x.onclick=()=>{const k=x.dataset.pact;paOpen.has(k)?paOpen.delete(k):paOpen.add(k);render()});
@@ -659,13 +965,13 @@ function bindEsc(){document.querySelectorAll("[data-esc]").forEach(g=>{const f=(
 // ===== Render =====
 function render(){if(!user)return;
   const W=ST.wiz;const conf=W.done;
-  const tabs=[["resumen","Resumen","#2e4f8f"],["paris","París","#a8352b"],["escapadas","Escapadas","#2f6b4f"]];
+  const tabs=[["resumen","Resumen","#2e4f8f"],["paris","París","#a8352b"],["escapadas","Escapadas","#2f6b4f"],["att","Atracciones","#8a6b2f"],["hot","Alojamiento","#6b4f8f"],["tk","Pasajes","#2b2622"],["tips","Consejos","#b8860b"],["show","Espectáculos","#c0392b"]];
   if(!conf&&tab!=="config")tab="config";
   app.innerHTML=`<div class="hdr"><img src="img/logo-marcopolo.jpg" alt=""><div><span class="eyebrow">Marco Polo</span><h1>Viaje a París</h1></div>
    <div class="who">${esc(user.displayName||user.email)}<br>${DEMO?"":`<button id="so">Salir</button> · `}<a href="/">Viajes</a></div></div>
    ${tab==="config"?wizard():`<div class="tabs" role="tablist">${tabs.map(([k,t,c])=>`<button class="tab" role="tab" style="--c:${c}" data-tab="${k}" aria-selected="${tab===k}">${t}</button>`).join("")}</div>
-   ${tab==="resumen"?resumen():tab==="paris"?paris():escapadas()}`}${fichaEsc()}`;
-  bindWizard();bindParis();bindEsc();
+   ${tab==="resumen"?resumen():tab==="paris"?paris():tab==="att"?atracciones():tab==="hot"?alojamiento():tab==="tk"?pasajes():tab==="tips"?consejos():tab==="show"?espectaculos():escapadas()}`}${fichaEsc()}`;
+  bindWizard();bindParis();bindEsc();if(tab==="att")bindAtt();if(tab==="hot")bindHot();if(tab==="tk")bindTk();if(tab==="tips")bindTips();if(tab==="show")bindShows();
   const so=$("#so");if(so)so.onclick=()=>window._auth.U.signOut(window._auth.auth);
   const ed=$("#edit");if(ed)ed.onclick=()=>{ST.step=0;tab="config";ST.wiz.done=0;render();scrollTo(0,0)};
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("paris_tab",tab)}catch(e){}render()});
