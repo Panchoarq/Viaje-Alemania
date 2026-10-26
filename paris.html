@@ -802,6 +802,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .edl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;margin:0;font-size:14px}.edl dt{font:700 12px var(--f-mono);color:var(--muted);white-space:nowrap;padding-top:2px}.edl dd{margin:0}.okl{color:var(--ok);font-weight:700}.fx{position:absolute;top:10px;right:10px}
 #days > .day .blk-com,#days > .day .blk-tr{width:100%;align-self:stretch}
 .fsheet.fwrap{background:transparent;border:0;box-shadow:none;padding:26px 10px max(16px,env(safe-area-inset-bottom,0px))}.fsheet.fwrap .fx{z-index:2;top:30px;right:18px;background:var(--card)}.fsheet.fwrap .ficha{margin-top:6px}
+.ftbl{width:100%;border-collapse:collapse;font-size:14px}.ftbl td,.ftbl th{padding:5px 4px;border-bottom:1px dotted var(--line);vertical-align:top;text-align:left}.ftbl td.num,.ftbl .r{text-align:right;white-space:nowrap}.ficha .ftbl{table-layout:fixed}.ficha .ftbl td.num{width:34%;white-space:normal;font-size:13px}
 .daysel{font-size:12.5px;padding:2px 4px;max-width:100%}
 </style>
 </head>
@@ -862,7 +863,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,lonDia:ST.lonDia??60,by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -875,7 +876,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.lonDia=d.lonDia??60;render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1147,6 +1148,19 @@ const TIPS=[
 const CHECK=[["eta","ETA de Reino Unido aprobada"],["seguro","Seguro de viaje contratado"],["pasaporte","Pasaportes vigentes (3+ meses)"],["eurostar","Eurostar comprado"],["aloj","Alojamiento en París reservado"],["louvre","Hora del Louvre reservada"],["eiffel","Entrada Torre Eiffel comprada"],["catac","Catacumbas reservadas"],["esim","eSIM o plan de datos"],["apps","Apps: Bonjour RATP, Google Maps sin conexión"],["copia","Copia digital de pasaportes y seguro"]];
 // ===== Espectáculos y eventos =====
 // ini/fin: fechas (aprox. si ap=1). esc: id de escapada relacionada
+const SHOW_X={
+ "Fête des Lumières":{y:"Desde 1852",h:["El 8 de diciembre de 1852 se inauguró una estatua de la Virgen en la colina de Fourvière. Llovía y la ceremonia se suspendió, pero cuando escampó los lioneses pusieron velas en sus ventanas para iluminar la ciudad.","Desde entonces, cada 8 de diciembre se encienden los «lumignons». En 1999 la ciudad lo convirtió en un festival de arte con luz, con proyecciones monumentales en fachadas, iglesias y parques."],v:"Proyecciones en la catedral de Saint-Jean, la Place des Terreaux y la basílica de Fourvière; instalaciones en el parque de la Tête d'Or y las velas en las ventanas.",q:"Gratis (todo en la calle)",w:"Fiesta de las Luces (Lyon)",m:"Place des Terreaux Lyon"},
+ "Luces de Navidad de los Campos Elíseos":{y:"Iluminación anual",h:["Los árboles de la avenida se iluminan cada Navidad desde hace décadas; el encendido es una ceremonia con miles de personas a fines de noviembre."],v:"Casi 2 km de luces desde la Concordia hasta el Arco de Triunfo y la rueda de la fortuna de la Concordia.",q:"Gratis",w:"Campos Elíseos",m:"Avenue des Champs-Elysees"},
+ "Árbol y vitrinas de Navidad de Galeries Lafayette y Printemps":{y:"Tradición desde fines del siglo XIX",h:["Los grandes almacenes del Boulevard Haussmann compiten cada año con vitrinas animadas: muñecos mecánicos, trenes y escenas que se mueven, pensadas para los niños desde fines del siglo XIX.","Bajo la cúpula de 1912 de las Galeries Lafayette se instala un árbol gigante con un tema distinto cada año."],v:"El árbol bajo la cúpula, las vitrinas animadas en la vereda y la terraza gratis con vista a la Ópera.",q:"Gratis",w:"Galerías Lafayette",m:"Galeries Lafayette Haussmann"},
+ "Mercados de Navidad":{y:"Tradición de origen alsaciano",h:["Los mercados de Navidad llegaron a Francia desde Alsacia y Alemania. En París se instalan casetas de madera con comida, vino caliente y artesanía."],v:"Puestos de vino caliente, crêpes, quesos y adornos; en La Défense, el más grande, más de 300 casetas.",q:"Entrada gratis · vino caliente 4–6 €",w:"Mercado navideño",m:"Marche de Noel Tuileries Paris"},
+ "Festival de luces del Jardín de Plantas":{y:"Desde 2018",h:["Cada invierno el Jardín de Plantas, junto al Museo de Historia Natural, se llena de figuras gigantes de seda y luz con un tema distinto: especies en peligro, océanos, dinosaurios."],v:"Un recorrido nocturno de ~1 hora entre esculturas luminosas de animales.",q:"Pagado, con hora (ver sitio)",w:"Jardín de las Plantas",m:"Jardin des Plantes Paris"},
+ "Conciertos de Navidad a la luz de las velas":{y:"Sainte-Chapelle de 1248",h:["La Sainte-Chapelle tiene una acústica excelente y de noche, con los vitrales iluminados desde adentro, se convierte en una sala de conciertos única. En diciembre hay programas de música navideña."],v:"Cuartetos de cuerda o coros: Vivaldi (Las cuatro estaciones), Bach, Ave María.",q:"Pagado (ver cartelera)",w:"Santa Capilla",m:"Sainte-Chapelle Paris"},
+ "Ballet u ópera en Garnier o Bastille":{y:"Ópera de París, fundada en 1669",h:["La Ópera de París es una de las compañías más antiguas del mundo: la fundó Luis XIV en 1669. Hoy actúa en el Palais Garnier (1875) y en la Ópera Bastille (1989)."],v:"Ballet clásico en la sala dorada de Garnier, con el techo de Chagall.",q:"Desde ~15 € (visibilidad reducida)",w:"Ópera Garnier",m:"Palais Garnier"},
+ "Moulin Rouge: show «Féerie»":{y:"Desde 1889",h:["El Moulin Rouge abrió en 1889, el año de la Torre Eiffel, y popularizó el cancán. Toulouse-Lautrec pintó sus afiches y bailarinas."],v:"Un espectáculo con plumas, lentejuelas, cancán y un número acuático.",q:"Caro (ver sitio oficial)",w:"Moulin Rouge",m:"Moulin Rouge Paris"},
+ "Centelleo de la Torre Eiffel":{y:"Desde el año 2000",h:["Para el cambio de milenio se instalaron 20.000 ampolletas destellantes en la torre. Debían durar solo un año, pero fueron tan populares que quedaron para siempre."],v:"Cinco minutos de destellos cada hora en punto desde que oscurece.",q:"Gratis",w:"Torre Eiffel",m:"Trocadero Paris"},
+ "Navidad en Disneyland Paris":{y:"Parque abierto en 1992",h:["Disneyland Paris abrió en 1992 en Marne-la-Vallée. En temporada navideña decora el castillo de la Bella Durmiente y hace un desfile especial."],v:"El desfile de Navidad, el árbol gigante de Main Street y la iluminación del castillo.",q:"Entrada con fecha (ver sitio)",w:"Disneyland Paris",m:"Disneyland Paris"},
+ "Salon du Cheval de Paris":{y:"Feria anual",h:["Es la gran feria ecuestre de París, con competencias internacionales de salto y espectáculos con caballos."],v:"Saltos internacionales, razas de caballos y exhibiciones.",q:"Pagado (ver sitio)",w:"Paris Expo Porte de Versailles",m:"Paris Expo Porte de Versailles"},
+ "Mercado de Navidad de Estrasburgo":{y:"Desde 1570",h:["El Christkindelsmärik de Estrasburgo se celebra desde 1570 y es el mercado de Navidad más antiguo de Francia. La ciudad se llama a sí misma «Capital de la Navidad»."],v:"El gran abeto de la Place Kléber, las casetas alrededor de la catedral y el vino caliente alsaciano.",q:"Gratis",w:"Mercado de Navidad de Estrasburgo",m:"Place Kleber Strasbourg"}};
 const SHOWS=[
  {n:"Fête des Lumières",top:1,w:"Lyon",e:"✨",ini:"2026-12-05",fin:"2026-12-08",esc:"lyo",t:"Durante cuatro noches, Lyon se llena de proyecciones e instalaciones de luz en fachadas, plazas y parques; los vecinos ponen velas en las ventanas (los «lumignons») el 8 de diciembre. Es uno de los festivales de luz más grandes del mundo.",d:"Reservar alojamiento y tren con mucha anticipación: se llena. Las instalaciones funcionan de 20:00 a 23:30 aprox. Mucha multitud: celulares guardados.",u:"https://www.fetedeslumieres.lyon.fr/"},
  {n:"Luces de Navidad de los Campos Elíseos",w:"París",e:"🎄",ini:"2026-11-22",fin:"2027-01-06",ap:1,t:"Casi 400 árboles iluminados desde la Concordia hasta el Arco de Triunfo.",d:"El encendido es un domingo de fines de noviembre, con multitud. Después, cualquier noche.",u:"https://www.champselysees-paris.org/"},
@@ -1164,14 +1178,17 @@ const SHOWS=[
 const PA_MEAL_LBL={d:"Desayuno",a:"Almuerzo",m:"Media tarde",c:"Cena"};
 // precios aproximados por persona (París 2026, verificar)
 const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12]],
-  a:[["Formule de bistró (plato + postre)",18],["Crêpe o sándwich al paso",9],["Brasserie",28]],
+  a:[["Formule de bistró (plato + postre)",18],["Crêpe o sándwich al paso",9],["Brasserie",28],["Bouillon: plato + postre",14]],
   m:[["Pastelería / macarons",6],["Chocolate caliente en café",8]],
   c:[["Bistró de barrio",28],["Algo al paso / supermercado",12],["Restaurante especial",50]]};
 const PA_MEAL_DEF={d:true,a:true,m:false,c:true};
 const METRO=2.55;// boleto metro/RER (RATP 2026)
 let paBlk=new Set();
 const mealOnP=(d,k)=>{const m=ST.meals||{};return (d+"|"+k) in m?!!m[d+"|"+k]:PA_MEAL_DEF[k]};
-const mealIxP=(d,k)=>{const i=(ST.mealOpt||{})[d+"|"+k]|0;return Math.min(i,PA_MEAL[k].length-1)};
+const LON_MEAL={d:[["Café + pastry (Pret, Gail's)",7],["Full English breakfast",16]],a:[["Pub o café (plato)",18],["Meal deal de supermercado (Tesco, Boots)",5]],m:[["Té con scones",10],["Café y algo dulce",6]],c:[["Pub (fish & chips, pie)",22],["Comida rápida o al paso",12]]};
+const LON_TR=10.5;// tope diario sin contacto zonas 1–2 (~£9, aprox.)
+const MT=d=>d&&d.city==="LO"?LON_MEAL:PA_MEAL;
+const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key in o?o[key]|0:(ST.foodStyle==="fast"&&(k==="a"||k==="c")?1:0);return Math.min(i,T[k].length-1)};
 function legsOfDay(p){const base=BASES[ST.base]||BASES["Otro / centro"];const L=[];let pos=base,nm="alojamiento";
   p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
   if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
@@ -1267,7 +1284,7 @@ function bindEsc(){document.querySelectorAll("[data-esc]").forEach(g=>{const f=(
   document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setTimeout(()=>{const f=document.querySelector(`form[data-plan="${b.dataset.open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},50)))}
 
 // ===================== Interfaz con la plantilla del Viaje a Alemania =====================
-const PEOPLE=2,PA_C="#2e4f8f";
+const PEOPLE=2,PA_C="#2e4f8f",LO_C="#1d6f7a",LONDON=[51.5074,-0.1278];
 let cur="EUR",sty="papel";try{cur=localStorage.getItem("paris_cur")||"EUR";sty=localStorage.getItem("paris_sty")||"papel"}catch(e){}
 const rate=()=>+(ST.rate||1100);
 const fmt=v=>cur==="CLP"?"$"+Math.round(v*rate()).toLocaleString("es-CL"):(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -1275,12 +1292,12 @@ const fmtCLP=v=>"≈ $"+Math.round(v*rate()).toLocaleString("es-CL")+" CLP";
 const short=n=>n.split(/ y |:/)[0];
 function setSty(v){sty=v;const R=document.documentElement;R.dataset.sty=v==="papel"?"retro":v;R.dataset.paper=v==="papel"?"1":"0";try{localStorage.setItem("paris_sty",v)}catch(e){}}
 setSty(sty);
-{const t0={resumen:"prog",config:"cfg",escapadas:"cfg",paris:"prog",tips:"buy",tk:"prog"};if(t0[tab])tab=t0[tab]}
+{const t0={resumen:"prog",config:"cfg",escapadas:"esc",paris:"prog",tips:"buy",tk:"prog"};if(t0[tab])tab=t0[tab]}
 let progCity="PA",progDay={},openActs=new Set(),mapOpen=null,attCity="PA";
 try{progCity=localStorage.getItem("paris_progcity")||"PA"}catch(e){}
 
 // ---------- modelo de ciudades y días ----------
-function cityList(){const L=[{k:"PA",n:"París",p:"🇫🇷",c:PA_C}];
+function cityList(){const W=ST.wiz;const L=[];if(W.ida_llega&&W.eur_fecha&&W.ida_llega<W.eur_fecha)L.push({k:"LO",n:"Londres",p:"🇬🇧",c:LO_C,nn:nights(W.ida_llega,W.eur_fecha)});L.push({k:"PA",n:"París",p:"🇫🇷",c:PA_C});
   ST.esc.slice().sort((a,b)=>a.ini<b.ini?-1:1).forEach(e=>{const x=ESC.find(q=>q.id===e.id);if(x)L.push({k:"E"+e.id+e.ini.replace(/-/g,""),id:e.id,n:x.n,p:x.p,c:x.c,e,nn:nights(e.ini,e.fin),x})});return L}
 const stayKeyOf=e=>"esc-"+e.id+"-"+e.ini;
 function trainEst(id){const s=(EXT[id]||{}).cost||"";const m=s.match(/(\d+(?:[.,]\d+)?)\s*(?:[–-]\s*(\d+(?:[.,]\d+)?))?\s*€/);if(!m)return 0;const a=parseFloat(m[1].replace(",",".")),b=m[2]?parseFloat(m[2].replace(",",".")):a;return Math.round((a+b)/2)}
@@ -1288,11 +1305,12 @@ function buildAll(){const W=ST.wiz;const C=cityList();if(!W.eur_fecha||!W.vue_fe
   const R=buildPA();const days=[];
   R.plan.forEach(p=>{const rf=p.ret?ST.esc.find(e=>e.fin===p.d&&e.fin!==e.ini):null;days.push({id:p.d,d:p.d,city:"PA",kind:p.first?"first":p.ret?"ret":"pa",pa:p,from:rf})});
   days.push({id:W.vue_fecha,d:W.vue_fecha,city:"PA",kind:"final"});
-  C.slice(1).forEach(c=>{const e=c.e;const v=((EXT[e.id]||{}).f||{}).v||[];const n=c.nn;
+  if(W.ida_llega&&W.ida_llega<W.eur_fecha)for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))days.push({id:"L"+d,d,city:"LO",kind:d===W.ida_llega?"lonfirst":"lon"});
+  C.filter(c=>c.e).forEach(c=>{const e=c.e;const v=((EXT[e.id]||{}).f||{}).v||[];const n=c.nn;
     if(n<=0){days.push({id:e.ini+"-"+e.id,d:e.ini,city:c.k,kind:"trip",c,items:v.slice()});return}
     const per=Math.ceil(v.length/n)||1;for(let i=0;i<n;i++)days.push({id:add(e.ini,i)+"-"+e.id,d:add(e.ini,i),city:c.k,kind:i?"stay":"go",c,items:v.slice(i*per,(i+1)*per)})});
   days.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);days.forEach(d=>d.cost=dayCost2(d));return {days,R,C}}
-function dayCost2(d){let meal=0;["d","a","m","c"].forEach(k=>{if(mealOnP(d.id,k))meal+=PA_MEAL[k][mealIxP(d.id,k)][1]});
+function dayCost2(d){let meal=0;const T=MT(d);["d","a","m","c"].forEach(k=>{if(mealOnP(d.id,k))meal+=T[k][mealIxP(d.id,k,T)][1]});if(d.city==="LO")return {meal,act:0,loc:LON_TR,hot:0,trn:0,nm:0,legs:null,total:meal+LON_TR};
   let act=0,loc=0,hot=0,legs=null,nm=0,trn=0;
   if(d.pa&&d.pa.seq.length){act=d.pa.seq.reduce((t,a)=>t+a.p,0);legs=legsOfDay(d.pa);nm=legs.filter(l=>l.metro).length;loc=nm*METRO}
   if(d.kind==="first")loc+=METRO;if(d.kind==="final")loc+=14;
@@ -1309,20 +1327,20 @@ function header(A){const W=ST.wiz,C=A.C;const nn=c=>c.k==="PA"?A.days.filter(d=>
   return `<header class="has-sticker"><button type="button" class="sticker" id="logoBtn" title="Volver a Marco Polo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo · Planifica · Explora · Vive"></button>
   <span class="eyebrow">2 viajeras${W.eur_fecha&&W.vue_fecha?` · ${pretty(W.eur_fecha)} – ${pretty(W.vue_fecha)} ${W.vue_fecha.slice(0,4)}`:""}</span>
   <h1>Viaje a ${uniq.join(" · ")}</h1>
-  <div class="route" aria-label="Ruta">${C.map((c,i)=>`${i?'<span class="arrow">→</span>':""}<span class="stop" style="border-color:${c.c};color:${c.c}">${short(c.n)} ${c.k!=="PA"&&!c.nn?"· día":"×"+nn(c)}</span>`).join("")}</div>
+  <div class="route" aria-label="Ruta">${C.map((c,i)=>`${i?'<span class="arrow">→</span>':""}<span class="stop" style="border-color:${c.c};color:${c.c}">${short(c.n)} ${c.e&&!c.nn?"· día":"×"+nn(c)}</span>`).join("")}</div>
   <div class="stylebar"><span class="eyebrow">Estilo</span><div class="seg" role="group">${[["retro","Retro"],["mod","Moderno"],["papel","Papel (prueba)"]].map(([k,t])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}">${t}</button>`).join("")}</div>
    <span class="whoami">${esc(user.displayName||user.email)}${DEMO?"":` · <button type="button" class="lnkb" id="so">Salir</button>`} · <a href="/">Viajes</a></span></div></header>`}
-function summary(A){const S={meal:0,act:0,loc:0,hot:0,total:0};A.days.forEach(d=>{for(const k in S)S[k]+=d.cost[k]});
-  const W=ST.wiz,n=A.days.length,st=stays(),nh=st.filter(s=>hotList(s.k).some(h=>h.sel&&+h.price)).length;
-  const ln=W.ida_llega&&W.eur_fecha?Math.max(0,nights(W.ida_llega,W.eur_fecha)):0,ld=+(ST.lonDia??60),LON=ln*ld,TOT=S.total+LON;
+function summary(A){const S={meal:0,act:0,loc:0,hot:0,total:0};const LD=A.days.filter(d=>d.city==="LO"),FD=A.days.filter(d=>d.city!=="LO");FD.forEach(d=>{for(const k in S)S[k]+=d.cost[k]});
+  const W=ST.wiz,n=FD.length,st=stays(),nh=st.filter(s=>hotList(s.k).some(h=>h.sel&&+h.price)).length;
+  const ln=LD.length,LON=LD.reduce((t,d)=>t+d.cost.total,0),ld=ln?LON/ln:0,TOT=S.total+LON;
   const parts=[["🛏️","Alojamiento",S.hot,"var(--mun)"],["🍽️","Comidas",S.meal,"var(--pra)"],["🎟️","Entradas",S.act,"var(--ber)"],["🚋","Transporte",S.loc,"var(--ok)"]];const M=Math.max(...parts.map(p=>p[2]),0.01);
   return `<section class="summary" aria-label="Resumen de costos">
    <div class="tile main"><span class="eyebrow">Total viaje p/p</span><span class="big">${fmt(TOT)}</span><span class="num" style="opacity:.8;font-size:13px">${cur==="EUR"?fmtCLP(TOT):""}</span><span style="opacity:.8;font-size:12.5px">Londres + París y escapadas</span></div>
-   <div class="tile"><span class="eyebrow">🇬🇧 Londres p/p</span><span class="big">${fmt(LON)}</span><span class="num muted" style="font-size:13px">${cur==="EUR"&&LON?fmtCLP(LON):""}</span><span class="muted" style="font-size:13px">${ln?`${ln} días con la amiga · ${fmt(ld)}/día`:"Falta la fecha de llegada a Londres"}</span><span class="e" style="font-size:12.5px">● estimado · editar en Configurar</span></div>
+   <div class="tile"><span class="eyebrow">🇬🇧 Londres p/p</span><span class="big">${fmt(LON)}</span><span class="num muted" style="font-size:13px">${cur==="EUR"&&LON?fmtCLP(LON):""}</span><span class="muted" style="font-size:13px">${ln?`${ln} días con la amiga · ${fmt(ld)}/día`:"Falta la llegada a Londres en Configurar"}</span><span class="e" style="font-size:12.5px">● estimado · comidas y transporte (sin alojamiento)</span></div>
    <div class="tile"><span class="eyebrow">🇫🇷 París y escapadas p/p</span><span class="big">${fmt(S.total)}</span><span class="num muted" style="font-size:13px">${cur==="EUR"?fmtCLP(S.total):""}</span><span class="muted" style="font-size:13px">${n} días · ${Math.max(0,n-1)} noches</span><span class="v" style="font-size:12.5px">${nh===st.length&&st.length?"✓":"○"} ${nh} de ${st.length} alojamientos con tarifa</span></div>
    <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big">${fmt(n+ln?TOT/(n+ln):0)}</span><span class="muted" style="font-size:13px">París ${fmt(n?S.total/n:0)}/día · Londres ${fmt(ld)}/día</span></div></section>
   <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose de París y escapadas"><span class="eyebrow">Desglose · París y escapadas</span><div class="dstrip sumstrip" id="bar">${parts.map(p=>`<div class="tkt" title="${p[1]}: ${fmt(p[2])} por persona"><span class="ti" aria-hidden="true">${p[0]}</span><b class="num">${fmt(p[2])}</b><span class="tn">${p[1]}</span><span class="tp num">${S.total?Math.round(p[2]/S.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[2]/M*100).toFixed(1)}%;background:${p[3]}"></span></span></div>`).join("")}</div><div class="legend" id="legend"></div></section>`}
-const TABS=[["cfg","1 · Configurar"],["prog","2 · Programa"],["hot","3 · Alojamiento"],["buy","4 · Trámites previos"],["att","5 · Atracciones"],["show","6 · Espectáculos"]];
+const TABS=[["cfg","1 · Configurar"],["prog","2 · Programa"],["att","3 · Atracciones"],["esc","4 · Escapadas"],["show","5 · Espectáculos"],["hot","6 · Alojamiento"],["buy","7 · Trámites previos"],["food","8 · Comidas"]];
 function costStrip(c){const C=[["🛏️","Alojamiento",c.hot,"var(--mun)"],["🍽️","Comidas",c.meal,"var(--pra)"],["🎟️","Entradas",c.act,"var(--ber)"],["🚋","Transporte",c.loc,"var(--ok)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
   return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
 
@@ -1338,7 +1356,19 @@ function pCfg(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
    <div class="field"><span>Ritmo en París</span><div class="seg" role="group"><button type="button" data-ritmo="tranquilo" aria-pressed="${ST.ritmo!=="intenso"}">Tranquilo</button><button type="button" data-ritmo="intenso" aria-pressed="${ST.ritmo==="intenso"}">Intenso</button></div></div>
    <div class="field"><span>Moneda</span><div class="seg" role="group"><button type="button" data-cur="EUR" aria-pressed="${cur==="EUR"}">EUR €</button><button type="button" data-cur="CLP" aria-pressed="${cur==="CLP"}">CLP $</button></div></div>
    <div class="field"><label for="rate">1 € en CLP (editar)</label><input id="rate" type="number" value="${rate()}" step="10"></div></div>
-  <div class="routegrid">
+  <div class="card cfg"><span class="eyebrow" style="grid-column:1/-1">Vuelos, Londres y alojamiento</span>
+   ${f("ida_fecha","Vuelo Santiago → Londres","date")}${f("ida_vuelo","Aerolínea y vuelo de ida","text","Ej.: LATAM LA704")}${f("ida_llega","Llegada a Londres","date")}${sl("ida_aerop","Aeropuerto en Londres",["Heathrow","Gatwick","Stansted","Otro"])}
+   ${f("lon_dir","Dónde se quedan en Londres","text","Ej.: Camden")}${f("eur_tren","Tren a París","text","Eurostar · St Pancras → Gare du Nord")}${f("par_dir","Dirección en París","text","Calle, número, barrio")}
+   ${f("vue_vuelo","Aerolínea y vuelo de regreso","text","Ej.: Air France AF406")}${sl("vue_aerop","Aeropuerto de regreso",["Charles de Gaulle (CDG)","Orly (ORY)","Otro"])}</div>
+  <div class="card"><span class="eyebrow">Línea de tiempo</span>${timeline()}</div>
+  <div class="basis"><span><span class="v">● Verificado</span> entradas de museos 2026, boletos de metro RATP 2026</span><span><span class="e">● Estimado</span> comidas, trenes de escapadas (promedio del rango), alojamiento hasta ingresar la tarifa</span></div>`}
+
+// ---------- 4 · Escapadas ----------
+function pEsc(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
+  const list=ESC.filter(x=>filt==="todas"||(filt==="noche"&&x.k!=="dia")||(filt==="dia"&&x.k!=="noche")||(filt==="fuera"&&x.p!=="🇫🇷"));
+  const ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0),nt=lim?nights(W.eur_fecha,W.vue_fecha):0;
+  const ch=[...new Set(ST.esc.map(e=>e.id))];
+  return `  <div class="routegrid">
    <div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0"><span class="eyebrow">Escapadas · orden de visita</span>
     ${ST.esc.length?`<div class="mine">${[...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini)).map(e=>{const x=ESC.find(z=>z.id===e.id);const n=nights(e.ini,e.fin);return `<div class="it" style="--c:${x.c}"><span>${x.p}</span><span><b>${x.n}</b><br><span class="dt">${pretty(e.ini)}${n?` → ${pretty(e.fin)} · ${n} noche${n>1?"s":""}`:" · ida y vuelta"}</span></span><button type="button" class="btn alt sm" data-del="${e.ini}|${e.id}" aria-label="Quitar ${x.n}">✕</button></div>`}).join("")}</div>`:`<div class="empty">Todavía no eligen escapadas: tóquenlas en el mapa o en las ideas.</div>`}
     <span class="muted" style="font-size:13px">${lim?`${nt} noches en Francia · ${nt-ne} en París · ${ne} en escapadas`:"Completa las fechas de llegada y regreso."}</span>
@@ -1348,29 +1378,25 @@ function pCfg(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
    <div class="filters" style="margin:8px 0 10px">${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}</div>
    <div class="ideas">${list.map(x=>{const sel=ST.esc.some(e=>e.id===x.id);return `<div class="idea${sel?" sel":""}" style="--c:${x.c}"><div class="itop"><span>${x.p}</span><b>${x.n}</b>${sel?'<span class="tag">✓ elegida</span>':""}</div><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":x.nt==="0–1"?"día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")}</small><p>${x.t}</p>
      ${open===x.id?planForm(x,lim):`<div class="act"><button type="button" class="btn sm" data-open="${x.id}">${sel?"+ Otra fecha":"+ Agregar"}</button><button type="button" class="btn alt sm" data-efic="${x.id}">📖 Ficha</button></div>`}</div>`}).join("")}</div></div>
-  <div class="card cfg"><span class="eyebrow" style="grid-column:1/-1">Vuelos, Londres y alojamiento</span>
-   ${f("ida_fecha","Vuelo Santiago → Londres","date")}${f("ida_vuelo","Aerolínea y vuelo de ida","text","Ej.: LATAM LA704")}${f("ida_llega","Llegada a Londres","date")}${sl("ida_aerop","Aeropuerto en Londres",["Heathrow","Gatwick","Stansted","Otro"])}
-   ${f("lon_dir","Dónde se quedan en Londres","text","Ej.: Camden")}<div class="field"><label for="lonDia">Gasto diario en Londres p/p (€)</label><input id="lonDia" type="number" step="5" value="${+(ST.lonDia??60)}"></div>${f("eur_tren","Tren a París","text","Eurostar · St Pancras → Gare du Nord")}${f("par_dir","Dirección en París","text","Calle, número, barrio")}
-   ${f("vue_vuelo","Aerolínea y vuelo de regreso","text","Ej.: Air France AF406")}${sl("vue_aerop","Aeropuerto de regreso",["Charles de Gaulle (CDG)","Orly (ORY)","Otro"])}</div>
-  <div class="card"><span class="eyebrow">Línea de tiempo</span>${timeline()}</div>
-  <div class="basis"><span><span class="v">● Verificado</span> entradas de museos 2026, boletos de metro RATP 2026</span><span><span class="e">● Estimado</span> comidas, trenes de escapadas (promedio del rango), alojamiento hasta ingresar la tarifa</span></div>`}
+  ${ch.length?`<span class="eyebrow" style="margin-top:6px">Fichas de las escapadas elegidas</span><div class="fichas">${ch.map(id=>escFichaHTML(id)).join("")}</div>`:""}`}
 
 // ---------- 2 · Programa ----------
 function fcards(A){const R=A.R;const pd=A.days.filter(d=>d.city==="PA"&&d.pa);
   const need=pd.reduce((t,d)=>t+d.pa.seq.reduce((u,a)=>u+a.h+0.3,0),0),avail=pd.reduce((t,d)=>t+d.pa.cap,0);const over=R.unpl.length>0;
   const off=PA.filter(a=>!paSel(a));const n=A.days.filter(d=>d.city==="PA"&&d.kind!=="final").length+A.days.filter(d=>d.kind==="trip").length;
   let h=`<div class="legendtr" style="grid-column:1/-1"><span class="eyebrow">Leyenda</span><span style="font-size:13px">↑↓ cambia el orden del día · ✕ quita del programa · volver a agregar en «Agregar otras actividades»</span><span class="tr pie">a pie</span><span class="tr metro">metro/RER</span><span class="tr fuera">⟶ escapada</span><span class="top">★ atracción más famosa/demandada</span><span>🏛 techada</span></div>`;
+  {const L=A.C.find(c=>c.k==="LO");if(L){const ld=A.days.filter(d=>d.city==="LO");h+=`<div class="fcard" style="--c:${LO_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>Londres · ${L.nn} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.ida_llega)} · sale ${pretty(ST.wiz.eur_fecha)}</small></span><span class="num muted" style="font-size:13px">${fmt(ld.reduce((t,d)=>t+d.cost.total,0))} p/p</span></div><div class="meter"><span style="width:100%;background:${LO_C}"></span></div><span class="status ok">✓ Con la amiga · sin alojamiento pagado</span></div>`}}
   h+=`<div class="fcard" style="--c:${PA_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>París · ${n} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.eur_fecha)} · sale ${pretty(ST.wiz.vue_fecha)}</small></span><span class="num muted" style="font-size:13px;white-space:nowrap">${need.toFixed(1)} / ${avail.toFixed(1)} h</span></div>
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div>
    <span class="status ${over?"bad":"ok"}">${over?`No alcanza: faltan ${R.unpl.length} actividad(es) → ritmo intenso o quitar otras`:"✓ Todo cabe"}</span>
    ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora</span>`+R.unpl.map(a=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-pasel="${a.id}" checked><span class="t">${a.n}<small>~${String(a.h).replace(".",",")} h</small></span></label>`).join(""):""}
    ${off.length?`<details class="pool"><summary>Agregar otras actividades <span class="poolcnt">(${off.length})</span></summary>${off.map(a=>`<div class="poolrow"><label class="chk"><input type="checkbox" data-pasel="${a.id}"><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?' 🏛':""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"} · <a href="${a.u}" target="_blank" rel="noopener">sitio</a></small></span></label></div>`).join("")}</details>`:""}</div>`;
-  A.C.slice(1).forEach(c=>{const e=c.e;h+=`<div class="fcard" style="--c:${c.c}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>${short(c.n)} · ${c.nn?c.nn+(c.nn>1?" noches":" noche"):"de un día"}</b><br><small class="muted" style="font-size:13px">${c.nn?`Sale ${pretty(e.ini)} · vuelve ${pretty(e.fin)}`:`${pretty(e.ini)} · ida y vuelta`}</small></span><span class="num muted" style="font-size:13px;white-space:nowrap">🚄 ${c.x.tr.split(" (")[0]}</span></div>
+  A.C.filter(c=>c.e).forEach(c=>{const e=c.e;h+=`<div class="fcard" style="--c:${c.c}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>${short(c.n)} · ${c.nn?c.nn+(c.nn>1?" noches":" noche"):"de un día"}</b><br><small class="muted" style="font-size:13px">${c.nn?`Sale ${pretty(e.ini)} · vuelve ${pretty(e.fin)}`:`${pretty(e.ini)} · ida y vuelta`}</small></span><span class="num muted" style="font-size:13px;white-space:nowrap">🚄 ${c.x.tr.split(" (")[0]}</span></div>
    <div class="meter"><span style="width:100%;background:${c.c}"></span></div><span class="status ok">✓ Programa sugerido según la ficha</span>
    <span class="recbtns"><button type="button" class="btn alt" data-efic="${c.id}">📖 Ficha de ${short(c.n)}</button><button type="button" class="btn alt" data-del="${e.ini}|${e.id}">✕ Quitar escapada</button></span></div>`});
   const miss=PA.filter(a=>a.top&&!paSel(a));if(miss.length)h+=`<div class="sugg" style="grid-column:1/-1"><b>París · famosas no incluidas:</b> ${miss.map(a=>a.n).join(" · ")}</div>`;
   return h}
-function dayTitle(d){const nm=d.city==="PA"?"París":d.c.n;const fx=d.from?(ESC.find(x=>x.id===d.from.id)||{}).n:"";
+function dayTitle(d){if(d.city==="LO")return d.kind==="lonfirst"?"Llegada a Londres":"Londres con la amiga";const nm=d.city==="PA"?"París":d.c.n;const fx=d.from?(ESC.find(x=>x.id===d.from.id)||{}).n:"";
   return {first:"Llegada a París",ret:`${short(fx||"Escapada")} → París`,final:"Último día · vuelo de regreso",pa:"Día completo en París",go:`París → ${short(nm)}`,stay:`Día completo en ${short(nm)}`,trip:`Excursión de un día · ${nm}`}[d.kind]}
 function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);const late=a.closed?"cerrado ese día":a.late?"cierra "+hm(a.close):"";
   const sun=a.in?"":a.st>=SUN.dusk-0.05?'<span class="sun nite" title="Ya es de noche">🌙</span>':a.st+a.h>SUN.set+0.15?'<span class="sun dusk" title="Termina con poca luz">🌇</span>':"";
@@ -1381,19 +1407,19 @@ function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);cons
  <div class="ar-note">${a.v}</div>
  <div class="ar-links"><a href="${a.u}" target="_blank" rel="noopener">sitio</a> · <a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">mapa</a> <select class="daysel" data-papin="${a.id}" aria-label="Elegir día"><option value="">📅 día automático</option>${days.map(x=>`<option value="${x.d}" ${(ST.paPin||{})[a.id]===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>${(ST.paPin||{})[a.id]?'<span class="tag pinday">día fijado</span>':""}</div>
  <details class="why"><summary>¿Por qué vale la pena?</summary>${a.s} ${PA_F[a.id]&&PA_F[a.id].h?PA_F[a.id].h[0]:""} <b>Consejo:</b> ${a.d} ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">Ver ficha completa →</a>`:""}</details></div>`}
-function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.c;
-  const ll=d.city==="PA"?PARIS:((EXT[d.c.id]||{}).ll||PARIS);const SUN=sunOf(D(d.d),ll);
-  const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"?null:"par";
-  const night=nightK?`Noche en ${esc(hotSelName(nightK)||("alojamiento en "+(nightK==="par"?"París":short(d.c.n))+" (por definir)"))}`:"Sin noche de hotel";
+function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:d.c;
+  const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN=sunOf(D(d.d),ll);
+  const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"||d.city==="LO"?null:"par";
+  const night=nightK?`Noche en ${esc(hotSelName(nightK)||("alojamiento en "+(nightK==="par"?"París":short(d.c.n))+" (por definir)"))}`:d.city==="LO"?`Noche donde la amiga${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
   const X=d.c?EXT[d.c.id]||{}:{},fx=d.from?ESC.find(x=>x.id===d.from.id):null;
   const tl={first:`🚄 Eurostar ${W.eur_hora?"sale "+esc(W.eur_hora)+" de":"desde"} Londres St Pancras → <b>París Gare du Nord</b> · metro al alojamiento (${esc(ST.base||"centro")}) · <b>París: actividades desde las 14:30</b>`,
     ret:fx?`🚄 Tren ${fx.n} → París (${fx.tr}) por la mañana · <b>París: actividades desde las 14:30</b>`:"",
     final:`✈ Vuelo de regreso ${esc(W.vue_vuelo||"")} desde ${esc(W.vue_aerop||"CDG")} · check-out y RER B al aeropuerto (boleto 14 €) · llegar 3 h antes`,
-    go:d.c?`🚄 París → <b>${d.c.n}</b> · ${d.c.x.tr} · ${X.how||""}`:"",trip:d.c?`🚆 Ida y vuelta en el día · ${d.c.x.tr} · ${X.how||""}`:""}[d.kind]||"";
+    go:d.c?`🚄 París → <b>${d.c.n}</b> · ${d.c.x.tr} · ${X.how||""}`:"",lonfirst:`✈ Llegada a Londres ${esc(W.ida_aerop||"")} ${esc(W.ida_vuelo||"")} · traslado donde la amiga (Elizabeth line o Piccadilly desde Heathrow)`,trip:d.c?`🚆 Ida y vuelta en el día · ${d.c.x.tr} · ${X.how||""}`:""}[d.kind]||"";
   let h=`<div class="day-head"><span class="eyebrow">${pretty(d.d)} · ${short(C.n)}</span><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
    ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}
    <div class="day-body"><div class="blk blk-com${openActs.has(d.id+"|com")?" open":""}"><h4>Comidas · ${fmt(c.meal)}</h4>`;
-  ["d","a","m","c"].forEach(k=>{const on=mealOnP(d.id,k),i=mealIxP(d.id,k),o=PA_MEAL[k];
+  ["d","a","m","c"].forEach(k=>{const T=MT(d),on=mealOnP(d.id,k),i=mealIxP(d.id,k,T),o=T[k];
     h+=`<label class="chk"><input type="checkbox" data-pmeal="${d.id}|${k}" ${on?"checked":""}><span class="t">${PA_MEAL_LBL[k]}<small>${o[i][0]}</small></span><span class="p">${fmt(o[i][1])}</span></label>${o.length>1?`<select class="msel" data-pmopt="${d.id}|${k}" aria-label="Opción ${PA_MEAL_LBL[k]}">${o.map((x,j)=>`<option value="${j}" ${j===i?"selected":""}>${x[0]} · ${fmt(x[1])}</option>`).join("")}</select>`:""}`});
   h+=`<span class="muted" style="font-size:12px">Precios aproximados por persona.</span></div><div class="blk blk-att"><h4>Atracciones</h4>`;
   if(d.pa&&d.pa.seq.length){const p=d.pa,legs=c.legs,nonEve=p.seq.filter(a=>!a.eve);const days=parisDays();let lp=false;
@@ -1409,6 +1435,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     h+=`<a class="route" href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (A = alojamiento, luego ${p.seq.map((_,k)=>k+1).join("→")})</a>`;
     const used=p.seq.reduce((t,a)=>t+a.h,0)+legs.slice(0,-1).reduce((t,l)=>t+mv(l.from,l.to),0);h+=`<span class="tused">⏱ Tiempo usado ${used.toFixed(1)} de ${p.cap.toFixed(1)} h disponibles</span>`}
   else if(d.items&&d.items.length){h+=`<span class="eyebrow seg">Programa sugerido · según la ficha</span>`+d.items.map((v,i)=>`<div class="actrow2 lite"><div class="ar-top"><b class="num anum">${i+1}</b><span class="ar-name">${v}</span></div></div>`).join("")+`<a class="route" href="#" data-efic="${d.c.id}">📖 Ver ficha completa de ${short(d.c.n)}</a>`}
+  else if(d.city==="LO")h+=`<span class="muted" style="font-size:13px">Plan libre con la amiga.</span><span class="eyebrow seg">Ideas gratis en Londres</span><ul class="brief"><li>British Museum, National Gallery, Tate Modern y Natural History Museum (gratis; algunas exposiciones se pagan)</li><li>Cambio de guardia en Buckingham, St James's Park y Westminster</li><li>Borough Market, Covent Garden y Camden Market</li><li>Luces de Navidad en Regent Street, Oxford Street y Carnaby</li></ul>`;
   else h+=`<span class="muted" style="font-size:13px">${d.kind==="final"?"Mañana libre según la hora del vuelo.":d.kind==="stay"?"Día libre: recorrer sin apuro.":"Libre / descanso"}</span>`;
   h+=`</div><div class="blk blk-tr${openActs.has(d.id+"|tr")?" open":""}"><h4>Traslados, alojamiento y plano</h4>`;
   if(c.trn){const fr=d.kind==="ret"?short(fx.n):"París",to=d.kind==="ret"?"París":short(d.c.n);
@@ -1416,6 +1443,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(c.nm)h+=`<div class="line"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en metro/RER × ${fmt(METRO)}</span><span class="p">${fmt(c.nm*METRO)}</span></div>`;
   if(d.kind==="first")h+=`<div class="line"><span>Metro Gare du Nord → alojamiento</span><span class="p">${fmt(METRO)}</span></div>`;
   if(d.kind==="final")h+=`<div class="line"><span>RER B al aeropuerto (boleto aeropuerto)</span><span class="p">${fmt(14)}</span></div>`;
+  if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento donde la amiga</span><span class="p">—</span></div>`;
   if(nightK)h+=`<div class="line"><span>½ alojamiento (2 personas)</span><span class="p">${c.hot?fmt(c.hot):"sin tarifa"}</span></div>`;
   if(c.legs)h+=c.legs.map(l=>`<div class="line sub"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn} <small class="muted">${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span></div>`).join("");
   if(d.pa&&d.pa.seq.length)h+=`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
@@ -1501,8 +1529,8 @@ function escFichaHTML(id){const x=ESC.find(z=>z.id===id),e=EXT[id]||{},f=e.f||{v
    <div class="flinks"><a href="https://www.sncf-connect.com/" target="_blank" rel="noopener">Trenes (SNCF Connect) ↗</a><a href="${WKq(ph[0][1])}" target="_blank" rel="noopener">Wikipedia ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${(e.ll||PARIS).join(",")}" target="_blank" rel="noopener">Mapa ↗</a>
    <button type="button" class="btn alt sm" data-open="${id}">${sel.length?"+ Otra fecha":"+ Agregar al programa"}</button></div></article>`}
 let attFilt="todas";
-function pAtt(A){const C=[A.C[0],...A.C.slice(1).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===attCity))attCity="PA";
-  let h=`<div class="attbar" role="group" aria-label="Ciudad">${C.map(c=>`<button type="button" class="btn ${c.k===attCity?"":"alt"}" data-attc="${c.k}" aria-pressed="${c.k===attCity}">${short(c.n)}</button>`).join("")}</div>`;
+function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];attCity="PA";
+  let h=`<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`;
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
   const L=PA.filter(a=>PA_F[a.id]).filter(a=>attFilt==="todas"||(attFilt==="prog"&&paSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
@@ -1516,12 +1544,95 @@ function pAtt(A){const C=[A.C[0],...A.C.slice(1).filter((c,i,a)=>a.findIndex(z=>
 // ---------- 6 · Espectáculos ----------
 function pShow(){const W=ST.wiz,a=W.eur_fecha,b=W.vue_fecha;const inT=s=>a&&b&&s.ini<=b&&s.fin>=a;
   const L=SHOWS.slice().sort((x,y)=>(inT(y)-inT(x))||((y.top|0)-(x.top|0))||((x.al|0)-(y.al|0))||(x.ini<y.ini?-1:1));
-  return `${a&&b?`<p class="note">En Francia: ${pretty(a)} → ${pretty(b)}. Los eventos marcados «EN SUS FECHAS» coinciden con el viaje.</p>`:""}
-   <div class="fichas">${L.map(s=>{const ok=inT(s);const e=s.esc&&ESC.find(q=>q.id===s.esc);const chosen=s.esc&&ST.esc.some(q=>q.id===s.esc);
-    return `<article class="ficha${ok?"":" off"}"><div class="ftab">${s.e} ${s.w.toUpperCase()}</div><header><h3>${s.n}</h3><span class="fy">${s.al?"Todas las noches · ver cartelera":`${pretty(s.ini)} → ${pretty(s.fin)}${s.ap?" (aprox.)":""}`}</span>${ok?'<span class="fstamp ok">EN SUS FECHAS</span>':'<span class="fstamp">FUERA DE FECHAS</span>'}</header>
-     <p class="flead">${s.t}</p><div class="fnote"><span class="flab">Consejo</span><p>${s.d}</p></div>
-     <div class="flinks"><a href="${s.u}" target="_blank" rel="noopener">Sitio oficial ↗</a>${e?(chosen?`<span class="tag">✓ escapada elegida</span>`:`<a href="#" data-goesc="${s.esc}">Ver escapada a ${e.n} →</a>`):""}</div></article>`}).join("")}</div>
+  const ml=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  return `${a&&b?`<p class="note">En Francia: ${pretty(a)} → ${pretty(b)}. Los eventos con sello «EN SUS FECHAS» coinciden con el viaje.</p>`:""}
+   <div class="fichas">${L.map((s,i)=>{const ok=inT(s),x=SHOW_X[s.n]||{};const e=s.esc&&ESC.find(q=>q.id===s.esc);const chosen=s.esc&&ST.esc.some(q=>q.id===s.esc);
+    return `<article class="ficha${ok?"":" off"}"><div class="ftab">EXP. EVT-${String(i+1).padStart(2,"0")} · ${s.w.toUpperCase()}</div>
+     <header><h3>${s.e} ${s.n}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${s.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${ok?'<span class="fstamp ok">EN SUS FECHAS</span>':'<span class="fstamp">FUERA DE FECHAS</span>'}</header>
+     <p class="flead">${s.t}</p>
+     ${x.h?`<div class="fhist"><span class="flab">Historia</span>${x.h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+     ${x.v?`<div><span class="flab">Qué van a ver</span><p>${x.v}</p></div>`:""}
+     <div class="fnote"><span class="flab">Dato / consejo</span><p>${s.d}</p></div>
+     <p class="fmeta">📍 ${s.w} · 📅 ${s.al?"todas las noches":`${pretty(s.ini)} → ${pretty(s.fin)}${s.ap?" (aprox.)":""}`}${x.q?" · 🎟 "+x.q:""}</p>
+     ${x.w?`<div class="fphotos"><a class="polaroid" href="${GIq(s.n)}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${x.w}" alt="${s.n}" loading="lazy"><span class="cap">${s.n.split(":")[0]}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${WKq(x.w)}" target="_blank" rel="noopener">${x.w}</a></p>`:""}
+     <div class="flinks"><a href="${s.u}" target="_blank" rel="noopener">Sitio oficial ↗</a>${x.w?`<a href="${WKq(x.w)}" target="_blank" rel="noopener">Wikipedia ↗</a>`:""}${x.m?`<a href="${ml(x.m)}" target="_blank" rel="noopener">Mapa ↗</a>`:""}${e?(chosen?`<span class="tag">✓ escapada elegida</span>`:`<button type="button" class="btn alt sm" data-goesc="${s.esc}">Ver escapada a ${e.n} →</button>`):""}</div></article>`}).join("")}</div>
    <p class="note">Fuentes: <a href="https://icalendrier.fr/evenements/fete-des-lumieres" target="_blank" rel="noopener">iCalendrier (Fête des Lumières 2026)</a> · <a href="https://www.parisinsidersguide.com/paris-events-in-december.html" target="_blank" rel="noopener">Paris Insiders Guide</a>. Las fechas «aprox.» se confirman en noviembre.</p>`}
+// ===== 8 · Comidas: sugerencias y precios aproximados 2026 (por persona; verificar en el lugar) =====
+const FOOD_PA=[
+ {t:"🥐 Boulangerie y desayuno",c:"#b8860b",r:[["Croissant","1,30–1,80 €"],["Pain au chocolat","1,50–2 €"],["Baguette tradición","1,30–1,60 €"],["Café en la barra (au comptoir)","1,50–2,50 €"],["Café sentado en terraza","3–5 €"],["Desayuno completo en café (café, jugo, croissant, tartine)","10–15 €"]],n:"Más barato pedir en la barra que sentado. Las boulangeries cierran un día a la semana (cartel «fermeture hebdomadaire»)."},
+ {t:"🥪 Comida rápida y al paso",c:"#a8352b",r:[["Jambon-beurre (sándwich de jamón y mantequilla)","4–6 €"],["«Formule» de boulangerie: sándwich + bebida + postre","9–12 €"],["Crêpe salada en puesto (jamón-queso-huevo)","6–9 €"],["Falafel en Le Marais","8–10 €"],["Kebab o «grec»","8–11 €"],["Alternativa: menú McDonald's / Burger King","10–13 €"]],n:"La «formule» de boulangerie es el almuerzo más barato y rico. Ideal para comer en un parque."},
+ {t:"🍷 Bistró, brasserie y bouillon",c:"#7b3f6e",r:[["Bouillon (Chartier, Pigalle): entrada desde ~2 €, plato desde ~9 €","15–20 € comida completa"],["«Formule» de almuerzo en bistró (entrada + plato o plato + postre)","16–24 €"],["Plato del día (plat du jour)","14–19 €"],["Cena en bistró de barrio (plato + postre)","25–40 €"],["Brasserie clásica (steak frites, soupe à l'oignon)","22–35 €"]],n:"Al mediodía las «formules» cuestan bastante menos que en la cena. Agua de la llave gratis: «une carafe d'eau, s'il vous plaît». Propina incluida."},
+ {t:"🍫 Dulces y media tarde",c:"#6b4f8f",r:[["Crêpe dulce (Nutella, azúcar y mantequilla)","4–7 €"],["Macaron (Ladurée, Pierre Hermé)","2,50–3 € c/u"],["Chocolate caliente en Angelina","9–11 €"],["Éclair o tartelette en pastelería","4–7 €"],["Vino caliente en mercado de Navidad","4–6 €"]],n:"Angelina (rue de Rivoli) tiene fila en la tarde: ir temprano."},
+ {t:"🛒 Supermercado (Monoprix, Franprix, Carrefour City)",c:"#2e6b4f",r:[["Sándwich envasado","3–5 €"],["Ensalada lista","4–6 €"],["Fruta, yogur, agua 1,5 L","1–3 €"],["Picnic para dos (pan, queso, fruta)","12–18 € total"]],n:"Buena opción para cenas livianas en el alojamiento."}];
+const PLACES_PA=[
+ ["Bouillon Chartier","Bouillon · Grands Boulevards","15–20 €","Comedor de 1896, precios muy bajos. No se reserva: ir antes de las 12:00 o de las 19:00.","Bouillon Chartier Grands Boulevards"],
+ ["Bouillon Pigalle","Bouillon · Pigalle/Montmartre","15–20 €","Misma idea que Chartier, más moderno. Bueno para combinar con Montmartre.","Bouillon Pigalle"],
+ ["L'As du Fallafel","Al paso · Le Marais","9–10 €","El falafel más famoso de París, en rue des Rosiers. Fila rápida.","L'As du Fallafel Paris"],
+ ["Breizh Café","Crêperie · Le Marais","15–25 €","Galettes bretonas de trigo sarraceno y sidra. Conviene reservar.","Breizh Cafe Marais"],
+ ["Du Pain et des Idées","Boulangerie · Canal Saint-Martin","3–6 €","El «escargot» de pistacho y el pan de los amigos. Cerrado fines de semana.","Du Pain et des Idees"],
+ ["Angelina","Salón de té · Tullerías","10–20 €","Chocolate caliente espeso y el Mont-Blanc.","Angelina Rivoli Paris"],
+ ["Marché des Enfants Rouges","Mercado techado · Le Marais","10–18 €","El mercado más antiguo de París (1628): puestos de comida de muchos países.","Marche des Enfants Rouges"],
+ ["Café de Flore / Les Deux Magots","Café histórico · Saint-Germain","5–12 €","Caro, pero un chocolate o café ahí es parte de la experiencia.","Cafe de Flore"],
+ ["Pierre Hermé / Ladurée","Macarons · varios locales","2,50–3 € c/u","Comprar una cajita para el camino.","Pierre Herme Paris"]];
+// escapadas: plato típico, precios y lugares
+const FOOD_ESC={
+ bru:{p:"Waffles, papas fritas en cono, chocolate y mejillones con papas (moules-frites).",r:[["Waffle en la calle","3–6 €"],["Papas fritas en cono (Maison Antoine)","4–6 €"],["Moules-frites en restaurante","25–32 €"],["Plato del día en café","15–20 €"]],l:[["Maison Antoine (papas fritas)","Maison Antoine Bruxelles"],["Pierre Marcolini (chocolate)","Pierre Marcolini Grand Sablon"]]},
+ ams:{p:"Stroopwafel, papas fritas con salsa, arenque y pancakes holandeses.",r:[["Stroopwafel en el mercado","3–5 €"],["Papas fritas en cono","4–6 €"],["Pancakes holandeses","10–15 €"],["Plato en café («eetcafé»)","16–24 €"]],l:[["Albert Cuyp Markt","Albert Cuyp Markt"],["Pancakes Amsterdam","Pancakes Amsterdam"]]},
+ col:{p:"Kölsch (cerveza local), salchichas y «Himmel un Ääd» (puré con manzana y morcilla).",r:[["Bratwurst al paso","4–6 €"],["Plato en Brauhaus","14–20 €"],["Kölsch 0,2 L","2,50–3 €"]],l:[["Früh am Dom (Brauhaus)","Fruh am Dom Koln"]]},
+ lil:{p:"Welsch (pan con jamón y cheddar fundido), carbonnade flamande y gaufres de Méert.",r:[["Gaufre de Méert","3–4 €"],["Welsch en estaminet","14–18 €"],["Carbonnade con papas","16–22 €"]],l:[["Méert (gaufres)","Meert Lille"],["Estaminet au Vieux de la Vieille","Au Vieux de la Vieille Lille"]]},
+ rei:{p:"Biscuit rose de Reims (para mojar en champaña) y degustación en las casas de champaña.",r:[["Biscuits roses (caja)","5–8 €"],["Visita a cava con degustación","30–45 €"],["Formule en brasserie","18–25 €"]],l:[["Fossier (biscuits roses)","Fossier Reims"]]},
+ str:{p:"Tarte flambée (flammekueche), choucroute, bretzels y pain d'épices; vino caliente en el mercado de Navidad.",r:[["Bretzel","2–3 €"],["Tarte flambée para compartir","10–14 €"],["Choucroute garnie","18–24 €"],["Vin chaud en el mercado","3–5 €"]],l:[["Maison Kammerzell","Maison Kammerzell Strasbourg"],["Winstub (tabernas típicas) en Petite France","Winstub Petite France Strasbourg"]]},
+ lyo:{p:"Los «bouchons» lyonnais: quenelles, saucisson brioché y tarte à la praline (rosada).",r:[["Brioche o tarte à la praline","3–6 €"],["Menú de almuerzo en bouchon","20–28 €"],["Cena en bouchon","28–40 €"]],l:[["Les Halles de Lyon Paul Bocuse","Les Halles de Lyon Paul Bocuse"],["Bouchon Daniel et Denise","Daniel et Denise Lyon"]]},
+ dij:{p:"Mostaza de Dijon, pain d'épices, bœuf bourguignon y huevos en meurette.",r:[["Pain d'épices (Mulot & Petitjean)","4–8 €"],["Bœuf bourguignon","18–26 €"]],l:[["Mulot & Petitjean","Mulot Petitjean Dijon"],["Mercado Les Halles","Les Halles Dijon"]]},
+ bdx:{p:"Canelés (pastelitos de vainilla y ron) y entrecôte à la bordelaise.",r:[["Canelé","1,50–2,50 €"],["Entrecôte en brasserie","22–30 €"],["Formule de almuerzo","16–22 €"]],l:[["Baillardran (canelés)","Baillardran Bordeaux"],["Marché des Capucins","Marche des Capucins Bordeaux"]]},
+ loi:{p:"Rillettes de Tours, quesos de cabra y tarte Tatin (nació en la región).",r:[["Sándwich al paso","5–8 €"],["Formule en Amboise o Tours","16–24 €"]],l:[["Place Plumereau (Tours)","Place Plumereau Tours"]]},
+ nor:{p:"Camembert, crêpes, sidra, mejillones y tarte normande de manzana.",r:[["Crêpe dulce","4–7 €"],["Mejillones con papas","16–22 €"],["Sidra (vaso)","3–5 €"]],l:[["Rue du Gros-Horloge (Rouen)","Rue du Gros Horloge Rouen"]]},
+ msm:{p:"La omelette soufflée de La Mère Poulard y el cordero de los pantanos salados.",r:[["Omelette en La Mère Poulard","35–45 € (cara)"],["Galletas La Mère Poulard","4–6 €"],["Sándwich o crêpe en la calle principal","6–10 €"]],l:[["La Mère Poulard","La Mere Poulard"]]},
+ gin:{p:"Fondue y raclette (Suiza); en Annecy, tartiflette. Suiza es bastante más cara que Francia.",r:[["Fondue (por persona)","30–40 CHF"],["Sándwich en Ginebra","8–12 CHF"],["Tartiflette en Annecy","16–22 €"]],l:[["Café du Soleil (fondue)","Cafe du Soleil Geneve"]]},
+ ver:{p:"Dentro del palacio todo es caro: mejor llevar picnic para los jardines o comer en la ciudad.",r:[["Picnic de supermercado","8–12 €"],["Café en el palacio (Angelina)","10–20 €"],["Formule en Versailles ciudad","16–22 €"]],l:[["Marché Notre-Dame (Versailles)","Marche Notre-Dame Versailles"]]},
+ giv:{p:"Café y crêpes junto a la casa de Monet; restaurante Les Nymphéas frente al jardín.",r:[["Crêpe o sándwich","6–10 €"],["Plato en restaurante","18–25 €"]],l:[["Restaurant Les Nymphéas","Les Nympheas Giverny"]]},
+ fon:{p:"Brasseries frente al palacio; picnic en el bosque.",r:[["Formule de almuerzo","16–22 €"],["Boulangerie","5–10 €"]],l:[["Centro de Fontainebleau","Fontainebleau centre ville restaurants"]]},
+ cha:{p:"La crema Chantilly nació aquí: probarla con frutillas o en un postre.",r:[["Postre con crema Chantilly","7–10 €"],["Almuerzo en La Capitainerie (castillo)","25–35 €"]],l:[["La Capitainerie","La Capitainerie Chantilly"]]}};
+const LUNCH_V=[
+ ["Oroyona","Crêperie · 36 rue Mouffetard (5e)","Menú: galette salada + crêpe dulce + bebida","5,50 €","Le Bonbon, abr. 2026","https://www.lebonbon.fr/paris/bistrots/creperie-5e-moins-chere-paris/","Oroyona 36 rue Mouffetard Paris"],
+ ["Bouillon Chartier","Bouillon · Grands Boulevards (9e), Montparnasse (6e) y Gare de l'Est (10e)","Entradas 1–7,50 € · platos 7–13,80 €","plato + postre ≈ 12–17 €","Relais du Louvre","https://www.relaisdulouvre.com/en/bouillons-de-paris-7-restaurants-ou-vivre-une-experience-unique-a-petit-prix/","Bouillon Chartier Grands Boulevards"],
+ ["Bouillon Pigalle / Bouillon République","Bouillon · Pigalle (18e) y República (3e)","Entradas 2,50–9,80 € · platos 8,60–13,90 €","3 tiempos + bebida + café ≈ 25 €","Relais du Louvre","https://www.relaisdulouvre.com/en/bouillons-de-paris-7-restaurants-ou-vivre-une-experience-unique-a-petit-prix/","Bouillon Pigalle"],
+ ["Bouillon Julien","Bouillon · Faubourg Saint-Denis (10e), sala art nouveau de 1906","Entradas 4,30–9,90 € · platos 9,90–13,80 €","≈ 15–20 €","Relais du Louvre","https://www.relaisdulouvre.com/en/bouillons-de-paris-7-restaurants-ou-vivre-une-experience-unique-a-petit-prix/","Bouillon Julien Paris"],
+ ["Petit Bouillon Pharamond","Bouillon · Les Halles (1er), cerca del Louvre","Entradas 4,30–9,90 € · platos 9,90–13,80 €","≈ 15–20 €","Relais du Louvre","https://www.relaisdulouvre.com/en/bouillons-de-paris-7-restaurants-ou-vivre-une-experience-unique-a-petit-prix/","Petit Bouillon Pharamond"],
+ ["Petit Bouillon Vavin","Bouillon · Montparnasse (6e), cerca de Luxemburgo","Ensalada 3,90 € · parmentier de pescado 9,80 € · profiteroles 2,90 €","≈ 13–17 €","Paris Zigzag, ene. 2026","https://www.pariszigzag.fr/sortir-paris/bar-restaurant/restaurant/les-meilleurs-bouillons-de-paris/","Petit Bouillon Vavin"],
+ ["Comme un Bouillon","Bouillon · rue de Choiseul (2e), cerca de la Ópera","Œuf mayo 2,90 € · saucisse 9,50 € · crème au chocolat 3,70 €","≈ 16 € tres tiempos","Paris Zigzag, ene. 2026","https://www.pariszigzag.fr/sortir-paris/bar-restaurant/restaurant/les-meilleurs-bouillons-de-paris/","Comme un Bouillon Paris"],
+ ["Bouillon Racine","Bouillon belle époque · Saint-Germain (6e)","«Formule» de almuerzo: entrada + plato o plato + postre","19,50 €","Paris Zigzag, ene. 2026","https://www.pariszigzag.fr/sortir-paris/bar-restaurant/restaurant/les-meilleurs-bouillons-de-paris/","Bouillon Racine Paris"],
+ ["L'Atelier Entrecôte & Volaille","Bistró · 128 rue Réaumur (2e)","Menú único: ensalada + entrecôte o pollo + papas fritas","27,50 €","ParisBouge","https://www.parisbouge.com/places/5891","Atelier Entrecote Volaille 128 rue Reaumur"],
+ ["Le Relais de Venise – L'Entrecôte","Bistró · 271 bd Pereire (17e)","Menú único: ensalada + entrecôte con papas fritas","≈ 28–30 €","Familin'Paris, may. 2026","https://www.familinparis.fr/le-relais-de-venise-l-entrecote","Relais de Venise L'Entrecote"],
+ ["6.90","Bouillon nuevo (abre permanente en oct. 2026; dirección por confirmar)","Plato del día 6,90 € · mousse 2,90 € · bebida 3,90 €","< 10 € plato + postre","Sortir à Paris, jul. 2026","https://www.sortiraparis.com/hotel-restaurant/restaurant/articles/325867-6-90-le-restaurant-avec-une-addition-a-moins-de-10-s-installe-definitivement-a-paris","6.90 restaurant Paris"]];
+const BARRIOS=[
+ {n:"Montmartre",u:"https://everydayparisian.com/a-guide-to-montmartre/",g:[
+  ["🥐 Boulangeries y café",[["Pain Pain","gran surtido de pasteles"],["Le Grenier à Pain Abbesses","pain au chocolat"],["La Bossue","pastelería casera con mesas afuera para desayunar, al final de rue des Abbesses"],["Coeur Coffee","café y croissant"],["Clove Coffee","buen café y babka; bueno para días de lluvia"],["Gilles Marchal","sablés y madeleines para llevar"]]],
+  ["🍽 Almorzar sin gastar mucho",[["Bouillon Pigalle","clásicos franceses baratos (ver precios arriba)"],["Fric-Frac","croque-monsieur de muchos estilos; para llevar"],["La Boîte aux Lettres","menú francés de temporada; menú de almuerzo accesible; reserva en línea"],["Le Poulbot","cocina francesa casera; menú de almuerzo bajo 30 €"],["Café des Deux Moulins (rue Lepic)","el café de la película Amélie: un café o un chocolate"]]],
+  ["📸 Gratis",[["Muro de los «Te amo»","312 idiomas, junto al metro Abbesses"],["Place du Tertre","pintores y retratistas (mirar es gratis; el retrato se cobra)"],["Rue des Abbesses, rue des Martyrs y rue Lepic","quesería, panaderías y calles empedradas"],["Fotomatón Fotoautomat","53 rue des Trois Frères: tira de fotos retro (unos pocos euros)"],["La Maison Rose","la foto clásica de la casa rosada, después del Sacré-Cœur"]]]]},
+ {n:"Saint-Germain-des-Prés",u:"https://everydayparisian.com/a-guide-to-saint-germain-des-pres/",g:[
+  ["☕ Café para llevar",[["Café Nuances","kiosco de café para llevar"],["Cody's Coffee","kiosco de café para llevar"],["Le Café du Clown","café en la terraza o para llevar"],["Shakespeare and Co. café","café y pasteles con vista a Notre-Dame"]]],
+  ["🍽 Comer",[["Marché Saint-Germain","mercado techado: fruta, queso y algo para picnic (cerrado lunes)"],["Freddy's (rue de Seine)","platitos y vino; pizarra de temporada"],["Les Deux Magots o Café de Flore","caro para lo que es: solo un chocolate caliente por la experiencia"]]],
+  ["📸 Gratis o casi",[["Jardín de Luxemburgo","picnic, veleritos del estanque y vista a la Torre Eiffel"],["La Grande Épicerie (Le Bon Marché)","mirar los productos franceses; comprar mantequilla o té de regalo"],["Marin Montagut (rue Madame)","souvenirs ilustrados (cerrado fines de semana)"]]]]}];
+let foodCity="PA";
+function pFood(A){const C=[A.C.find(c=>c.k==="PA"),...A.C.filter(c=>c.e).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===foodCity))foodCity="PA";
+  const fs=ST.foodStyle==="fast";const daily=["d","a","c"].reduce((t,k)=>t+PA_MEAL[k][fs&&k!=="d"?1:0][1],0);
+  let h=`<div class="card cfg"><div class="field"><span>Estilo de comida (por defecto en todos los días)</span><div class="seg" role="group"><button type="button" data-food="fast" aria-pressed="${fs}">Comida rápida</button><button type="button" data-food="local" aria-pressed="${!fs}">Bistró y boulangerie</button></div></div>
+   <p class="muted" style="font-size:13.5px;margin:0;align-self:end">${fs?"Desayuno en boulangerie, almuerzo crêpe o sándwich, cena al paso":"Desayuno en boulangerie, almuerzo «formule» de bistró, cena en bistró de barrio"} ≈ <b>${fmt(daily)}</b> por persona al día. Cada día se puede cambiar en 2 · Programa → Comidas.</p></div>
+   <div class="attbar" role="group" aria-label="Lugar">${C.map(c=>`<button type="button" class="btn ${c.k===foodCity?"":"alt"}" data-foodc="${c.k}" aria-pressed="${c.k===foodCity}">${short(c.n)}</button>`).join("")}</div>`;
+  const mlink=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  if(foodCity==="PA"){
+    h+=`<div class="card buy"><span class="eyebrow">✓ Precios verificados · almuerzo francés rápido y barato</span><h3>Bouillons, crêpes y bistrós de menú único</h3>
+     <p>Los <b>bouillons</b> son comedores tradicionales franceses con platos clásicos (huevo mayo, salchicha con puré, bœuf bourguignon) a precio bajo y servicio rápido. La mayoría <b>no toma reservas</b>: llegar 12:00–12:30 o después de las 14:00.</p>
+     <div class="tbl-wrap"><table class="ftbl lunch"><thead><tr><th>Lugar</th><th>Qué se pide</th><th class="r">Precio p/p</th></tr></thead><tbody>${LUNCH_V.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small class="muted">${r[1]}</small><br><a href="${mlink(r[6])}" target="_blank" rel="noopener">mapa</a> · <a href="${r[5]}" target="_blank" rel="noopener">fuente: ${r[4]}</a></td><td>${r[2]}</td><td class="r num"><b>${esc(r[3])}</b></td></tr>`).join("")}</tbody></table></div>
+     <p class="note">Rangos de entradas y platos tal como los publican las fuentes indicadas; el total aproximado es una suma de referencia. Verificar la carta del día.</p></div>`;
+    h+=`<div class="fichas">${FOOD_PA.map((s,i)=>`<article class="ficha"><div class="ftab">COMIDAS · ${String(i+1).padStart(2,"0")}</div><header><h3>${s.t}</h3></header><table class="ftbl"><tbody>${s.r.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join("")}</tbody></table><div class="fnote"><span class="flab">Consejo</span><p>${s.n}</p></div></article>`).join("")}</div>
+     ${BARRIOS.map(b=>`<div class="card buy"><span class="eyebrow">Guía de barrio · solo opciones económicas</span><h3>${b.n}</h3>${b.g.map(g=>`<h4 style="margin:10px 0 2px">${g[0]}</h4><ul class="brief">${g[1].map(x=>`<li><b>${x[0]}</b>: ${x[1]} · <a href="${mlink(x[0]+" "+b.n+" Paris")}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul>`).join("")}<p class="note">Selección de <a href="${b.u}" target="_blank" rel="noopener">Everyday Parisian</a>, sin hoteles, spas ni tiendas caras. La guía no publica precios.</p></div>`).join("")}
+     <div class="card buy"><span class="eyebrow">Recomendados en París</span><h3>Dónde comer</h3><ul class="brief">${PLACES_PA.map(p=>`<li><b>${p[0]}</b> <span class="tag">${p[1]}</span> <span class="tag">${p[2]}</span><br>${p[3]} <a href="${mlink(p[4])}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul></div>`}
+  else{const c=C.find(z=>z.k===foodCity),F=FOOD_ESC[c.id];
+    h+=F?`<div class="fichas"><article class="ficha"><div class="ftab">COMIDAS · ${short(c.n).toUpperCase()}</div><header><h3>${c.p} ${c.n}</h3></header><p class="flead">${F.p}</p><table class="ftbl"><tbody>${F.r.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join("")}</tbody></table>
+     <div><span class="flab">Dónde</span><ul class="brief">${F.l.map(l=>`<li>${l[0]} · <a href="${mlink(l[1])}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul></div></article></div>`:`<p class="note">Sin datos de comida para ${c.n}.</p>`}
+  return h+`<p class="note">Precios aproximados por persona, 2026; verificar en el lugar. En Suiza se paga en francos (CHF).</p>`}
 
 // ---------- plano ampliado ----------
 function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpen);if(!d||!d.pa)return"";
@@ -1533,7 +1644,7 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
 function render(){if(!user)return;const A=buildAll();if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+summary(A)+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}`;
+   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}`;
   scrollTo(0,y);bindAll(A);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
@@ -1546,9 +1657,9 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const pb=$("#paBase");if(pb)pb.onchange=()=>{ST.base=pb.value;save();render()};
   Q("[data-ritmo]",b=>b.onclick=()=>{ST.ritmo=b.dataset.ritmo;save();render()});
   Q("[data-cur]",b=>b.onclick=()=>{cur=b.dataset.cur;try{localStorage.setItem("paris_cur",cur)}catch(e){}render()});
-  const ld=$("#lonDia");if(ld)ld.onchange=()=>{ST.lonDia=+ld.value||0;save();render()};const rt=$("#rate");if(rt)rt.onchange=()=>{ST.rate=+rt.value||1100;save();render()};
+  Q("[data-food]",b=>b.onclick=()=>{ST.foodStyle=b.dataset.food;save();render()});Q("[data-foodc]",b=>b.onclick=()=>{foodCity=b.dataset.foodc;render()});const rt=$("#rate");if(rt)rt.onchange=()=>{ST.rate=+rt.value||1100;save();render()};
   Q("[data-f]",b=>b.onclick=()=>{filt=b.dataset.f;render()});
-  Q("[data-open]",b=>b.onclick=()=>{open=b.dataset.open;escFicha=null;if(tab!=="cfg")tab="cfg";render();setTimeout(()=>{const f=document.querySelector(`form[data-plan="${open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},60)});
+  Q("[data-open]",b=>b.onclick=()=>{open=b.dataset.open;escFicha=null;if(tab!=="esc")tab="esc";render();setTimeout(()=>{const f=document.querySelector(`form[data-plan="${open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},60)});
   Q("[data-close]",b=>b.onclick=()=>{open=null;render()});
   Q("[data-del]",b=>b.onclick=()=>{if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="¿Quitar? toca de nuevo";return}const [ini,id]=b.dataset.del.split("|");ST.esc=ST.esc.filter(e=>!(e.ini===ini&&e.id===id));save();render()});
   Q("form[data-plan]",f=>{const id=f.dataset.plan,w=$("#pw-"+id);
@@ -1585,7 +1696,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-attc]",x=>x.onclick=()=>{attCity=x.dataset.attc;render()});
   Q("[data-attf]",x=>x.onclick=()=>{attFilt=x.dataset.attf;render()});
   Q("[data-fsel]",x=>x.onclick=()=>{const a=PA.find(q=>q.id===x.dataset.fsel);ST.paSel=ST.paSel||{};ST.paSel[a.id]=!paSel(a);save();render()});
-  Q("[data-goesc]",x=>x.onclick=e=>{e.preventDefault();escPick=x.dataset.goesc;go("cfg")})}
+  Q("[data-goesc]",x=>x.onclick=e=>{e.preventDefault();escPick=x.dataset.goesc;go("esc")})}
 
 boot();
 </script>
