@@ -861,7 +861,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,lonDia:ST.lonDia??60,by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -874,7 +874,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.lonDia=d.lonDia??60;render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1322,13 +1322,15 @@ function header(A){const W=ST.wiz,C=A.C;const nn=c=>c.k==="PA"?A.days.filter(d=>
   <div class="stylebar"><span class="eyebrow">Estilo</span><div class="seg" role="group">${[["retro","Retro"],["mod","Moderno"],["papel","Papel (prueba)"]].map(([k,t])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}">${t}</button>`).join("")}</div>
    <span class="whoami">${esc(user.displayName||user.email)}${DEMO?"":` · <button type="button" class="lnkb" id="so">Salir</button>`} · <a href="/">Viajes</a></span></div></header>`}
 function summary(A){const S={meal:0,act:0,loc:0,hot:0,total:0};A.days.forEach(d=>{for(const k in S)S[k]+=d.cost[k]});
-  const n=A.days.length,st=stays(),nh=st.filter(s=>hotList(s.k).some(h=>h.sel&&+h.price)).length;
+  const W=ST.wiz,n=A.days.length,st=stays(),nh=st.filter(s=>hotList(s.k).some(h=>h.sel&&+h.price)).length;
+  const ln=W.ida_llega&&W.eur_fecha?Math.max(0,nights(W.ida_llega,W.eur_fecha)):0,ld=+(ST.lonDia??60),LON=ln*ld,TOT=S.total+LON;
   const parts=[["🛏️","Alojamiento",S.hot,"var(--mun)"],["🍽️","Comidas",S.meal,"var(--pra)"],["🎟️","Entradas",S.act,"var(--ber)"],["🚋","Transporte",S.loc,"var(--ok)"]];const M=Math.max(...parts.map(p=>p[2]),0.01);
   return `<section class="summary" aria-label="Resumen de costos">
-   <div class="tile main"><span class="eyebrow">Total grupo (2)</span><span class="big">${fmt(S.total*PEOPLE)}</span><span class="num" style="opacity:.8;font-size:13px">${cur==="EUR"?fmtCLP(S.total*PEOPLE):""}</span></div>
-   <div class="tile"><span class="eyebrow">Por persona</span><span class="big">${fmt(S.total)}</span><span class="num muted" style="font-size:13px">${cur==="EUR"?fmtCLP(S.total):""}</span></div>
-   <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big">${fmt(n?S.total/n:0)}</span><span class="muted" style="font-size:13px">${n} días · ${Math.max(0,n-1)} noches</span><span class="v" style="font-size:12.5px">${nh===st.length&&st.length?"✓":"○"} ${nh} de ${st.length} alojamientos con tarifa</span></div></section>
-  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose"><div class="dstrip sumstrip" id="bar">${parts.map(p=>`<div class="tkt" title="${p[1]}: ${fmt(p[2])} por persona"><span class="ti" aria-hidden="true">${p[0]}</span><b class="num">${fmt(p[2])}</b><span class="tn">${p[1]}</span><span class="tp num">${S.total?Math.round(p[2]/S.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[2]/M*100).toFixed(1)}%;background:${p[3]}"></span></span></div>`).join("")}</div><div class="legend" id="legend"></div></section>`}
+   <div class="tile main"><span class="eyebrow">Total viaje p/p</span><span class="big">${fmt(TOT)}</span><span class="num" style="opacity:.8;font-size:13px">${cur==="EUR"?fmtCLP(TOT):""}</span><span style="opacity:.8;font-size:12.5px">Londres + París y escapadas</span></div>
+   <div class="tile"><span class="eyebrow">🇬🇧 Londres p/p</span><span class="big">${fmt(LON)}</span><span class="num muted" style="font-size:13px">${cur==="EUR"&&LON?fmtCLP(LON):""}</span><span class="muted" style="font-size:13px">${ln?`${ln} días con la amiga · ${fmt(ld)}/día`:"Falta la fecha de llegada a Londres"}</span><span class="e" style="font-size:12.5px">● estimado · editar en Configurar</span></div>
+   <div class="tile"><span class="eyebrow">🇫🇷 París y escapadas p/p</span><span class="big">${fmt(S.total)}</span><span class="num muted" style="font-size:13px">${cur==="EUR"?fmtCLP(S.total):""}</span><span class="muted" style="font-size:13px">${n} días · ${Math.max(0,n-1)} noches</span><span class="v" style="font-size:12.5px">${nh===st.length&&st.length?"✓":"○"} ${nh} de ${st.length} alojamientos con tarifa</span></div>
+   <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big">${fmt(n+ln?TOT/(n+ln):0)}</span><span class="muted" style="font-size:13px">París ${fmt(n?S.total/n:0)}/día · Londres ${fmt(ld)}/día</span></div></section>
+  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose de París y escapadas"><span class="eyebrow">Desglose · París y escapadas</span><div class="dstrip sumstrip" id="bar">${parts.map(p=>`<div class="tkt" title="${p[1]}: ${fmt(p[2])} por persona"><span class="ti" aria-hidden="true">${p[0]}</span><b class="num">${fmt(p[2])}</b><span class="tn">${p[1]}</span><span class="tp num">${S.total?Math.round(p[2]/S.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[2]/M*100).toFixed(1)}%;background:${p[3]}"></span></span></div>`).join("")}</div><div class="legend" id="legend"></div></section>`}
 const TABS=[["cfg","1 · Configurar"],["prog","2 · Programa"],["hot","3 · Alojamiento"],["buy","4 · Trámites previos"],["att","5 · Atracciones"],["show","6 · Espectáculos"]];
 function costStrip(c){const C=[["🛏️","Alojamiento",c.hot,"var(--mun)"],["🍽️","Comidas",c.meal,"var(--pra)"],["🎟️","Entradas",c.act,"var(--ber)"],["🚋","Transporte",c.loc,"var(--ok)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
   return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
@@ -1357,7 +1359,7 @@ function pCfg(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
      ${open===x.id?planForm(x,lim):`<div class="act"><button type="button" class="btn sm" data-open="${x.id}">${sel?"+ Otra fecha":"+ Agregar"}</button><button type="button" class="btn alt sm" data-efic="${x.id}">📖 Ficha</button></div>`}</div>`}).join("")}</div></div>
   <div class="card cfg"><span class="eyebrow" style="grid-column:1/-1">Vuelos, Londres y alojamiento</span>
    ${f("ida_fecha","Vuelo Santiago → Londres","date")}${f("ida_vuelo","Aerolínea y vuelo de ida","text","Ej.: LATAM LA704")}${f("ida_llega","Llegada a Londres","date")}${sl("ida_aerop","Aeropuerto en Londres",["Heathrow","Gatwick","Stansted","Otro"])}
-   ${f("lon_dir","Dónde se quedan en Londres","text","Ej.: Camden")}${f("eur_tren","Tren a París","text","Eurostar · St Pancras → Gare du Nord")}${f("par_dir","Dirección en París","text","Calle, número, barrio")}
+   ${f("lon_dir","Dónde se quedan en Londres","text","Ej.: Camden")}<div class="field"><label for="lonDia">Gasto diario en Londres p/p (€)</label><input id="lonDia" type="number" step="5" value="${+(ST.lonDia??60)}"></div>${f("eur_tren","Tren a París","text","Eurostar · St Pancras → Gare du Nord")}${f("par_dir","Dirección en París","text","Calle, número, barrio")}
    ${f("vue_vuelo","Aerolínea y vuelo de regreso","text","Ej.: Air France AF406")}${sl("vue_aerop","Aeropuerto de regreso",["Charles de Gaulle (CDG)","Orly (ORY)","Otro"])}</div>
   <div class="card"><span class="eyebrow">Línea de tiempo</span>${timeline()}</div>
   <div class="basis"><span><span class="v">● Verificado</span> entradas de museos 2026, boletos de metro RATP 2026</span><span><span class="e">● Estimado</span> comidas, trenes de escapadas (promedio del rango), alojamiento hasta ingresar la tarifa</span></div>`}
@@ -1528,7 +1530,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const pb=$("#paBase");if(pb)pb.onchange=()=>{ST.base=pb.value;save();render()};
   Q("[data-ritmo]",b=>b.onclick=()=>{ST.ritmo=b.dataset.ritmo;save();render()});
   Q("[data-cur]",b=>b.onclick=()=>{cur=b.dataset.cur;try{localStorage.setItem("paris_cur",cur)}catch(e){}render()});
-  const rt=$("#rate");if(rt)rt.onchange=()=>{ST.rate=+rt.value||1100;save();render()};
+  const ld=$("#lonDia");if(ld)ld.onchange=()=>{ST.lonDia=+ld.value||0;save();render()};const rt=$("#rate");if(rt)rt.onchange=()=>{ST.rate=+rt.value||1100;save();render()};
   Q("[data-f]",b=>b.onclick=()=>{filt=b.dataset.f;render()});
   Q("[data-open]",b=>b.onclick=()=>{open=b.dataset.open;if(tab!=="cfg")tab="cfg";render();setTimeout(()=>{const f=document.querySelector(`form[data-plan="${open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},60)});
   Q("[data-close]",b=>b.onclick=()=>{open=null;render()});
