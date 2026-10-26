@@ -801,6 +801,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .lg{display:inline-block;width:22px;height:0;border-top:2.5px solid #a8352b;vertical-align:middle;margin-right:5px}.lg.amb{border-top-style:dashed;border-color:#9a7b2f}.lg.day{border-top-style:dotted;border-color:#5f8f4f}
 .edl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;margin:0;font-size:14px}.edl dt{font:700 12px var(--f-mono);color:var(--muted);white-space:nowrap;padding-top:2px}.edl dd{margin:0}.okl{color:var(--ok);font-weight:700}.fx{position:absolute;top:10px;right:10px}
 #days > .day .blk-com,#days > .day .blk-tr{width:100%;align-self:stretch}
+.fsheet.fwrap{background:transparent;border:0;box-shadow:none;padding:26px 10px max(16px,env(safe-area-inset-bottom,0px))}.fsheet.fwrap .fx{z-index:2;top:30px;right:18px;background:var(--card)}.fsheet.fwrap .ficha{margin-top:6px}
 .daysel{font-size:12.5px;padding:2px 4px;max-width:100%}
 </style>
 </head>
@@ -1258,17 +1259,7 @@ function escCard(){if(!escPick)return `<p class="muted" style="font-size:14px;ma
    <dl class="edl"><dt>🚄 Viaje</dt><dd>${x.tr}</dd><dt>🛤 Cómo</dt><dd>${e.how}</dd><dt>💶 Costo</dt><dd>${e.cost}</dd><dt>🛏 Noches</dt><dd>${x.k==="dia"?"Excursión de un día":x.nt==="0–1"?"De un día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")+" sugeridas"}</dd></dl>
    ${sel.length?`<p class="okl">✓ Elegida: ${sel.map(z=>pretty(z.ini)+(z.fin!==z.ini?" → "+pretty(z.fin):"")).join(" · ")}</p>`:""}
    <div class="act"><button class="btn sm" data-efic="${x.id}">📖 Ver ficha</button><button class="btn alt sm" data-open="${x.id}" data-goto="1">+ Agregar fechas</button></div></div>`}
-function fichaEsc(){if(!escFicha)return"";const x=ESC.find(z=>z.id===escFicha),e=EXT[x.id],f=e.f;
-  return `<div class="fov" data-fclose="1"><article class="fsheet" style="--c:${x.c}" role="dialog" aria-label="Ficha ${x.n}"><button class="btn alt sm fx" data-fclose="1" aria-label="Cerrar">✕</button>
-   <span class="eyebrow">${x.p} Escapada desde París · ${x.k==="dia"?"de un día":"con noche"}</span><h2>${x.n}</h2>
-   <div class="pills"><span class="pill train">🚄 ${x.tr}</span><span class="pill">💶 ${e.cost}</span></div>
-   <h3>Por qué vale la pena</h3><p>${f.h}</p>
-   <h3>Qué ver</h3><ul>${f.v.map(v=>`<li>${v}</li>`).join("")}</ul>
-   <h3>Cómo llegar</h3><p>${e.how}</p>
-   <h3>Qué probar</h3><p>${f.c}</p>
-   <h3>Consejo</h3><p>${f.d}</p>
-   <div class="act" style="margin-top:12px"><a class="btn alt sm" href="https://www.google.com/maps/search/?api=1&query=${e.ll.join(",")}" target="_blank" rel="noopener">🗺 Mapa</a><a class="btn alt sm" href="https://www.sncf-connect.com/" target="_blank" rel="noopener">🎫 Ver trenes (SNCF Connect)</a><a class="btn alt sm" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(x.n)}" target="_blank" rel="noopener">📷 Fotos</a></div>
-   <p class="muted" style="font-size:12.5px;margin-top:10px">Costos de tren aproximados de ida en 2.ª clase comprando con anticipación; verificar al comprar.</p></article></div>`}
+function fichaEsc(){if(!escFicha)return"";return `<div class="fov" data-fclose="1"><div class="fsheet fwrap" role="dialog" aria-label="Ficha"><button type="button" class="btn alt sm fx" data-fclose="1" aria-label="Cerrar">✕</button>${escFichaHTML(escFicha)}</div></div>`}
 function bindEsc(){document.querySelectorAll("[data-esc]").forEach(g=>{const f=()=>{escPick=g.dataset.esc;render();const c=$(".ecard");if(c)c.scrollIntoView({block:"nearest",behavior:"smooth"})};g.onclick=f;g.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}}});
   document.querySelectorAll("[data-epick]").forEach(b=>b.onclick=()=>{escPick=null;render()});
   document.querySelectorAll("[data-efic]").forEach(b=>b.onclick=()=>{escFicha=b.dataset.efic;render()});
@@ -1476,18 +1467,43 @@ function pBuy(){const ck=ST.chk||{};const n=TRAM.filter(t=>ck[t.k]).length;
   <p class="note">Fuentes: <a href="https://www.bonjour-ratp.fr/titres-tarifs/" target="_blank" rel="noopener">RATP (tarifas 2026)</a> · <a href="https://www.gov.uk/guidance/apply-for-an-electronic-travel-authorisation-eta" target="_blank" rel="noopener">gov.uk (ETA)</a> · <a href="https://travel-europe.europa.eu/" target="_blank" rel="noopener">UE (EES y ETIAS)</a>. Verificar antes de viajar.</p>`}
 
 // ---------- 5 · Atracciones ----------
-function escFichaHTML(c){const x=c.x,e=EXT[c.id]||{},f=e.f||{v:[]};const wk=short(x.n).replace(/^Castillos del Loira$/,"Castillos del Loira");
-  return `<article class="ficha"><div class="ftab">EXP. ESC · ${short(x.n).toUpperCase()}</div><header><h3>${x.n}</h3><span class="fy">🚄 ${x.tr}</span><span class="fstamp ok">EN EL PROGRAMA</span></header>
-   <p class="flead">${x.t}</p><div class="fhist"><span class="flab">Por qué vale la pena</span><p>${f.h||""}</p></div>
+const ESC_H={
+ bru:{y:"Grand-Place del siglo XV · Brujas medieval",h:["La Grand-Place de Bruselas se formó en la Edad Media alrededor del mercado. En 1695 las tropas de Luis XIV la bombardearon y casi todo se reconstruyó en pocos años; sus casas doradas de los gremios son de esa época.","Brujas fue uno de los puertos comerciales más ricos de Europa en los siglos XIII a XV. Cuando su salida al mar se llenó de arena, la ciudad se empobreció y quedó casi congelada en el tiempo: por eso su centro medieval está intacto."]},
+ ams:{y:"Canales del siglo XVII",h:["En el siglo XVII, el «Siglo de Oro» neerlandés, Ámsterdam era el centro del comercio mundial. Para crecer, la ciudad trazó un cinturón de canales en forma de media luna, hoy Patrimonio de la Humanidad.","Ana Frank y su familia se escondieron de los nazis entre 1942 y 1944 en la casa trasera de Prinsengracht 263, donde ella escribió su diario."]},
+ col:{y:"Catedral iniciada en 1248",h:["La catedral empezó a construirse en 1248 para guardar las reliquias de los Reyes Magos. La obra quedó detenida durante siglos con una grúa de madera sobre la torre, y solo se terminó en 1880.","En la Segunda Guerra Mundial la ciudad fue bombardeada casi por completo, pero la catedral quedó en pie."]},
+ lil:{y:"Vieille Bourse de 1653",h:["Lille fue durante siglos una ciudad flamenca y pasó a Francia en 1668, conquistada por Luis XIV. Por eso su arquitectura de ladrillo y sus fachadas se parecen más a Bélgica que a París.","Es la ciudad natal de Charles de Gaulle."]},
+ rei:{y:"Catedral de 1211",h:["En Reims fueron coronados casi todos los reyes de Francia durante ocho siglos. Juana de Arco llevó hasta aquí a Carlos VII para su coronación en 1429.","Bajo la ciudad hay kilómetros de antiguas canteras romanas que hoy son las cavas donde reposa el champaña."]},
+ str:{y:"Catedral terminada en 1439",h:["Estrasburgo cambió de país varias veces entre Francia y Alemania; por eso mezcla las dos culturas en su comida, su idioma y sus casas con entramado de madera.","Su catedral fue el edificio más alto del mundo entre 1647 y 1874. Hoy la ciudad es sede del Parlamento Europeo."]},
+ lyo:{y:"Fundada por Roma en el 43 a.C.",h:["Los romanos fundaron Lugdunum en la colina de Fourvière y la convirtieron en la capital de la Galia. Todavía se conservan sus teatros romanos.","En el Renacimiento fue la ciudad de la seda; los tejedores usaban las «traboules», pasajes entre edificios, para llevar la tela sin mojarse. En 1895 los hermanos Lumière proyectaron aquí una de las primeras películas de la historia."]},
+ dij:{y:"Palacio de los Duques, siglos XIV–XV",h:["Dijon fue la capital del Ducado de Borgoña, que en el siglo XV era más rico y poderoso que el propio reino de Francia.","Su símbolo es una pequeña lechuza tallada en la iglesia de Notre-Dame: la tradición dice que tocarla con la mano izquierda trae suerte."]},
+ bdx:{y:"Place de la Bourse, siglo XVIII",h:["Burdeos se enriqueció exportando vino desde la Edad Media; durante 300 años perteneció a la corona inglesa, que era su principal cliente.","En el siglo XVIII se construyó la fachada de piedra clara a orillas del río Garona, Patrimonio de la Humanidad desde 2007."]},
+ loi:{y:"Castillos del Renacimiento",h:["En el siglo XVI los reyes de Francia vivían en el valle del Loira y construyeron palacios para la caza y las fiestas. Francisco I trajo a Leonardo da Vinci, que pasó sus últimos años en Amboise.","Chambord tiene una escalera de doble hélice atribuida a ideas de Leonardo: dos personas pueden subir sin cruzarse. Chenonceau está construido sobre el río Cher."]},
+ nor:{y:"Rouen medieval · acantilados de Étretat",h:["En Rouen fue quemada Juana de Arco en 1431. Monet pintó más de 30 cuadros de la fachada de su catedral, a distintas horas del día.","Los acantilados blancos de Étretat, con sus arcos de piedra sobre el mar, inspiraron a pintores impresionistas y a Maurice Leblanc, el autor de Arsène Lupin."]},
+ msm:{y:"Abadía desde el año 966",h:["Según la leyenda, el arcángel San Miguel pidió en 708 construir un santuario en el islote. La abadía benedictina se fundó en 966 y fue creciendo hacia arriba durante siglos.","Las mareas aquí son de las más grandes de Europa: el mar sube muy rápido. Desde 2014 un puente-pasarela permite que vuelva a quedar como isla con las mareas altas."]},
+ gin:{y:"Ciudad de la Reforma y de la ONU",h:["Ginebra fue la ciudad de Juan Calvino en el siglo XVI. Hoy es sede europea de la ONU y de la Cruz Roja, fundada aquí en 1863.","El Jet d'Eau lanza agua a 140 m de altura; nació como una válvula de presión de una central hidráulica. Annecy, en Francia, es una ciudad de canales a orillas de un lago alpino."]},
+ ver:{y:"Palacio de 1682",h:["Luis XIV transformó un pabellón de caza de su padre en el palacio más grande de Europa y trasladó allí la corte en 1682.","En el Salón de los Espejos se firmó en 1919 el Tratado de Versalles, que puso fin a la Primera Guerra Mundial."]},
+ giv:{y:"Casa de Monet de 1883 a 1926",h:["Claude Monet vivió en Giverny desde 1883 hasta su muerte en 1926. Diseñó el jardín y el estanque de nenúfares con el puente japonés, que luego pintó cientos de veces."]},
+ fon:{y:"Palacio desde el siglo XII",h:["Fue residencia de los reyes de Francia durante siete siglos; cada uno lo amplió a su gusto.","En el patio de la escalera en herradura, Napoleón se despidió de su guardia en 1814 antes de partir al exilio en la isla de Elba."]},
+ cha:{y:"Castillo reconstruido en el siglo XIX",h:["El duque de Aumale reconstruyó el castillo en el siglo XIX y lo donó al Instituto de Francia con su colección de pintura, una de las mejores de Francia después del Louvre.","Las Grandes Caballerizas del siglo XVIII se hicieron para 240 caballos: según la leyenda, el príncipe que las mandó creía que se reencarnaría en caballo."]}};
+const ESC_WK={bru:[["Grand-Place","Grand Place (Bruselas)"],["Brujas","Brujas"]],ams:[["Canales","Ámsterdam"],["Rijksmuseum","Rijksmuseum"]],col:[["La catedral","Catedral de Colonia"]],lil:[["Lille","Lille"]],rei:[["Catedral de Reims","Catedral de Notre-Dame de Reims"]],str:[["Petite France","Estrasburgo"],["Colmar","Colmar"]],lyo:[["Vieux Lyon","Lyon"],["Fourvière","Basílica de Notre-Dame de Fourvière"]],dij:[["Dijon","Dijon"]],bdx:[["Espejo de Agua","Burdeos"]],loi:[["Chambord","Castillo de Chambord"],["Chenonceau","Castillo de Chenonceau"]],nor:[["Étretat","Étretat"],["Catedral de Rouen","Catedral de Ruan"]],msm:[["La abadía","Monte Saint-Michel"]],gin:[["Lago Lemán","Ginebra"],["Annecy","Annecy"]],ver:[["El palacio","Palacio de Versalles"],["Salón de los Espejos","Galería de los Espejos"]],giv:[["Jardín de Monet","Giverny"]],fon:[["El palacio","Palacio de Fontainebleau"]],cha:[["El castillo","Castillo de Chantilly"]]};
+function escFichaHTML(id){const x=ESC.find(z=>z.id===id),e=EXT[id]||{},f=e.f||{v:[]};const i=ESC.indexOf(x);const sel=ST.esc.filter(z=>z.id===id);const ph=ESC_WK[id]||[[short(x.n),short(x.n)]];
+  return `<article class="ficha" id="fes-${id}"><div class="ftab">EXP. ESC-${String(i+1).padStart(2,"0")} · ${short(x.n).toUpperCase()}</div>
+   <header><h3>${x.n}</h3><span class="fy">${(ESC_H[id]||{}).y?ESC_H[id].y+" · ":""}${x.p} ${x.k==="dia"?"Excursión de un día":x.nt==="0–1"?"De un día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")+" sugeridas"}</span>${x.k!=="dia"&&/ams|str|lyo|msm|ver/.test(id)?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel.length?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
+   <p class="flead">${x.t}</p>
+   ${(ESC_H[id]||{}).h?`<div class="fhist"><span class="flab">Historia</span>${ESC_H[id].h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   <div><span class="flab">Por qué vale la pena</span><p>${f.h||""}</p></div>
    <div><span class="flab">Qué van a ver</span><ul class="brief">${f.v.map(v=>`<li>${v}</li>`).join("")}</ul></div>
-   <div><span class="flab">Cómo llegar</span><p>${e.how||""} · <b>${e.cost||""}</b></p></div>
-   <div><span class="flab">Qué probar</span><p>${f.c||""}</p></div><div class="fnote"><span class="flab">Dato / consejo</span><p>${f.d||""}</p></div>
-   <div class="fphotos"><a class="polaroid" href="${GIq(x.n)}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${wk}" alt="${x.n}" loading="lazy"><span class="cap">${short(x.n)}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${WKq(wk)}" target="_blank" rel="noopener">${wk}</a></p>
-   <div class="flinks"><a href="https://www.google.com/maps/search/?api=1&query=${(e.ll||PARIS).join(",")}" target="_blank" rel="noopener">Mapa ↗</a><a href="https://www.sncf-connect.com/" target="_blank" rel="noopener">Trenes ↗</a><a href="${WKq(wk)}" target="_blank" rel="noopener">Wikipedia ↗</a></div></article>`}
+   <div><span class="flab">Qué probar</span><p>${f.c||""}</p></div>
+   <div class="fnote"><span class="flab">Dato / consejo</span><p>${f.d||""}</p><p><b>Cómo llegar:</b> ${e.how||""}</p></div>
+   <p class="fmeta">🚄 ${x.tr} · 💶 ${e.cost||""}${sel.length?" · 📅 "+sel.map(z=>pretty(z.ini)+(z.fin!==z.ini?" → "+pretty(z.fin):"")).join(" · "):""}</p>
+   <div class="fphotos">${ph.map(p=>`<a class="polaroid" href="${GIq(p[0]+" "+short(x.n))}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${p[1]}" alt="${p[0]}" loading="lazy"><span class="cap">${p[0]}</span><span class="go">más fotos →</span></a>`).join("")}</div>
+   <p class="credit">Fotos: Wikipedia / Wikimedia Commons · ${ph.map(p=>`<a href="${WKq(p[1])}" target="_blank" rel="noopener">${p[1]}</a>`).join(" · ")}</p>
+   <div class="flinks"><a href="https://www.sncf-connect.com/" target="_blank" rel="noopener">Trenes (SNCF Connect) ↗</a><a href="${WKq(ph[0][1])}" target="_blank" rel="noopener">Wikipedia ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${(e.ll||PARIS).join(",")}" target="_blank" rel="noopener">Mapa ↗</a>
+   <button type="button" class="btn alt sm" data-open="${id}">${sel.length?"+ Otra fecha":"+ Agregar al programa"}</button></div></article>`}
 let attFilt="todas";
 function pAtt(A){const C=[A.C[0],...A.C.slice(1).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===attCity))attCity="PA";
   let h=`<div class="attbar" role="group" aria-label="Ciudad">${C.map(c=>`<button type="button" class="btn ${c.k===attCity?"":"alt"}" data-attc="${c.k}" aria-pressed="${c.k===attCity}">${short(c.n)}</button>`).join("")}</div>`;
-  if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
+  if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
   const L=PA.filter(a=>PA_F[a.id]).filter(a=>attFilt==="todas"||(attFilt==="prog"&&paSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
   L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]);
@@ -1520,7 +1536,7 @@ function render(){if(!user)return;const A=buildAll();if(!ST.wiz.eur_fecha&&tab!=
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}`;
   scrollTo(0,y);bindAll(A);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
-  if(tab==="att")hydratePhotos()}
+  hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
 function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/";const so=$("#so");if(so)so.onclick=()=>window._auth.U.signOut(window._auth.auth);
@@ -1532,7 +1548,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-cur]",b=>b.onclick=()=>{cur=b.dataset.cur;try{localStorage.setItem("paris_cur",cur)}catch(e){}render()});
   const ld=$("#lonDia");if(ld)ld.onchange=()=>{ST.lonDia=+ld.value||0;save();render()};const rt=$("#rate");if(rt)rt.onchange=()=>{ST.rate=+rt.value||1100;save();render()};
   Q("[data-f]",b=>b.onclick=()=>{filt=b.dataset.f;render()});
-  Q("[data-open]",b=>b.onclick=()=>{open=b.dataset.open;if(tab!=="cfg")tab="cfg";render();setTimeout(()=>{const f=document.querySelector(`form[data-plan="${open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},60)});
+  Q("[data-open]",b=>b.onclick=()=>{open=b.dataset.open;escFicha=null;if(tab!=="cfg")tab="cfg";render();setTimeout(()=>{const f=document.querySelector(`form[data-plan="${open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},60)});
   Q("[data-close]",b=>b.onclick=()=>{open=null;render()});
   Q("[data-del]",b=>b.onclick=()=>{if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="¿Quitar? toca de nuevo";return}const [ini,id]=b.dataset.del.split("|");ST.esc=ST.esc.filter(e=>!(e.ini===ini&&e.id===id));save();render()});
   Q("form[data-plan]",f=>{const id=f.dataset.plan,w=$("#pw-"+id);
