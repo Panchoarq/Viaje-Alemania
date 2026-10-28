@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mis gastos · Marco Polo</title>
+<meta name="theme-color" content="#f8f0dc">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mis gastos">
+<link rel="icon" href="img/logo-marcopolo.jpg">
+<link rel="apple-touch-icon" href="img/logo-marcopolo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--paper:#f8f0dc;--card:#fffdf6;--ink:#2a2420;--muted:#6f6352;--line:#cdbb98;--red:#a8352b;--ok:#2e7d4f;--blue:#2e4f8f;
+  --mono:"Courier Prime",ui-monospace,Menlo,monospace;--serif:"Source Serif 4",Georgia,serif;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.4 var(--serif);min-height:100vh;
+  background-image:linear-gradient(rgba(91,139,201,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(91,139,201,.15) 1px,transparent 1px);background-size:22px 22px}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--blue)}
+#app{max-width:480px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px calc(86px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.eb{font:700 11px var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.h1{font:700 22px var(--mono);margin:0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.mic{display:flex;align-items:center;gap:14px;padding:12px 14px;border:2px dashed var(--ink);border-radius:10px;background:var(--card);text-align:left;cursor:pointer;min-height:68px;width:100%}
+.mic i{width:44px;height:44px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none}
+.mic.on i{background:var(--red);animation:pul 1s infinite}
+@keyframes pul{50%{opacity:.6}}
+.mic b{display:block;font-size:15px}.mic small{font:12.5px var(--mono);color:var(--muted)}
+.amt{display:flex;align-items:baseline;gap:6px}
+.amt input{width:100%;border:0;background:transparent;font:700 40px var(--mono);padding:0;outline:none;min-width:0}
+.cur{display:flex;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;flex:none}
+.cur button{border:0;background:var(--card);font:700 18px var(--mono);width:40px;height:40px;cursor:pointer}
+.cur button[aria-pressed=true]{background:var(--ink);color:var(--card)}
+.line{border:0;border-bottom:1px dashed var(--line);background:transparent;padding:6px 0;outline:none;font-size:16px;width:100%}
+.sub{font:12px var(--mono);color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font:600 13.5px var(--serif);cursor:pointer}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.chip.add{border-style:dashed;color:var(--muted);background:transparent}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden}
+.seg button{border:0;min-height:44px;background:var(--card);font:700 12.5px var(--mono);cursor:pointer}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button[aria-pressed=true]{background:var(--red);color:#fff}
+.seg.dark button[aria-pressed=true]{background:var(--ink);color:var(--card)}
+.tg{display:flex;align-items:center;gap:10px;min-height:44px;font-size:15px}
+.tg+.tg{border-top:1px dashed var(--line)}
+.tg input{width:20px;height:20px;accent-color:var(--red)}
+.tg span{flex:1}
+.go{min-height:56px;border:0;border-radius:10px;background:var(--ink);color:var(--paper);font:700 17px var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;width:100%}
+.go:disabled{opacity:.4}
+.k2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:11px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi.dk{background:var(--ink);color:var(--paper);border-color:var(--ink)}.kpi.dk .eb{color:#d9cdb2}
+.kpi b{font:700 23px var(--mono)}.kpi small{font:12px var(--mono);color:var(--muted)}.kpi.dk small{color:#d9cdb2}
+.alert{border:2px solid var(--red);border-radius:8px;padding:10px 12px;background:var(--card);font-size:15px}
+.row{display:flex;flex-direction:column;gap:3px}
+.row .rt{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.row .rt b{font:700 13px var(--mono);white-space:nowrap}
+.bar{height:8px;background:#e7dcc2;border-radius:4px;overflow:hidden}.bar span{display:block;height:100%;border-radius:4px}
+.gl{display:flex;flex-direction:column}
+.g{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:9px 2px;border-bottom:1px dotted var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+.g i{width:10px;height:10px;border-radius:50%;grid-row:span 2}
+.g b{font:700 14px var(--mono)}.g small{grid-column:2/4;font:11.5px var(--mono);color:var(--muted)}
+.empty{border:1px dashed var(--line);border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:14.5px}
+#map{height:430px;border:1px solid var(--line);border-radius:8px}
+.pin{width:24px;height:24px;border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(0,0,0,.35)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font:12px var(--mono)}
+.legend span{display:inline-flex;align-items:center;gap:5px}.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+nav.tb{position:fixed;left:0;right:0;bottom:0;z-index:1000;background:var(--paper);border-top:2px solid var(--ink);display:grid;grid-template-columns:repeat(5,1fr);padding:4px 0 env(safe-area-inset-bottom)}
+nav.tb button{border:0;background:none;min-height:54px;font:700 11.5px var(--mono);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--ink)}
+nav.tb button[aria-current=page]{color:var(--red)}
+nav.tb svg{width:22px;height:22px}
+.sheet{position:fixed;inset:0;z-index:1100;background:rgba(30,20,10,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet>div{background:var(--card);width:min(480px,100%);border-radius:14px 14px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;max-height:88vh;overflow:auto}
+.btn{min-height:44px;padding:0 14px;border-radius:8px;border:1.5px solid var(--ink);background:var(--card);font:700 13px var(--mono);cursor:pointer}
+.btn.red{border-color:var(--red);color:var(--red)}
+.fld{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+.fld input,.fld select{border:1px solid var(--line);border-radius:6px;padding:9px;background:var(--card);font:700 17px var(--mono);color:var(--ink)}
+.gate{text-align:center;margin-top:12vh;display:flex;flex-direction:column;gap:14px;align-items:center}
+.gate img{width:170px;transform:rotate(-2deg);background:#fff;padding:7px;box-shadow:0 10px 24px rgba(40,25,10,.25)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ok);color:#fff;font:700 13px var(--mono);padding:9px 14px;border-radius:999px;z-index:1200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.on{opacity:1}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}.tbl td{padding:5px 2px;border-bottom:1px dotted var(--line)}.tbl td:last-child{text-align:right;font:700 13px var(--mono);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><p class="sub" style="text-align:center;margin-top:30vh">Cargando…</p></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script type="module">
+const FBC={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
+const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has("demo");
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DOW=["dom","lun","mar","mié","jue","vie","sáb"],MON=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const D=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const pretty=s=>{const d=D(s);return `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`};
+const hhmm=ts=>{const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+const num=v=>(+v||0).toLocaleString("es-CL",{minimumFractionDigits:0,maximumFractionDigits:2});
+const toast=t=>{const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)};
+
+// ---------- categorías ----------
+const CATS=[["Desayuno","#c9930f","com"],["Almuerzo","#d9622b","com"],["Cena","#8e2440","com"],["Cafecito","#7a5230","com"],["Supermercado","#2e7d4f","com"],["Entradas","#2e5aac","ent"],["Transporte","#5b6770","tra"],["Alojamiento","#4b3f9a","alo"],["Souvenirs","#7b4ba0","fue"],["Compras","#c2477f","fue"],["Regalos","#148a8a","fue"],["Otros","#8a8270","fue"]];
+const XCOL=["#b5651d","#3d7a99","#9a3d6b","#6b8e23","#8b6914","#556b8d"];
+const GRP={com:"Comidas",ent:"Entradas",tra:"Transporte",alo:"Alojamiento",fue:"Fuera del presupuesto del viaje"};
+const PAYS=["Crédito","Débito","Efectivo","Global66"];
+function cats(){const X=(P.cats||[]).map((n,i)=>[n,XCOL[i%XCOL.length],"fue"]);return [...CATS,...X]}
+const catOf=n=>cats().find(c=>c[0]===n)||["Otros","#8a8270","fue"];
+// sugerencia por palabras y hora
+const KW=[[/caf[eé]|coffee|latte|capuccino|t[eé] |chocolate|angelina|pret|starbucks|costa/i,"Cafecito"],[/croissant|boulanger|panader|desayun|breakfast|gail/i,"Desayuno"],[/almuerz|lunch|bouillon|bistr|brasserie|cr[eê]pe|meal deal|s[aá]ndwich|falafel/i,"Almuerzo"],[/cena|dinner|pub|restaurant/i,"Cena"],[/monoprix|franprix|carrefour|super|tesco|sainsbury|lidl|aldi|waitrose|m&s|boots/i,"Supermercado"],[/museo|museum|entrada|ticket|louvre|orsay|torre|tour|catacumb|show|concierto|ópera|opera/i,"Entradas"],[/metro|uber|taxi|bus|tren|train|navigo|rer|eurostar|oyster|bolt/i,"Transporte"],[/hotel|airbnb|hostal|alojam/i,"Alojamiento"],[/souvenir|recuerdo|postal|im[aá]n/i,"Souvenirs"],[/regalo|gift/i,"Regalos"],[/ropa|zara|h&m|uniqlo|farmacia|pharmacie|compra/i,"Compras"]];
+function suggest(txt){for(const [r,c] of KW)if(r.test(txt||""))return c;const h=new Date().getHours();return h<11?"Desayuno":h<15.5?"Almuerzo":h<18.5?"Cafecito":"Cena"}
+// "café en Flore cuatro cincuenta" / "4,50 en Paul"
+const W2N={cero:0,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,trece:13,catorce:14,quince:15,dieciséis:16,dieciseis:16,diecisiete:17,dieciocho:18,diecinueve:19,veinte:20,veintiuno:21,veintidós:22,veintidos:22,veintitrés:23,veinticinco:25,treinta:30,cuarenta:40,cincuenta:50,sesenta:60,setenta:70,ochenta:80,noventa:90,cien:100,ciento:100};
+function parseVoice(t){let s=" "+t.toLowerCase()+" ";let amount=null;
+  const m=s.match(/(\d+(?:[.,]\d{1,2})?)/);if(m)amount=parseFloat(m[1].replace(",","."));
+  else{const ws=s.trim().split(/\s+/).map(w=>w.replace(/[^a-záéíóúñ]/g,""));const nums=[];let cur=null;
+    ws.forEach(w=>{if(w in W2N){cur=(cur||0)+W2N[w]}else if(w==="y"&&cur!=null){}else{if(cur!=null){nums.push(cur);cur=null}}});if(cur!=null)nums.push(cur);
+    if(nums.length===1)amount=nums[0];else if(nums.length>=2)amount=nums[nums.length-2]+nums[nums.length-1]/100}
+  let com="";const e=t.match(/\b(?:en|at)\s+([^\d,.]+?)(?=\s+(?:\d|cero|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|quince|veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa|cien|por|euros?|libras?)|$)/i);
+  if(e)com=e[1].trim();
+  let cur2=/libra|pound|£/i.test(t)?"GBP":/euro|€/i.test(t)?"EUR":null;
+  return {amount,com:com.replace(/\b\w/,c=>c.toUpperCase()),cat:suggest(t),cur:cur2,raw:t}}
+
+// ---------- estado y datos ----------
+let user=null,F=null,db=null,P={},G=[],J=[],BUD=null,tab="add",unsubs=[];
+let form={amt:"",cur:null,com:"",cat:null,pay:null,loc:true,shared:false,ll:null,acc:null};
+const em=()=>user&&user.email;
+function rates(){return {clp:+(P.rateCLP||1100),gbp:+(P.rateGBP||1.17)}}
+const toEUR=(a,c)=>c==="GBP"?a*rates().gbp:a;
+const clp=e=>"≈ $"+Math.round(e*rates().clp).toLocaleString("es-CL")+" CLP";
+const fe=e=>num(Math.round(e*100)/100)+" €";
+function todayISO(){return iso(new Date())}
+function cityOn(d){const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?x.city:(BUD&&BUD.days&&BUD.days.length&&d<BUD.days[0].d?"Antes del viaje":"Fuera del programa")}
+const curOfCity=c=>c==="Londres"?"GBP":"EUR";
+
+// demo store
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem("gdemo_"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("gdemo_"+k,JSON.stringify(v))}catch(e){}}};
+async function saveProf(p){P={...P,...p};if(DEMO){LS.set("prof",P);render();return}await F.setDoc(F.doc(db,"trips","paris","users",em()),P,{merge:true})}
+async function addGasto(g){if(DEMO){if(g.shared){J=[...J,{...g,id:"j"+Date.now(),by:em(),byName:P.nombre||"Yo"}];LS.set("juntas",J)}else{G=[...G,{...g,id:"g"+Date.now()}];LS.set("gastos",G)}render();return}
+  if(g.shared)await F.addDoc(F.collection(db,"trips","paris","juntas"),{...g,by:em(),byName:P.nombre||user.displayName||em()});
+  else await F.addDoc(F.collection(db,"trips","paris","users",em(),"gastos"),g)}
+async function delGasto(x){if(DEMO){if(x.by){J=J.filter(z=>z.id!==x.id);LS.set("juntas",J)}else{G=G.filter(z=>z.id!==x.id);LS.set("gastos",G)}render();return}
+  if(x.by)await F.deleteDoc(F.doc(db,"trips","paris","juntas",x.id));else await F.deleteDoc(F.doc(db,"trips","paris","users",em(),"gastos",x.id))}
+
+async function boot(){
+  if(DEMO){user={email:"demo@local",displayName:"Modo demo"};P=LS.get("prof",{});G=LS.get("gastos",[]);J=LS.get("juntas",[]);
+    BUD=LS.get("bud",null)||{days:[]};render();return}
+  const B="https://www.gstatic.com/firebasejs/10.12.2/";
+  const [A,U,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+  F=FS;const fa=A.initializeApp(FBC);const auth=U.getAuth(fa);
+  try{db=FS.initializeFirestore(fa,{localCache:FS.persistentLocalCache({tabManager:FS.persistentMultipleTabManager()})})}catch(e){db=FS.getFirestore(fa)}
+  window._au={U,auth};
+  U.onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
+function listen(){const den=()=>gate(true);
+  unsubs.push(F.onSnapshot(F.doc(db,"trips","paris","users",em()),s=>{P=s.exists()?s.data():{};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];render()},den));
+  unsubs.push(F.onSnapshot(F.collection(db,"trips","paris","users",em(),"gastos"),s=>{G=s.docs.map(d=>({id:d.id,...d.data()}));render()},den));
+  unsubs.push(F.onSnapshot(F.collection(db,"trips","paris","juntas"),s=>{J=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
+  unsubs.push(F.onSnapshot(F.doc(db,"trips","paris","meta","presupuesto"),s=>{BUD=s.exists()?s.data():{days:[]};render()},()=>{}))}
+function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">Viaje a París</span><h1 class="h1">Mis gastos</h1>
+  ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada una ve solo sus gastos.</p>`}
+  <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="/paris">← Volver al viaje</a></div>`;
+  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);try{await U.signInWithPopup(auth,new U.GoogleAuthProvider())}catch(e){toast("No se pudo entrar")}}}
+
+// ---------- cálculos ----------
+function mine(){// gastos personales: propios + mitad de los compartidos
+  const own=G.filter(g=>!g.retiro).map(g=>({...g,mineEur:g.eur}));
+  const sh=J.map(g=>({...g,mineEur:g.eur/2}));return [...own,...sh].sort((a,b)=>b.ts-a.ts)}
+function cash(){const c={EUR:+(P.cashEUR||0),GBP:+(P.cashGBP||0)};
+  G.forEach(g=>{if(g.retiro)c[g.cur]+=g.amt;else if(g.pay==="Efectivo")c[g.cur]-=g.amt});
+  J.forEach(g=>{if(g.by===em()&&g.pay==="Efectivo")c[g.cur]-=g.amt});return c}
+function budDay(d){const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?{com:x.meal||0,ent:x.act||0,tra:x.loc||0,alo:x.hot||0}:null}
+function sumBud(days){const s={com:0,ent:0,tra:0,alo:0};days.forEach(x=>{s.com+=x.meal||0;s.ent+=x.act||0;s.tra+=x.loc||0;s.alo+=x.hot||0});return s}
+const tot=o=>Object.values(o).reduce((t,v)=>t+v,0);
+
+// ---------- vistas ----------
+const IC={add:'<path d="M12 5v14M5 12h14"/>',res:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',map:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',jun:'<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 20c1-4 4-5 6-5s5 1 6 5M12 17c1-1.5 2.5-2 4-2 2 0 5 1 6 5"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
+function nav(){return `<nav class="tb">${[["add","Gasto"],["res","Resumen"],["map","Mapa"],["jun","Juntas"],["set","Ajustes"]].map(([k,t])=>`<button data-tab="${k}" ${tab===k?'aria-current="page"':""}>${svg(k)}${t}</button>`).join("")}</nav>`}
+function vAdd(){const today=todayISO(),city=cityOn(today);const cur=form.cur||curOfCity(city);const m=mine().filter(g=>g.d===today);const spent=m.reduce((t,g)=>t+g.mineEur,0);const bd=budDay(today);
+  const cat=form.cat||suggest(form.com);const pays=PAYS.filter(p=>!P.medios||P.medios.includes(p));const pay=form.pay||(pays.includes("Global66")?"Global66":pays[0]);
+  const a=parseFloat(String(form.amt).replace(",","."))||0;const e=toEUR(a,cur);
+  return `<div class="top"><div><span class="eb">${pretty(today)} · ${esc(city)}</span><h1 class="h1">Nuevo gasto</h1></div><div style="text-align:right"><span class="eb">Hoy llevas</span><div style="font:700 18px var(--mono);color:var(--red)">${fe(spent)}${bd?` <span class="sub">/ ${fe(tot(bd))}</span>`:""}</div></div></div>
+  <button class="mic" id="mic"><i>${'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fffdf6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>'}</i><span><b id="micT">Dictar el gasto</b><small>«café en Flore cuatro cincuenta»</small></span></button>
+  <div class="box"><label class="eb" for="amt">Monto</label>
+   <div class="amt"><input id="amt" inputmode="decimal" placeholder="0" value="${esc(form.amt)}" autocomplete="off"><div class="cur"><button data-cur="EUR" aria-pressed="${cur==="EUR"}">€</button><button data-cur="GBP" aria-pressed="${cur==="GBP"}">£</button></div></div>
+   <label class="eb" for="com" style="margin-top:4px">Comercio o detalle</label><input id="com" class="line" value="${esc(form.com)}" placeholder="Ej.: Café de Flore" autocomplete="off">
+   <span class="sub" id="conv">${a?(cur==="GBP"?`= ${fe(e)} · `:"")+clp(e):"Toca el micrófono o escribe el monto"}</span></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Categoría${form.cat?"":" · sugerida"}</span><div class="chips">${cats().map(c=>`<button class="chip" data-cat="${esc(c[0])}" aria-pressed="${cat===c[0]}"><i style="background:${c[1]}"></i>${esc(c[0])}</button>`).join("")}<button class="chip add" id="addcat">+ Nueva</button></div></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Pagado con</span><div class="seg">${pays.map(p=>`<button data-pay="${p}" aria-pressed="${pay===p}">${p}</button>`).join("")}</div></div>
+  <div class="box" style="padding:4px 12px;gap:0"><label class="tg"><input type="checkbox" id="loc" ${form.loc?"checked":""}><span>Guardar ubicación</span><small class="sub" id="locT">${form.loc?(form.ll?`±${Math.round(form.acc||0)} m`:"buscando…"):"sin ubicación"}</small></label>
+   <label class="tg"><input type="checkbox" id="shr" ${form.shared?"checked":""}><span>Gasto compartido (las dos)</span><small class="sub">${form.shared&&a?num(a/2)+(cur==="GBP"?" £":" €")+" c/u":form.shared?"mitad c/u":"solo mío"}</small></label></div>
+  <button class="go" id="save" ${a>0?"":"disabled"}>Guardar gasto</button>
+  <button class="btn" id="retiro" style="align-self:center">Registrar retiro de efectivo (cajero)</button>
+  ${G.length+J.length?`<div><span class="eb">Últimos</span><div class="gl">${mine().slice(0,5).map(gRow).join("")}</div></div>`:""}`}
+function gRow(g){const c=catOf(g.cat);return `<button class="g" data-g="${g.id}"><i style="background:${c[1]}"></i><span>${esc(g.com||g.cat)}${g.by?" 👭":""}</span><b>${num(g.amt)} ${g.cur==="GBP"?"£":"€"}</b><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.cat)} · ${esc(g.pay)}${g.city?" · "+esc(g.city):""}${g.by?" · pagó "+esc(g.byName||g.by):""}</small></button>`}
+let rv="hoy";
+function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C=cash();const days=(BUD&&BUD.days)||[];
+  const scope=rv==="hoy"?M.filter(g=>g.d===today):rv==="ciudad"?M.filter(g=>g.city===city):M;
+  const bdays=rv==="hoy"?days.filter(x=>x.d===today):rv==="ciudad"?days.filter(x=>x.city===city):days;
+  const B=sumBud(bdays);const spent=scope.reduce((t,g)=>t+g.mineEur,0);const bt=tot(B);
+  const real={com:0,ent:0,tra:0,alo:0};const out={};scope.forEach(g=>{const k=catOf(g.cat)[2];if(k==="fue")out[g.cat]=(out[g.cat]||0)+g.mineEur;else real[k]+=g.mineEur});
+  const allSpent=M.reduce((t,g)=>t+g.mineEur,0),pres=+(P.pres||0);
+  // días que quedan en la ciudad
+  const cdays=days.filter(x=>x.city===city),left=cdays.filter(x=>x.d>=today);const cityBud=tot(sumBud(cdays));const before=M.filter(g=>g.city===city&&g.d<today).reduce((t,g)=>t+g.mineEur,0);
+  const perDay=left.length?(cityBud-before)/left.length:0;const progDay=left.length?tot(sumBud(left))/left.length:0;
+  const lbl={hoy:"Hoy",ciudad:city,viaje:"Todo el viaje"};
+  return `<div class="top"><h1 class="h1">Mis gastos</h1><span class="eb">${esc(P.nombre||"")}</span></div>
+  <div class="seg dark">${["hoy","ciudad","viaje"].map(k=>`<button data-rv="${k}" aria-pressed="${rv===k}">${esc(lbl[k])}</button>`).join("")}</div>
+  <div class="k2"><div class="kpi dk"><span class="eb">Gastado · ${esc(lbl[rv])}</span><b>${fe(spent)}</b><small>${clp(spent)}</small></div>
+   <div class="kpi"><span class="eb">Presupuesto del programa</span><b>${bt?fe(bt):"—"}</b><small style="color:${bt?(spent<=bt?"var(--ok)":"var(--red)"):""}">${bt?(spent<=bt?`vas ${fe(bt-spent)} bajo`:`te pasaste ${fe(spent-bt)}`):"abre el viaje para cargarlo"}</small></div>
+   <div class="kpi"><span class="eb">Efectivo</span><b>${num(C.EUR)} €</b><small>+ £${num(C.GBP)}</small></div>
+   <div class="kpi"><span class="eb">Te queda</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
+  ${left.length?`<div class="alert"><span class="eb" style="color:var(--red)">Para los días que quedan</span><br>Quedan <b>${left.length} día${left.length>1?"s":""} en ${esc(city)}</b>: puedes gastar <b>${fe(Math.max(0,perDay))}/día</b> para cerrar en el presupuesto (el programa estima ${fe(progDay)}/día).</div>`:""}
+  <div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Por categoría · real vs presupuesto</span>
+   ${["com","ent","tra","alo"].filter(k=>B[k]||real[k]).map(k=>bar(GRP[k],real[k],B[k],k==="com"?"#d9622b":k==="ent"?"#2e5aac":k==="tra"?"#5b6770":"#4b3f9a")).join("")||'<div class="empty">Sin gastos en este período.</div>'}
+   ${Object.keys(out).length?`<span class="eb" style="margin-top:4px">Fuera del presupuesto del viaje</span>`+Object.entries(out).map(([n,v])=>bar(n,v,0,catOf(n)[1])).join(""):""}</div>
+  <div><span class="eb">Gastos · ${esc(lbl[rv])}</span><div class="gl">${scope.map(gRow).join("")||'<div class="empty">Todavía no hay gastos.</div>'}</div></div>`}
+function bar(n,real,pre,c){const over=pre&&real>pre;const pct=pre?Math.min(100,real/pre*100):(real?100:0);
+  return `<div class="row"><div class="rt"><span>${esc(n)}</span><b style="color:${over?"var(--red)":"inherit"}">${fe(real)}${pre?" / "+fe(pre):""}</b></div><div class="bar"><span style="width:${pct.toFixed(0)}%;background:${over?"var(--red)":c};${pre?"":"opacity:.5"}"></span></div></div>`}
+let mapF="todo";
+function vMap(){const pts=mine().filter(g=>g.ll);const cities=[...new Set(pts.map(g=>g.city).filter(Boolean))];
+  return `<div class="top"><h1 class="h1">Dónde gasté</h1><span class="eb">${pts.length} con ubicación</span></div>
+  <div class="chips"><button class="chip" data-mf="todo" aria-pressed="${mapF==="todo"}">Todo</button>${cities.map(c=>`<button class="chip" data-mf="${esc(c)}" aria-pressed="${mapF===c}">${esc(c)}</button>`).join("")}</div>
+  <div id="map"></div><div class="legend">${cats().map(c=>`<span><i style="background:${c[1]}"></i>${esc(c[0])}</span>`).join("")}</div>
+  <p class="sub">Toca un pincho para ver el gasto. Plano © colaboradores de OpenStreetMap.</p>`}
+let LMAP=null;
+function drawMap(){const el=$("#map");if(!el||!window.L)return;const pts=mine().filter(g=>g.ll&&(mapF==="todo"||g.city===mapF));
+  LMAP=L.map(el,{zoomControl:true});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(LMAP);
+  const ms=pts.map(g=>{const c=catOf(g.cat)[1];return L.marker(g.ll,{icon:L.divIcon({className:"",html:`<div class="pin" style="background:${c}"></div>`,iconSize:[24,24],iconAnchor:[12,24],popupAnchor:[0,-22]})}).bindPopup(`<b>${esc(g.com||g.cat)}</b><br>${num(g.amt)} ${g.cur==="GBP"?"£":"€"} · ${esc(g.cat)}<br><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.pay)}</small>`).addTo(LMAP)});
+  if(ms.length)LMAP.fitBounds(L.featureGroup(ms).getBounds().pad(0.25),{maxZoom:16});else LMAP.setView([48.8566,2.3522],12)}
+function vJun(){const by={};J.forEach(g=>{by[g.by]=by[g.by]||{n:g.byName||g.by,e:0};by[g.by].e+=g.eur});const total=J.reduce((t,g)=>t+g.eur,0);
+  const per={};J.forEach(g=>{per[g.city||"—"]=(per[g.city||"—"]||0)+g.eur});const ppl=Object.values(by);
+  let bal="";if(ppl.length===2){const [a,b]=ppl;const d=(a.e-b.e)/2;bal=Math.abs(d)<0.01?"Están a mano.":`${esc(d>0?b.n:a.n)} le debe ${fe(Math.abs(d))} a ${esc(d>0?a.n:b.n)}`}
+  else if(ppl.length===1)bal=`${esc(ppl[0].n)} pagó todo: la otra le debe ${fe(total/2)}`;
+  const cat={};J.forEach(g=>{cat[g.cat]=(cat[g.cat]||0)+g.eur});
+  return `<div class="top"><div><span class="eb">Las dos · solo lo compartido</span><h1 class="h1">Gastos juntas</h1></div><b style="font:700 20px var(--mono)">${fe(total)}</b></div>
+  <div class="k2">${Object.entries(per).map(([c,v])=>`<div class="kpi"><span class="eb">${esc(c)}</span><b>${fe(v)}</b><small>${fe(v/2)} c/u</small></div>`).join("")||'<div class="empty" style="grid-column:1/-1">Marquen «Gasto compartido» al registrar.</div>'}</div>
+  ${J.length?`<div class="kpi dk"><span class="eb">Saldo entre las dos</span><span style="font-size:15px">${ppl.map(p=>`${esc(p.n)} pagó <b>${fe(p.e)}</b>`).join(" · ")}</span><b style="font-size:16px;color:#f2b8a0">${bal}</b></div>
+  <div><span class="eb">Por categoría</span><table class="tbl">${Object.entries(cat).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<tr><td>${esc(n)}</td><td>${fe(v)}</td></tr>`).join("")}</table></div>
+  <div><span class="eb">Todos los compartidos</span><div class="gl">${[...J].sort((a,b)=>b.ts-a.ts).map(gRow).join("")}</div></div>`:""}`}
+function vSet(){const pays=P.medios||PAYS;
+  return `<div class="top"><div><span class="eb">Una vez · al empezar</span><h1 class="h1">Mi bolsillo</h1></div><span class="sub">${esc(em())}</span></div>
+  <div class="box"><label class="fld">Mi nombre (para los gastos compartidos)<input id="s-nom" value="${esc(P.nombre||"")}"></label>
+   <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="2000"></label>
+   <span class="sub">${P.pres?clp(+P.pres):""}${BUD&&BUD.days&&BUD.days.length?` · el programa estima ${fe(tot(sumBud(BUD.days)))} en comidas, entradas, transporte y alojamiento`:""}</span></div>
+  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">Libras<input id="s-cg" inputmode="decimal" value="${esc(P.cashGBP||"")}" placeholder="40"></label></div></div>
+  <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${PAYS.map(p=>`<label class="tg"><input type="checkbox" data-med="${p}" ${pays.includes(p)?"checked":""}><span>${p}</span></label>`).join("")}</div>
+  <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">£1 en €<input id="s-rg" inputmode="decimal" value="${esc(P.rateGBP||1.17)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
+  <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
+  <button class="go" id="s-save">Guardar</button>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit" href="/paris">← Viaje a París</a>${DEMO?"":`<button class="btn" id="out">Salir</button>`}</div>`}
+
+// ---------- render y eventos ----------
+let geoWatch=null;
+function startGeo(){if(!form.loc||!navigator.geolocation||geoWatch!=null)return;
+  geoWatch=navigator.geolocation.watchPosition(p=>{form.ll=[+p.coords.latitude.toFixed(5),+p.coords.longitude.toFixed(5)];form.acc=p.coords.accuracy;const t=$("#locT");if(t)t.textContent=`±${Math.round(form.acc)} m`},
+    e=>{const t=$("#locT");if(t)t.textContent=e.code===1?"permiso denegado":"sin señal GPS"},{enableHighAccuracy:true,maximumAge:30000,timeout:15000})}
+function stopGeo(){if(geoWatch!=null){navigator.geolocation.clearWatch(geoWatch);geoWatch=null}}
+function render(){if(!user)return;if(LMAP){LMAP.remove();LMAP=null}
+  const y=scrollY;const ae=document.activeElement&&document.activeElement.id;
+  app.innerHTML=(tab==="add"?vAdd():tab==="res"?vRes():tab==="map"?vMap():tab==="jun"?vJun():vSet())+nav();
+  if(tab==="map")setTimeout(drawMap,0);if(tab==="add")startGeo();else stopGeo();
+  bind();if(ae&&$("#"+ae)){const el=$("#"+ae);el.focus();if(el.setSelectionRange&&el.value)try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}scrollTo(0,y)}
+function sheet(html,onBind){const d=document.createElement("div");d.className="sheet";d.innerHTML=`<div role="dialog">${html}</div>`;document.body.appendChild(d);d.onclick=e=>{if(e.target===d)d.remove()};onBind&&onBind(d);return d}
+function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-tab]",b=>b.onclick=()=>{tab=b.dataset.tab;scrollTo(0,0);render()});
+  Q("[data-g]",b=>b.onclick=()=>{const g=mine().find(x=>x.id===b.dataset.g);if(!g)return;
+    sheet(`<span class="eb">${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.city||"")}</span><b style="font-size:20px">${esc(g.com||g.cat)}</b>
+     <table class="tbl"><tr><td>Monto</td><td>${num(g.amt)} ${g.cur==="GBP"?"£":"€"}${g.cur==="GBP"?" = "+fe(g.eur):""}</td></tr><tr><td>Categoría</td><td>${esc(g.cat)}</td></tr><tr><td>Pagado con</td><td>${esc(g.pay)}</td></tr>${g.by?`<tr><td>Compartido · pagó</td><td>${esc(g.byName||g.by)}</td></tr><tr><td>Mi parte</td><td>${fe(g.eur/2)}</td></tr>`:""}</table>
+     ${g.ll?`<a class="btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none;color:inherit" href="https://www.openstreetmap.org/?mlat=${g.ll[0]}&mlon=${g.ll[1]}#map=18/${g.ll[0]}/${g.ll[1]}" target="_blank" rel="noopener">📍 Ver dónde fue</a>`:'<span class="sub">Sin ubicación guardada.</span>'}
+     ${!g.by||g.by===em()?`<button class="btn red" id="del">Eliminar gasto</button>`:""}<button class="btn" id="cl">Cerrar</button>`,
+     d=>{d.querySelector("#cl").onclick=()=>d.remove();const x=d.querySelector("#del");if(x)x.onclick=async()=>{if(x.dataset.arm!=="1"){x.dataset.arm="1";x.textContent="¿Eliminar? toca de nuevo";return}d.remove();await delGasto(g);toast("Eliminado")}})});
+  // registrar
+  const amt=$("#amt");if(amt){amt.oninput=()=>{form.amt=amt.value;const a=parseFloat(amt.value.replace(",","."))||0;const cur=form.cur||curOfCity(cityOn(todayISO()));$("#save").disabled=!(a>0);$("#conv").textContent=a?(cur==="GBP"?`= ${fe(toEUR(a,cur))} · `:"")+clp(toEUR(a,cur)):"Toca el micrófono o escribe el monto"}}
+  const com=$("#com");if(com){com.oninput=()=>{form.com=com.value;if(!form.cat){const sg=suggest(com.value);document.querySelectorAll("[data-cat]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cat===sg))}}}
+  Q("[data-cur]",b=>b.onclick=()=>{form.cur=b.dataset.cur;render()});
+  Q("[data-cat]",b=>b.onclick=()=>{form.cat=b.dataset.cat;render()});
+  Q("[data-pay]",b=>b.onclick=()=>{form.pay=b.dataset.pay;render()});
+  const loc=$("#loc");if(loc)loc.onchange=()=>{form.loc=loc.checked;if(!form.loc){stopGeo();form.ll=null}render()};
+  const shr=$("#shr");if(shr)shr.onchange=()=>{form.shared=shr.checked;render()};
+  const ac=$("#addcat");if(ac)ac.onclick=()=>sheet(`<label class="fld">Nueva categoría<input id="nc" placeholder="Ej.: Farmacia"></label><button class="go" id="okc">Agregar</button>`,d=>{const i=d.querySelector("#nc");i.focus();d.querySelector("#okc").onclick=async()=>{const n=i.value.trim();if(!n)return;d.remove();form.cat=n;if(!cats().some(c=>c[0]===n))await saveProf({cats:[...(P.cats||[]),n]});else render()}});
+  const sv=$("#save");if(sv)sv.onclick=async()=>{const today=todayISO(),city=cityOn(today);const cur=form.cur||curOfCity(city);const a=parseFloat(String(form.amt).replace(",","."))||0;if(!(a>0))return;
+    const pays=PAYS.filter(p=>!P.medios||P.medios.includes(p));
+    const g={ts:Date.now(),d:today,amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:form.cat||suggest(form.com),pay:form.pay||(pays.includes("Global66")?"Global66":pays[0]),com:form.com.trim(),city,ll:form.loc?form.ll:null,shared:form.shared};
+    sv.disabled=true;try{await addGasto(g);toast("✓ Guardado"+(navigator.onLine?"":" (se sincroniza con señal)"))}catch(e){toast("No se pudo guardar");sv.disabled=false;return}
+    form={...form,amt:"",com:"",cat:null,shared:false};render()};
+  const rt=$("#retiro");if(rt)rt.onclick=()=>sheet(`<span class="eb">Retiro en cajero</span><div class="k2"><label class="fld">Monto<input id="rm" inputmode="decimal"></label><label class="fld">Moneda<select id="rc"><option value="EUR">€</option><option value="GBP" ${curOfCity(cityOn(todayISO()))==="GBP"?"selected":""}>£</option></select></label></div><label class="fld">Desde<select id="rp">${PAYS.filter(p=>p!=="Efectivo").map(p=>`<option>${p}</option>`).join("")}</select></label><span class="sub">Suma al efectivo; no cuenta como gasto. Elegir siempre cobrar en la moneda local.</span><button class="go" id="rok">Registrar retiro</button>`,
+    d=>{d.querySelector("#rok").onclick=async()=>{const a=parseFloat(d.querySelector("#rm").value.replace(",","."))||0;if(!(a>0))return;const cur=d.querySelector("#rc").value;d.remove();
+      const g={ts:Date.now(),d:todayISO(),amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:"Retiro",pay:d.querySelector("#rp").value,com:"Retiro de efectivo",city:cityOn(todayISO()),ll:form.ll,retiro:true,shared:false};
+      await addGasto(g);toast("✓ Retiro registrado")}});
+  const mic=$("#mic");if(mic)mic.onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){toast("Usa el micrófono del teclado");$("#com").focus();return}
+    const r=new SR();r.lang="es-CL";r.interimResults=false;r.maxAlternatives=1;mic.classList.add("on");$("#micT").textContent="Escuchando…";
+    r.onresult=e=>{const t=e.results[0][0].transcript;const v=parseVoice(t);if(v.amount)form.amt=String(v.amount).replace(".",",");form.com=v.com||t;if(!form.cat)form.cat=null;form._sug=v.cat;if(v.cur)form.cur=v.cur;form.cat=v.cat;render();toast("«"+t+"»")};
+    r.onerror=()=>{toast("No te escuché: prueba otra vez");mic.classList.remove("on")};r.onend=()=>{mic.classList.remove("on");const m=$("#micT");if(m)m.textContent="Dictar el gasto"};r.start()};
+  // resumen y mapa
+  Q("[data-rv]",b=>b.onclick=()=>{rv=b.dataset.rv;render()});
+  Q("[data-mf]",b=>b.onclick=()=>{mapF=b.dataset.mf;render()});
+  // ajustes
+  const ss=$("#s-save");if(ss)ss.onclick=async()=>{const n=v=>parseFloat(String(v).replace(/\./g,"").replace(",","."))||0;const f=v=>parseFloat(String(v).replace(",","."))||0;
+    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),cashEUR:f($("#s-ce").value),cashGBP:f($("#s-cg").value),rateCLP:n($("#s-rc").value)||1100,rateGBP:f($("#s-rg").value)||1.17,
+      medios:[...document.querySelectorAll("[data-med]")].filter(x=>x.checked).map(x=>x.dataset.med)});toast("✓ Guardado")};
+  Q("[data-delcat]",b=>b.onclick=()=>saveProf({cats:(P.cats||[]).filter(c=>c!==b.dataset.delcat)}));
+  const out=$("#out");if(out)out.onclick=()=>window._au.U.signOut(window._au.auth)}
+// primera vez: ir a Ajustes si no hay presupuesto
+let first=true;const _r=render;
+boot().then(()=>{});
+setTimeout(()=>{if(first&&user&&!P.pres){tab="set";render()}first=false},1500);
+</script>
+</body>
+</html>

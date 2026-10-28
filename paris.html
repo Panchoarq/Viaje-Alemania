@@ -803,6 +803,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 #days > .day .blk-com,#days > .day .blk-tr{width:100%;align-self:stretch}
 .fsheet.fwrap{background:transparent;border:0;box-shadow:none;padding:26px 10px max(16px,env(safe-area-inset-bottom,0px))}.fsheet.fwrap .fx{z-index:2;top:30px;right:18px;background:var(--card)}.fsheet.fwrap .ficha{margin-top:6px}
 .ftbl{width:100%;border-collapse:collapse;font-size:14px}.ftbl td,.ftbl th{padding:5px 4px;border-bottom:1px dotted var(--line);vertical-align:top;text-align:left}.ftbl td.num,.ftbl .r{text-align:right;white-space:nowrap}.ficha .ftbl{table-layout:fixed}.ficha .ftbl td.num{width:34%;white-space:normal;font-size:13px}
+.gastosbtn{font:700 13px var(--f-mono,monospace);border:1.5px solid currentColor;border-radius:999px;padding:5px 12px;text-decoration:none;color:var(--stamp,#a8352b);white-space:nowrap}
 .daysel{font-size:12.5px;padding:2px 4px;max-width:100%}
 </style>
 </head>
@@ -1329,7 +1330,7 @@ function header(A){const W=ST.wiz,C=A.C;const nn=c=>c.k==="PA"?A.days.filter(d=>
   <h1>Viaje a ${uniq.join(" · ")}</h1>
   <div class="route" aria-label="Ruta">${C.map((c,i)=>`${i?'<span class="arrow">→</span>':""}<span class="stop" style="border-color:${c.c};color:${c.c}">${short(c.n)} ${c.e&&!c.nn?"· día":"×"+nn(c)}</span>`).join("")}</div>
   <div class="stylebar"><span class="eyebrow">Estilo</span><div class="seg" role="group">${[["retro","Retro"],["mod","Moderno"],["papel","Papel (prueba)"]].map(([k,t])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}">${t}</button>`).join("")}</div>
-   <span class="whoami">${esc(user.displayName||user.email)}${DEMO?"":` · <button type="button" class="lnkb" id="so">Salir</button>`} · <a href="/">Viajes</a></span></div></header>`}
+   <a class="gastosbtn" href="/gastos">💶 Mis gastos</a><span class="whoami">${esc(user.displayName||user.email)}${DEMO?"":` · <button type="button" class="lnkb" id="so">Salir</button>`} · <a href="/">Viajes</a></span></div></header>`}
 function summary(A){const S={meal:0,act:0,loc:0,hot:0,total:0};const LD=A.days.filter(d=>d.city==="LO"),FD=A.days.filter(d=>d.city!=="LO");FD.forEach(d=>{for(const k in S)S[k]+=d.cost[k]});
   const W=ST.wiz,n=FD.length,st=stays(),nh=st.filter(s=>hotList(s.k).some(h=>h.sel&&+h.price)).length;
   const ln=LD.length,LON=LD.reduce((t,d)=>t+d.cost.total,0),ld=ln?LON/ln:0,TOT=S.total+LON;
@@ -1641,7 +1642,10 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
    <ol class="brief">${d.pa.seq.map(a=>`<li><b>${hm(a.st)}</b> ${a.n}</li>`).join("")}</ol><a class="route" href="${routeUrl(d.pa)}" target="_blank" rel="noopener">🗺 Abrir en Google Maps</a></article></div>`}
 
 // ---------- render ----------
-function render(){if(!user)return;const A=buildAll();if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
+let _budLast="";
+function pushBudget(A){if(DEMO||!F||!ref||!A.days.length)return;const days=A.days.map(d=>({d:d.d,city:d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n),meal:+d.cost.meal.toFixed(2),act:+d.cost.act.toFixed(2),loc:+d.cost.loc.toFixed(2),hot:+d.cost.hot.toFixed(2)}));
+  const j=JSON.stringify(days);if(j===_budLast)return;_budLast=j;clearTimeout(pushBudget.t);pushBudget.t=setTimeout(()=>{F.setDoc(F.doc(ref,"meta","presupuesto"),{days,at:Date.now(),by:user.email}).catch(()=>{})},1500)}
+function render(){if(!user)return;const A=buildAll();pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+summary(A)+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}`;
