@@ -885,6 +885,27 @@ span.tc-d{cursor:default}
 .ms-x.sm{width:32px;height:32px}
 .tc-hint{font-size:13px;margin:12px 0 0}
 @media (max-width:600px){.calov{padding:0;align-items:stretch}.calsheet{border-radius:0;max-height:100dvh;width:100%;padding:14px 12px}.tc-months{grid-template-columns:1fr}.tc-pop{margin:14px -12px -14px;bottom:-14px}}
+.jcard{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;background:var(--card);border:1.5px solid var(--ink);border-left:6px solid #b0567a;border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:15px}
+.jcard.off{border-style:dashed}
+.jcard.open{display:block}
+.jcard .jtop{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}
+.jcard .bad{color:var(--bad)}
+.jdates{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end;margin:4px 0 10px;font-size:13px}
+.jdates label{display:flex;flex-direction:column;gap:2px;color:var(--muted)}
+.jdates input{font:15px var(--f-mono);padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
+.jcats{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 18px;margin-top:8px}
+.tag.jun,.jtag{background:#f3dfe8;color:#7d2f52;border-color:#d9a9be}
+.tag.nite{font-size:11px;padding:0 5px}
+.wxcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 12px;font-size:14px}
+.wxh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.wxrow{display:flex;gap:6px;overflow-x:auto;padding:6px 0 4px;scrollbar-width:thin}
+.wxd{flex:none;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:0;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:4px 6px;cursor:pointer;color:var(--ink);font:13px var(--f-mono)}
+.wxd .wi{font-size:22px;line-height:1.2}.wxd small{font-size:11px;color:var(--muted)}
+.wxd.wet{border-color:#24477a;background:color-mix(in srgb,#24477a 10%,var(--card))}
+.wxsug{margin:6px 0 0;padding-left:4px;list-style:none;display:flex;flex-direction:column;gap:6px}
+.wxsug .btn{margin-left:6px}
+.wxm{font:700 13px var(--f-mono);color:var(--card);opacity:.9;white-space:nowrap}
+.tc-c.jun::after{content:"👭";position:absolute;left:2px;bottom:0;font-size:10px}
 </style>
 </head>
 <body>
@@ -944,7 +965,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -957,7 +978,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1093,32 +1114,154 @@ function parisDays(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return[];const
   const escDays=new Set();ST.esc.forEach(e=>{let d=e.ini;const n=Math.max(0,nights(e.ini,e.fin));for(let i=0;i<=n;i++){if(!(n>0&&i===n))escDays.add(d);d=add(d,1)}});
   for(let d=W.eur_fecha;d<W.vue_fecha;d=add(d,1)){if(escDays.has(d))continue;out.push({d,first:d===W.eur_fecha,ret:ST.esc.some(e=>e.fin===d&&e.fin!==e.ini)})}
   return out}
-// Arma el programa: agrupa por zona, reparte zonas en los días (dejando días libres), ordena por cercanía desde la base
-function buildPA(){const days=parisDays();const base=baseLL();
-  const sel=PA.filter(paSel),pin=ST.paPin||{};const plan=days.map(x=>({...x,acts:[],cap:x.first||x.ret?3:5.5}));
-  const byDay=d=>plan.find(p=>p.d===d);
-  sel.filter(a=>pin[a.id]&&byDay(pin[a.id])).forEach(a=>byDay(pin[a.id]).acts.push(a));
-  const rest=sel.filter(a=>!(pin[a.id]&&byDay(pin[a.id])));
-  const zones={};rest.forEach(a=>(zones[a.z]=zones[a.z]||[]).push(a));
-  const zl=Object.values(zones).sort((x,y)=>y.reduce((t,a)=>t+(a.top?2:0)+a.h,0)-x.reduce((t,a)=>t+(a.top?2:0)+a.h,0));
+// ===== Londres: actividades (precios adulto 2026 en £ convertidos a € con 1 £ = 1,17 €; verificar antes de comprar) =====
+const GBP=1.17,G=v=>Math.round(v*GBP*10)/10;
+const LON=[
+ {id:"lo_bm",t:"mus",n:"British Museum",ll:[51.5194,-0.1270],h:2.5,p:0,in:1,close:17,lateo:{5:20.5},top:1,z:"Bloomsbury",s:"Dos millones de años de historia humana bajo el gran patio techado de Norman Foster.",v:"La piedra de Rosetta, las momias egipcias y los frisos del Partenón, gratis.",d:"Los viernes abre hasta las 20:30: ideal para ir después del atardecer con menos gente.",u:"https://www.britishmuseum.org/visit"},
+ {id:"lo_ng",t:"mus",n:"National Gallery",ll:[51.5089,-0.1283],h:2,p:0,in:1,close:18,lateo:{5:21},top:1,z:"Trafalgar",s:"Pintura europea del siglo XIII al XIX frente a Trafalgar Square.",v:"Los Girasoles de Van Gogh, Turner, Velázquez y Leonardo, gratis.",d:"Viernes hasta las 21:00. Combina con la National Portrait Gallery, al lado.",u:"https://www.nationalgallery.org.uk/visiting"},
+ {id:"lo_npg",t:"mus",n:"National Portrait Gallery",ll:[51.5094,-0.1281],h:1.25,p:0,in:1,close:18,z:"Trafalgar",s:"Retratos de los británicos famosos: de Shakespeare a los Beatles.",v:"Recorrer la historia del país en caras; renovada en 2023.",d:"Está pegada a la National Gallery: se hacen el mismo día.",u:"https://www.npg.org.uk/visit"},
+ {id:"lo_va",t:"mus",n:"Victoria and Albert Museum (V&A)",ll:[51.4966,-0.1722],h:2.5,p:0,in:1,close:17.75,lateo:{5:22},top:1,z:"South Kensington",s:"El gran museo de diseño, moda y artes decorativas.",v:"Salas de moda, joyas y el patio con café histórico, gratis.",d:"Viernes hasta las 22:00. Al lado del Natural History y del Science Museum.",u:"https://www.vam.ac.uk/info/opening-hours"},
+ {id:"lo_nhm",t:"mus",n:"Natural History Museum",ll:[51.4967,-0.1764],h:2.5,p:0,in:1,close:17.83,top:1,z:"South Kensington",s:"Dinosaurios y la ballena azul en un edificio que parece catedral.",v:"El hall Hintze con la ballena «Hope» y la galería de dinosaurios, gratis.",d:"Llegar a la apertura (10:00): se forman filas en vacaciones.",u:"https://www.nhm.ac.uk/visit.html"},
+ {id:"lo_sci",t:"mus",n:"Science Museum",ll:[51.4978,-0.1745],h:2,p:0,in:1,close:18,z:"South Kensington",s:"Ciencia y tecnología: del Apolo 10 a la máquina de vapor.",v:"Interactivo y gratis; buena opción en día de lluvia.",d:"Algunas salas (Wonderlab) se pagan aparte.",u:"https://www.sciencemuseum.org.uk/visit-us"},
+ {id:"lo_tm",t:"mus",n:"Tate Modern",ll:[51.5076,-0.0994],h:2,p:0,in:1,close:18,lateo:{5:22,6:22},top:1,z:"Bankside",s:"Arte moderno en una antigua central eléctrica junto al Támesis.",v:"Picasso, Rothko y la sala de turbinas; mirador gratis en el piso 10.",d:"Viernes y sábado hasta las 22:00: vista nocturna del Támesis y St Paul's.",u:"https://www.tate.org.uk/visit/tate-modern"},
+ {id:"lo_wal",t:"mus",n:"Wallace Collection",ll:[51.5175,-0.1528],h:1.25,p:0,in:1,close:17,z:"Marylebone",s:"Mansión con pintura, armaduras y muebles franceses del siglo XVIII.",v:"«El columpio» de Fragonard y un patio techado precioso, gratis y tranquilo.",d:"Cerca de Oxford Street: combina con las luces de Navidad.",u:"https://www.wallacecollection.org/visit/"},
+ {id:"lo_tower",t:"mon",n:"Torre de Londres y Joyas de la Corona",ll:[51.5081,-0.0759],h:3,p:G(37),in:0,close:17.5,top:1,z:"Tower",s:"Fortaleza de 950 años: prisión, palacio y caja fuerte de la Corona.",v:"Las Joyas de la Corona y el tour de los Beefeaters (incluido).",d:"Entrar a la apertura e ir primero a las Joyas. Dom y lun abre a las 10:00.",u:"https://www.hrp.org.uk/tower-of-london/"},
+ {id:"lo_tb",t:"mon",n:"Tower Bridge (exhibición y piso de vidrio)",ll:[51.5055,-0.0754],h:1,p:G(14),in:1,close:17.5,z:"Tower",s:"Pasarelas altas del puente más famoso, con piso de vidrio.",v:"Mirar el Támesis bajo los pies y la sala de máquinas victoriana.",d:"Precio aproximado. Al lado de la Torre de Londres.",u:"https://www.towerbridge.org.uk/"},
+ {id:"lo_wa",t:"igl",n:"Abadía de Westminster",ll:[51.4993,-0.1273],h:1.5,p:G(32),in:1,close:15.5,cl:[0],top:1,z:"Westminster",s:"Donde se coronan los reyes desde 1066.",v:"Tumbas de Isabel I, Newton y Darwin; la capilla de Enrique VII.",d:"Domingo solo misas. Última entrada temprano (15:30): ir en la mañana.",u:"https://www.westminster-abbey.org/visit-us/prices-and-entry-times"},
+ {id:"lo_spc",t:"igl",n:"Catedral de San Pablo",ll:[51.5138,-0.0984],h:1.5,p:G(27),in:1,close:16.5,cl:[0],top:1,z:"City",s:"La cúpula de Christopher Wren, símbolo de Londres.",v:"Subir a la Galería de los Susurros y a la cúpula (vista de la City).",d:"Domingo solo misas. Cruza el Millennium Bridge a la Tate Modern.",u:"https://www.stpauls.co.uk/visit-us"},
+ {id:"lo_cwr",t:"mus",n:"Churchill War Rooms",ll:[51.5021,-0.1291],h:1.5,p:G(34),in:1,close:18,z:"Westminster",s:"El búnker subterráneo desde donde Churchill dirigió la guerra.",v:"Las salas quedaron tal cual en 1945, con mapas y teléfonos.",d:"Reservar hora en línea: se llena.",u:"https://www.iwm.org.uk/visits/churchill-war-rooms"},
+ {id:"lo_eye",t:"ent",n:"London Eye",ll:[51.5033,-0.1196],h:1,p:G(33),in:0,close:18,z:"South Bank",s:"La noria de 135 m frente al Parlamento.",v:"Vista de 40 km en un día claro; al atardecer, el Parlamento iluminado.",d:"Precio aproximado; en línea es más barato. Mejor día despejado.",u:"https://www.londoneye.com/tickets-and-prices/"},
+ {id:"lo_shard",t:"mon",n:"The View from The Shard",ll:[51.5045,-0.0865],h:1,p:G(32),in:1,close:22,eveok:1,cl:[1,2],z:"Bankside",s:"El mirador más alto de Londres (piso 72).",v:"De noche se ve toda la ciudad encendida.",d:"Abre hasta tarde: ideal después del atardecer. Suele cerrar lunes y martes; revisar el día.",u:"https://www.theviewfromtheshard.com/"},
+ {id:"lo_sky",t:"mon",n:"Sky Garden",ll:[51.5113,-0.0835],h:1,p:0,in:1,close:18,z:"City",s:"Jardín interior en el piso 35 del «Walkie-Talkie».",v:"Mirador gratis con terraza sobre el Támesis.",d:"Gratis pero hay que reservar en línea con anticipación.",u:"https://skygarden.london/"},
+ {id:"lo_guard",t:"pas",n:"Buckingham y cambio de guardia",ll:[51.5014,-0.1419],h:1.25,p:0,in:0,at:10.75,cl:[2,4,6],top:1,z:"Westminster",s:"La ceremonia con la banda frente al palacio.",v:"Los guardias de gorro de piel y la música en vivo, gratis.",d:"En invierno: lun, mié, vie y dom a las 11:00. Llegar 10:30 y confirmar en el calendario oficial.",u:"https://www.householddivision.org.uk/changing-the-guard-calendar"},
+ {id:"lo_wm",t:"pas",n:"Westminster, Big Ben y el Parlamento",ll:[51.5007,-0.1246],h:1,p:0,in:0,top:1,z:"Westminster",s:"Paseo por la postal clásica de Londres.",v:"El Big Ben recién restaurado y el puente de Westminster.",d:"Combina con la Abadía y St James's Park.",u:"https://www.parliament.uk/visiting/"},
+ {id:"lo_sjp",t:"pas",n:"St James's Park",ll:[51.5025,-0.1348],h:0.75,p:0,in:0,z:"Westminster",s:"Parque real entre Buckingham y Westminster.",v:"Los pelícanos y la vista del palacio desde el puente.",d:"Camino natural entre el cambio de guardia y Westminster.",u:"https://www.royalparks.org.uk/visit/parks/st-jamess-park"},
+ {id:"lo_hyde",t:"pas",n:"Hyde Park y Kensington Gardens",ll:[51.5073,-0.1657],h:1.5,p:0,in:0,z:"Hyde Park",s:"El gran parque de Londres, con el lago Serpentine.",v:"Paseo largo entre árboles; el memorial de Diana y la estatua de Peter Pan.",d:"Combina con Kensington Palace o el V&A.",u:"https://www.royalparks.org.uk/visit/parks/hyde-park"},
+ {id:"lo_kp",t:"mon",n:"Kensington Palace",ll:[51.5058,-0.1877],h:1.5,p:G(26),in:1,close:16,z:"Hyde Park",s:"Casa de la reina Victoria y de Diana.",v:"Los salones del rey y la historia de Victoria niña.",d:"Precio aproximado. En invierno abre menos días: revisar antes.",u:"https://www.hrp.org.uk/kensington-palace/"},
+ {id:"lo_cg",t:"pas",n:"Covent Garden",ll:[51.5117,-0.1240],h:1.25,p:0,in:0,eveok:1,z:"Covent Garden",s:"Mercado techado, artistas callejeros y tiendas.",v:"En noviembre: árbol gigante y decoración navideña.",d:"Bonito de noche. A 5 min de la National Gallery.",u:"https://www.coventgarden.london/"},
+ {id:"lo_lights",t:"pas",n:"Luces de Navidad: Regent St, Oxford St y Carnaby",ll:[51.5115,-0.1390],h:1.25,p:0,in:0,eve:1,top:1,z:"Soho",s:"Las calles comerciales iluminadas para Navidad.",v:"Los ángeles de Regent Street y Carnaby decorado.",d:"Ir después de las 17:00, ya oscuro. Encendido a inicios de noviembre.",u:"https://www.visitlondon.com/things-to-do/whats-on/christmas/christmas-lights"},
+ {id:"lo_bor",t:"pas",n:"Borough Market",ll:[51.5055,-0.0910],h:1,p:0,in:0,cl:[1],z:"Bankside",s:"El mercado de comida más famoso de Londres.",v:"Probar de todo: quesos, pasteles, comida callejera.",d:"Mejor a mediodía para almorzar ahí. Lunes con pocos puestos.",u:"https://boroughmarket.org.uk/"},
+ {id:"lo_cam",t:"pas",n:"Camden Market y Regent's Canal",ll:[51.5413,-0.1463],h:1.5,p:0,in:0,z:"Camden",s:"Mercados alternativos junto al canal.",v:"Comida del mundo, tiendas vintage y las esclusas del canal.",d:"Combina con Primrose Hill (vista).",u:"https://www.camdenmarket.com/"},
+ {id:"lo_prim",t:"pas",n:"Primrose Hill y Regent's Park",ll:[51.5395,-0.1608],h:1.25,p:0,in:0,z:"Camden",s:"Colina con vista panorámica gratis de la ciudad.",v:"El skyline de Londres desde el pasto.",d:"Mejor con día despejado.",u:"https://www.royalparks.org.uk/visit/parks/primrose-hill"},
+ {id:"lo_nh",t:"pas",n:"Notting Hill y Portobello Road",ll:[51.5154,-0.2050],h:1.5,p:0,in:0,z:"Notting Hill",s:"Casas de colores y el mercado de antigüedades.",v:"El sábado el mercado está completo.",d:"Ideal sábado en la mañana.",u:"https://www.portobelloroad.co.uk/"},
+ {id:"lo_shore",t:"pas",n:"Shoreditch y Brick Lane",ll:[51.5218,-0.0718],h:1.5,p:0,in:0,z:"Shoreditch",s:"Arte callejero, mercados y comida india.",v:"Murales, tiendas vintage y los bagels de Brick Lane.",d:"Domingo hay más mercados abiertos.",u:"https://www.visitlondon.com/things-to-do/place/373946-brick-lane"},
+ {id:"lo_lead",t:"pas",n:"Leadenhall Market y la City",ll:[51.5128,-0.0835],h:0.5,p:0,in:0,cl:[0,6],z:"City",s:"Mercado victoriano techado entre rascacielos.",v:"Escenario del Callejón Diagon en Harry Potter.",d:"Fin de semana está cerrado y vacío. Al lado del Sky Garden.",u:"https://www.leadenhallmarket.co.uk/"},
+ {id:"lo_kx",t:"pas",n:"King's Cross: andén 9¾ y Coal Drops Yard",ll:[51.5320,-0.1240],h:0.75,p:0,in:0,z:"King's Cross",s:"La foto en el andén de Harry Potter y el barrio renovado.",v:"Tienda de Harry Potter y patios de Coal Drops Yard.",d:"Al lado de St Pancras, donde sale el Eurostar.",u:"https://www.kingscross.co.uk/"},
+ {id:"lo_sb",t:"pas",n:"South Bank (paseo junto al Támesis)",ll:[51.5065,-0.1160],h:1,p:0,in:0,eveok:1,z:"South Bank",s:"Paseo peatonal del London Eye a la Tate Modern.",v:"Mercado de invierno, librería bajo el puente y vista del Parlamento.",d:"Bonito al atardecer.",u:"https://www.southbankcentre.co.uk/"},
+ {id:"lo_gr",t:"mon",n:"Greenwich: Observatorio Real y meridiano",ll:[51.4769,-0.0005],h:3,p:G(24),in:0,close:17,z:"Greenwich",s:"Pararse en el meridiano 0 y ver Londres desde el parque.",v:"El meridiano, el Cutty Sark y el Museo Marítimo (gratis).",d:"Ir en barco por el Támesis o en DLR. Medio día.",u:"https://www.rmg.co.uk/royal-observatory"},
+ {id:"lo_kew",t:"pas",n:"Kew Gardens",ll:[51.4787,-0.2956],h:3,p:G(22),in:0,close:16,z:"Kew",s:"Jardín botánico con invernaderos victorianos.",v:"La Palm House y el Temperate House (techados).",d:"Precio aproximado de invierno. Mejor día seco.",u:"https://www.kew.org/kew-gardens/visit-kew-gardens"},
+ {id:"lo_hp",t:"ent",n:"Warner Bros Studio Tour: Harry Potter",ll:[51.6904,-0.4180],h:5,p:G(56+14),in:1,close:22,top:1,z:"Watford",s:"Los sets, vestuario y utilería reales de las películas.",v:"El Gran Comedor, el Callejón Diagon y Hogwarts a escala.",d:"Incluye tren Euston–Watford (~£14) + bus gratis. Entradas solo en línea; se agotan 1–2 meses antes.",u:"https://www.wbstudiotour.co.uk/"},
+ {id:"lo_ww",t:"ent",n:"Hyde Park Winter Wonderland",ll:[51.5070,-0.1560],h:2,p:0,in:0,eve:1,from:"2026-11-19",z:"Hyde Park",s:"Feria navideña con mercado, pista de hielo y juegos.",v:"Ambiente de Navidad de noche; los juegos se pagan aparte.",d:"Abre el 19 de noviembre de 2026. Reservar entrada gratis por horario.",u:"https://hydeparkwinterwonderland.com/"},
+ {id:"lo_we",t:"ent",n:"Musical en el West End",ll:[51.5115,-0.1300],h:2.75,p:G(45),in:1,eve:1,z:"Soho",s:"Una función de teatro musical en Londres.",v:"Les Misérables, El Rey León, Wicked o Hamilton.",d:"Precio aproximado de entradas económicas; comprar en el sitio oficial de cada teatro.",u:"https://officiallondontheatre.com/"}
+];
+
+// Arma el programa: agrupa por zona, reparte zonas en los días (dejando días libres), ordena por cercanía desde la base.
+// Ventana «juntas»: las actividades marcadas como juntas se reparten solo en esos días (ritmo intenso).
+function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
+  const plan=days.map(x=>({...x,acts:[],ev:[],cap:x.first||x.ret?3:(x.jun?7:5.5),base}));
+  const byDay=d=>plan.find(p=>p.d===d),dow=p=>D(p.d).getDay();
+  const okDay=(p,a)=>!(a.cl&&a.cl.includes(dow(p)))&&!(a.from&&p.d<a.from)&&!(a.to&&p.d>a.to);
   const load=p=>p.acts.reduce((t,a)=>t+a.h+0.3,0);
-  const okDay=(p,a)=>!(a.cl&&a.cl.includes(D(p.d).getDay()));
-  // ritmo: usar un día de cada 2 (o todos si "intenso")
-  const step=ST.ritmo==="intenso"?1:2;let ix=plan.findIndex(p=>!p.first)+1;if(ix<1)ix=0;
-  zl.forEach(z=>{let left=[...z];while(left.length){let tries=0,p=null;
-      while(tries<plan.length){const c=plan[(ix+tries*1)%Math.max(1,plan.length)];if(c&&load(c)+left[0].h<=c.cap&&!c.acts.length&&okDay(c,left[0])){p=c;break}tries++}
-      if(!p)p=plan.filter(c=>load(c)+left[0].h<=c.cap&&okDay(c,left[0])).sort((a,b)=>load(a)-load(b))[0];
-      if(!p)break;while(left.length&&load(p)+left[0].h+0.3<=p.cap+0.01&&okDay(p,left[0]))p.acts.push(left.shift());
-      ix=(plan.indexOf(p)+step)%Math.max(1,plan.length)}});
-  plan.forEach(p=>{let pos=base,t=p.first||p.ret?14.5:9.5,rest=p.acts.filter(a=>!a.eve),seq=[];const eves=p.acts.filter(a=>a.eve);
-    // abiertos: los que cierran antes van primero
+  const lateOn=(a,p)=>a.lateo&&a.lateo[dow(p)]!=null;
+  sel.filter(a=>pin[a.id]&&byDay(pin[a.id])).forEach(a=>{const p=byDay(pin[a.id]);(a.eve||(lateOn(a,p)&&!p.ev.length)?p.ev:p.acts).push(a)});
+  const placed=new Set(plan.flatMap(p=>[...p.acts,...p.ev]));
+  const dist=(acts,P,step)=>{if(!P.length)return;
+    acts.filter(a=>!placed.has(a)&&a.eve).forEach(a=>{const p=P.filter(p=>okDay(p,a)).sort((x,y)=>x.ev.length-y.ev.length||(x.first?1:0)-(y.first?1:0))[0];if(p){p.ev.push(a);placed.add(a)}});
+    acts.filter(a=>!placed.has(a)&&a.lateo).forEach(a=>{const p=P.find(p=>lateOn(a,p)&&!p.ev.length&&okDay(p,a));if(p){p.ev.push(a);placed.add(a)}});
+    acts.filter(a=>!placed.has(a)&&a.eveok).forEach(a=>{const p=P.filter(p=>!p.ev.length&&okDay(p,a)&&!p.first)[0];if(p){p.ev.push(a);placed.add(a)}});
+    const rest=acts.filter(a=>!placed.has(a));
+    const zones={};rest.forEach(a=>(zones[a.z]=zones[a.z]||[]).push(a));
+    const zl=Object.values(zones).sort((x,y)=>y.reduce((t,a)=>t+(a.top?2:0)+a.h,0)-x.reduce((t,a)=>t+(a.top?2:0)+a.h,0));
+    let ix=P.findIndex(p=>!p.first)+1;if(ix<1)ix=0;
+    zl.forEach(z=>{let left=[...z];while(left.length){let tries=0,p=null;
+        while(tries<P.length){const c=P[(ix+tries)%P.length];if(c&&load(c)+left[0].h<=c.cap&&!c.acts.length&&okDay(c,left[0])){p=c;break}tries++}
+        if(!p)p=P.filter(c=>load(c)+left[0].h<=c.cap&&okDay(c,left[0])).sort((a,b)=>load(a)-load(b))[0];
+        if(!p){left.shift();continue}
+        {const a=left.shift();p.acts.push(a);placed.add(a)}while(left.length&&load(p)+left[0].h+0.3<=p.cap+0.01&&okDay(p,left[0])){const a=left.shift();p.acts.push(a);placed.add(a)}
+        ix=(P.indexOf(p)+step)%P.length}})};
+  const step=ST.ritmo==="intenso"?1:2;
+  const J=opt.jun?plan.filter(p=>p.jun):[];
+  if(J.length){const jun=ST.paJun||{};
+    dist(sel.filter(a=>jun[a.id]),J,1);
+    const out=plan.filter(p=>!p.jun);dist(sel.filter(a=>!jun[a.id]),out.length?out:plan,step)}
+  else dist(sel,plan,step);
+  dist(sel.filter(a=>!(J.length&&(ST.paJun||{})[a.id])),plan,step);// lo que no cupo: cualquier día con espacio
+  plan.forEach(p=>{let pos=base,t=p.first||p.ret?14.5:9.5,rest=p.acts.slice(),seq=[];
     const ord=(ST.paOrd||{})[p.d];p.man=!!(ord&&ord.length);const oi=a=>{const i=ord?ord.indexOf(a.id):-1;return i<0?99:i};
-    while(rest.length){if(p.man)rest.sort((a,b)=>oi(a)-oi(b));else rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});const a=rest.shift();t+=mv(pos,a.ll);
+    while(rest.length){const fx=!p.man&&rest.find(a=>a.at);
+      if(fx)rest.splice(rest.indexOf(fx),1),rest.unshift(fx);
+      else if(p.man)rest.sort((a,b)=>oi(a)-oi(b));else rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});
+      const a=rest.shift();t+=mv(pos,a.ll);if(a.at&&t<a.at)t=a.at;
       if(t>=12.5&&t<13.75&&!seq.lunch){seq.lunch=t;t+=1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;pos=a.ll}
-    eves.forEach(a=>{t=Math.max(t+mv(pos,a.ll),18);seq.push({...a,st:t,late:false,closed:false});t+=a.h;pos=a.ll});
-    p.seq=seq;p.end=t});
+    p.ev.forEach(a=>{const lo=a.lateo&&a.lateo[D(p.d).getDay()];t=Math.max(t+mv(pos,a.ll),a.eve?18:17.25);seq.push({...a,st:t,night:1,late:lo!=null?t+a.h>lo+0.01:false,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;pos=a.ll});
+    p.acts=p.acts.concat(p.ev);p.seq=seq;p.end=t});
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
-function routeUrl(p){const base=baseLL();const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
+function junOn(){const j=ST.jun;return !!(j&&j.ini&&j.fin&&j.use!==false)}
+function buildPA(){const j=ST.jun||{};const days=parisDays().map(x=>({...x,jun:junOn()&&x.d>=j.ini&&x.d<=j.fin}));
+  return schedule(days,PA.filter(paSel),baseLL(),{jun:true})}
+const loSel=a=>!!(ST.paSel&&ST.paSel[a.id]);
+function lonDays(){const W=ST.wiz;if(!W.ida_llega||!W.eur_fecha||W.ida_llega>=W.eur_fecha)return[];const out=[];for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))out.push({d,first:d===W.ida_llega});return out}
+function lonBase(){const W=ST.wiz||{};if(ST.lonLL&&W.lon_dir&&ST.lonLLq===W.lon_dir)return ST.lonLL;return LONDON}
+function buildLO(){return schedule(lonDays(),LON.filter(loSel),lonBase(),{})}
+const actById=id=>PA.find(a=>a.id===id)||LON.find(a=>a.id===id);
+const isLO=id=>String(id).startsWith("lo_");
+const selOf=a=>a?(isLO(a.id)?loSel(a):paSel(a)):false;
+
+// ===== Modo juntas =====
+function junDays(){const j=ST.jun||{};return junOn()?parisDays().filter(x=>x.d>=j.ini&&x.d<=j.fin):[]}
+const isJunDay=d=>{const j=ST.jun||{};return junOn()&&d>=j.ini&&d<=j.fin};
+function jCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const j=ST.jun||{};
+  if(!j.ini)return `<div class="jcard off"><span>👭 <b>Modo juntas</b> · elijan lo que quieren ver mientras están las dos en París; se reparte solo en esos días (ritmo intenso). El resto de París queda para después.</span><button type="button" class="btn sm" data-jstart>Configurar días juntas</button></div>`;
+  const JD=junDays(),jun=ST.paJun||{};const JL=PA.filter(a=>jun[a.id]&&paSel(a));
+  const need=JL.reduce((t,a)=>t+a.h+0.3,0),avail=JD.reduce((t,x)=>t+(x.first||x.ret?3:7),0);
+  const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>jun[a.id]).length;
+  const head=`<span>👭 <b>Días juntas:</b> ${pretty(j.ini)} → ${pretty(j.fin)} · ${JD.length} días · <b>${JL.length}</b> actividad${JL.length===1?"":"es"} · ${need.toFixed(1)} / ${avail.toFixed(1)} h${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
+  if(!j.mode)return `<div class="jcard">${head}<span class="jact"><button type="button" class="btn sm" data-jmode>✏️ Organizar días juntas</button></span></div>`;
+  const last=parisDays().slice(-1)[0];
+  return `<div class="jcard open"><div class="jtop">${head}<button type="button" class="btn sm" data-jdone>✓ Listo · volver al programa</button></div>
+   <p class="muted" style="margin:6px 0 8px;font-size:14px">Marquen lo que quieren hacer <b>juntas</b>: se reparte solo entre estos días, agrupado por barrio y con ritmo intenso. Después pueden mover, agregar o quitar como siempre.</p>
+   <div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
+   <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${need>avail?"--bad":"--ok"})"></span></div>
+   <div class="jcats">${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=PA.filter(a=>typOf(a)===k);if(!L.length)return"";const n=L.filter(a=>jun[a.id]&&paSel(a)).length;
+     return `<details class="pool" data-k="jun-${k}" ${n?"open":""}><summary>${t} <span class="poolcnt">(${n?n+" de ":""}${L.length})</span></summary>${L.map(a=>{const on=!!(jun[a.id]&&paSel(a)),dd=ACTDAY[a.id];return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-jsel="${a.id}" ${on?"checked":""}><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?" 🏛":""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${!on&&paSel(a)?" · ya está en el programa (fuera de los días juntas)":""}</small></span></label>${on?`<small class="pdst${dd?"":" bad"}">${dd?`👭 ${pretty(dd)}`:"⚠ No cabe en los días juntas"}</small>`:""}</div>`}).join("")}</details>`}).join("")}</div></div>`}
+function bindJun(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);const W=ST.wiz;
+  Q("[data-jstart]",b=>b.onclick=()=>{const pd=parisDays();const fin=pd[Math.min(pd.length-1,8)];ST.jun={ini:W.eur_fecha,fin:fin?fin.d:W.eur_fecha,mode:true};save();render()});
+  Q("[data-jmode]",b=>b.onclick=()=>{ST.jun.mode=true;save();render()});
+  Q("[data-jdone]",b=>b.onclick=()=>{ST.jun.mode=false;save();render();const n=PA.filter(a=>(ST.paJun||{})[a.id]&&paSel(a)).length;toast(`👭 ${n} actividad${n===1?"":"es"} repartidas en los días juntas`);const t=document.getElementById("daytabs");if(t)t.scrollIntoView({behavior:"smooth"})});
+  Q("[data-jclear]",b=>b.onclick=()=>{if(!b.dataset.sure){b.dataset.sure=1;b.textContent="¿Seguro? Toca otra vez para quitarlo";return}ST.jun={};ST.paJun={};save();render()});
+  Q("[data-jini],[data-jfin]",x=>x.onchange=()=>{if(!x.value)return;ST.jun[x.matches("[data-jini]")?"ini":"fin"]=x.value;if(ST.jun.fin<ST.jun.ini)ST.jun.fin=ST.jun.ini;save();render()});
+  Q("[data-jsel]",x=>x.onchange=()=>{const id=x.dataset.jsel;ST.paSel=ST.paSel||{};ST.paJun=ST.paJun||{};ST.paSel[id]=x.checked;if(x.checked)ST.paJun[id]=true;else delete ST.paJun[id];if(ST.paPin)delete ST.paPin[id];save();render();toast(x.checked?(ACTDAY[id]?`👭 <b>${esc(actById(id).n)}</b> → ${pretty(ACTDAY[id])}`:`⚠ <b>${esc(actById(id).n)}</b> no cabe en los días juntas`):`✕ ${esc(actById(id).n)} quitada`)});
+  Q("[data-loauto]",b=>b.onclick=()=>{const ld=new Set(lonDays().map(x=>x.d));LON.forEach(a=>{if(ST.paPin)delete ST.paPin[a.id]});if(ST.paOrd)Object.keys(ST.paOrd).forEach(k=>{if(ld.has(k))delete ST.paOrd[k]});save();render();toast("⚡ Londres ordenado: por barrio desde el alojamiento, museos con horario nocturno después del atardecer")});
+  Q("[data-wxswap]",b=>b.onclick=()=>{const [a,da,c,dc]=b.dataset.wxswap.split("|");ST.paPin=ST.paPin||{};ST.paPin[a]=da;if(c)ST.paPin[c]=dc;save();render();toast("☂ Cambio aplicado")})}
+// ===== Londres: lista para agregar =====
+function loPool(A){const lr=A.RL||{unpl:[]};const n=LON.filter(loSel).length;
+  return `<span class="eyebrow" style="margin-top:6px">Actividades en Londres · ${n} elegida${n===1?"":"s"}</span>
+   ${n?`<button type="button" class="btn sm" data-loauto title="Quita días fijados y orden manual en Londres">⚡ Ordenar Londres automáticamente</button><small class="muted" style="font-size:12.5px">Agrupa por barrio desde el alojamiento; museos que abren de noche (vie/sáb) quedan después del atardecer.</small>`:`<small class="muted" style="font-size:13px">Marquen lo que quieren ver: se reparte solo por barrios.</small>`}
+   ${lr.unpl.length?`<span class="status bad">No caben ${lr.unpl.length}: ${lr.unpl.map(a=>a.n).join(", ")}</span>`:""}
+   ${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=LON.filter(a=>typOf(a)===k);if(!L.length)return"";const ns=L.filter(loSel).length;
+     return `<details class="pool" data-k="lo-${k}"><summary>${t} <span class="poolcnt">(${ns?ns+" de ":""}${L.length})</span></summary>${L.map(a=>{const on=loSel(a),dd=ACTDAY[a.id],pin=(ST.paPin||{})[a.id];return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-pasel="${a.id}" ${on?"checked":""}><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?" 🏛":""}${a.lateo?' <span class="tag nite">🌙 abre de noche</span>':""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"} · <a href="${a.u}" target="_blank" rel="noopener">sitio</a></small></span></label>${daySelPA(a.id,"poolday")}${on?`<small class="pdst${dd?"":" bad"}">${dd?`✔ ${pretty(dd)} · ${pin?"día fijado":"día automático"} · <a href="#" data-goday="${dd}">ver el día →</a>`:"⚠ No cabe: elige otro día"}</small>`:""}</div>`}).join("")}</details>`}).join("")}`}
+// ===== Pronóstico del tiempo (Open-Meteo) =====
+let WX={};
+const WXI=c=>c===0?"☀️":c<=2?"🌤":c===3?"☁️":c<=48?"🌫":c<=57?"🌦":c<=67?"🌧":c<=77?"🌨":c<=82?"🌧":"⛈";
+function wxLoad(k){if(WX[k])return;WX[k]={loading:1};const ll=k==="LO"?LONDON:PARIS;
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ll[0]}&longitude=${ll[1]}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=16`).then(r=>r.json()).then(j=>{const o={};(j.daily.time||[]).forEach((t,i)=>o[t]={c:j.daily.weather_code[i],mx:j.daily.temperature_2m_max[i],mn:j.daily.temperature_2m_min[i],pp:j.daily.precipitation_probability_max[i],mm:j.daily.precipitation_sum[i]});WX[k]={d:o,at:Date.now()};if(tab==="prog")render()}).catch(()=>{WX[k]={err:1}})}
+const wxOf=(k,d)=>WX[k]&&WX[k].d&&WX[k].d[d];
+const rainy=w=>w&&(w.pp>=60||w.mm>=4),dry=w=>w&&w.pp<40&&w.mm<1.5;
+function wxMini(k,d){const w=wxOf(k,d);return w?`<span class="wxm" title="Pronóstico: ${Math.round(w.mn)}–${Math.round(w.mx)} °C · lluvia ${w.pp}%">${WXI(w.c)} ${Math.round(w.mx)}°</span>`:""}
+function wxCard(A,k){const ds=A.days.filter(d=>d.city===k&&d.kind!=="final");if(!ds.length)return"";const today=iso(new Date()),lim=add(today,15);
+  if(ds[0].d>lim)return `<div class="wxcard muted">🌦 El pronóstico del tiempo de ${k==="LO"?"Londres":"París"} aparece aquí desde el ${pretty(add(ds[0].d,-15))} (16 días antes), con sugerencias si llueve.</div>`;
+  if(ds[ds.length-1].d<today)return"";wxLoad(k);if(!WX[k]||WX[k].loading)return `<div class="wxcard muted">🌦 Cargando pronóstico…</div>`;if(WX[k].err)return `<div class="wxcard muted">🌦 No se pudo cargar el pronóstico.</div>`;
+  const vis=ds.filter(d=>wxOf(k,d.d));if(!vis.length)return"";
+  const sug=[];vis.forEach(d=>{const w=wxOf(k,d.d);if(!rainy(w)||!d.pa)return;d.pa.seq.filter(a=>!a.in&&!a.night&&!a.at).forEach(a=>{if(sug.length>=3)return;
+      const alt=vis.filter(e=>e!==d&&e.pa&&dry(wxOf(k,e.d))&&e.kind!=="first");let best=null;alt.forEach(e=>e.pa.seq.filter(b=>b.in&&!b.night&&!b.at&&!(b.cl&&b.cl.includes(D(d.d).getDay()))).forEach(b=>{if(!best||Math.abs(b.h-a.h)<Math.abs(best.b.h-a.h))best={e,b}}));
+      if(best)sug.push(`<li>☂ <b>${pretty(d.d)}</b> (lluvia ${wxOf(k,d.d).pp}%): cambiar <b>${esc(a.n)}</b> por <b>${esc(best.b.n)}</b> (🏛 techado), que pasa al ${pretty(best.e.d)} con ${WXI(wxOf(k,best.e.d).c)}. <button type="button" class="btn sm" data-wxswap="${a.id}|${best.e.d}|${best.b.id}|${d.d}">Aplicar cambio</button></li>`);
+      else{const dd=dry(wxOf(k,d.d));const e=alt.find(e=>!(a.cl&&a.cl.includes(D(e.d).getDay())));if(e)sug.push(`<li>☂ <b>${pretty(d.d)}</b> (lluvia ${wxOf(k,d.d).pp}%): mover <b>${esc(a.n)}</b> (al aire libre) al ${pretty(e.d)}. <button type="button" class="btn sm" data-wxswap="${a.id}|${e.d}||">Mover</button></li>`)}})});
+  return `<div class="wxcard"><div class="wxh"><span class="eyebrow">Pronóstico · ${k==="LO"?"Londres":"París"}</span><small class="muted">Open-Meteo · se actualiza al abrir</small></div>
+   <div class="wxrow">${vis.map(d=>{const w=wxOf(k,d.d);return `<button type="button" class="wxd${rainy(w)?" wet":""}" data-calgo="${d.id}" title="${pretty(d.d)}: ${Math.round(w.mn)}–${Math.round(w.mx)} °C, lluvia ${w.pp}% (${w.mm} mm)"><small>${pretty(d.d).replace(/ [a-zé]+$/,"")}</small><span class="wi">${WXI(w.c)}</span><b>${Math.round(w.mx)}°</b><small>${Math.round(w.mn)}° · ${w.pp}%</small></button>`}).join("")}</div>
+   ${sug.length?`<ul class="wxsug">${sug.join("")}</ul>`:`<small class="muted">${vis.some(d=>rainy(wxOf(k,d.d)))?"Días con lluvia: el programa de esos días ya es techado o está libre.":"Sin lluvia importante en el pronóstico."}</small>`}</div>`}
+async function geoLon(){const q=(ST.wiz||{}).lon_dir;if(!q)return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/london|londres/i.test(q)?"":", London")));const j=await r.json();if(j[0]){ST.lonLL=[+j[0].lat,+j[0].lon];ST.lonLLq=q;save();render()}}catch(e){}}
+
+function routeUrl(p){const base=p.base||baseLL();const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
   return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
 function sunOf(date,ll){const y=date.getFullYear(),n=Math.round((Date.UTC(y,date.getMonth(),date.getDate())-Date.UTC(y,0,0))/864e5),g=2*Math.PI/365*(n-1),
   eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g)),
@@ -1275,14 +1418,14 @@ const LON_TR=10.5;// tope diario sin contacto zonas 1–2 (~£9, aprox.)
 const MT=d=>d&&d.city==="LO"?LON_MEAL:PA_MEAL;
 let BF_IX={};// desayuno: 1 de cada 4 días en boulangerie, el resto en la casa
 const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key in o?o[key]|0:k==="d"?((BF_IX[d]??0)%4===0?0:2):(ST.foodStyle==="fast"&&(k==="a"||k==="c")?1:0);return Math.min(i,T[k].length-1)};
-function legsOfDay(p){const base=baseLL();const L=[];let pos=base,nm="alojamiento";
+function legsOfDay(p){const base=p.base||baseLL();const L=[];let pos=base,nm="alojamiento";
   p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
   if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
   return L.map(l=>{const d=km(l.from,l.to);return {...l,d,metro:d>1.2,min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
 const trUrl=(a,b,m)=>`https://www.google.com/maps/dir/?api=1&origin=${a.join(",")}&destination=${b.join(",")}&travelmode=${m?"transit":"walking"}`;
 // Sena aproximada (lat,lng) de este a oeste
 const SEINE=[[48.8255,2.4100],[48.8300,2.3880],[48.8360,2.3760],[48.8430,2.3650],[48.8490,2.3600],[48.8515,2.3540],[48.8545,2.3480],[48.8575,2.3410],[48.8590,2.3350],[48.8615,2.3270],[48.8640,2.3200],[48.8645,2.3080],[48.8635,2.3010],[48.8605,2.2935],[48.8560,2.2870],[48.8495,2.2790],[48.8440,2.2740],[48.8380,2.2690],[48.8300,2.2630]];
-function dayMap(p,legs){const base=baseLL();const pts=[base,...p.seq.map(a=>a.ll)];
+function dayMap(p,legs){const base=p.base||baseLL();const pts=[base,...p.seq.map(a=>a.ll)];
   let la0=Math.min(...pts.map(x=>x[0])),la1=Math.max(...pts.map(x=>x[0])),lo0=Math.min(...pts.map(x=>x[1])),lo1=Math.max(...pts.map(x=>x[1]));
   const kx=Math.cos(48.86*Math.PI/180);let w=(lo1-lo0)*kx,h=la1-la0;const mn=0.012;
   if(w<mn){const c=(lo0+lo1)/2;lo0=c-mn/kx/2;lo1=c+mn/kx/2;w=mn}if(h<mn){const c=(la0+la1)/2;la0=c-mn/2;la1=c+mn/2;h=mn}
@@ -1391,12 +1534,12 @@ function buildAll(){const W=ST.wiz;const C=cityList();if(!W.eur_fecha||!W.vue_fe
   const R=buildPA();const days=[];
   R.plan.forEach(p=>{const rf=p.ret?ST.esc.find(e=>e.fin===p.d&&e.fin!==e.ini):null;days.push({id:p.d,d:p.d,city:"PA",kind:p.first?"first":p.ret?"ret":"pa",pa:p,from:rf})});
   days.push({id:W.vue_fecha,d:W.vue_fecha,city:"PA",kind:"final"});
-  if(W.ida_llega&&W.ida_llega<W.eur_fecha)for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))days.push({id:"L"+d,d,city:"LO",kind:d===W.ida_llega?"lonfirst":"lon"});
+  const RL=buildLO();if(W.ida_llega&&W.ida_llega<W.eur_fecha)for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))days.push({id:"L"+d,d,city:"LO",kind:d===W.ida_llega?"lonfirst":"lon",pa:RL.plan.find(p=>p.d===d)});
   C.filter(c=>c.e).forEach(c=>{const e=c.e;const v=((EXT[e.id]||{}).f||{}).v||[];const n=c.nn;
     if(n<=0){days.push({id:e.ini+"-"+e.id,d:e.ini,city:c.k,kind:"trip",c,items:v.slice()});return}
     const per=Math.ceil(v.length/n)||1;for(let i=0;i<n;i++)days.push({id:add(e.ini,i)+"-"+e.id,d:add(e.ini,i),city:c.k,kind:i?"stay":"go",c,items:v.slice(i*per,(i+1)*per)})});
-  days.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);BF_IX={};days.forEach((d,i)=>BF_IX[d.id]=i);days.forEach(d=>d.cost=dayCost2(d));applyNavigo(days);return {days,R,C}}
-function dayCost2(d){let meal=0;const T=MT(d);["d","a","m","c"].forEach(k=>{if(mealOnP(d.id,k))meal+=T[k][mealIxP(d.id,k,T)][1]});if(d.city==="LO")return {meal,act:0,loc:LON_TR,hot:0,trn:0,nm:0,legs:null,total:meal+LON_TR};
+  days.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);BF_IX={};days.forEach((d,i)=>BF_IX[d.id]=i);days.forEach(d=>d.cost=dayCost2(d));applyNavigo(days);return {days,R,RL,C}}
+function dayCost2(d){let meal=0;const T=MT(d);["d","a","m","c"].forEach(k=>{if(mealOnP(d.id,k))meal+=T[k][mealIxP(d.id,k,T)][1]});if(d.city==="LO"){const has=d.pa&&d.pa.seq.length;const act=has?d.pa.seq.reduce((t,a)=>t+a.p,0):0,legs=has?legsOfDay(d.pa):null;return {meal,act,loc:LON_TR,hot:0,trn:0,nm:0,legs,total:meal+act+LON_TR}}
   let act=0,loc=0,hot=0,legs=null,nm=0,trn=0;
   if(d.pa&&d.pa.seq.length){act=d.pa.seq.reduce((t,a)=>t+a.p,0);legs=legsOfDay(d.pa);nm=legs.filter(l=>l.metro).length;loc=nm*METRO}
   if(d.kind==="first")loc+=METRO;if(d.kind==="final")loc+=14;
@@ -1505,7 +1648,7 @@ function tripDays(A){const W=ST.wiz,M={};const ini=W.ida_fecha||W.ida_llega||(A.
     const acts=d.pa?d.pa.seq.map(a=>({n:a.n,t:a.st})):d.items?d.items.map(n=>({n})):[];
     const tr=["first","go","ret","final","lonfirst"].includes(d.kind);
     const lab=C.n+(d.kind==="first"?" · llegada en Eurostar":d.kind==="final"?" · vuelo a Santiago":d.kind==="go"?" · tren de ida":d.kind==="ret"?" · vuelta a París":d.kind==="lonfirst"?" · llegada":"");
-    M[d.d]={k:d.city==="PA"?"pa":d.city==="LO"?"lo":"es",c:C.c,lab,acts,tr,id:d.id}});
+    M[d.d]={k:(d.city==="PA"?"pa":d.city==="LO"?"lo":"es")+(d.city==="PA"&&isJunDay(d.d)?" jun":""),c:C.c,lab:lab+(d.city==="PA"&&isJunDay(d.d)?" · 👭 juntas":""),acts,tr,id:d.id}});
   return {M,ini,fin}}
 function tripCal(A){if(!calOpen)return "";const {M,ini,fin}=tripDays(A);if(!ini||!fin)return "";const today=iso(new Date());
   let s="";const d0=D(ini),end=D(fin);let y=d0.getFullYear(),m=d0.getMonth();
@@ -1527,7 +1670,7 @@ function goDay(id){const A=window.LAST_A;const d=A&&A.days.find(x=>x.id===id);if
   progCity=d.city;try{localStorage.setItem("paris_progcity",progCity)}catch(e){}progDay[progCity]=id;render();
   setTimeout(()=>{document.querySelectorAll("[data-dchip]").forEach(y=>y.setAttribute("aria-pressed",y.dataset.dchip===id));const dv=document.querySelector(`#days > .day[data-day="${id}"]`),tb=$("#daytabs");if(dv)scrollTo({top:dv.getBoundingClientRect().top+scrollY-(tb?tb.offsetHeight:0)-4,behavior:"smooth"})},80)}
 function toast(m){if(!m)return;let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.setAttribute("role","status");t.setAttribute("aria-live","polite");document.body.appendChild(t)}t.innerHTML=m;t.className="on";clearTimeout(toast._t);toast._t=setTimeout(()=>t.className="",3800)}
-function selMsg(id){const a=PA.find(x=>x.id===id);if(!a)return"";if(!paSel(a))return `✕ <b>${esc(a.n)}</b> quitada del programa`;const d=ACTDAY[id];const pin=(ST.paPin||{})[id];
+function selMsg(id){const a=actById(id);if(!a)return"";if(!selOf(a))return `✕ <b>${esc(a.n)}</b> quitada del programa`;const d=ACTDAY[id];const pin=(ST.paPin||{})[id];
   return d?`✔ <b>${esc(a.n)}</b> → ${pretty(d)}${pin?" (día fijado)":" (día automático)"}`:`⚠ <b>${esc(a.n)}</b> no cabe${pin?" ese día":""}: prueba otro día o ritmo intenso`}
 function bindCal(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-calopen]",b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();calOpen=true;calPop=null;render()});
@@ -1536,7 +1679,7 @@ function bindCal(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-calpop]",b=>b.onclick=e=>{e.stopPropagation();const v=b.dataset.calpop||null;calPop=calPop===v?null:v;render();const p=document.querySelector(".tc-pop");if(p)p.scrollIntoView({block:"nearest"})});
   Q("[data-calgo]",b=>b.onclick=()=>goDay(b.dataset.calgo));
   Q("[data-totop]",b=>b.onclick=()=>scrollTo({top:0,behavior:"smooth"}));
-  Q("[data-goday]",b=>b.onclick=e=>{e.preventDefault();const d=window.LAST_A.days.find(x=>x.d===b.dataset.goday&&(x.city==="PA"));if(d)goDay(d.id)});
+  Q("[data-goday]",b=>b.onclick=e=>{e.preventDefault();const d=window.LAST_A.days.find(x=>x.d===b.dataset.goday&&x.pa);if(d)goDay(d.id)});
   Q("[data-goesc]",b=>{b.onclick=()=>{escPick=b.dataset.goesc;go("esc")};b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();b.onclick()}}});
   if(calOpen){document.body.style.overflow="hidden";const sh=document.querySelector(".calsheet");if(sh&&!sh.contains(document.activeElement))(sh.querySelector(".ms-x")||sh).focus({preventScroll:true})}else document.body.style.overflow="";
   if(!window._calEsc){window._calEsc=1;addEventListener("keydown",e=>{if(e.key==="Escape"&&calOpen){calOpen=false;calPop=null;render()}})}}
@@ -1563,7 +1706,7 @@ function fcards(A){const R=A.R;const pd=A.days.filter(d=>d.city==="PA"&&d.pa);
   const need=pd.reduce((t,d)=>t+d.pa.seq.reduce((u,a)=>u+a.h+0.3,0),0),avail=pd.reduce((t,d)=>t+d.pa.cap,0);const over=R.unpl.length>0;
   const off=PA.filter(a=>!paSel(a));const n=A.days.filter(d=>d.city==="PA"&&d.kind!=="final").length+A.days.filter(d=>d.kind==="trip").length;
   let h=`<div class="legendtr" style="grid-column:1/-1"><span class="eyebrow">Leyenda</span><span style="font-size:13px">↑↓ cambia el orden del día · ✕ quita del programa · volver a agregar en «Agregar otras actividades»</span><span class="tr pie">a pie</span><span class="tr metro">metro/RER</span><span class="tr fuera">⟶ escapada</span><span class="top">★ atracción más famosa/demandada</span><span>🏛 techada</span></div>`;
-  {const L=A.C.find(c=>c.k==="LO");if(L){const ld=A.days.filter(d=>d.city==="LO");h+=`<div class="fcard" style="--c:${LO_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>Londres · ${L.nn} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.ida_llega)} · sale ${pretty(ST.wiz.eur_fecha)}</small></span><span class="num muted" style="font-size:13px">${fmt(ld.reduce((t,d)=>t+d.cost.total,0))} p/p</span></div><div class="meter"><span style="width:100%;background:${LO_C}"></span></div><span class="status ok">✓ Con la amiga · sin alojamiento pagado</span></div>`}}
+  {const L=A.C.find(c=>c.k==="LO");if(L){const ld=A.days.filter(d=>d.city==="LO");h+=`<div class="fcard" style="--c:${LO_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>Londres · ${L.nn} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.ida_llega)} · sale ${pretty(ST.wiz.eur_fecha)}</small></span><span class="num muted" style="font-size:13px">${fmt(ld.reduce((t,d)=>t+d.cost.total,0))} p/p</span></div><div class="meter"><span style="width:100%;background:${LO_C}"></span></div><span class="status ok">✓ Con la amiga · sin alojamiento pagado</span>${loPool(A)}</div>`}}
   h+=`<div class="fcard" style="--c:${PA_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>París · ${n} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.eur_fecha)} · sale ${pretty(ST.wiz.vue_fecha)}</small></span><span class="num muted" style="font-size:13px;white-space:nowrap">${need.toFixed(1)} / ${avail.toFixed(1)} h</span></div>
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div>
    <span class="status ${over?"bad":"ok"}">${over?`No alcanza: faltan ${R.unpl.length} actividad(es) → ritmo intenso o quitar otras`:"✓ Todo cabe"}</span>
@@ -1581,15 +1724,15 @@ function dayTitle(d){if(d.city==="LO")return d.kind==="lonfirst"?"Llegada a Lond
   return {first:"Llegada a París",ret:`${short(fx||"Escapada")} → París`,final:"Último día · vuelo de regreso",pa:"Día completo en París",go:`París → ${short(nm)}`,stay:`Día completo en ${short(nm)}`,trip:`Excursión de un día · ${nm}`}[d.kind]}
 function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);const late=a.closed?"cerrado ese día":a.late?"cierra "+hm(a.close):"";
   const sun=a.in?"":a.st>=SUN.dusk-0.05?'<span class="sun nite" title="Ya es de noche">🌙</span>':a.st+a.h>SUN.set+0.15?'<span class="sun dusk" title="Termina con poca luz">🌇</span>':"";
-  const canMv=!a.eve&&nonEve.length>1;
+  const canMv=!a.night&&nonEve.length>1;
   return `<div class="actrow2${op?" open":""}" data-k="${a.id}">
  <div class="ar-top"><b class="num anum">${k+1}</b><span class="st num">${hm(a.st)}</span>${sun}<span class="ar-name">${a.n.replace(/\s*\(.*?\)\s*$/,"")}${a.top?' <span class="top">★</span>':""}${late?`<small class="ar-latemini">⚠ ${late}</small>`:""}</span><span class="ar-pmini ${a.p?"":"free"}">${a.p?fmt(a.p):"gratis"}</span><span class="ar-ctl">${canMv?`<button type="button" class="mvb" data-pmv="${d.id}|${a.id}|-1" title="Subir" ${nonEve[0].id===a.id?"disabled":""}>↑</button><button type="button" class="mvb" data-pmv="${d.id}|${a.id}|1" title="Bajar" ${nonEve[nonEve.length-1].id===a.id?"disabled":""}>↓</button>`:""}<button type="button" class="rm" data-rm="${a.id}" title="Quitar del programa" aria-label="Quitar ${a.n}">✕</button></span></div>
- <div class="ar-meta"><span class="dur">🕐 visita ~${String(a.h).replace(".",",")} h</span>${late?`<span class="tag late">⚠ ${late}</span>`:""}${a.in?'<span class="tag indoor" title="Techado">🏛 techado</span>':""}${a.cl?`<span class="tag">cerrado ${a.cl.map(x=>DOW[x]).join(", ")}</span>`:""}<span class="tag ar-price ${a.p?"price":"free"}">${a.p?fmt(a.p):"gratis"}</span></div>
+ <div class="ar-meta"><span class="dur">🕐 visita ~${String(a.h).replace(".",",")} h</span>${late?`<span class="tag late">⚠ ${late}</span>`:""}${a.in?'<span class="tag indoor" title="Techado">🏛 techado</span>':""}${(ST.paJun||{})[a.id]?'<span class="tag jun">👭 juntas</span>':""}${a.night&&a.lateo?'<span class="tag nite">🌙 horario nocturno</span>':""}${a.cl?`<span class="tag">cerrado ${a.cl.map(x=>DOW[x]).join(", ")}</span>`:""}<span class="tag ar-price ${a.p?"price":"free"}">${a.p?fmt(a.p):"gratis"}</span></div>
  <div class="ar-note">${a.v}</div>
  <div class="ar-links"><a href="${a.u}" target="_blank" rel="noopener">sitio</a> · <a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">mapa</a> <select class="daysel" data-papin="${a.id}" aria-label="Elegir día"><option value="">📅 día automático</option>${days.map(x=>`<option value="${x.d}" ${(ST.paPin||{})[a.id]===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>${(ST.paPin||{})[a.id]?'<span class="tag pinday">día fijado</span>':""}</div>
- <details class="why"><summary>¿Por qué vale la pena?</summary>${a.s} ${PA_F[a.id]&&PA_F[a.id].h?PA_F[a.id].h[0]:""} <b>Consejo:</b> ${a.d} ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">Ver ficha completa →</a>`:""}</details></div>`}
+ <details class="why"><summary>¿Por qué vale la pena?</summary>${a.s} ${typeof PA_F!=="undefined"&&PA_F[a.id]&&PA_F[a.id].h?PA_F[a.id].h[0]:""} <b>Consejo:</b> ${a.d} ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">Ver ficha completa →</a>`:""}</details></div>`}
 function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:d.c;
-  const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN=sunOf(D(d.d),ll);
+  const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN0=sunOf(D(d.d),ll),SUN=d.city==="LO"?Object.fromEntries(Object.entries(SUN0).map(([k,v])=>[k,typeof v==="number"?v-1:v])):SUN0;
   const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"||d.city==="LO"?null:"par";
   const night=nightK?`Noche en ${esc(hotSelName(nightK)||("alojamiento en "+(nightK==="par"?"París":short(d.c.n))+" (por definir)"))}`:d.city==="LO"?`Noche donde la amiga${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
   const X=d.c?EXT[d.c.id]||{}:{},fx=d.from?ESC.find(x=>x.id===d.from.id):null;
@@ -1598,20 +1741,20 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     final:`✈ Vuelo de regreso ${esc(W.vue_vuelo||"")} desde ${esc(W.vue_aerop||"CDG")} · check-out y RER B al aeropuerto (boleto 14 €) · llegar 3 h antes`,
     go:d.c?`🚄 París → <b>${d.c.n}</b> · ${d.c.x.tr} · ${X.how||""}`:"",lonfirst:`✈ Llegada a Londres ${esc(W.ida_aerop||"")} ${esc(W.ida_vuelo||"")} · traslado donde la amiga (Elizabeth line o Piccadilly desde Heathrow)`,trip:d.c?`🚆 Ida y vuelta en el día · ${d.c.x.tr} · ${X.how||""}`:""}[d.kind]||"";
   const CAL='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg>';
-  let h=`<div class="dtabrow"><span class="ftab"><b>${pretty(d.d)}</b><span class="fc">${esc(short(C.n))}</span></span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
+  let h=`<div class="dtabrow"><span class="ftab"><b>${pretty(d.d)}</b><span class="fc">${esc(short(C.n))}</span>${d.city==="PA"&&isJunDay(d.d)?'<span class="fc" title="Día juntas">👭</span>':""}${wxMini(d.city==="LO"?"LO":"PA",d.d)}</span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
    ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}
    <div class="day-body"><div class="blk blk-com${openActs.has(d.id+"|com")?" open":""}"><h4>Comidas · ${fmt(c.meal)}</h4>`;
   ["d","a","m","c"].forEach(k=>{const T=MT(d),on=mealOnP(d.id,k),i=mealIxP(d.id,k,T),o=T[k];
     h+=`<label class="chk"><input type="checkbox" data-pmeal="${d.id}|${k}" ${on?"checked":""}><span class="t">${PA_MEAL_LBL[k]}<small>${o[i][0]}</small></span><span class="p">${fmt(o[i][1])}</span></label>${o.length>1?`<select class="msel" data-pmopt="${d.id}|${k}" aria-label="Opción ${PA_MEAL_LBL[k]}">${o.map((x,j)=>`<option value="${j}" ${j===i?"selected":""}>${x[0]} · ${fmt(x[1])}</option>`).join("")}</select>`:""}`});
   h+=`<span class="muted" style="font-size:12px">Precios aproximados por persona.</span></div><div class="blk blk-att"><h4>Atracciones</h4>`;
-  if(d.pa&&d.pa.seq.length){const p=d.pa,legs=c.legs,nonEve=p.seq.filter(a=>!a.eve);const days=parisDays();let lp=false;
+  if(d.pa&&d.pa.seq.length){const p=d.pa,legs=c.legs,nonEve=p.seq.filter(a=>!a.night);const days=d.city==="LO"?lonDays():parisDays();let lp=false;
     const lr=(ST.lunchAt||{})[d.id];const lunch=()=>`<div class="lunch">🍽 <b>${hm(p.seq.lunch)}</b> ${lr?"Almuerzo en <b>"+esc(lr)+"</b>":"Almuerzo con calma (~1 h)"}</div>`;
     p.seq.forEach((a,k)=>{const l=legs[k];if(p.seq.lunch&&!lp&&a.st>p.seq.lunch){h+=lunch();lp=true}
-      h+=l.metro?`<span class="mv">↓ ~${l.min} min en metro/RER${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
+      h+=l.metro?`<span class="mv">↓ ~${l.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
       h+=actRow(d,a,k,nonEve,SUN,days)});
     if(p.seq.lunch&&!lp)h+=lunch();
-    const back=legs[legs.length-1];h+=`<span class="mv">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en metro/RER`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>`;
-    const zs=zonesNearPA([baseLL(),...p.seq.map(a=>a.ll)]);
+    const back=legs[legs.length-1];h+=`<span class="mv">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>`;
+    const zs=zonesNearPA([p.base||baseLL(),...p.seq.map(a=>a.ll)]);
     if(zs.length)h+=`<details class="riskbox"><summary>⚠ Zona${zs.length>1?"s":""} de precaución: ${zs.map(z=>z.n).join(" · ")}</summary>${zs.map(z=>`<p><b>${z.n}:</b> ${z.t}</p>`).join("")}<p class="muted">Emergencias: <b>112</b> · Policía: <b>17</b> · Ambulancia: <b>15</b></p></details>`;
     if(p.man)h+=`<div class="manord">✋ <b>Orden manual</b>${p.seq.some(a=>a.late||a.closed)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-pmreset="${d.id}">↺ Orden automático</button></div>`;
     h+=`<a class="route" href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (A = alojamiento, luego ${p.seq.map((_,k)=>k+1).join("→")})</a>`;
@@ -1619,12 +1762,12 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   else if(d.items&&d.items.length){h+=`<span class="eyebrow seg">Programa sugerido · según la ficha</span>`+d.items.map((v,i)=>`<div class="actrow2 lite"><div class="ar-top"><b class="num anum">${i+1}</b><span class="ar-name">${v}</span></div></div>`).join("")+`<a class="route" href="#" data-efic="${d.c.id}">📖 Ver ficha completa de ${short(d.c.n)}</a>`}
   else if(d.city==="LO")h+=`<span class="muted" style="font-size:13px">Plan libre con la amiga.</span><span class="eyebrow seg">Ideas gratis en Londres</span><ul class="brief"><li>British Museum, National Gallery, Tate Modern y Natural History Museum (gratis; algunas exposiciones se pagan)</li><li>Cambio de guardia en Buckingham, St James's Park y Westminster</li><li>Borough Market, Covent Garden y Camden Market</li><li>Luces de Navidad en Regent Street, Oxford Street y Carnaby</li></ul>`;
   else h+=`<span class="muted" style="font-size:13px">${d.kind==="final"?"Mañana libre según la hora del vuelo.":d.kind==="stay"?"Día libre: recorrer sin apuro.":"Libre / descanso"}</span>`;
-  if(d.city==="PA"&&d.kind!=="final")h+=`<button type="button" class="btn addact" data-addday="${d.id}">+ Agregar actividad a este día</button>`;
+  if((d.city==="PA"||d.city==="LO")&&d.kind!=="final")h+=`<button type="button" class="btn addact" data-addday="${d.id}">+ Agregar actividad a este día</button>`;
   h+=`</div><div class="blk blk-tr${openActs.has(d.id+"|tr")?" open":""}"><h4>Traslados, alojamiento y plano</h4>`;
   if(c.trn){const fr=d.kind==="ret"?short(fx.n):"París",to=d.kind==="ret"?"París":short(d.c.n);
     h+=`<div class="leg"><div class="line"><span><a href="https://www.sncf-connect.com/" target="_blank" rel="noopener">${fr} → ${to}${d.kind==="trip"?" (ida y vuelta)":""}</a></span><span class="p">${fmt(c.trn)}</span></div><span class="muted" style="font-size:12px">${(d.kind==="ret"?fx:d.c.x).tr} · costo estimado (promedio del rango, 2.ª clase)</span></div>`}
   if(c.navigo!=null)h+=`<div class="line"><span>🎫 Navigo Semaine (prorrateado en la semana) · <a href="#" data-gotab="tra">ver por qué</a></span><span class="p">${fmt(c.navigo)}</span></div>`;
-  else if(c.nm)h+=`<div class="line"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en metro/RER × ${fmt(METRO)} · <a href="#" data-gotab="tra">opciones</a></span><span class="p">${fmt(c.nm*METRO)}</span></div>`;
+  else if(c.nm)h+=`<div class="line"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en ${d.city==="LO"?"metro (Tube)":"metro/RER"} × ${fmt(METRO)} · <a href="#" data-gotab="tra">opciones</a></span><span class="p">${fmt(c.nm*METRO)}</span></div>`;
   if(d.kind==="first"&&c.navigo==null)h+=`<div class="line"><span>Metro Gare du Nord → alojamiento</span><span class="p">${fmt(METRO)}</span></div>`;
   if(d.kind==="final"&&c.navigo==null)h+=`<div class="line"><span>RER B al aeropuerto (boleto aeropuerto)</span><span class="p">${fmt(14)}</span></div>`;
   if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento donde la amiga</span><span class="p">—</span></div>`;
@@ -1637,10 +1780,10 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
 function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fechas de llegada a París y del vuelo de regreso en <b>1 · Configurar</b>.</p></div>`;
   if(!A.C.some(c=>c.k===progCity))progCity="PA";const ds=A.days.filter(d=>d.city===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
   const nun=A.R.unpl.length;
-  return `<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
+  return `${jCard(A)}<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" class="calopen" data-calopen aria-label="Abrir calendario del viaje">📅 Calendario</button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}
     <div class="dchips">${ds.map((d,i)=>`<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}">${pretty(d.d).replace(/ [a-zé]+$/,"")}${d.kind==="first"||d.kind==="go"?" <small>llegada</small>":d.kind==="final"?" <small>fin</small>":d.kind==="ret"?" <small>vuelta</small>":""}</button>`).join("")}</div></div>
-   <div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
+   ${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
@@ -1824,26 +1967,26 @@ const PA_T={louvre:"mus",orsay:"mus",orang:"mus",rodin:"mus",picasso:"mus",carna
  eiffel:"mon",arc:"mon",concier:"mon",panth:"mon",inval:"mon",opera:"mon",montp:"mon",troca:"mon",
  notre:"igl",chapelle:"igl",sacre:"igl",
  catac:"ent",lumi:"ent",seine:"ent",evol:"ent",lafay:"ent",moulin:"ent"};
-const typOf=a=>PA_T[a.id]||"pas";
+const typOf=a=>a.t||PA_T[a.id]||"pas";
 const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["com","Restaurantes"],["via","Viajes"]];
-function nearDays(id){const a=PA.find(x=>x.id===id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
-function daySelPA(id,cls){const days=parisDays();const pin=(ST.paPin||{})[id]||"";const on=paSel(PA.find(a=>a.id===id));const N=nearDays(id);
+function nearDays(id){const a=actById(id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
+function daySelPA(id,cls){const days=isLO(id)?lonDays():parisDays();const pin=(ST.paPin||{})[id]||"";const on=selOf(actById(id));const N=nearDays(id);
   return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Automático${!pin&&ACTDAY[id]?" → "+pretty(ACTDAY[id]):""}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar (día automático)…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
 let addDay=null,addTyp="pas";
-function addSheet(){if(!addDay)return"";const d=addDay;let list="";
+function addSheet(){if(!addDay)return"";const lo=addDay.startsWith("L"),d=addDay.replace(/^L/,"");let list="";
   if(addTyp==="com")list=LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
   else if(addTyp==="via"){const ok=x=>!overlap(d,d);list=ESC.filter(x=>x.k!=="noche").map(x=>`<div class="addrow"><span><b>${x.p} ${x.n}</b><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":"día o 1 noche"}</small></span><button type="button" class="btn sm" data-addtrip="${x.id}" ${ok(x)?"":"disabled"}>Ir este día</button></div>`).join("")+`<p class="muted" style="font-size:13px">Las escapadas con noches se agregan en 4 · Escapadas.</p>`}
-  else{const L=PA.filter(a=>!paSel(a)&&typOf(a)===addTyp);list=L.map(a=>{const N=nearDays(a.id);const alt=Object.entries(N).filter(([dd,v])=>dd!==d&&v.fits).sort((x,y)=>x[1].k-y[1].k)[0];const here=N[d];return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}${here?`<small class="okl">★ Este día ya visitan ${here.n}, a ~${here.min} min a pie.</small>`:alt?`<small class="hint">💡 El ${pretty(alt[0])} visitan ${alt[1].n}, a ~${alt[1].min} min a pie. <button type="button" class="lnkb" data-addactd="${a.id}|${alt[0]}">Ponerlo ese día</button></small>`:""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
-  return `<div class="fov" data-aclose="1"><article class="fsheet" style="--c:${PA_C}" role="dialog" aria-label="Agregar actividad"><button type="button" class="btn alt sm fx" data-aclose="1" aria-label="Cerrar">✕</button>
-   <span class="eyebrow">${pretty(d)} · París</span><h2>Agregar actividad</h2>
-   <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}</div>
+  else{const L=(lo?LON:PA).filter(a=>!selOf(a)&&typOf(a)===addTyp);list=L.map(a=>{const N=nearDays(a.id);const alt=Object.entries(N).filter(([dd,v])=>dd!==d&&v.fits).sort((x,y)=>x[1].k-y[1].k)[0];const here=N[d];return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}${here?`<small class="okl">★ Este día ya visitan ${here.n}, a ~${here.min} min a pie.</small>`:alt?`<small class="hint">💡 El ${pretty(alt[0])} visitan ${alt[1].n}, a ~${alt[1].min} min a pie. <button type="button" class="lnkb" data-addactd="${a.id}|${alt[0]}">Ponerlo ese día</button></small>`:""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
+  return `<div class="fov" data-aclose="1"><article class="fsheet" style="--c:${lo?LO_C:PA_C}" role="dialog" aria-label="Agregar actividad"><button type="button" class="btn alt sm fx" data-aclose="1" aria-label="Cerrar">✕</button>
+   <span class="eyebrow">${pretty(d)} · ${lo?"Londres":"París"}</span><h2>Agregar actividad</h2>
+   <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.filter(t=>!lo||!["com","via"].includes(t[0])).map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}</div>
    <div class="addlist">${list}</div></article></div>`}
 // ---------- planos del día con calles (OpenStreetMap) y zonas de precaución achuradas ----------
 let _hz=0;
 function initMaps(A){if(!window.L)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!d.pa)return;
   const big=!!el.dataset.big;const m=L.map(el,{zoomControl:big,dragging:big,scrollWheelZoom:false,doubleClickZoom:big,touchZoom:big,boxZoom:big,keyboard:big,attributionControl:true});el._m=m;
   m.attributionControl.setPrefix(false);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(m);
-  const base=baseLL(),pts=[base,...d.pa.seq.map(a=>a.ll)];
+  const base=d.pa.base||baseLL(),pts=[base,...d.pa.seq.map(a=>a.ll)];
   const zs=zonesNearPA(pts),id="hz"+(++_hz);
   zs.forEach(z=>{const c=L.circle(z.ll,{radius:z.r,color:"#b3261e",weight:1.5,dashArray:"4 3",fillOpacity:1,interactive:big}).addTo(m);if(big)c.bindTooltip(z.n);c._hz=1});
   d.cost.legs.forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
@@ -1913,10 +2056,10 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
   const box=(l)=>l.metro?`<br><span class="lg-tr subway">Ⓜ Metro / RER · ~${l.min} min (${l.d.toFixed(1).replace(".",",")} km) · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver línea y estaciones</a></span>`:"";
   const back=legs[legs.length-1];
   return `<div class="mapov on" data-mclose="1"><div class="mapsheet" role="dialog" aria-label="Recorrido del día"><span class="clip big" aria-hidden="true"></span>
-   <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · París</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
+   <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · ${d.city==="LO"?"Londres":"París"}</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
    ${window.L?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(d.pa,legs).split("</svg>")[0]+"</svg>"}
    <div class="ms-leg"><span><i class="k"></i>a pie</span><span><i class="k tr" style="border-top-color:#24477a"></i>metro / RER</span><span><i class="k h">H</i>alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>
-   <ol class="ms-list"><li><span class="anum h num">H</span> ${esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
+   <ol class="ms-list"><li><span class="anum h num">H</span> ${d.city==="LO"?esc("Donde la amiga"+((ST.wiz||{}).lon_dir?" · "+ST.wiz.lon_dir:"")):esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
    ${d.pa.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
    <li><span class="anum h num">H</span> Vuelta al alojamiento${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
    <p class="ms-src">Plano: © colaboradores de OpenStreetMap. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
@@ -1930,7 +2073,7 @@ function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
@@ -1938,7 +2081,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/";const so=$("#so");if(so)so.onclick=()=>window._auth.U.signOut(window._auth.auth);
   Q("[data-stysel]",b=>b.onclick=()=>{setSty(b.dataset.stysel);render()});
   Q("[data-tab]",b=>b.onclick=()=>go(b.dataset.tab));
-  Q("[data-w]",x=>x.onchange=()=>{ST.wiz[x.dataset.w]=x.value;ST.wiz.done=1;save();render();if(x.dataset.w==="par_dir")geoPar()});
+  Q("[data-w]",x=>x.onchange=()=>{ST.wiz[x.dataset.w]=x.value;ST.wiz.done=1;save();render();if(x.dataset.w==="par_dir")geoPar();if(x.dataset.w==="lon_dir")geoLon()});
   const pb=$("#paBase");if(pb)pb.onchange=()=>{ST.base=pb.value;save();render()};
   Q("[data-ritmo]",b=>b.onclick=()=>{ST.ritmo=b.dataset.ritmo;save();render()});
   Q("[data-cur]",b=>b.onclick=()=>{cur=b.dataset.cur;try{localStorage.setItem("paris_cur",cur)}catch(e){}render()});
@@ -1954,12 +2097,12 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
     f.oninput=chk;chk();f.onsubmit=e=>{e.preventDefault();if(!chk())return;ST.esc.push({id,ini:f.ini.value,fin:add(f.ini.value,+f.n.value)});open=null;save();render()}});
   bindEsc();
   // programa
-  Q("[data-pasel]",x=>x.onchange=()=>{const id=x.dataset.pasel;ST.paSel=ST.paSel||{};ST.paSel[id]=x.checked;if(!x.checked&&ST.paPin)delete ST.paPin[id];save();render();toast(selMsg(id))});
+  Q("[data-pasel]",x=>x.onchange=()=>{const id=x.dataset.pasel;ST.paSel=ST.paSel||{};ST.paSel[id]=x.checked;if(!x.checked){if(ST.paPin)delete ST.paPin[id];if(ST.paJun)delete ST.paJun[id]}save();render();toast(selMsg(id))});
   Q("[data-rm]",x=>x.onclick=()=>{ST.paSel=ST.paSel||{};ST.paSel[x.dataset.rm]=false;save();render()});
   Q("[data-papin]",x=>x.onchange=()=>{ST.paPin=ST.paPin||{};if(x.value)ST.paPin[x.dataset.papin]=x.value;else delete ST.paPin[x.dataset.papin];save();render()});
   Q("[data-pmeal]",x=>x.onchange=()=>{ST.meals=ST.meals||{};ST.meals[x.dataset.pmeal]=x.checked;save();render()});
   Q("[data-pmopt]",x=>x.onchange=()=>{ST.mealOpt=ST.mealOpt||{};ST.mealOpt[x.dataset.pmopt]=+x.value;save();render()});
-  Q("[data-pmv]",x=>x.onclick=()=>{const [d,id,dir]=x.dataset.pmv.split("|");const day=A.days.find(q=>q.id===d);if(!day||!day.pa)return;const ids=day.pa.seq.filter(a=>!a.eve).map(a=>a.id);const i=ids.indexOf(id),j=i+(+dir);if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];ST.paOrd=ST.paOrd||{};ST.paOrd[d]=ids;save();render()});
+  Q("[data-pmv]",x=>x.onclick=()=>{const [d,id,dir]=x.dataset.pmv.split("|");const day=A.days.find(q=>q.id===d);if(!day||!day.pa)return;const ids=day.pa.seq.filter(a=>!a.night).map(a=>a.id);const i=ids.indexOf(id),j=i+(+dir);if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];ST.paOrd=ST.paOrd||{};ST.paOrd[d]=ids;save();render()});
   Q("[data-pmreset]",x=>x.onclick=()=>{ST.paOrd=ST.paOrd||{};delete ST.paOrd[x.dataset.pmreset];save();render()});
   Q("[data-dtab]",x=>x.onclick=()=>{progCity=x.dataset.dtab;try{localStorage.setItem("paris_progcity",progCity)}catch(e){}render();const t=$("#daytabs");if(t)t.scrollIntoView({block:"start",behavior:"smooth"})});
   Q("[data-dchip]",x=>x.onclick=()=>{progDay[progCity]=x.dataset.dchip;Q("[data-dchip]",y=>y.setAttribute("aria-pressed",y===x));const dv=document.querySelector(`#days > .day[data-day="${x.dataset.dchip}"]`),tb=$("#daytabs");if(dv)scrollTo({top:dv.getBoundingClientRect().top+scrollY-(tb?tb.offsetHeight:0)-4,behavior:"smooth"})});
@@ -1971,11 +2114,11 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-lunchday]",x=>x.onchange=()=>{const r=LUNCH_V[+x.dataset.lunchday];ST.lunchAt=ST.lunchAt||{};for(const k in ST.lunchAt)if(ST.lunchAt[k]===r[0])delete ST.lunchAt[k];if(x.value){ST.lunchAt[x.value]=r[0];if(/bouillon|6\.90/i.test(r[0])){ST.mealOpt=ST.mealOpt||{};ST.mealOpt[x.value+"|a"]=3}}save();render()});
   Q("[data-tmode]",b=>b.onclick=()=>{ST.transMode=b.dataset.tmode;save();render()});
   Q("[data-gotab]",x=>x.onclick=e=>{e.preventDefault();go(x.dataset.gotab);scrollTo(0,0)});
-  Q("[data-addday]",b=>b.onclick=()=>{addDay=b.dataset.addday;addTyp="pas";render()});
+  Q("[data-addday]",b=>b.onclick=()=>{addDay=b.dataset.addday;addTyp=addDay.startsWith("L")?"mus":"pas";render()});
   Q("[data-aclose]",b=>b.onclick=e=>{if(e.target===b||b.classList.contains("fx")){addDay=null;render()}});
   Q("[data-addtyp]",b=>b.onclick=()=>{addTyp=b.dataset.addtyp;render()});
   Q("[data-addactd]",b=>b.onclick=()=>{const [id,dd]=b.dataset.addactd.split("|");ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=dd;addDay=null;save();render()});
-  Q("[data-addact]",b=>b.onclick=()=>{const id=b.dataset.addact;ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=addDay;addDay=null;save();render()});
+  Q("[data-addact]",b=>b.onclick=()=>{const id=b.dataset.addact;ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=addDay.replace(/^L/,"");addDay=null;save();render();toast(selMsg(id))});
   Q("[data-addlunch]",b=>b.onclick=()=>{const r=LUNCH_V[+b.dataset.addlunch];ST.lunchAt=ST.lunchAt||{};ST.lunchAt[addDay]=r[0];if(/bouillon|6\.90/i.test(r[0])){ST.mealOpt=ST.mealOpt||{};ST.mealOpt[addDay+"|a"]=3}addDay=null;save();render()});
   Q("[data-addtrip]",b=>b.onclick=()=>{const d=addDay;if(overlap(d,d))return;ST.esc.push({id:b.dataset.addtrip,ini:d,fin:d});addDay=null;save();render()});
   Q("[data-mclose]",b=>b.onclick=e=>{if(e.target===b||b.classList.contains("fx")){mapOpen=null;render()}});
