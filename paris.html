@@ -9,6 +9,8 @@
 <link rel="apple-touch-icon" href="img/logo-marcopolo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>[hidden]{display:none!important}
@@ -906,6 +908,10 @@ span.tc-d{cursor:default}
 .wxsug .btn{margin-left:6px}
 .wxm{font:700 13px var(--f-mono);color:var(--card);opacity:.9;white-space:nowrap}
 .tc-c.jun::after{content:"👭";position:absolute;left:2px;bottom:0;font-size:10px}
+.mlmk{display:flex;align-items:center;gap:6px;pointer-events:none}
+.mllab{font:700 13px "Source Serif 4",Georgia,serif;color:#2a2420;white-space:nowrap;text-shadow:0 0 3px #f4ead2,0 0 3px #f4ead2,0 0 3px #f4ead2,0 0 3px #f4ead2}
+.lmap.ml{background:#f4ead2}
+.lmap .maplibregl-ctrl-attrib{font-size:10px}
 </style>
 </head>
 <body>
@@ -1773,7 +1779,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento donde la amiga</span><span class="p">—</span></div>`;
   if(nightK)h+=`<div class="line"><span>½ alojamiento (2 personas)</span><span class="p">${c.hot?fmt(c.hot):"sin tarifa"}</span></div>`;
   if(c.legs)h+=c.legs.map(l=>`<div class="line sub"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn} <small class="muted">${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span></div>`).join("");
-  if(d.pa&&d.pa.seq.length)h+=window.L?`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
+  if(d.pa&&d.pa.seq.length)h+=(window.L||window.maplibregl)?`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
   else if(d.c)h+=`<a class="route" href="https://www.google.com/maps/search/?api=1&query=${(X.ll||PARIS).join(",")}" target="_blank" rel="noopener">🗺 Mapa de ${short(d.c.n)}</a>`;
   h+=`</div></div><button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
   return `<article class="day" style="--c:${C.c}" data-day="${d.id}" data-city="${d.city}">${h}</article>`}
@@ -1983,8 +1989,56 @@ function addSheet(){if(!addDay)return"";const lo=addDay.startsWith("L"),d=addDay
    <div class="addlist">${list}</div></article></div>`}
 // ---------- planos del día con calles (OpenStreetMap) y zonas de precaución achuradas ----------
 let _hz=0;
-function initMaps(A){if(!window.L)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!d.pa)return;
-  const big=!!el.dataset.big;const m=L.map(el,{zoomControl:big,dragging:big,scrollWheelZoom:false,doubleClickZoom:big,touchZoom:big,boxZoom:big,keyboard:big,attributionControl:true});el._m=m;
+// ---------- plano estilo cuaderno (MapLibre + OpenFreeMap, colores del viaje a Alemania) ----------
+const MLC={land:"#f4ead2",sea:"#c9d7d2",seaEdge:"#a9bab4",park:"#dfe0bf",wood:"#d3d7b2",bld:"#e7d7b4",bldEdge:"#cdb98f",major:"#ecdcb6",majorCase:"#a8956f",mid:"#fffdf5",midCase:"#a8956f",minor:"#fffdf5",minorCase:"#bba985",path:"#c2b08a",rail:"#9c8f7a",lab:"#6d6455"};
+function mlStyle(){const C=MLC,z=(a,b,c,d)=>["interpolate",["exponential",1.5],["zoom"],a,b,c,d],tr=k=>["in",["get","class"],["literal",k]];
+  const ln=(id,f,col,w,o={})=>({id,type:"line",source:"o","source-layer":"transportation",filter:tr(f),layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":col,"line-width":w,...o}});
+  return {version:8,glyphs:"https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",sources:{o:{type:"vector",url:"https://tiles.openfreemap.org/planet"}},layers:[
+   {id:"bg",type:"background",paint:{"background-color":C.land}},
+   {id:"park",type:"fill",source:"o","source-layer":"park",paint:{"fill-color":C.park}},
+   {id:"lc",type:"fill",source:"o","source-layer":"landcover",filter:tr(["grass","wood","farmland"]),paint:{"fill-color":["match",["get","class"],"wood",C.wood,C.park]}},
+   {id:"lu",type:"fill",source:"o","source-layer":"landuse",filter:tr(["cemetery","pitch","stadium"]),paint:{"fill-color":C.park,"fill-opacity":.7}},
+   {id:"water",type:"fill",source:"o","source-layer":"water",paint:{"fill-color":C.sea,"fill-outline-color":C.seaEdge}},
+   {id:"waterway",type:"line",source:"o","source-layer":"waterway",paint:{"line-color":C.sea,"line-width":z(12,1,18,6)}},
+   {id:"bld",type:"fill",source:"o","source-layer":"building",minzoom:13,paint:{"fill-color":C.bld,"fill-outline-color":C.bldEdge,"fill-opacity":z(13,.4,15,1)}},
+   {...ln("path",["path","track"],C.path,1,{"line-dasharray":[2,2]}),minzoom:14},
+   ln("minor-c",["minor","service"],C.minorCase,z(12,.8,18,14)),ln("mid-c",["secondary","tertiary"],C.midCase,z(11,1,18,20)),ln("maj-c",["motorway","trunk","primary"],C.majorCase,z(10,1.5,18,26)),
+   ln("minor",["minor","service"],C.minor,z(12,.4,18,11)),ln("mid",["secondary","tertiary"],C.mid,z(11,.6,18,16)),ln("maj",["motorway","trunk","primary"],C.major,z(10,1,18,21)),
+   {id:"rail",type:"line",source:"o","source-layer":"transportation",filter:["all",["==",["get","class"],"rail"],["!",["has","brunnel"]]],paint:{"line-color":C.rail,"line-width":1.2,"line-dasharray":[4,3]}},
+   {id:"wname",type:"symbol",source:"o","source-layer":"waterway",minzoom:13,layout:{"text-field":["get","name"],"text-font":["Noto Sans Italic"],"text-size":13,"symbol-placement":"line","text-letter-spacing":.15},paint:{"text-color":"#5f7f8f","text-halo-color":C.sea,"text-halo-width":1.5}},
+   {id:"rname",type:"symbol",source:"o","source-layer":"transportation_name",minzoom:14.5,layout:{"text-field":["get","name"],"text-font":["Noto Sans Regular"],"text-size":z(14,9.5,18,13),"symbol-placement":"line"},paint:{"text-color":C.lab,"text-halo-color":C.land,"text-halo-width":1.6}},
+   {id:"pname",type:"symbol",source:"o","source-layer":"poi",minzoom:15,filter:tr(["park","garden"]),layout:{"text-field":["get","name"],"text-font":["Noto Sans Italic"],"text-size":12},paint:{"text-color":"#4f6b3e","text-halo-color":C.park,"text-halo-width":1.4}}]}}
+// rutas a pie por calles (OSRM, perfil peatón), con caché
+const WALK={};try{Object.assign(WALK,JSON.parse(localStorage.getItem("mp_walk")||"{}"))}catch(e){}
+const wkey=l=>[l.from,l.to].map(p=>p.map(v=>v.toFixed(4)).join(",")).join(";");
+function walkGeo(l){const k=wkey(l);if(WALK[k])return Promise.resolve(WALK[k]);
+  return fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/driving/${l.from[1]},${l.from[0]};${l.to[1]},${l.to[0]}?overview=full&geometries=geojson`).then(r=>r.json()).then(j=>{const g=j.routes&&j.routes[0]&&j.routes[0].geometry.coordinates;if(!g)throw 0;
+    const sm=g.filter((c,i)=>i%2===0||i===g.length-1).map(c=>[+c[0].toFixed(5),+c[1].toFixed(5)]);WALK[k]=sm;try{const ks=Object.keys(WALK);if(ks.length>300)delete WALK[ks[0]];localStorage.setItem("mp_walk",JSON.stringify(WALK))}catch(e){}return sm})}
+const circ=(ll,r)=>{const out=[];for(let i=0;i<=48;i++){const a=i/48*2*Math.PI;out.push([ll[1]+r/111320/Math.cos(ll[0]*Math.PI/180)*Math.cos(a),ll[0]+r/110540*Math.sin(a)])}return out};
+let ML=[];
+function hatchImg(){const c=document.createElement("canvas");c.width=c.height=12;const x=c.getContext("2d");x.fillStyle="rgba(179,38,30,.08)";x.fillRect(0,0,12,12);x.strokeStyle="rgba(179,38,30,.55)";x.lineWidth=2.5;x.beginPath();x.moveTo(-3,15);x.lineTo(15,-3);x.moveTo(-9,9);x.lineTo(9,-9);x.moveTo(3,21);x.lineTo(21,3);x.stroke();return x.getImageData(0,0,12,12)}
+function mlMap(el,d,big){const p=d.pa,base=p.base||baseLL(),legs=d.cost.legs||[],pts=[base,...p.seq.map(a=>a.ll)];
+  const m=new maplibregl.Map({container:el,style:mlStyle(),interactive:big,attributionControl:{compact:true,customAttribution:"© OpenFreeMap · © OpenStreetMap"},bounds:[[Math.min(...pts.map(x=>x[1])),Math.min(...pts.map(x=>x[0]))],[Math.max(...pts.map(x=>x[1])),Math.max(...pts.map(x=>x[0]))]],fitBoundsOptions:{padding:big?{top:50,bottom:50,left:40,right:140}:24,maxZoom:16}});
+  el._m=m;ML.push(m);if(big){m.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-left");m.scrollZoom.disable()}
+  const mk=(ll,html,lab)=>{const w=document.createElement("div");w.className="mlmk";w.innerHTML=html+(lab?`<span class="mllab">${esc(lab)}</span>`:"");new maplibregl.Marker({element:w,anchor:"left",offset:[big?-15:-11,0]}).setLngLat([ll[1],ll[0]]).addTo(m)};
+  m.on("load",()=>{
+    const zs=zonesNearPA(pts);if(zs.length){m.addImage("hatch",hatchImg());m.addSource("hz",{type:"geojson",data:{type:"FeatureCollection",features:zs.map(z=>({type:"Feature",properties:{n:z.n},geometry:{type:"Polygon",coordinates:[circ(z.ll,z.r)]}}))}});
+      m.addLayer({id:"hz",type:"fill",source:"hz",paint:{"fill-pattern":"hatch"}});m.addLayer({id:"hz-l",type:"line",source:"hz",paint:{"line-color":"#b3261e","line-width":1.4,"line-dasharray":[3,2]}})}
+    const met=legs.filter(l=>l.metro).map(l=>({type:"Feature",properties:{k:l.k},geometry:{type:"LineString",coordinates:[[l.from[1],l.from[0]],[l.to[1],l.to[0]]]}}));
+    m.addSource("met",{type:"geojson",data:{type:"FeatureCollection",features:met}});
+    m.addLayer({id:"met",type:"line",source:"met",layout:{"line-cap":"round"},paint:{"line-color":"#24477a","line-width":big?4:3,"line-dasharray":[2.5,1.4],"line-opacity":["case",["==",["get","k"],0],.45,.9]}});
+    const wl=legs.filter(l=>!l.metro);const straight=l=>[[l.from[1],l.from[0]],[l.to[1],l.to[0]]];
+    m.addSource("walk",{type:"geojson",data:{type:"FeatureCollection",features:wl.map(l=>({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:WALK[wkey(l)]||straight(l)}}))}});
+    m.addLayer({id:"walk-h",type:"line",source:"walk",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#fffdf5","line-width":big?6:4.5,"line-opacity":.85}});
+    m.addLayer({id:"walk",type:"line",source:"walk",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#2a2620","line-width":big?3:2.4,"line-dasharray":[0.2,2]}});
+    if(wl.some(l=>!WALK[wkey(l)]))Promise.all(wl.map(l=>walkGeo(l).catch(()=>straight(l)))).then(gs=>{const s=m.getSource&&m.getSource("walk");if(s)s.setData({type:"FeatureCollection",features:gs.map(g=>({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:g}}))})});
+  });
+  mk(base,'<div class="lm-h">H</div>',big?"Alojamiento":"");
+  p.seq.forEach((a,k)=>mk(a.ll,`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,big?(a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""):""));
+  return m}
+
+function initMaps(A){ML=ML.filter(m=>{if(!document.body.contains(m.getContainer())){try{m.remove()}catch(e){}return false}return true});if(!window.L&&!window.maplibregl)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!d.pa)return;
+  const big=!!el.dataset.big;if(window.maplibregl){try{el.classList.add("ml");mlMap(el,d,big);return}catch(e){el.classList.remove("ml");el._m=null}}if(!window.L)return;const m=L.map(el,{zoomControl:big,dragging:big,scrollWheelZoom:false,doubleClickZoom:big,touchZoom:big,boxZoom:big,keyboard:big,attributionControl:true});el._m=m;
   m.attributionControl.setPrefix(false);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(m);
   const base=d.pa.base||baseLL(),pts=[base,...d.pa.seq.map(a=>a.ll)];
   const zs=zonesNearPA(pts),id="hz"+(++_hz);
@@ -2057,12 +2111,12 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
   const back=legs[legs.length-1];
   return `<div class="mapov on" data-mclose="1"><div class="mapsheet" role="dialog" aria-label="Recorrido del día"><span class="clip big" aria-hidden="true"></span>
    <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · ${d.city==="LO"?"Londres":"París"}</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
-   ${window.L?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(d.pa,legs).split("</svg>")[0]+"</svg>"}
+   ${(window.L||window.maplibregl)?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(d.pa,legs).split("</svg>")[0]+"</svg>"}
    <div class="ms-leg"><span><i class="k"></i>a pie</span><span><i class="k tr" style="border-top-color:#24477a"></i>metro / RER</span><span><i class="k h">H</i>alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>
    <ol class="ms-list"><li><span class="anum h num">H</span> ${d.city==="LO"?esc("Donde la amiga"+((ST.wiz||{}).lon_dir?" · "+ST.wiz.lon_dir:"")):esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
    ${d.pa.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
    <li><span class="anum h num">H</span> Vuelta al alojamiento${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
-   <p class="ms-src">Plano: © colaboradores de OpenStreetMap. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
+   <p class="ms-src">Plano: © OpenFreeMap · © colaboradores de OpenStreetMap · caminatas calculadas con OSRM. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
 
 // ---------- render ----------
 let _budLast="";
