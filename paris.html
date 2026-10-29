@@ -1251,8 +1251,8 @@ let WX={};
 const WXI=c=>c===0?"☀️":c<=2?"🌤":c===3?"☁️":c<=48?"🌫":c<=57?"🌦":c<=67?"🌧":c<=77?"🌨":c<=82?"🌧":"⛈";
 function wxLoad(k){if(WX[k])return;WX[k]={loading:1};const ll=k==="LO"?LONDON:PARIS;
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ll[0]}&longitude=${ll[1]}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=16`).then(r=>r.json()).then(j=>{const o={};(j.daily.time||[]).forEach((t,i)=>o[t]={c:j.daily.weather_code[i],mx:j.daily.temperature_2m_max[i],mn:j.daily.temperature_2m_min[i],pp:j.daily.precipitation_probability_max[i],mm:j.daily.precipitation_sum[i]});WX[k]={d:o,at:Date.now()};if(tab==="prog")render()}).catch(()=>{WX[k]={err:1}})}
-const wxOf=(k,d)=>WX[k]&&WX[k].d&&WX[k].d[d];
-const rainy=w=>w&&(w.pp>=60||w.mm>=4),dry=w=>w&&w.pp<40&&w.mm<1.5;
+const wxOf=(k,d)=>{const w=WX[k]&&WX[k].d&&WX[k].d[d];return w&&w.mx!=null&&w.pp!=null?w:null};
+const rainy=w=>w&&(w.pp>=60||(w.pp>=40&&w.mm>=4)),dry=w=>w&&w.pp<40&&w.mm<1.5;
 function wxMini(k,d){const w=wxOf(k,d);return w?`<span class="wxm" title="Pronóstico: ${Math.round(w.mn)}–${Math.round(w.mx)} °C · lluvia ${w.pp}%">${WXI(w.c)} ${Math.round(w.mx)}°</span>`:""}
 function wxCard(A,k){const ds=A.days.filter(d=>d.city===k&&d.kind!=="final");if(!ds.length)return"";const today=iso(new Date()),lim=add(today,15);
   if(ds[0].d>lim)return `<div class="wxcard muted">🌦 El pronóstico del tiempo de ${k==="LO"?"Londres":"París"} aparece aquí desde el ${pretty(add(ds[0].d,-15))} (16 días antes), con sugerencias si llueve.</div>`;
