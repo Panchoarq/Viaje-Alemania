@@ -806,8 +806,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .fsheet.fwrap{background:transparent;border:0;box-shadow:none;padding:26px 10px max(16px,env(safe-area-inset-bottom,0px))}.fsheet.fwrap .fx{z-index:2;top:30px;right:18px;background:var(--card)}.fsheet.fwrap .ficha{margin-top:6px}
 .ftbl{width:100%;border-collapse:collapse;font-size:14px}.ftbl td,.ftbl th{padding:5px 4px;border-bottom:1px dotted var(--line);vertical-align:top;text-align:left}.ftbl td.num,.ftbl .r{text-align:right;white-space:nowrap}.ficha .ftbl{table-layout:fixed}.ficha .ftbl td.num{width:34%;white-space:normal;font-size:13px}
 .gastosbtn{font:700 13px var(--f-mono,monospace);border:1.5px solid currentColor;border-radius:999px;padding:5px 12px;text-decoration:none;color:var(--stamp,#a8352b);white-space:nowrap}
-.lclip{cursor:default}.lmap{height:190px;border:1px solid var(--line);background:#e8e2d4}.lmap.big{height:min(62vh,520px);border-radius:4px}
-.lclip .mc-cap{display:block;width:100%;text-align:left;text-decoration:none;color:inherit;cursor:zoom-in}
+.lclip{width:min(250px,100%);margin-top:10px}.lclip .lmap{pointer-events:none}.lmap{height:180px;border:1px solid var(--line);background:#e8e2d4}.lmap.big{height:min(62vh,520px);border-radius:4px}
 .lm-a{width:22px;height:22px;border-radius:50%;background:#a8352b;color:#fff;border:2px solid #fff;font:700 11px/18px "Courier Prime",monospace;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 .lm-h{width:22px;height:22px;border-radius:4px;background:#2a2420;color:#fff;font:700 14px/22px serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 .pm-leg i.hz{width:14px;height:12px;border:1px dashed #b3261e;border-top-width:1px;background:repeating-linear-gradient(45deg,rgba(179,38,30,.5) 0 2px,transparent 2px 6px)}
@@ -815,6 +814,13 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .addlist{display:flex;flex-direction:column}.addrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dotted var(--line)}
 .addrow small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}.addrow .btn{white-space:nowrap}
 .poolrow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}.poolday{max-width:100%}.addsel.new{border:1.5px solid var(--ber,#2e4f8f);border-radius:6px;font:700 12.5px var(--f-mono,monospace);padding:5px 8px;color:var(--ber,#2e4f8f);background:var(--card)}
+.lm-a.top{border-color:#e2b33c;border-width:2.5px}.lm-a.big{width:30px;height:30px;font-size:14px;line-height:25px}
+.lm-h{font-family:"Courier Prime",monospace!important;font-size:13px!important}
+.leaflet-tooltip.lm-lab{background:transparent;border:0;box-shadow:none;padding:0;font:700 13px "Source Serif 4",Georgia,serif;color:#2a2420;text-shadow:0 0 3px #f3ecdc,0 0 3px #f3ecdc,0 0 3px #f3ecdc}.leaflet-tooltip.lm-lab::before{display:none}
+.mapov .lmap.big{height:min(62vh,560px);border:1px solid var(--line)}
+.ms-leg .k.tr{border-top:4px dashed #24477a}
+.tdet{border-top:1px dashed var(--line);padding:6px 0}.tdet summary{cursor:pointer;font-weight:700;list-style:none}.tdet summary::-webkit-details-marker{display:none}.tdet summary::before{content:"▸ ";color:var(--stamp,#a8352b)}.tdet[open] summary::before{content:"▾ "}.tdet p{margin:6px 0 2px 18px;font-size:14px}
+.addrow small.hint{color:#6b4f12;background:#fff4c9;padding:3px 6px;border-radius:4px;margin:3px 0}.addrow small.okl{color:var(--ok)}
 .daysel{font-size:12.5px;padding:2px 4px;max-width:100%}
 </style>
 </head>
@@ -1464,7 +1470,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento donde la amiga</span><span class="p">—</span></div>`;
   if(nightK)h+=`<div class="line"><span>½ alojamiento (2 personas)</span><span class="p">${c.hot?fmt(c.hot):"sin tarifa"}</span></div>`;
   if(c.legs)h+=c.legs.map(l=>`<div class="line sub"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn} <small class="muted">${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span></div>`).join("");
-  if(d.pa&&d.pa.seq.length)h+=window.L?`<div class="mapclip lclip"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><button type="button" class="mc-cap lnkb" data-dmap="${d.id}">Plano del día · ampliar</button></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
+  if(d.pa&&d.pa.seq.length)h+=window.L?`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
   else if(d.c)h+=`<a class="route" href="https://www.google.com/maps/search/?api=1&query=${(X.ll||PARIS).join(",")}" target="_blank" rel="noopener">🗺 Mapa de ${short(d.c.n)}</a>`;
   h+=`</div></div>`;
   return `<article class="day" style="--c:${C.c}" data-day="${d.id}" data-city="${d.city}">${h}</article>`}
@@ -1660,13 +1666,14 @@ const PA_T={louvre:"mus",orsay:"mus",orang:"mus",rodin:"mus",picasso:"mus",carna
  catac:"ent",lumi:"ent",seine:"ent",evol:"ent",lafay:"ent",moulin:"ent"};
 const typOf=a=>PA_T[a.id]||"pas";
 const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["com","Restaurantes"],["via","Viajes"]];
-function daySelPA(id,cls){const days=parisDays();const pin=(ST.paPin||{})[id]||"";const on=paSel(PA.find(a=>a.id===id));
-  return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Día automático</option>`:`<option value="" selected>+ Agregar (día automático)…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>`}
+function nearDays(id){const a=PA.find(x=>x.id===id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
+function daySelPA(id,cls){const days=parisDays();const pin=(ST.paPin||{})[id]||"";const on=paSel(PA.find(a=>a.id===id));const N=nearDays(id);
+  return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Día automático</option>`:`<option value="" selected>+ Agregar (día automático)…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
 let addDay=null,addTyp="pas";
 function addSheet(){if(!addDay)return"";const d=addDay;let list="";
   if(addTyp==="com")list=LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
   else if(addTyp==="via"){const ok=x=>!overlap(d,d);list=ESC.filter(x=>x.k!=="noche").map(x=>`<div class="addrow"><span><b>${x.p} ${x.n}</b><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":"día o 1 noche"}</small></span><button type="button" class="btn sm" data-addtrip="${x.id}" ${ok(x)?"":"disabled"}>Ir este día</button></div>`).join("")+`<p class="muted" style="font-size:13px">Las escapadas con noches se agregan en 4 · Escapadas.</p>`}
-  else{const L=PA.filter(a=>!paSel(a)&&typOf(a)===addTyp);list=L.map(a=>`<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
+  else{const L=PA.filter(a=>!paSel(a)&&typOf(a)===addTyp);list=L.map(a=>{const N=nearDays(a.id);const alt=Object.entries(N).filter(([dd,v])=>dd!==d&&v.fits).sort((x,y)=>x[1].k-y[1].k)[0];const here=N[d];return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}${here?`<small class="okl">★ Este día ya visitan ${here.n}, a ~${here.min} min a pie.</small>`:alt?`<small class="hint">💡 El ${pretty(alt[0])} visitan ${alt[1].n}, a ~${alt[1].min} min a pie. <button type="button" class="lnkb" data-addactd="${a.id}|${alt[0]}">Ponerlo ese día</button></small>`:""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
   return `<div class="fov" data-aclose="1"><article class="fsheet" style="--c:${PA_C}" role="dialog" aria-label="Agregar actividad"><button type="button" class="btn alt sm fx" data-aclose="1" aria-label="Cerrar">✕</button>
    <span class="eyebrow">${pretty(d)} · París</span><h2>Agregar actividad</h2>
    <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}</div>
@@ -1680,8 +1687,8 @@ function initMaps(A){if(!window.L)return;document.querySelectorAll(".lmap[data-l
   const zs=zonesNearPA(pts),id="hz"+(++_hz);
   zs.forEach(z=>{const c=L.circle(z.ll,{radius:z.r,color:"#b3261e",weight:1.5,dashArray:"4 3",fillOpacity:1,interactive:big}).addTo(m);if(big)c.bindTooltip(z.n);c._hz=1});
   d.cost.legs.forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
-  L.marker(base,{icon:L.divIcon({className:"",html:'<div class="lm-h">⌂</div>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(m);
-  d.pa.seq.forEach((a,k)=>{const mk=L.marker(a.ll,{icon:L.divIcon({className:"",html:`<div class="lm-a">${k+1}</div>`,iconSize:[22,22],iconAnchor:[11,11]})}).addTo(m);if(big)mk.bindTooltip(hm(a.st)+" · "+a.n)});
+  L.marker(base,{icon:L.divIcon({className:"",html:'<div class="lm-h">H</div>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(m);
+  d.pa.seq.forEach((a,k)=>{const sz=big?30:22;const mk=L.marker(a.ll,{icon:L.divIcon({className:"",html:`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}).addTo(m);if(big)mk.bindTooltip((a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""),{permanent:true,direction:"right",offset:[14,0],className:"lm-lab"})});
   m.fitBounds(L.latLngBounds(pts).pad(big?0.15:0.25),{maxZoom:16});
   // achurado: patrón SVG en el panel de vectores
   setTimeout(()=>{const svg=el.querySelector(".leaflet-overlay-pane svg");if(!svg)return;const ns="http://www.w3.org/2000/svg";
@@ -1714,7 +1721,13 @@ function pTra(A){const W=ST.wiz;const LD=A.days.filter(d=>d.city==="LO");const l
    <tr><td>Boleto aeropuertos (CDG u Orly)</td><td class="r num">14 €</td></tr><tr><td>Navigo Jour (1 día, todas las zonas, sin aeropuertos)</td><td class="r num">12,30 €</td></tr>
    <tr><td>Navigo Semaine (lunes a domingo, todas las zonas)</td><td class="r num">32,40 € + tarjeta 5 €</td></tr>
    <tr><td>Paris Visite 1 / 2 / 3 / 5 días (zonas 1–5)</td><td class="r num">30,60 / 45,40 / 63,80 / 78 €</td></tr></tbody></table></div>
-   <ul class="brief"><li><b>Navigo Jour</b> conviene solo un día con 5 o más viajes (por ejemplo, Versalles + recorrido por París).</li><li><b>Paris Visite</b> casi nunca conviene: cuesta más que el Navigo Semaine.</li><li>Boletos sueltos: en la app <b>Bonjour RATP</b> (celular) o en la tarjeta Navigo Easy (2 €). Guardar el boleto hasta salir: hay controles.</li></ul></div>
+   <span class="eyebrow" style="margin-top:8px">Qué es cada uno · toca para ver</span>
+   <details class="tdet"><summary>Boleto suelto metro / RER / tren · 2,55 €</summary><p>Un viaje en metro, RER o tren dentro de Île-de-France, con combinaciones dentro de la misma red durante el viaje. Se compra en la app <b>Bonjour RATP</b> (queda en el celular) o se carga en una tarjeta <b>Navigo Easy</b> (2 €, sin foto, recargable). Conviene en días con pocos traslados: la mayoría de los días del programa.</p><p><a href="https://www.bonjour-ratp.fr/titres-tarifs/" target="_blank" rel="noopener">Tarifas oficiales RATP ↗</a></p></details>
+   <details class="tdet"><summary>Boleto bus / tranvía · 2,05 €</summary><p>Solo bus o tranvía, con combinaciones bus–tranvía durante 90 minutos. No sirve para el metro.</p></details>
+   <details class="tdet"><summary>Boleto aeropuertos · 14 €</summary><p>Para ir o volver de Charles de Gaulle (RER B) u Orly (metro 14). El boleto normal de 2,55 € no sirve para esos tramos. Si tienen Navigo Semaine esa semana, el aeropuerto ya está incluido.</p><p><a href="https://www.bonjour-ratp.fr/titres-tarifs/ticket-paris-region-aeroports/" target="_blank" rel="noopener">Boleto aeropuertos ↗</a></p></details>
+   <details class="tdet"><summary>Navigo Jour · 12,30 € por día</summary><p>Viajes ilimitados en metro, RER, tren, bus y tranvía de todas las zonas durante un día calendario (no 24 horas), excepto los servicios a los aeropuertos. Equivale a ~5 boletos sueltos, así que conviene solo un día con 5 o más viajes, por ejemplo ir a Versalles y después recorrer París. Se carga en la Navigo Easy o en la app.</p><p><a href="https://www.bonjour-ratp.fr/titres-tarifs/forfait-navigo-jour/" target="_blank" rel="noopener">Navigo Jour en RATP ↗</a></p></details>
+   <details class="tdet"><summary>Navigo Semaine · 32,40 € (lunes a domingo)</summary><p>Viajes ilimitados toda la semana, de lunes 0:00 a domingo 23:59, en todas las zonas: incluye aeropuertos (RER B a CDG y metro 14 a Orly), Versalles, Fontainebleau y Disneyland. Va en la tarjeta <b>Navigo Découverte</b> (5 €, una sola vez, con nombre y foto tipo carnet que se pega en la tarjeta) o en un celular compatible. Ojo: siempre es de lunes a domingo, no 7 días desde la compra; la semana en curso se vende hasta el jueves. Conviene en semanas con más de ~13 viajes. La tabla de arriba lo calcula con su programa.</p><p><a href="https://parisienneries.fr/expos/navigo-decouverte-paris-visite-ou-ticket-journee-quel-pass-choisir-pour-3-a-7-jours-a-paris-2026/" target="_blank" rel="noopener">Guía Navigo Découverte 2026 ↗</a></p></details>
+   <details class="tdet"><summary>Paris Visite · desde 30,60 € (1 día)</summary><p>Pase turístico de 1, 2, 3 o 5 días seguidos (zonas 1–5, con aeropuertos) que trae algunos descuentos en atracciones. Cuesta mucho más que el Navigo: 3 días valen 63,80 €, el doble del Navigo Semaine. Solo podría servir en una estadía muy corta que cae a mitad de semana. Para este viaje no conviene.</p></details></div>
   <div class="card buy"><span class="eyebrow">Londres · tarifas 2026</span><h3>Sin contacto con tope automático</h3>
    <p>En Londres no se compra pase: se paga cada viaje acercando la tarjeta o el celular, y el sistema cobra como máximo el tope diario y semanal. <b>Cada una con su propia tarjeta</b>, siempre la misma.</p>
    <div class="tbl-wrap"><table><tbody><tr><td>Metro zona 1 (hora punta / resto)</td><td class="r num">£3,10 / £3,00</td></tr><tr><td>Bus</td><td class="r num">£1,75 (£1,85 desde 1 nov)</td></tr>
@@ -1736,16 +1749,23 @@ function pGas(A){const C={};A.days.forEach(d=>{const k=d.city==="LO"?"Londres":d
    <p class="note">Este es el presupuesto que estima el programa. El gasto real de cada una se registra en <a href="/gastos">💶 Mis gastos</a>, que compara contra estos montos.</p></div>`}
 
 // ---------- plano ampliado ----------
-function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpen);if(!d||!d.pa)return"";
-  return `<div class="fov" data-mclose="1"><article class="fsheet" style="--c:${PA_C}" role="dialog" aria-label="Plano del día"><button type="button" class="btn alt sm fx" data-mclose="1" aria-label="Cerrar">✕</button>
-   <span class="eyebrow">${pretty(d.d)} · París</span><h2>Plano del día</h2>${window.L?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div><div class="pm-leg"><span><i class="w"></i>a pie</span><span><i class="m"></i>metro/RER</span><span>⌂ alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>`:dayMap(d.pa,d.cost.legs)}
-   <ol class="brief">${d.pa.seq.map(a=>`<li><b>${hm(a.st)}</b> ${a.n}</li>`).join("")}</ol><a class="route" href="${routeUrl(d.pa)}" target="_blank" rel="noopener">🗺 Abrir en Google Maps</a></article></div>`}
+function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpen);if(!d||!d.pa)return"";const legs=d.cost.legs;
+  const box=(l)=>l.metro?`<br><span class="lg-tr subway">Ⓜ Metro / RER · ~${l.min} min (${l.d.toFixed(1).replace(".",",")} km) · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver línea y estaciones</a></span>`:"";
+  const back=legs[legs.length-1];
+  return `<div class="mapov on" data-mclose="1"><div class="mapsheet" role="dialog" aria-label="Recorrido del día"><span class="clip big" aria-hidden="true"></span>
+   <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · París</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
+   ${window.L?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(d.pa,legs).split("</svg>")[0]+"</svg>"}
+   <div class="ms-leg"><span><i class="k"></i>a pie</span><span><i class="k tr" style="border-top-color:#24477a"></i>metro / RER</span><span><i class="k h">H</i>alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>
+   <ol class="ms-list"><li><span class="anum h num">H</span> ${esc(hotSelName("par")||"Alojamiento en "+(ST.base||"París"))}</li>
+   ${d.pa.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
+   <li><span class="anum h num">H</span> Vuelta al alojamiento${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
+   <p class="ms-src">Plano: © colaboradores de OpenStreetMap. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
 
 // ---------- render ----------
 let _budLast="";
 function pushBudget(A){if(DEMO||!F||!ref||!A.days.length)return;const days=A.days.map(d=>({d:d.d,city:d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n),meal:+d.cost.meal.toFixed(2),act:+d.cost.act.toFixed(2),loc:+d.cost.loc.toFixed(2),hot:+d.cost.hot.toFixed(2)}));
   const j=JSON.stringify(days);if(j===_budLast)return;_budLast=j;clearTimeout(pushBudget.t);pushBudget.t=setTimeout(()=>{F.setDoc(F.doc(ref,"meta","presupuesto"),{days,at:Date.now(),by:user.email}).catch(()=>{})},1500)}
-function render(){if(!user)return;const A=buildAll();pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
+function render(){if(!user)return;const A=buildAll();window.LAST_A=A;pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}`;
@@ -1785,7 +1805,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const fm=$("#feasmini");if(fm)fm.onclick=()=>{document.body.classList.toggle("feas-open");render()};
   Q(".blk-com > h4, .blk-tr > h4",h=>h.onclick=()=>{const b=h.parentNode;b.classList.toggle("open");const k=b.closest(".day").dataset.day+"|"+(b.classList.contains("blk-com")?"com":"tr");b.classList.contains("open")?openActs.add(k):openActs.delete(k);setTimeout(()=>initMaps(A),0)});
   Q(".actrow2:not(.lite) .ar-top",t=>t.onclick=e=>{if(e.target.closest("button,a,select,input"))return;const r=t.closest(".actrow2"),k=r.closest(".day").dataset.day+"|"+r.dataset.k;r.classList.toggle("open");r.classList.contains("open")?openActs.add(k):openActs.delete(k)});
-  Q("[data-dmap]",b=>b.onclick=()=>{mapOpen=b.dataset.dmap;render()});
+  Q("[data-dmap]",b=>{b.onclick=()=>{mapOpen=b.dataset.dmap;render()};b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();b.click()}}});
   Q("[data-paday]",x=>x.onchange=()=>{const id=x.dataset.paday;if(!x.value)return;ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;if(x.value!=="auto")ST.paPin[id]=x.value;else delete ST.paPin[id];save();render()});
   Q("[data-lunchday]",x=>x.onchange=()=>{const r=LUNCH_V[+x.dataset.lunchday];ST.lunchAt=ST.lunchAt||{};for(const k in ST.lunchAt)if(ST.lunchAt[k]===r[0])delete ST.lunchAt[k];if(x.value){ST.lunchAt[x.value]=r[0];if(/bouillon|6\.90/i.test(r[0])){ST.mealOpt=ST.mealOpt||{};ST.mealOpt[x.value+"|a"]=3}}save();render()});
   Q("[data-tmode]",b=>b.onclick=()=>{ST.transMode=b.dataset.tmode;save();render()});
@@ -1793,6 +1813,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-addday]",b=>b.onclick=()=>{addDay=b.dataset.addday;addTyp="pas";render()});
   Q("[data-aclose]",b=>b.onclick=e=>{if(e.target===b||b.classList.contains("fx")){addDay=null;render()}});
   Q("[data-addtyp]",b=>b.onclick=()=>{addTyp=b.dataset.addtyp;render()});
+  Q("[data-addactd]",b=>b.onclick=()=>{const [id,dd]=b.dataset.addactd.split("|");ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=dd;addDay=null;save();render()});
   Q("[data-addact]",b=>b.onclick=()=>{const id=b.dataset.addact;ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=addDay;addDay=null;save();render()});
   Q("[data-addlunch]",b=>b.onclick=()=>{const r=LUNCH_V[+b.dataset.addlunch];ST.lunchAt=ST.lunchAt||{};ST.lunchAt[addDay]=r[0];if(/bouillon|6\.90/i.test(r[0])){ST.mealOpt=ST.mealOpt||{};ST.mealOpt[addDay+"|a"]=3}addDay=null;save();render()});
   Q("[data-addtrip]",b=>b.onclick=()=>{const d=addDay;if(overlap(d,d))return;ST.esc.push({id:b.dataset.addtrip,ini:d,fin:d});addDay=null;save();render()});
