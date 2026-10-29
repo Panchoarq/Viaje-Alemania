@@ -846,9 +846,16 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 /* calendario del viaje */
 .calopen{font:700 13px var(--f-mono);letter-spacing:.04em;padding:8px 12px;border:1.5px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;min-height:44px}
 .calopen:hover{background:var(--ink);color:var(--bg)}
-.day{position:relative}
-.daycal{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--card);font-size:16px;cursor:pointer;opacity:.7;z-index:2}
-.daycal:hover,.daycal:focus-visible{opacity:1;border-color:var(--ink)}
+.dtabrow{grid-column:1/-1;display:flex;align-items:flex-end;gap:8px;margin:-4px 0 2px;border-bottom:2.5px solid var(--ink);padding-bottom:0}
+.ftab{display:inline-flex;align-items:baseline;gap:10px;background:var(--ink);color:var(--card);padding:7px 30px 6px 14px;border-radius:8px 0 0 0;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 100%,0 100%);margin-bottom:-1px;min-width:0}
+.ftab b{font:700 16px/1.2 "Courier Prime",monospace;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.ftab .fc{font:700 14px/1.2 "Source Serif 4",Georgia,serif;color:color-mix(in srgb,var(--c) 35%,var(--card));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daycal{width:36px;height:36px;display:grid;place-items:center;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;flex:none;margin-bottom:4px}
+.daycal:hover,.daycal:focus-visible{background:var(--ink);color:var(--card)}
+.totop{margin-left:auto;margin-bottom:4px;font:700 12px "Courier Prime",monospace;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);padding:8px 10px;min-height:36px;cursor:pointer;flex:none}
+.totop:hover,.totop:focus-visible{color:var(--ink);border-color:var(--ink)}
+.totop.bot{grid-column:1/-1;justify-self:end;margin:4px 0 0}
+@media (max-width:420px){.ftab{padding-right:24px;gap:6px}.ftab b{font-size:14px}.totop:not(.bot){padding:8px;font-size:0}.totop:not(.bot)::before{content:"↑";font-size:16px}}
 .calov{position:fixed;inset:0;z-index:50;background:rgba(30,24,16,.55);display:flex;align-items:center;justify-content:center;padding:16px}
 .calsheet{background:var(--bg);border:1px solid var(--line);border-radius:10px;width:min(980px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:16px 18px 18px;box-shadow:0 10px 40px rgba(0,0,0,.35);outline:none}
 .tc-leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);margin:6px 0 10px}
@@ -1528,6 +1535,7 @@ function bindCal(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   const co=document.querySelector(".calov");if(co)co.onclick=e=>{if(e.target===co){calOpen=false;calPop=null;render()}};
   Q("[data-calpop]",b=>b.onclick=e=>{e.stopPropagation();const v=b.dataset.calpop||null;calPop=calPop===v?null:v;render();const p=document.querySelector(".tc-pop");if(p)p.scrollIntoView({block:"nearest"})});
   Q("[data-calgo]",b=>b.onclick=()=>goDay(b.dataset.calgo));
+  Q("[data-totop]",b=>b.onclick=()=>scrollTo({top:0,behavior:"smooth"}));
   Q("[data-goday]",b=>b.onclick=e=>{e.preventDefault();const d=window.LAST_A.days.find(x=>x.d===b.dataset.goday&&(x.city==="PA"));if(d)goDay(d.id)});
   Q("[data-goesc]",b=>{b.onclick=()=>{escPick=b.dataset.goesc;go("esc")};b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();b.onclick()}}});
   if(calOpen){document.body.style.overflow="hidden";const sh=document.querySelector(".calsheet");if(sh&&!sh.contains(document.activeElement))(sh.querySelector(".ms-x")||sh).focus({preventScroll:true})}else document.body.style.overflow="";
@@ -1589,7 +1597,8 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     ret:fx?`🚄 Tren ${fx.n} → París (${fx.tr}) por la mañana · <b>París: actividades desde las 14:30</b>`:"",
     final:`✈ Vuelo de regreso ${esc(W.vue_vuelo||"")} desde ${esc(W.vue_aerop||"CDG")} · check-out y RER B al aeropuerto (boleto 14 €) · llegar 3 h antes`,
     go:d.c?`🚄 París → <b>${d.c.n}</b> · ${d.c.x.tr} · ${X.how||""}`:"",lonfirst:`✈ Llegada a Londres ${esc(W.ida_aerop||"")} ${esc(W.ida_vuelo||"")} · traslado donde la amiga (Elizabeth line o Piccadilly desde Heathrow)`,trip:d.c?`🚆 Ida y vuelta en el día · ${d.c.x.tr} · ${X.how||""}`:""}[d.kind]||"";
-  let h=`<div class="day-head"><span class="eyebrow">${pretty(d.d)} · ${short(C.n)}</span><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
+  const CAL='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg>';
+  let h=`<div class="dtabrow"><span class="ftab"><b>${pretty(d.d)}</b><span class="fc">${esc(short(C.n))}</span></span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
    ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}
    <div class="day-body"><div class="blk blk-com${openActs.has(d.id+"|com")?" open":""}"><h4>Comidas · ${fmt(c.meal)}</h4>`;
   ["d","a","m","c"].forEach(k=>{const T=MT(d),on=mealOnP(d.id,k),i=mealIxP(d.id,k,T),o=T[k];
@@ -1623,7 +1632,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(c.legs)h+=c.legs.map(l=>`<div class="line sub"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn} <small class="muted">${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span></div>`).join("");
   if(d.pa&&d.pa.seq.length)h+=window.L?`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
   else if(d.c)h+=`<a class="route" href="https://www.google.com/maps/search/?api=1&query=${(X.ll||PARIS).join(",")}" target="_blank" rel="noopener">🗺 Mapa de ${short(d.c.n)}</a>`;
-  h+=`</div></div>`;
+  h+=`</div></div><button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
   return `<article class="day" style="--c:${C.c}" data-day="${d.id}" data-city="${d.city}">${h}</article>`}
 function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fechas de llegada a París y del vuelo de regreso en <b>1 · Configurar</b>.</p></div>`;
   if(!A.C.some(c=>c.k===progCity))progCity="PA";const ds=A.days.filter(d=>d.city===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
@@ -1631,7 +1640,7 @@ function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fe
   return `<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" class="calopen" data-calopen aria-label="Abrir calendario del viaje">📅 Calendario</button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}
     <div class="dchips">${ds.map((d,i)=>`<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}">${pretty(d.d).replace(/ [a-zé]+$/,"")}${d.kind==="first"||d.kind==="go"?" <small>llegada</small>":d.kind==="final"?" <small>fin</small>":d.kind==="ret"?" <small>vuelta</small>":""}</button>`).join("")}</div></div>
-   <div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">📅</button>`)).join("")}</div>`}
+   <div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
