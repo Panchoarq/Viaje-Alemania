@@ -1429,7 +1429,7 @@ const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key i
 function legsOfDay(p){const base=p.base||baseLL();const L=[];let pos=base,nm="alojamiento";
   p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
   if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
-  return L.map(l=>{const d=km(l.from,l.to);return {...l,d,metro:d>1.2,min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
+  return L.map(l=>{const d=km(l.from,l.to);return {...l,d,metro:d>(p.esc?2.5:1.2),min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
 const trUrl=(a,b,m)=>`https://www.google.com/maps/dir/?api=1&origin=${a.join(",")}&destination=${b.join(",")}&travelmode=${m?"transit":"walking"}`;
 // Sena aproximada (lat,lng) de este a oeste
 const SEINE=[[48.8255,2.4100],[48.8300,2.3880],[48.8360,2.3760],[48.8430,2.3650],[48.8490,2.3600],[48.8515,2.3540],[48.8545,2.3480],[48.8575,2.3410],[48.8590,2.3350],[48.8615,2.3270],[48.8640,2.3200],[48.8645,2.3080],[48.8635,2.3010],[48.8605,2.2935],[48.8560,2.2870],[48.8495,2.2790],[48.8440,2.2740],[48.8380,2.2690],[48.8300,2.2630]];
@@ -1782,6 +1782,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(nightK)h+=`<div class="line"><span>½ alojamiento (2 personas)</span><span class="p">${c.hot?fmt(c.hot):"sin tarifa"}</span></div>`;
   if(c.legs)h+=c.legs.map(l=>`<div class="line sub"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn} <small class="muted">${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span></div>`).join("");
   if(d.pa&&d.pa.seq.length)h+=(window.L||window.maplibregl)?`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span><span class="mc-cr">© OpenFreeMap · OSM</span></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
+  else if(d.c&&escPlan(d)&&(window.L||window.maplibregl))h+=`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano de ${esc(short(d.c.n))}"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span><span class="mc-cr">© OpenFreeMap · OSM</span></div>`;
   else if(d.c)h+=`<a class="route" href="https://www.google.com/maps/search/?api=1&query=${(X.ll||PARIS).join(",")}" target="_blank" rel="noopener">🗺 Mapa de ${short(d.c.n)}</a>`;
   h+=`</div></div><button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
   return `<article class="day" style="--c:${C.c}" data-day="${d.id}" data-city="${d.city}">${h}</article>`}
@@ -2019,7 +2020,7 @@ function walkGeo(l){const k=wkey(l);if(WALK[k])return Promise.resolve(WALK[k]);
 const circ=(ll,r)=>{const out=[];for(let i=0;i<=48;i++){const a=i/48*2*Math.PI;out.push([ll[1]+r/111320/Math.cos(ll[0]*Math.PI/180)*Math.cos(a),ll[0]+r/110540*Math.sin(a)])}return out};
 let ML=[];
 function hatchImg(){const c=document.createElement("canvas");c.width=c.height=12;const x=c.getContext("2d");x.fillStyle="rgba(179,38,30,.08)";x.fillRect(0,0,12,12);x.strokeStyle="rgba(179,38,30,.55)";x.lineWidth=2.5;x.beginPath();x.moveTo(-3,15);x.lineTo(15,-3);x.moveTo(-9,9);x.lineTo(9,-9);x.moveTo(3,21);x.lineTo(21,3);x.stroke();return x.getImageData(0,0,12,12)}
-function mlMap(el,d,big){const p=d.pa,base=p.base||baseLL(),legs=d.cost.legs||[],pts=[base,...p.seq.map(a=>a.ll)];
+function mlMap(el,d,big){const p=planOf(d),base=p.base||baseLL(),legs=legsOf(d),pts=[base,...p.seq.map(a=>a.ll)];
   const m=new maplibregl.Map({container:el,style:mlStyle(),interactive:big,attributionControl:big?{compact:true,customAttribution:"© OpenFreeMap · © OpenStreetMap"}:false,bounds:[[Math.min(...pts.map(x=>x[1])),Math.min(...pts.map(x=>x[0]))],[Math.max(...pts.map(x=>x[1])),Math.max(...pts.map(x=>x[0]))]],fitBoundsOptions:{padding:big?{top:50,bottom:50,left:40,right:140}:24,maxZoom:16}});
   el._m=m;ML.push(m);if(big){m.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-left");m.scrollZoom.disable()}
   const mk=(ll,html,lab)=>{const w=document.createElement("div");w.className="mlmk";w.innerHTML=html+(lab?`<span class="mllab">${esc(lab)}</span>`:"");new maplibregl.Marker({element:w,anchor:"left",offset:[big?-15:-11,0]}).setLngLat([ll[1],ll[0]]).addTo(m)};
@@ -2039,15 +2040,25 @@ function mlMap(el,d,big){const p=d.pa,base=p.base||baseLL(),legs=d.cost.legs||[]
   p.seq.forEach((a,k)=>mk(a.ll,`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,big?(a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""):""));
   return m}
 
-function initMaps(A){ML=ML.filter(m=>{if(!document.body.contains(m.getContainer())){try{m.remove()}catch(e){}return false}return true});if(!window.L&&!window.maplibregl)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!d.pa)return;
+
+// Coordenadas de los puntos sugeridos de cada escapada (mismo orden que la ficha)
+const ESC_LL={bru:[[50.8467,4.3524],[50.8450,4.3500],[50.8949,4.3415],[51.2089,3.2247]],ams:[[52.3600,4.8852],[52.3584,4.8811],[52.3752,4.8840],[52.3780,4.9000]],col:[[50.9413,6.9583],[50.9413,6.9653],[50.9322,6.9640],[50.9381,6.9601]],lil:[[50.6370,3.0633],[50.6405,3.0628],[50.6311,3.0623]],rei:[[49.2535,4.0341],[49.2530,4.0350],[49.2423,4.0469]],str:[[48.5818,7.7509],[48.5806,7.7409],[48.0736,7.3585]],lyo:[[45.7622,4.8270],[45.7623,4.8228],[45.7676,4.8274],[45.7676,4.8337]],dij:[[47.3220,5.0413],[47.3229,5.0422],[47.1373,4.9480]],bdx:[[44.8413,-0.5698],[44.8625,-0.5503],[44.8945,-0.1556]],loi:[[47.3249,1.0703],[47.6162,1.5170],[47.4102,0.9910]],nor:[[49.4402,1.0951],[49.4430,1.0890],[49.7071,0.2047]],msm:[[48.6359,-1.5114],[48.6352,-1.5103],[48.6150,-1.5110]],gin:[[46.2074,6.1556],[46.2011,6.1484],[45.8992,6.1294]],ver:[[48.8049,2.1204],[48.8045,2.1210],[48.8150,2.1093]],giv:[[49.0755,1.5338],[49.0745,1.5332]],fon:[[48.4021,2.7003],[48.4018,2.6990],[48.3920,2.6600]],cha:[[49.1940,2.4855],[49.1925,2.4895],[49.1960,2.4880]]};
+const _EP={};
+function escPlan(d){if(!d||!d.c||!d.items||!d.items.length)return null;const k=d.id;if(_EP[k])return _EP[k];const X=EXT[d.c.id]||{},v=(X.f||{}).v||[],L=ESC_LL[d.c.id];if(!L||!X.ll)return null;
+  const base=X.ll;let pos=base,t=d.kind==="go"||d.kind==="trip"?11:9.5;const seq=[];
+  d.items.forEach(n=>{const i=v.indexOf(n);if(i<0||!L[i])return;t+=mv(pos,L[i]);const nm=n.split(/,|:| \(/)[0].trim();seq.push({id:d.c.id+"_"+i,n:nm,ll:L[i],h:1.25,st:t,p:0});t+=1.25;pos=L[i]});
+  if(!seq.length)return null;return _EP[k]={base,seq,cap:6,end:t,esc:1}}
+const planOf=d=>d.pa&&d.pa.seq&&d.pa.seq.length?d.pa:escPlan(d);
+const legsOf=d=>{const p=planOf(d);return p?(d.pa===p&&d.cost.legs?d.cost.legs:legsOfDay(p)):[]};
+function initMaps(A){ML=ML.filter(m=>{if(!document.body.contains(m.getContainer())){try{m.remove()}catch(e){}return false}return true});if(!window.L&&!window.maplibregl)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!planOf(d))return;
   const big=!!el.dataset.big;if(window.maplibregl){try{el.classList.add("ml");mlMap(el,d,big);return}catch(e){el.classList.remove("ml");el._m=null}}if(!window.L)return;const m=L.map(el,{zoomControl:big,dragging:big,scrollWheelZoom:false,doubleClickZoom:big,touchZoom:big,boxZoom:big,keyboard:big,attributionControl:true});el._m=m;
   m.attributionControl.setPrefix(false);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(m);
-  const base=d.pa.base||baseLL(),pts=[base,...d.pa.seq.map(a=>a.ll)];
+  const base=planOf(d).base||baseLL(),pts=[base,...planOf(d).seq.map(a=>a.ll)];
   const zs=zonesNearPA(pts),id="hz"+(++_hz);
   zs.forEach(z=>{const c=L.circle(z.ll,{radius:z.r,color:"#b3261e",weight:1.5,dashArray:"4 3",fillOpacity:1,interactive:big}).addTo(m);if(big)c.bindTooltip(z.n);c._hz=1});
-  d.cost.legs.forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
+  legsOf(d).forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
   L.marker(base,{icon:L.divIcon({className:"",html:'<div class="lm-h">H</div>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(m);
-  d.pa.seq.forEach((a,k)=>{const sz=big?30:22;const mk=L.marker(a.ll,{icon:L.divIcon({className:"",html:`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}).addTo(m);if(big)mk.bindTooltip((a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""),{permanent:true,direction:"right",offset:[14,0],className:"lm-lab"})});
+  planOf(d).seq.forEach((a,k)=>{const sz=big?30:22;const mk=L.marker(a.ll,{icon:L.divIcon({className:"",html:`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}).addTo(m);if(big)mk.bindTooltip((a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""),{permanent:true,direction:"right",offset:[14,0],className:"lm-lab"})});
   m.fitBounds(L.latLngBounds(pts).pad(big?0.15:0.25),{maxZoom:16});
   // achurado: patrón SVG en el panel de vectores
   setTimeout(()=>{const svg=el.querySelector(".leaflet-overlay-pane svg");if(!svg)return;const ns="http://www.w3.org/2000/svg";
@@ -2108,16 +2119,16 @@ function pGas(A){const C={};A.days.forEach(d=>{const k=d.city==="LO"?"Londres":d
    <p class="note">Este es el presupuesto que estima el programa. El gasto real de cada una se registra en <a href="/gastos">💶 Mis gastos</a>, que compara contra estos montos.</p></div>`}
 
 // ---------- plano ampliado ----------
-function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpen);if(!d||!d.pa)return"";const legs=d.cost.legs;
-  const box=(l)=>l.metro?`<br><span class="lg-tr subway">Ⓜ Metro / RER · ~${l.min} min (${l.d.toFixed(1).replace(".",",")} km) · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver línea y estaciones</a></span>`:"";
+function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpen);const P=d&&planOf(d);if(!P)return"";const legs=legsOf(d);const isE=!!P.esc;
+  const box=(l)=>l.metro?`<br><span class="lg-tr subway">${isE?"🚆 Tren o transporte público":"Ⓜ Metro / RER"} · ~${l.min} min (${l.d.toFixed(1).replace(".",",")} km) · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver línea y estaciones</a></span>`:"";
   const back=legs[legs.length-1];
   return `<div class="mapov on" data-mclose="1"><div class="mapsheet" role="dialog" aria-label="Recorrido del día"><span class="clip big" aria-hidden="true"></span>
-   <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · ${d.city==="LO"?"Londres":"París"}</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
-   ${(window.L||window.maplibregl)?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(d.pa,legs).split("</svg>")[0]+"</svg>"}
+   <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · ${d.city==="LO"?"Londres":d.city==="PA"?"París":esc(short(d.c.n))}</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
+   ${(window.L||window.maplibregl)?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(P,legs).split("</svg>")[0]+"</svg>"}
    <div class="ms-leg"><span><i class="k"></i>a pie</span><span><i class="k tr" style="border-top-color:#24477a"></i>metro / RER</span><span><i class="k h">H</i>alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>
-   <ol class="ms-list"><li><span class="anum h num">H</span> ${d.city==="LO"?esc("Donde la amiga"+((ST.wiz||{}).lon_dir?" · "+ST.wiz.lon_dir:"")):esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
-   ${d.pa.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
-   <li><span class="anum h num">H</span> Vuelta al alojamiento${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
+   <ol class="ms-list"><li><span class="anum h num">H</span> ${isE?(d.kind==="trip"?"Llegada a "+esc(short(d.c.n))+" (tren desde París)":"Alojamiento en "+esc(short(d.c.n))):d.city==="LO"?esc("Donde la amiga"+((ST.wiz||{}).lon_dir?" · "+ST.wiz.lon_dir:"")):esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
+   ${P.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${typeof PA_F!=="undefined"&&PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
+   <li><span class="anum h num">H</span> ${isE&&d.kind==="trip"?"Tren de vuelta a París":"Vuelta al alojamiento"}${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
    <p class="ms-src">Plano: © OpenFreeMap · © colaboradores de OpenStreetMap · caminatas calculadas con OSRM. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
 
 // ---------- render ----------
