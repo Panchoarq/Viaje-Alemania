@@ -917,6 +917,18 @@ span.tc-d{cursor:default}
 .ewhy{margin:8px 0 10px;padding:10px 12px;background:color-mix(in srgb,var(--c,#a8352b) 7%,var(--card));border-left:4px solid var(--c,#a8352b);border-radius:4px}
 .ewhy p{margin:4px 0 0;font-size:15.5px;line-height:1.55}
 .ewhy .flab{font:700 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.blkq{margin:8px 0 4px}.blkq p{margin:2px 0 6px;font-size:14px}
+.blkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 12px}
+.blkrow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:14px}
+.blkrow b{font:700 13px var(--f-mono);min-width:92px}
+.blkrow.on{border-color:var(--ink);background:color-mix(in srgb,#a8352b 7%,var(--card))}
+.blkrow select{flex:1;min-width:0;font-size:13px;padding:4px}
+.blkrow input{flex:1 1 100%;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
+.blknote{display:block;margin:6px 0;padding:6px 10px;border-left:4px solid #a8352b;background:color-mix(in srgb,#a8352b 8%,var(--card));font-size:14.5px;grid-column:1/-1}
+.blknote.free{border-left-color:#3d6b3a;background:color-mix(in srgb,#3d6b3a 8%,var(--card))}
+.jcard.lo{border-left-color:#1d6f7a}
+.tc-c.bbusy::before{content:"🔒";position:absolute;right:2px;bottom:0;font-size:10px}
+.tc-c.bfree::before{content:"🌿";position:absolute;right:2px;bottom:0;font-size:10px}
 </style>
 </head>
 <body>
@@ -976,7 +988,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -989,7 +1001,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1179,9 +1191,9 @@ const LON=[
 // Arma el programa: agrupa por zona, reparte zonas en los días (dejando días libres), ordena por cercanía desde la base.
 // Ventana «juntas»: las actividades marcadas como juntas se reparten solo en esos días (ritmo intenso).
 function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
-  const plan=days.map(x=>({...x,acts:[],ev:[],cap:x.first||x.ret?3:(x.jun?7:5.5),base}));
+  const plan=days.map(x=>{const b=blkOf(x.d);const cap0=x.first||x.ret?3:(x.jun?7:5.5);return {...x,acts:[],ev:[],blk:b,cap:!b?cap0:b.k==='am'||b.k==='pm'?Math.min(cap0,3.5):0,base}});
   const byDay=d=>plan.find(p=>p.d===d),dow=p=>D(p.d).getDay();
-  const okDay=(p,a)=>!(a.cl&&a.cl.includes(dow(p)))&&!(a.from&&p.d<a.from)&&!(a.to&&p.d>a.to)&&!(a.no&&a.no.includes(p.d));
+  const okDay=(p,a)=>!(p.blk&&(p.blk.k==='free'||p.blk.k==='busy'||(p.blk.k==='pm'&&(a.eve||a.eveok||a.lateo))))&&!(a.cl&&a.cl.includes(dow(p)))&&!(a.from&&p.d<a.from)&&!(a.to&&p.d>a.to)&&!(a.no&&a.no.includes(p.d));
   const load=p=>p.acts.reduce((t,a)=>t+a.h+0.3,0);
   const lateOn=(a,p)=>a.lateo&&a.lateo[dow(p)]!=null;
   sel.filter(a=>pin[a.id]&&byDay(pin[a.id])).forEach(a=>{const p=byDay(pin[a.id]);(a.eve||(lateOn(a,p)&&!p.ev.length)?p.ev:p.acts).push(a)});
@@ -1207,7 +1219,7 @@ function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
     const out=plan.filter(p=>!p.jun);dist(sel.filter(a=>!jun[a.id]),out.length?out:plan,step)}
   else dist(sel,plan,step);
   dist(sel.filter(a=>!(J.length&&(ST.paJun||{})[a.id])),plan,step);// lo que no cupo: cualquier día con espacio
-  plan.forEach(p=>{let pos=base,t=p.first||p.ret?14.5:9.5,rest=p.acts.slice(),seq=[];
+  plan.forEach(p=>{let pos=base,t=p.first||p.ret||(p.blk&&p.blk.k==='am')?14.5:9.5,rest=p.acts.slice(),seq=[];
     const ord=(ST.paOrd||{})[p.d];p.man=!!(ord&&ord.length);const oi=a=>{const i=ord?ord.indexOf(a.id):-1;return i<0?99:i};
     while(rest.length){const fx=!p.man&&rest.find(a=>a.at);
       if(fx)rest.splice(rest.indexOf(fx),1),rest.unshift(fx);
@@ -1231,17 +1243,38 @@ const selOf=a=>a?(isLO(a.id)?loSel(a):paSel(a)):false;
 // ===== Modo juntas =====
 function junDays(){const j=ST.jun||{};return junOn()?parisDays().filter(x=>x.d>=j.ini&&x.d<=j.fin):[]}
 const isJunDay=d=>{const j=ST.jun||{};return junOn()&&d>=j.ini&&d<=j.fin};
+// ===== Días bloqueados / libres (pregunta antes de organizar) =====
+const BLK_OPT=[["","Disponible"],["free","🌿 Día libre"],["busy","🔒 Ocupado todo el día"],["am","🔒 Mañana ocupada"],["pm","🔒 Tarde ocupada"]];
+const blkOf=d=>(ST.dayBlk||{})[d]||null;
+function blkUI(days,num){return `<div class="blkq"><span class="flab">${num} · ¿Algún día ya comprometido?</span><p class="muted">Si tienen una entrada comprada, un plan fijo o quieren días sin actividades, márquenlo: esos días quedan fuera del reparto automático y el resto se organiza en los días que quedan.</p><div class="blkgrid">${days.map(x=>{const b=blkOf(x.d)||{};return `<div class="blkrow${b.k?" on":""}"><b>${pretty(x.d)}</b><select data-blk="${x.d}" aria-label="Disponibilidad del ${pretty(x.d)}">${BLK_OPT.map(([k,t])=>`<option value="${k}" ${(b.k||"")===k?"selected":""}>${t}</option>`).join("")}</select>${b.k&&b.k!=="free"?`<input data-blkt="${x.d}" value="${esc(b.t||"")}" placeholder="¿Qué tienen? Ej.: entradas Harry Potter 10:30" aria-label="Qué tienen el ${pretty(x.d)}">`:""}</div>`}).join("")}</div></div>`}
+function blkNote(d){const b=blkOf(d.d);if(!b||(d.city!=="PA"&&d.city!=="LO"))return"";
+  return `<span class="blknote ${b.k==="free"?"free":""}">${b.k==="free"?"🌿 <b>Día libre</b>: sin actividades programadas":`🔒 <b>${b.k==="am"?"Mañana ocupada":b.k==="pm"?"Tarde y noche ocupadas":"Día ocupado"}</b>${b.t?": "+esc(b.t):""}`}</span>`}
+function loOrgCard(A){const ld=lonDays();if(!ld.length)return"";const n=LON.filter(loSel).length;const nb=ld.filter(x=>blkOf(x.d)).length;const lr=A.RL||{unpl:[]};
+  const head=`<span>🧭 <b>Organizar Londres (las dos):</b> ${ld.length} días · <b>${n}</b> actividad${n===1?"":"es"}${nb?` · ${nb} día${nb>1?"s":""} bloqueado${nb>1?"s":""} o libre${nb>1?"s":""}`:""}${lr.unpl.length?` · <b class="bad">✕ no caben ${lr.unpl.length}</b>`:""}</span>`;
+  if(!ST.loOrg)return `<div class="jcard lo">${head}<span class="jact"><button type="button" class="btn sm" data-loorg>✏️ Organizar Londres</button></span></div>`;
+  return `<div class="jcard lo open"><div class="jtop">${head}<button type="button" class="btn sm" data-loorgdone>✓ Listo · organizar</button></div>
+   ${blkUI(ld,1)}
+   <span class="flab" style="display:block;margin-top:10px">2 · ¿Qué quieren hacer?</span><p class="muted" style="margin:2px 0 6px;font-size:14px">Marquen todo lo que les interese: se reparte en los días disponibles, por barrio desde el alojamiento, con los museos que abren de noche después del atardecer y los eventos en sus fechas.</p>
+   <div class="jcats">${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=LON.filter(a=>typOf(a)===k);if(!L.length)return"";const ns=L.filter(loSel).length;
+     return `<details class="pool" data-k="lorg-${k}" ${ns?"open":""}><summary>${t} <span class="poolcnt">(${ns?ns+" de ":""}${L.length})</span></summary>${L.map(a=>{const on=loSel(a),dd=ACTDAY[a.id];return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-pasel="${a.id}" ${on?"checked":""}><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?" 🏛":""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}</small></span></label>${on?`<small class="pdst${dd?"":" bad"}">${dd?`✔ ${pretty(dd)}`:"⚠ No cabe en los días disponibles"}</small>`:""}</div>`}).join("")}</details>`}).join("")}</div></div>`}
+function bindBlk(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-blk]",x=>x.onchange=()=>{ST.dayBlk=ST.dayBlk||{};const d=x.dataset.blk;if(x.value)ST.dayBlk[d]={...(ST.dayBlk[d]||{}),k:x.value};else delete ST.dayBlk[d];save();render();const n=document.querySelector(`[data-blkt="${d}"]`);if(n)n.focus()});
+  Q("[data-blkt]",x=>x.onchange=()=>{ST.dayBlk=ST.dayBlk||{};const d=x.dataset.blkt;if(ST.dayBlk[d]){ST.dayBlk[d].t=x.value.trim();save();render()}});
+  Q("[data-loorg]",b=>b.onclick=()=>{ST.loOrg=true;save();render()});
+  Q("[data-loorgdone]",b=>b.onclick=()=>{ST.loOrg=false;const ld=new Set(lonDays().map(x=>x.d));LON.forEach(a=>{if(ST.paPin&&ST.paPin[a.id]&&!blkOf(ST.paPin[a.id]))delete ST.paPin[a.id]});if(ST.paOrd)Object.keys(ST.paOrd).forEach(k=>{if(ld.has(k))delete ST.paOrd[k]});save();render();const n=LON.filter(loSel).length;toast(`🧭 Londres organizado: ${n} actividad${n===1?"":"es"} en los días disponibles`);const t=document.getElementById("daytabs");if(t)t.scrollIntoView({behavior:"smooth"})})}
+
 function jCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const j=ST.jun||{};
   if(!j.ini)return `<div class="jcard off"><span>👭 <b>Modo juntas</b> · elijan lo que quieren ver mientras están las dos en París; se reparte solo en esos días (ritmo intenso). El resto de París queda para después.</span><button type="button" class="btn sm" data-jstart>Configurar días juntas</button></div>`;
   const JD=junDays(),jun=ST.paJun||{};const JL=PA.filter(a=>jun[a.id]&&paSel(a));
-  const need=JL.reduce((t,a)=>t+a.h+0.3,0),avail=JD.reduce((t,x)=>t+(x.first||x.ret?3:7),0);
+  const need=JL.reduce((t,a)=>t+a.h+0.3,0),avail=JD.reduce((t,x)=>{const b=blkOf(x.d);const c=x.first||x.ret?3:7;return t+(!b?c:b.k==="am"||b.k==="pm"?Math.min(c,3.5):0)},0);
   const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>jun[a.id]).length;
   const head=`<span>👭 <b>Días juntas:</b> ${pretty(j.ini)} → ${pretty(j.fin)} · ${JD.length} días · <b>${JL.length}</b> actividad${JL.length===1?"":"es"} · ${need.toFixed(1)} / ${avail.toFixed(1)} h${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
   if(!j.mode)return `<div class="jcard">${head}<span class="jact"><button type="button" class="btn sm" data-jmode>✏️ Organizar días juntas</button></span></div>`;
   const last=parisDays().slice(-1)[0];
   return `<div class="jcard open"><div class="jtop">${head}<button type="button" class="btn sm" data-jdone>✓ Listo · volver al programa</button></div>
    <p class="muted" style="margin:6px 0 8px;font-size:14px">Marquen lo que quieren hacer <b>juntas</b>: se reparte solo entre estos días, agrupado por barrio y con ritmo intenso. Después pueden mover, agregar o quitar como siempre.</p>
-   <div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
+   <span class="flab" style="display:block">1 · ¿Qué días están las dos?</span><div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
+   ${blkUI(parisDays(),2)}<span class="flab" style="display:block;margin-top:10px">3 · ¿Qué quieren hacer juntas?</span>
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${need>avail?"--bad":"--ok"})"></span></div>
    <div class="jcats">${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=PA.filter(a=>typOf(a)===k);if(!L.length)return"";const n=L.filter(a=>jun[a.id]&&paSel(a)).length;
      return `<details class="pool" data-k="jun-${k}" ${n?"open":""}><summary>${t} <span class="poolcnt">(${n?n+" de ":""}${L.length})</span></summary>${L.map(a=>{const on=!!(jun[a.id]&&paSel(a)),dd=ACTDAY[a.id];return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-jsel="${a.id}" ${on?"checked":""}><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?" 🏛":""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${!on&&paSel(a)?" · ya está en el programa (fuera de los días juntas)":""}</small></span></label>${on?`<small class="pdst${dd?"":" bad"}">${dd?`👭 ${pretty(dd)}`:"⚠ No cabe en los días juntas"}</small>`:""}</div>`}).join("")}</details>`}).join("")}</div></div>`}
@@ -1697,7 +1730,7 @@ function tripDays(A){const W=ST.wiz,M={};const ini=W.ida_fecha||W.ida_llega||(A.
     const acts=d.pa?d.pa.seq.map(a=>({n:a.n,t:a.st})):d.items?d.items.map(n=>({n})):[];
     const tr=["first","go","ret","final","lonfirst"].includes(d.kind);
     const lab=C.n+(d.kind==="first"?" · llegada en Eurostar":d.kind==="final"?" · vuelo a Santiago":d.kind==="go"?" · tren de ida":d.kind==="ret"?" · vuelta a París":d.kind==="lonfirst"?" · llegada":"");
-    M[d.d]={k:(d.city==="PA"?"pa":d.city==="LO"?"lo":"es")+(d.city==="PA"&&isJunDay(d.d)?" jun":""),c:C.c,lab:lab+(d.city==="PA"&&isJunDay(d.d)?" · 👭 juntas":""),acts,tr,id:d.id}});
+    M[d.d]={k:(d.city==="PA"?"pa":d.city==="LO"?"lo":"es")+(d.city==="PA"&&isJunDay(d.d)?" jun":"")+((d.city==="PA"||d.city==="LO")&&blkOf(d.d)?(blkOf(d.d).k==="free"?" bfree":" bbusy"):""),c:C.c,lab:lab+(d.city==="PA"&&isJunDay(d.d)?" · 👭 juntas":"")+((d.city==="PA"||d.city==="LO")&&blkOf(d.d)?(blkOf(d.d).k==="free"?" · 🌿 libre":" · 🔒 "+(blkOf(d.d).t||"ocupado")):""),acts,tr,id:d.id}});
   return {M,ini,fin}}
 function tripCal(A){if(!calOpen)return "";const {M,ini,fin}=tripDays(A);if(!ini||!fin)return "";const today=iso(new Date());
   let s="";const d0=D(ini),end=D(fin);let y=d0.getFullYear(),m=d0.getMonth();
@@ -1791,7 +1824,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     go:d.c?`🚄 París → <b>${d.c.n}</b> · ${d.c.x.tr} · ${X.how||""}`:"",lonfirst:`✈ Llegada a Londres ${esc(W.ida_aerop||"")} ${esc(W.ida_vuelo||"")} · traslado donde la amiga (Elizabeth line o Piccadilly desde Heathrow)`,trip:d.c?`🚆 Ida y vuelta en el día · ${d.c.x.tr} · ${X.how||""}`:""}[d.kind]||"";
   const CAL='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg>';
   let h=`<div class="dtabrow"><span class="dftab"><b>${pretty(d.d)}</b><span class="fc">${esc(short(C.n))}</span>${d.city==="PA"&&isJunDay(d.d)?'<span class="fc" title="Día juntas">👭</span>':""}${wxMini(d.city==="LO"?"LO":"PA",d.d)}</span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
-   ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}
+   ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}${blkNote(d)}
    <div class="day-body"><div class="blk blk-com${openActs.has(d.id+"|com")?" open":""}"><h4>Comidas · ${fmt(c.meal)}</h4>`;
   ["d","a","m","c"].forEach(k=>{const T=MT(d),on=mealOnP(d.id,k),i=mealIxP(d.id,k,T),o=T[k];
     h+=`<label class="chk"><input type="checkbox" data-pmeal="${d.id}|${k}" ${on?"checked":""}><span class="t">${PA_MEAL_LBL[k]}<small>${o[i][0]}</small></span><span class="p">${fmt(o[i][1])}</span></label>${o.length>1?`<select class="msel" data-pmopt="${d.id}|${k}" aria-label="Opción ${PA_MEAL_LBL[k]}">${o.map((x,j)=>`<option value="${j}" ${j===i?"selected":""}>${x[0]} · ${fmt(x[1])}</option>`).join("")}</select>`:""}`});
@@ -1830,7 +1863,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
 function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fechas de llegada a París y del vuelo de regreso en <b>1 · Configurar</b>.</p></div>`;
   if(!A.C.some(c=>c.k===progCity))progCity="PA";const ds=A.days.filter(d=>d.city===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
   const nun=A.R.unpl.length;
-  return `${jCard(A)}<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
+  return `${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A):""}<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" class="calopen" data-calopen aria-label="Abrir calendario del viaje">📅 Calendario</button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}
     <div class="dchips">${ds.map((d,i)=>`<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}">${pretty(d.d).replace(/ [a-zé]+$/,"")}${d.kind==="first"||d.kind==="go"?" <small>llegada</small>":d.kind==="final"?" <small>fin</small>":d.kind==="ret"?" <small>vuelta</small>":""}</button>`).join("")}</div></div>
    ${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
@@ -2200,7 +2233,7 @@ function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
