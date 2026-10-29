@@ -881,7 +881,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -894,7 +894,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1014,7 +1014,11 @@ const PA=[
  {id:"brancly",n:"Museo del Quai Branly",ll:[48.8609,2.2978],h:1.5,p:14,in:1,close:19,cl:[1],z:"Eiffel",
   s:"Artes de África, Asia, Oceanía y América, al pie de la Torre Eiffel.",v:"El muro vegetal de la fachada y la colección de América precolombina.",d:"Combina con la Torre Eiffel el mismo día.",u:"https://www.quaibranly.fr/es/"}
 ];
-const BASES={"Le Marais":[48.8590,2.3600],"Saint-Germain":[48.8540,2.3336],"Barrio Latino":[48.8490,2.3470],"Montmartre":[48.8860,2.3400],"Ópera / Grands Boulevards":[48.8710,2.3330],"Torre Eiffel / 7.º":[48.8560,2.3000],"Bastille":[48.8530,2.3690],"Canal Saint-Martin":[48.8710,2.3650],"Montparnasse":[48.8420,2.3240],"Batignolles":[48.8840,2.3200],"Belleville":[48.8720,2.3770],"Campos Elíseos":[48.8700,2.3070],"15.º (Grenelle)":[48.8430,2.2950],"Otro / centro":[48.8566,2.3522]};
+
+const PAR_DEF="4 rue Bachaumont, 75002 París";
+function baseLL(){const W=ST.wiz||{};if(ST.parLL&&ST.parLLq===(W.par_dir||PAR_DEF))return ST.parLL;if(/bachaumont/i.test(W.par_dir||PAR_DEF))return [48.8659,2.3463];return BASES[ST.base]||BASES["Otro / centro"]}
+async function geoPar(){const q=(ST.wiz||{}).par_dir;if(!q||/bachaumont/i.test(q))return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/paris|parís/i.test(q)?"":", Paris")));const j=await r.json();if(j[0]){ST.parLL=[+j[0].lat,+j[0].lon];ST.parLLq=q;save();render()}}catch(e){}}
+const BASES={"Montorgueil / Sentier (2.º)":[48.8659,2.3463],"Le Marais":[48.8590,2.3600],"Saint-Germain":[48.8540,2.3336],"Barrio Latino":[48.8490,2.3470],"Montmartre":[48.8860,2.3400],"Ópera / Grands Boulevards":[48.8710,2.3330],"Torre Eiffel / 7.º":[48.8560,2.3000],"Bastille":[48.8530,2.3690],"Canal Saint-Martin":[48.8710,2.3650],"Montparnasse":[48.8420,2.3240],"Batignolles":[48.8840,2.3200],"Belleville":[48.8720,2.3770],"Campos Elíseos":[48.8700,2.3070],"15.º (Grenelle)":[48.8430,2.2950],"Otro / centro":[48.8566,2.3522]};
 const km=(a,b)=>{const R=6371,t=x=>x*Math.PI/180;const d1=t(b[0]-a[0]),d2=t(b[1]-a[1]);const h=Math.sin(d1/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const hm=x=>{const t=Math.round(x*60);return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
 const mv=(a,b)=>{const k=km(a,b);return k<=1.2?k*0.22:0.25+k*0.06};
@@ -1027,7 +1031,7 @@ function parisDays(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return[];const
   for(let d=W.eur_fecha;d<W.vue_fecha;d=add(d,1)){if(escDays.has(d))continue;out.push({d,first:d===W.eur_fecha,ret:ST.esc.some(e=>e.fin===d&&e.fin!==e.ini)})}
   return out}
 // Arma el programa: agrupa por zona, reparte zonas en los días (dejando días libres), ordena por cercanía desde la base
-function buildPA(){const days=parisDays();const base=BASES[ST.base]||BASES["Otro / centro"];
+function buildPA(){const days=parisDays();const base=baseLL();
   const sel=PA.filter(paSel),pin=ST.paPin||{};const plan=days.map(x=>({...x,acts:[],cap:x.first||x.ret?3:5.5}));
   const byDay=d=>plan.find(p=>p.d===d);
   sel.filter(a=>pin[a.id]&&byDay(pin[a.id])).forEach(a=>byDay(pin[a.id]).acts.push(a));
@@ -1051,7 +1055,7 @@ function buildPA(){const days=parisDays();const base=BASES[ST.base]||BASES["Otro
     eves.forEach(a=>{t=Math.max(t+mv(pos,a.ll),18);seq.push({...a,st:t,late:false,closed:false});t+=a.h;pos=a.ll});
     p.seq=seq;p.end=t});
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
-function routeUrl(p){const base=BASES[ST.base]||BASES["Otro / centro"];const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
+function routeUrl(p){const base=baseLL();const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
   return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
 function sunOf(date,ll){const y=date.getFullYear(),n=Math.round((Date.UTC(y,date.getMonth(),date.getDate())-Date.UTC(y,0,0))/864e5),g=2*Math.PI/365*(n-1),
   eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g)),
@@ -1208,14 +1212,14 @@ const LON_TR=10.5;// tope diario sin contacto zonas 1–2 (~£9, aprox.)
 const MT=d=>d&&d.city==="LO"?LON_MEAL:PA_MEAL;
 let BF_IX={};// desayuno: 1 de cada 4 días en boulangerie, el resto en la casa
 const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key in o?o[key]|0:k==="d"?((BF_IX[d]??0)%4===0?0:2):(ST.foodStyle==="fast"&&(k==="a"||k==="c")?1:0);return Math.min(i,T[k].length-1)};
-function legsOfDay(p){const base=BASES[ST.base]||BASES["Otro / centro"];const L=[];let pos=base,nm="alojamiento";
+function legsOfDay(p){const base=baseLL();const L=[];let pos=base,nm="alojamiento";
   p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
   if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
   return L.map(l=>{const d=km(l.from,l.to);return {...l,d,metro:d>1.2,min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
 const trUrl=(a,b,m)=>`https://www.google.com/maps/dir/?api=1&origin=${a.join(",")}&destination=${b.join(",")}&travelmode=${m?"transit":"walking"}`;
 // Sena aproximada (lat,lng) de este a oeste
 const SEINE=[[48.8255,2.4100],[48.8300,2.3880],[48.8360,2.3760],[48.8430,2.3650],[48.8490,2.3600],[48.8515,2.3540],[48.8545,2.3480],[48.8575,2.3410],[48.8590,2.3350],[48.8615,2.3270],[48.8640,2.3200],[48.8645,2.3080],[48.8635,2.3010],[48.8605,2.2935],[48.8560,2.2870],[48.8495,2.2790],[48.8440,2.2740],[48.8380,2.2690],[48.8300,2.2630]];
-function dayMap(p,legs){const base=BASES[ST.base]||BASES["Otro / centro"];const pts=[base,...p.seq.map(a=>a.ll)];
+function dayMap(p,legs){const base=baseLL();const pts=[base,...p.seq.map(a=>a.ll)];
   let la0=Math.min(...pts.map(x=>x[0])),la1=Math.max(...pts.map(x=>x[0])),lo0=Math.min(...pts.map(x=>x[1])),lo1=Math.max(...pts.map(x=>x[1]));
   const kx=Math.cos(48.86*Math.PI/180);let w=(lo1-lo0)*kx,h=la1-la0;const mn=0.012;
   if(w<mn){const c=(lo0+lo1)/2;lo0=c-mn/kx/2;lo1=c+mn/kx/2;w=mn}if(h<mn){const c=(la0+la1)/2;la0=c-mn/2;la1=c+mn/2;h=mn}
@@ -1451,7 +1455,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
       h+=actRow(d,a,k,nonEve,SUN,days)});
     if(p.seq.lunch&&!lp)h+=lunch();
     const back=legs[legs.length-1];h+=`<span class="mv">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en metro/RER`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>`;
-    const zs=zonesNearPA([BASES[ST.base]||BASES["Otro / centro"],...p.seq.map(a=>a.ll)]);
+    const zs=zonesNearPA([baseLL(),...p.seq.map(a=>a.ll)]);
     if(zs.length)h+=`<details class="riskbox"><summary>⚠ Zona${zs.length>1?"s":""} de precaución: ${zs.map(z=>z.n).join(" · ")}</summary>${zs.map(z=>`<p><b>${z.n}:</b> ${z.t}</p>`).join("")}<p class="muted">Emergencias: <b>112</b> · Policía: <b>17</b> · Ambulancia: <b>15</b></p></details>`;
     if(p.man)h+=`<div class="manord">✋ <b>Orden manual</b>${p.seq.some(a=>a.late||a.closed)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-pmreset="${d.id}">↺ Orden automático</button></div>`;
     h+=`<a class="route" href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (A = alojamiento, luego ${p.seq.map((_,k)=>k+1).join("→")})</a>`;
@@ -1683,7 +1687,7 @@ let _hz=0;
 function initMaps(A){if(!window.L)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!d.pa)return;
   const big=!!el.dataset.big;const m=L.map(el,{zoomControl:big,dragging:big,scrollWheelZoom:false,doubleClickZoom:big,touchZoom:big,boxZoom:big,keyboard:big,attributionControl:true});el._m=m;
   m.attributionControl.setPrefix(false);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(m);
-  const base=BASES[ST.base]||BASES["Otro / centro"],pts=[base,...d.pa.seq.map(a=>a.ll)];
+  const base=baseLL(),pts=[base,...d.pa.seq.map(a=>a.ll)];
   const zs=zonesNearPA(pts),id="hz"+(++_hz);
   zs.forEach(z=>{const c=L.circle(z.ll,{radius:z.r,color:"#b3261e",weight:1.5,dashArray:"4 3",fillOpacity:1,interactive:big}).addTo(m);if(big)c.bindTooltip(z.n);c._hz=1});
   d.cost.legs.forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
@@ -1756,7 +1760,7 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
    <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · París</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
    ${window.L?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(d.pa,legs).split("</svg>")[0]+"</svg>"}
    <div class="ms-leg"><span><i class="k"></i>a pie</span><span><i class="k tr" style="border-top-color:#24477a"></i>metro / RER</span><span><i class="k h">H</i>alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>
-   <ol class="ms-list"><li><span class="anum h num">H</span> ${esc(hotSelName("par")||"Alojamiento en "+(ST.base||"París"))}</li>
+   <ol class="ms-list"><li><span class="anum h num">H</span> ${esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
    ${d.pa.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
    <li><span class="anum h num">H</span> Vuelta al alojamiento${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
    <p class="ms-src">Plano: © colaboradores de OpenStreetMap. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
@@ -1765,7 +1769,7 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
 let _budLast="";
 function pushBudget(A){if(DEMO||!F||!ref||!A.days.length)return;const days=A.days.map(d=>({d:d.d,city:d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n),meal:+d.cost.meal.toFixed(2),act:+d.cost.act.toFixed(2),loc:+d.cost.loc.toFixed(2),hot:+d.cost.hot.toFixed(2)}));
   const j=JSON.stringify(days);if(j===_budLast)return;_budLast=j;clearTimeout(pushBudget.t);pushBudget.t=setTimeout(()=>{F.setDoc(F.doc(ref,"meta","presupuesto"),{days,at:Date.now(),by:user.email}).catch(()=>{})},1500)}
-function render(){if(!user)return;const A=buildAll();window.LAST_A=A;pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
+function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;const A=buildAll();window.LAST_A=A;pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}`;
@@ -1777,7 +1781,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/";const so=$("#so");if(so)so.onclick=()=>window._auth.U.signOut(window._auth.auth);
   Q("[data-stysel]",b=>b.onclick=()=>{setSty(b.dataset.stysel);render()});
   Q("[data-tab]",b=>b.onclick=()=>go(b.dataset.tab));
-  Q("[data-w]",x=>x.onchange=()=>{ST.wiz[x.dataset.w]=x.value;ST.wiz.done=1;save();render()});
+  Q("[data-w]",x=>x.onchange=()=>{ST.wiz[x.dataset.w]=x.value;ST.wiz.done=1;save();render();if(x.dataset.w==="par_dir")geoPar()});
   const pb=$("#paBase");if(pb)pb.onchange=()=>{ST.base=pb.value;save();render()};
   Q("[data-ritmo]",b=>b.onclick=()=>{ST.ritmo=b.dataset.ritmo;save();render()});
   Q("[data-cur]",b=>b.onclick=()=>{cur=b.dataset.cur;try{localStorage.setItem("paris_cur",cur)}catch(e){}render()});
