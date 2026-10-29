@@ -1178,7 +1178,7 @@ const SHOWS=[
 // ===== Día de París con la lógica de Alemania: atracciones + anexo Comidas + Traslados y plano =====
 const PA_MEAL_LBL={d:"Desayuno",a:"Almuerzo",m:"Media tarde",c:"Cena"};
 // precios aproximados por persona (París 2026, verificar)
-const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12]],
+const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12],["En la casa (compras de supermercado)",2]],
   a:[["Formule de bistró (plato + postre)",18],["Crêpe o sándwich al paso",9],["Brasserie",28],["Bouillon: plato + postre",14]],
   m:[["Pastelería / macarons",6],["Chocolate caliente en café",8]],
   c:[["Bistró de barrio",28],["Algo al paso / supermercado",12],["Restaurante especial",50]]};
@@ -1186,10 +1186,11 @@ const PA_MEAL_DEF={d:true,a:true,m:false,c:true};
 const METRO=2.55;// boleto metro/RER (RATP 2026)
 let paBlk=new Set();
 const mealOnP=(d,k)=>{const m=ST.meals||{};return (d+"|"+k) in m?!!m[d+"|"+k]:PA_MEAL_DEF[k]};
-const LON_MEAL={d:[["Café + pastry (Pret, Gail's)",7],["Full English breakfast",16]],a:[["Pub o café (plato)",18],["Meal deal de supermercado (Tesco, Boots)",5]],m:[["Té con scones",10],["Café y algo dulce",6]],c:[["Pub (fish & chips, pie)",22],["Comida rápida o al paso",12]]};
+const LON_MEAL={d:[["Café + pastry (Pret, Gail's)",7],["Full English breakfast",16],["En la casa (compras de supermercado)",2]],a:[["Pub o café (plato)",18],["Meal deal de supermercado (Tesco, Boots)",5]],m:[["Té con scones",10],["Café y algo dulce",6]],c:[["Pub (fish & chips, pie)",22],["Comida rápida o al paso",12]]};
 const LON_TR=10.5;// tope diario sin contacto zonas 1–2 (~£9, aprox.)
 const MT=d=>d&&d.city==="LO"?LON_MEAL:PA_MEAL;
-const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key in o?o[key]|0:(ST.foodStyle==="fast"&&(k==="a"||k==="c")?1:0);return Math.min(i,T[k].length-1)};
+let BF_IX={};// desayuno: 1 de cada 4 días en boulangerie, el resto en la casa
+const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key in o?o[key]|0:k==="d"?((BF_IX[d]??0)%4===0?0:2):(ST.foodStyle==="fast"&&(k==="a"||k==="c")?1:0);return Math.min(i,T[k].length-1)};
 function legsOfDay(p){const base=BASES[ST.base]||BASES["Otro / centro"];const L=[];let pos=base,nm="alojamiento";
   p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
   if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
@@ -1310,7 +1311,7 @@ function buildAll(){const W=ST.wiz;const C=cityList();if(!W.eur_fecha||!W.vue_fe
   C.filter(c=>c.e).forEach(c=>{const e=c.e;const v=((EXT[e.id]||{}).f||{}).v||[];const n=c.nn;
     if(n<=0){days.push({id:e.ini+"-"+e.id,d:e.ini,city:c.k,kind:"trip",c,items:v.slice()});return}
     const per=Math.ceil(v.length/n)||1;for(let i=0;i<n;i++)days.push({id:add(e.ini,i)+"-"+e.id,d:add(e.ini,i),city:c.k,kind:i?"stay":"go",c,items:v.slice(i*per,(i+1)*per)})});
-  days.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);days.forEach(d=>d.cost=dayCost2(d));return {days,R,C}}
+  days.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);BF_IX={};days.forEach((d,i)=>BF_IX[d.id]=i);days.forEach(d=>d.cost=dayCost2(d));return {days,R,C}}
 function dayCost2(d){let meal=0;const T=MT(d);["d","a","m","c"].forEach(k=>{if(mealOnP(d.id,k))meal+=T[k][mealIxP(d.id,k,T)][1]});if(d.city==="LO")return {meal,act:0,loc:LON_TR,hot:0,trn:0,nm:0,legs:null,total:meal+LON_TR};
   let act=0,loc=0,hot=0,legs=null,nm=0,trn=0;
   if(d.pa&&d.pa.seq.length){act=d.pa.seq.reduce((t,a)=>t+a.p,0);legs=legsOfDay(d.pa);nm=legs.filter(l=>l.metro).length;loc=nm*METRO}
@@ -1617,9 +1618,9 @@ const BARRIOS=[
   ["📸 Gratis o casi",[["Jardín de Luxemburgo","picnic, veleritos del estanque y vista a la Torre Eiffel"],["La Grande Épicerie (Le Bon Marché)","mirar los productos franceses; comprar mantequilla o té de regalo"],["Marin Montagut (rue Madame)","souvenirs ilustrados (cerrado fines de semana)"]]]]}];
 let foodCity="PA";
 function pFood(A){const C=[A.C.find(c=>c.k==="PA"),...A.C.filter(c=>c.e).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===foodCity))foodCity="PA";
-  const fs=ST.foodStyle==="fast";const daily=["d","a","c"].reduce((t,k)=>t+PA_MEAL[k][fs&&k!=="d"?1:0][1],0);
+  const fs=ST.foodStyle==="fast";const daily=(PA_MEAL.d[0][1]+3*PA_MEAL.d[2][1])/4+["a","c"].reduce((t,k)=>t+PA_MEAL[k][fs?1:0][1],0);
   let h=`<div class="card cfg"><div class="field"><span>Estilo de comida (por defecto en todos los días)</span><div class="seg" role="group"><button type="button" data-food="fast" aria-pressed="${fs}">Comida rápida</button><button type="button" data-food="local" aria-pressed="${!fs}">Bistró y boulangerie</button></div></div>
-   <p class="muted" style="font-size:13.5px;margin:0;align-self:end">${fs?"Desayuno en boulangerie, almuerzo crêpe o sándwich, cena al paso":"Desayuno en boulangerie, almuerzo «formule» de bistró, cena en bistró de barrio"} ≈ <b>${fmt(daily)}</b> por persona al día. Cada día se puede cambiar en 2 · Programa → Comidas.</p></div>
+   <p class="muted" style="font-size:13.5px;margin:0;align-self:end">Desayuno en la casa (1 de cada 4 días en boulangerie), ${fs?"almuerzo crêpe o sándwich, cena al paso":"almuerzo «formule» de bistró, cena en bistró de barrio"} ≈ <b>${fmt(daily)}</b> por persona al día. Cada día se puede cambiar en 2 · Programa → Comidas.</p></div>
    <div class="attbar" role="group" aria-label="Lugar">${C.map(c=>`<button type="button" class="btn ${c.k===foodCity?"":"alt"}" data-foodc="${c.k}" aria-pressed="${c.k===foodCity}">${short(c.n)}</button>`).join("")}</div>`;
   const mlink=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
   if(foodCity==="PA"){
