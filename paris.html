@@ -1178,7 +1178,7 @@ const SHOWS=[
 // ===== Día de París con la lógica de Alemania: atracciones + anexo Comidas + Traslados y plano =====
 const PA_MEAL_LBL={d:"Desayuno",a:"Almuerzo",m:"Media tarde",c:"Cena"};
 // precios aproximados por persona (París 2026, verificar)
-const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12],["En la casa (compras de supermercado)",2]],
+const PA_MEAL={d:[["Café + croissant en boulangerie",6],["Desayuno en café",12],["En la casa",0]],
   a:[["Formule de bistró (plato + postre)",18],["Crêpe o sándwich al paso",9],["Brasserie",28],["Bouillon: plato + postre",14]],
   m:[["Pastelería / macarons",6],["Chocolate caliente en café",8]],
   c:[["Bistró de barrio",28],["Algo al paso / supermercado",12],["Restaurante especial",50]]};
@@ -1186,7 +1186,7 @@ const PA_MEAL_DEF={d:true,a:true,m:false,c:true};
 const METRO=2.55;// boleto metro/RER (RATP 2026)
 let paBlk=new Set();
 const mealOnP=(d,k)=>{const m=ST.meals||{};return (d+"|"+k) in m?!!m[d+"|"+k]:PA_MEAL_DEF[k]};
-const LON_MEAL={d:[["Café + pastry (Pret, Gail's)",7],["Full English breakfast",16],["En la casa (compras de supermercado)",2]],a:[["Pub o café (plato)",18],["Meal deal de supermercado (Tesco, Boots)",5]],m:[["Té con scones",10],["Café y algo dulce",6]],c:[["Pub (fish & chips, pie)",22],["Comida rápida o al paso",12]]};
+const LON_MEAL={d:[["Café + pastry (Pret, Gail's)",7],["Full English breakfast",16],["En la casa",0]],a:[["Pub o café (plato)",18],["Meal deal de supermercado (Tesco, Boots)",5]],m:[["Té con scones",10],["Café y algo dulce",6]],c:[["Pub (fish & chips, pie)",22],["Comida rápida o al paso",12]]};
 const LON_TR=10.5;// tope diario sin contacto zonas 1–2 (~£9, aprox.)
 const MT=d=>d&&d.city==="LO"?LON_MEAL:PA_MEAL;
 let BF_IX={};// desayuno: 1 de cada 4 días en boulangerie, el resto en la casa
