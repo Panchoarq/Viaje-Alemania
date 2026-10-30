@@ -2573,7 +2573,7 @@ function lunchSugg(d,p){const city=d.city,pos=p.seq.lunchPos||p.base;if(!pos||(c
   else{const L=FOOD_G.LO.c.flatMap(c=>c[1]).filter(r=>!/meal deal|chinatown|greggs|mcdonald|burger|kfc/i.test(r[0]));const r=L[i%L.length];if(r)items.push({n:r[0],pr:r[2],src:"est",note:"de la guía · "+r[1]})}
   // dos del mapa
   const u=nearUrl("restaurant",pos,0.006);const R=LL_CACHE[u];
-  if(!R)items.push({pend:u});else R.filter(o=>o.name&&!items.some(x=>x.n&&favKey(x.n)===favKey(o.name))).map(o=>({n:o.name,ll:[+o.lat,+o.lon],typ:o.type,cu:(o.extratags||{}).cuisine||""})).sort((x,y)=>km(pos,x.ll)-km(pos,y.ll)).slice(0,2).forEach(o=>items.push({n:o.n,ll:o.ll,pr:estPr(o.typ,city),src:"map",note:(o.typ==="fast_food"?"comida rápida":o.typ==="cafe"?"café":"restaurante")+(o.cu?" · "+o.cu.replace(/;/g,", ").replace(/_/g," "):"")}));
+  if(!R)items.push({pend:u});else R.filter(o=>o.name&&!/universitaire|crous|cantine|staff|canteen|school|école|ecole/i.test(o.name)&&!items.some(x=>x.n&&favKey(x.n)===favKey(o.name))).map(o=>({n:o.name,ll:[+o.lat,+o.lon],typ:o.type,cu:(o.extratags||{}).cuisine||""})).sort((x,y)=>km(pos,x.ll)-km(pos,y.ll)).slice(0,2).forEach(o=>items.push({n:o.n,ll:o.ll,pr:estPr(o.typ,city),src:"map",note:(o.typ==="fast_food"?"comida rápida":o.typ==="cafe"?"café":"restaurante")+(o.cu?" · "+o.cu.replace(/;/g,", ").replace(/_/g," "):"")}));
   const pend=items.filter(x=>x.pend).map(x=>x.pend);if(pend.length){pend.forEach(u=>nomi(u).then(()=>{clearTimeout(_nearT);_nearT=setTimeout(()=>{if(tab==="prog")render()},400)}))}
   const chosen=(ST.lunchAt||{})[d.id];
   const row=x=>{const f=favOf(x.n,city);const dist=x.ll?Math.max(1,Math.round(km(pos,x.ll)*13)):null;
