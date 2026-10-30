@@ -177,7 +177,9 @@ function listen(){const den=()=>gate(true);
 function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">${T.nom}</span><h1 class="h1">Mis gastos</h1>
   ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada persona ve solo sus gastos.</p>`}
   <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="${T.back}">← Volver al viaje</a></div>`;
-  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);try{await U.signInWithPopup(auth,new U.GoogleAuthProvider())}catch(e){toast("No se pudo entrar")}}}
+  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);const pr=new U.GoogleAuthProvider();try{await U.signInWithPopup(auth,pr)}catch(e){const c=e&&e.code||"";if(/popup-blocked|cancelled-popup|operation-not-supported/.test(c)){try{await U.signInWithRedirect(auth,pr);return}catch(e2){}}
+    const m=/unauthorized-domain/.test(c)?"Dominio no autorizado en Firebase ("+location.hostname+")":/popup-closed/.test(c)?"Cerraste la ventana de Google":/operation-not-allowed/.test(c)?"Google no está habilitado en Firebase":"No se pudo entrar: "+c;
+    const w=document.createElement("p");w.className="alert";w.textContent=m;app.querySelector(".gate").appendChild(w)}}}
 
 // ---------- cálculos ----------
 function mine(){// gastos personales: propios + mitad de los compartidos
