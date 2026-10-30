@@ -929,6 +929,18 @@ span.tc-d{cursor:default}
 .jcard.lo{border-left-color:#1d6f7a}
 .tc-c.bbusy::before{content:"🔒";position:absolute;right:2px;bottom:0;font-size:10px}
 .tc-c.bfree::before{content:"🌿";position:absolute;right:2px;bottom:0;font-size:10px}
+.guide{background:var(--card);border:1.5px dashed var(--ink);border-radius:8px;padding:8px 14px;margin:0 0 14px;font-size:15px}
+.guide[open]{border-style:solid;box-shadow:0 2px 8px rgba(60,45,20,.08)}
+.guide summary{cursor:pointer;font:700 14px var(--f-mono);letter-spacing:.03em;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:32px}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary .muted{font:400 13px var(--f-body)}
+.gq{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--card);font:700 14px var(--f-mono)}
+.gi{margin:6px 0 4px;color:var(--muted)}
+.gsteps{margin:4px 0 6px;padding-left:22px;display:flex;flex-direction:column;gap:5px}
+.gsteps li::marker{font:700 13px var(--f-mono);color:#a8352b}
+.gtip{margin:6px 0;padding:6px 10px;background:color-mix(in srgb,#e2b33c 18%,var(--card));border-radius:4px;font-size:14px}
+.gindex{columns:2;font-size:14px;margin:6px 0 12px;padding-left:20px}@media (max-width:600px){.gindex{columns:1}}
+.gsec{border-top:1px solid var(--line);padding:12px 0 6px}.gsec h4{margin:0 0 4px;font:700 17px var(--f-body)}
 </style>
 </head>
 <body>
@@ -2228,12 +2240,92 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
 let _budLast="";
 function pushBudget(A){if(DEMO||!F||!ref||!A.days.length)return;const days=A.days.map(d=>({d:d.d,city:d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n),meal:+d.cost.meal.toFixed(2),act:+d.cost.act.toFixed(2),loc:+d.cost.loc.toFixed(2),hot:+d.cost.hot.toFixed(2)}));
   const j=JSON.stringify(days);if(j===_budLast)return;_budLast=j;clearTimeout(pushBudget.t);pushBudget.t=setTimeout(()=>{F.setDoc(F.doc(ref,"meta","presupuesto"),{days,at:Date.now(),by:user.email}).catch(()=>{})},1500)}
+// ===== Manual de uso: ayuda en cada sección =====
+const GUIDE={
+cfg:{t:"Configurar: crear el viaje",i:"Aquí se arma la base del viaje. Sin las fechas no se puede generar el programa.",s:[
+ ["Fechas principales","Completen <b>Llegada a París (Eurostar)</b>, <b>Hora de salida de Londres</b> y <b>Vuelo de regreso</b>."],
+ ["Vuelos y Londres","En «Vuelos, Londres y alojamiento» ingresen el vuelo Santiago → Londres y la <b>Llegada a Londres</b>: eso crea los días de Londres en el programa."],
+ ["Direcciones","<b>Dónde se quedan en Londres</b> y <b>Dirección en París</b>: desde ahí parten todos los recorridos y se calculan las distancias. Si cambian la dirección, todo se recalcula solo."],
+ ["Ritmo","<b>Tranquilo</b> deja días libres entre medio; <b>Intenso</b> usa todos los días con actividades."],
+ ["Moneda","Elijan EUR o CLP y ajusten el valor del euro: todos los montos de la app cambian."],
+ ["Revisar el resumen","A la izquierda, las ciudades en orden con sus noches; a la derecha, el <b>mapa del viaje</b> con los trayectos numerados. Los círculos vacíos son otras escapadas posibles: tóquenlos para verlas. Abajo, la <b>línea de tiempo</b> con vuelos, trenes y escapadas."]],
+ tip:"Todo se guarda solo y lo ven las dos (aviso «☁ Guardado para los dos»)."},
+prog:{t:"Programa: armar los días",i:"El corazón de la app: qué hacen cada día, a qué hora, cuánto cuesta y cómo se mueven.",s:[
+ ["Elegir ciudad","Usen las pestañas de arriba (Londres, París y cada escapada). Las fechas debajo llevan directo a cada día."],
+ ["Organizar todo de una vez","En Londres toquen <b>«🧭 Organizar Londres»</b>; en París, <b>«👭 Modo juntas»</b>. Paso 1: marquen los días <b>ocupados</b> (entrada comprada, plan fijo) o <b>libres</b>. Paso 2: marquen todo lo que quieren hacer. Al tocar <b>«Listo»</b> la app lo reparte en los días disponibles, por barrio y desde el alojamiento."],
+ ["Agregar de a una","En «Agregar actividades por categoría» marquen la casilla (se asigna un día automático) o elijan el día en el selector. Un aviso abajo confirma el día y la actividad queda marcada con «✔ fecha · ver el día →». En cada fecha el selector sugiere días en que ya visitan algo cerca."],
+ ["Ajustar cada día","↑ ↓ cambia el orden, ✕ la quita, el selector 📅 fija otro día y <b>«+ Agregar actividad a este día»</b> abre la lista por categoría. En <b>Comidas</b> marquen qué comidas hacen y elijan la opción; en <b>Traslados, alojamiento y plano</b> están los tramos y su costo."],
+ ["Plano del día","Toquen el plano chico para ampliarlo: números en orden de visita, caminatas por las calles (línea punteada negra), metro en azul y zonas de precaución achuradas en rojo. Se puede hacer zoom."],
+ ["Calendario","Botón <b>«📅 Calendario»</b> o el ícono 📅 junto a la fecha de cada día: ven todo el viaje por colores. El número indica cuántas actividades tiene el día; tóquenlo para ver la lista y toquen el día para ir a él."],
+ ["Pronóstico del tiempo","Aparece 16 días antes de cada ciudad. Si se anuncia lluvia, sugiere cambiar una actividad al aire libre por una techada: botón <b>«Aplicar cambio»</b>."],
+ ["Volver arriba","Cada día tiene <b>«↑ arriba»</b> junto a la fecha y <b>«↑ Volver arriba»</b> al final."]],
+ tip:"Símbolos: ★ famosa · 🏛 techada · 🌙 de noche · 👭 día juntas · 🔒 día ocupado · 🌿 día libre · ⚠ fuera de horario o cerrado ese día."},
+att:{t:"Atracciones: conocer cada lugar",i:"Fichas tipo expediente de cada atracción, para llegar sabiendo qué van a ver.",s:[
+ ["Elegir ciudad","Pestañas <b>Londres</b> y <b>París</b>."],
+ ["Filtrar","«En el programa», «★ Imperdibles» o «🏛 Techadas» (útil para días de lluvia)."],
+ ["Leer la ficha","Historia, qué van a ver, dato o consejo, horario, precio, cierres y fotos (toquen la foto para ver más en Google)."],
+ ["Agregar al programa","En Londres, el botón de cada ficha la agrega o la quita; en París, desde el programa. Desde un día del programa, «Ver ficha completa →» trae a esta sección."],
+ ["Contexto","En París hay un resumen histórico con línea de tiempo y una lista de películas, series y libros para ver antes del viaje."]]},
+esc:{t:"Escapadas: salir de París",i:"Viajes de un día o con noches a ciudades a pocas horas en tren.",s:[
+ ["Explorar","Toquen un destino en el mapa: la tarjeta muestra <b>Por qué ir</b>, el tiempo de viaje, cómo llegar, el costo y las noches sugeridas. El recuadro muestra las excursiones de un día cerca de París."],
+ ["Filtrar ideas","Todas, Con noche, De un día o Fuera de Francia."],
+ ["Agregar","«+ Agregar» (o «+ Agregar fechas»): elijan fecha de ida y noches («Solo el día» para excursión). Avisa si choca con otra escapada."],
+ ["Dónde aparece","La escapada entra al programa con su propia pestaña, plano y puntos sugeridos, y también al mapa del viaje, al calendario y al presupuesto."],
+ ["Quitar","Con ✕ en la lista «Escapadas · orden de visita»."]],
+ tip:"Las fichas completas de las escapadas elegidas aparecen al final de esta sección."},
+show:{t:"Espectáculos: eventos y noches especiales",i:"Eventos, ferias de Navidad, teatro y shows durante el viaje.",s:[
+ ["Elegir ciudad","Pestañas <b>Londres</b> y <b>París</b>."],
+ ["Fechas","El sello <b>«EN SUS FECHAS»</b> indica que el evento coincide con sus días en esa ciudad; los demás quedan atenuados."],
+ ["Agregar al programa","<b>«+ Agregar al programa»</b> lo programa de noche en un día en que funcione (respeta fechas y días cerrados)."],
+ ["Eventos de escapadas","Si el evento es en otra ciudad (por ejemplo Lyon), el botón lleva a esa escapada."]]},
+hot:{t:"Alojamiento: comparar y elegir",i:"Opciones de alojamiento por ciudad y su costo por persona.",s:[
+ ["Elegir lugar","Una pestaña por cada estadía (París y cada escapada con noche), con sus fechas."],
+ ["Buscar","Botones a Booking y Airbnb ya filtrados con 2 adultos y las fechas."],
+ ["Agregar opciones","«+ Agregar» y completen nombre, dirección, tarifa para 2 (por noche o total) y notas. Pueden agregar varias para comparar."],
+ ["Elegir","Marquen la opción elegida: su tarifa pasa al presupuesto y al programa (costo por persona)."]],
+ tip:"Los recorridos de París parten de la «Dirección en París» de 1 · Configurar."},
+buy:{t:"Trámites previos: lista antes de viajar",i:"Todo lo que conviene comprar, inscribir o tramitar antes de salir.",s:[
+ ["Revisar","Cada ítem explica qué es, cuánto cuesta y trae el enlace oficial."],
+ ["Marcar","Marquen ✓ lo que ya está listo: el contador muestra cuántos faltan y se guarda para las dos."]],
+ tip:"Revisen permisos de entrada (ETA del Reino Unido y sistemas de la UE) con tiempo."},
+food:{t:"Comidas: dónde y cuánto",i:"Sugerencias de comida por lugar y precios aproximados.",s:[
+ ["Estilo por defecto","Elijan «Comida rápida» o «Bistró y boulangerie»: cambia el costo diario estimado de todo el viaje."],
+ ["Desayuno","Por defecto en la casa, con un desayuno en boulangerie cada 4 días."],
+ ["Ideas por lugar","Pestañas por ciudad y escapada con lugares verificados, platos típicos y precios."],
+ ["Cambiar un día","Cada comida de cada día se ajusta en 2 · Programa → Comidas."]]},
+gas:{t:"Gastos: presupuesto y gasto real",i:"El presupuesto que estima el programa y el registro del gasto real.",s:[
+ ["Presupuesto","Tabla por ciudad y por persona: alojamiento, comidas, entradas y transporte."],
+ ["Mis gastos","Botón <b>«💶 Mis gastos»</b>: cada una registra lo que gasta (monto, moneda, categoría, medio de pago, por voz 🎤 y con ubicación GPS). Los gastos marcados como «compartido» se suman entre las dos y muestran quién le debe a quién."],
+ ["Comparar","Mis gastos compara lo gastado contra este presupuesto y dice cuánto pueden gastar por día en lo que queda."]]},
+tra:{t:"Transporte: cómo moverse y qué pase comprar",i:"Qué conviene pagar en metro y trenes según su programa.",s:[
+ ["Recomendación","La tabla cuenta los viajes en metro de cada semana (lunes a domingo) y compara boletos sueltos con el pase <b>Navigo Semaine</b>."],
+ ["Aplicar","«Usar la recomendación en el programa» o «Calcular todo con boletos sueltos»: cambia los costos de cada día."],
+ ["Entender cada pase","Toquen el triángulo ▸ de cada opción (boleto suelto, bus, aeropuertos, Navigo Jour, Navigo Semaine, Paris Visite) para ver cómo funciona y el enlace oficial."],
+ ["Londres y escapadas","Londres usa pago sin contacto con tope diario; los trenes de las escapadas se suman aparte."]]}
+};
+let guideAll=false;
+function guideHTML(tab){const g=GUIDE[tab];if(!g)return"";let seen=true;try{seen=!!localStorage.getItem("paris_guide_"+tab);localStorage.setItem("paris_guide_"+tab,"1")}catch(e){}
+  return `<details class="guide" data-k="guide-${tab}" ${seen?"":"open"}><summary><span class="gq">?</span> Cómo usar esta sección <span class="muted">· ${g.t}</span></summary>
+   <p class="gi">${g.i}</p><ol class="gsteps">${g.s.map(([h,t])=>`<li><b>${h}.</b> ${t}</li>`).join("")}</ol>${g.tip?`<p class="gtip">💡 ${g.tip}</p>`:""}
+   <button type="button" class="lnkb" data-guideall>📖 Ver el manual completo</button></details>`}
+function guideAllHTML(){if(!guideAll)return"";return `<div class="calov gov"><div class="calsheet" role="dialog" aria-modal="true" aria-label="Manual de uso">
+  <div class="ms-head"><div><span class="eyebrow">Marco Polo · Viaje a Londres y París</span><h3>Manual de uso</h3></div><button type="button" class="ms-x" data-guideclose aria-label="Cerrar manual">✕</button></div>
+  <ol class="gindex">${TABS.map(([k,t])=>GUIDE[k]?`<li><a href="#g-${k}">${t}</a></li>`:"").join("")}</ol>
+  ${TABS.map(([k,t])=>{const g=GUIDE[k];if(!g)return"";return `<section class="gsec" id="g-${k}"><h4>${t} · ${g.t}</h4><p class="gi">${g.i}</p><ol class="gsteps">${g.s.map(([h,x])=>`<li><b>${h}.</b> ${x}</li>`).join("")}</ol>${g.tip?`<p class="gtip">💡 ${g.tip}</p>`:""}<button type="button" class="btn sm" data-guidego="${k}">Ir a ${t.replace(/^\d+ · /,"")} →</button></section>`}).join("")}
+ </div></div>`}
+function bindGuide(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-guideall]",b=>b.onclick=()=>{guideAll=true;render()});
+  Q("[data-guideclose]",b=>b.onclick=()=>{guideAll=false;render()});
+  const o=document.querySelector(".gov");if(o){o.onclick=e=>{if(e.target===o){guideAll=false;render()}};document.body.style.overflow="hidden"}
+  Q("[data-guidego]",b=>b.onclick=()=>{guideAll=false;document.body.style.overflow="";go(b.dataset.guidego)});
+  Q(".gindex a",a=>a.onclick=e=>{e.preventDefault();const t=document.querySelector(a.getAttribute("href"));if(t)t.scrollIntoView({behavior:"smooth"})})}
+
 function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}`;
+   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
