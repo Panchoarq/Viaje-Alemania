@@ -957,6 +957,20 @@ span.tc-d{cursor:default}
 .cust{margin:8px 0}
 .lunchsel{max-width:170px;font-size:12.5px}.fguide h4{font:700 15px var(--f-body)}.manf{margin-top:8px}.manf summary{cursor:pointer;font-weight:600}.fcust .ftbl td{vertical-align:top}
 .lunchat{margin:-2px 0 8px 28px;font-size:14px;padding:4px 8px;border-left:3px solid #b8860b;background:color-mix(in srgb,#b8860b 10%,var(--card))}
+.lunch{flex-wrap:wrap}
+.lsugg{margin:4px 0 10px 0;padding:8px 10px;border:1px dashed #b8860b;border-radius:6px;background:color-mix(in srgb,#b8860b 6%,var(--card));font-size:14px}
+.lsugg ul{list-style:none;margin:4px 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;border-bottom:1px dotted var(--line)}
+.lsdot{width:10px;height:10px;border-radius:50%;flex:none;background:#c97b12}
+.ls.ver .lsdot,.lsleg .ver{background:#3d6b3a}.ls.est .lsdot,.ls.map .lsdot,.lsleg .est{background:#c97b12}.ls.fav .lsdot,.lsleg .fav{background:#2e4f8f}
+.lsn{flex:1 1 180px;min-width:0}.lsn small{display:block;color:var(--muted);font-size:12.5px}
+.lsact{display:flex;gap:6px;align-items:center}
+.favb{border:1px solid var(--line);background:var(--card);border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:#b8860b}.favb.on{background:#fdf1cf;border-color:#b8860b}
+.lsh{font:700 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lsleg{color:var(--muted);font-size:12px}.lsleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;vertical-align:0}
+.chkin{font-size:13px;color:var(--muted)}
+.addchip,.newchip{background:#2e4f8f!important;color:#fff!important;border-color:#2e4f8f!important}.addchip[aria-pressed=true],.newchip[aria-pressed=true]{background:#1d3566!important;outline:2px solid #e2b33c}
+.manform{background:var(--card);border:1.5px solid #2e4f8f;border-radius:8px;padding:12px;margin:6px 0 14px}
 </style>
 </head>
 <body>
@@ -1016,7 +1030,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},custom:ST.custom||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},favs:ST.favs||[],custom:ST.custom||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -1029,7 +1043,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.custom=d.custom||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.favs=d.favs||[];ST.custom=d.custom||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1258,7 +1272,8 @@ function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
       if(fx)rest.splice(rest.indexOf(fx),1),rest.unshift(fx);
       else if(p.man)rest.sort((a,b)=>oi(a)-oi(b));else rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});
       const a=rest.shift();t+=a.noloc?0:mv(pos,a.ll);if(a.at&&t<a.at)t=a.at;
-      if(t>=12.5&&t<13.75&&!seq.lunch){seq.lunch=t;t+=1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;if(!a.noloc)pos=a.ll}
+      if(!seq.lunch&&!p.first&&!p.ret&&t<15&&(t>=12.75||(t+a.h>13.5&&t>=11.5))){seq.lunch=Math.max(t,13);seq.lunchPos=a.noloc?pos:a.ll;t=seq.lunch+1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;if(!a.noloc)pos=a.ll}
+    if(!seq.lunch&&seq.length&&!p.first&&!p.ret&&t>=11.25&&t<=15){seq.lunch=Math.max(t,13);seq.lunchPos=pos;t=seq.lunch+1}
     p.ev.forEach(a=>{const lo=a.lateo&&a.lateo[D(p.d).getDay()];t=Math.max(t+(a.noloc?0:mv(pos,a.ll)),a.eve?18:17.25,a.at||0);seq.push({...a,st:t,night:1,late:lo!=null?t+a.h>lo+0.01:false,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;if(!a.noloc)pos=a.ll});
     p.acts=p.acts.concat(p.ev);p.seq=seq;p.end=t});
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
@@ -1811,7 +1826,7 @@ function pEsc(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
     ${calendar()}</div>
    <div class="card" style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="eyebrow">Mapa de escapadas · máx. ~3 h en tren</span>${frMap()}${escCard()}</div></div>
   ${customList("esc")}<div class="card"><span class="eyebrow">Ideas de escapadas</span> ${findBtn("esc","")}
-   <div class="filters" style="margin:8px 0 10px">${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}</div>
+   <div class="filters" style="margin:8px 0 10px">${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}${manBtn("esc","")}</div>${manPanel("esc","")}
    <div class="ideas">${list.map(x=>{const sel=ST.esc.some(e=>e.id===x.id);return `<div class="idea${sel?" sel":""}" style="--c:${x.c}"><div class="itop"><span>${x.p}</span><b>${x.n}</b>${sel?'<span class="tag">✓ elegida</span>':""}</div><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":x.nt==="0–1"?"día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")}</small><p>${x.t}</p>
      ${open===x.id?planForm(x,lim):`<div class="act"><button type="button" class="btn sm" data-open="${x.id}">${sel?"+ Otra fecha":"+ Agregar"}</button><button type="button" class="btn alt sm" data-efic="${x.id}">📖 Ficha</button></div>`}</div>`}).join("")}</div></div>
   ${ch.length?`<span class="eyebrow" style="margin-top:6px">Fichas de las escapadas elegidas</span><div class="fichas">${ch.map(id=>escFichaHTML(id)).join("")}</div>`:""}`}
@@ -1863,7 +1878,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     h+=`<label class="chk"><input type="checkbox" data-pmeal="${d.id}|${k}" ${on?"checked":""}><span class="t">${PA_MEAL_LBL[k]}<small>${o[i][0]}</small></span><span class="p">${fmt(o[i][1])}</span></label>${o.length>1?`<select class="msel" data-pmopt="${d.id}|${k}" aria-label="Opción ${PA_MEAL_LBL[k]}">${o.map((x,j)=>`<option value="${j}" ${j===i?"selected":""}>${x[0]} · ${fmt(x[1])}</option>`).join("")}</select>`:""}${k==="a"&&(ST.lunchAt||{})[d.id]?`<div class="lunchat">🍽 Almuerzo en <b>${esc(ST.lunchAt[d.id])}</b> <button type="button" class="lnkb" data-lunchx="${d.id}">quitar</button></div>`:""}`});
   h+=`<span class="muted" style="font-size:12px">Precios aproximados por persona.</span></div><div class="blk blk-att"><h4>Atracciones</h4>`;
   if(d.pa&&d.pa.seq.length){const p=d.pa,legs=c.legs,nonEve=p.seq.filter(a=>!a.night);const days=d.city==="LO"?lonDays():parisDays();let lp=false;
-    const lr=(ST.lunchAt||{})[d.id];const lunch=()=>`<div class="lunch">🍽 <b>${hm(p.seq.lunch)}</b> ${lr?"Almuerzo en <b>"+esc(lr)+"</b>":"Almuerzo con calma (~1 h)"}</div>`;
+    const lr=(ST.lunchAt||{})[d.id];const lunch=()=>`<div class="lunch">🍽 <b>${hm(p.seq.lunch)}–${hm(p.seq.lunch+1)}</b> ${lr?"Almuerzo en <b>"+esc(lr)+"</b>":"Almuerzo (1 h)"}</div>${lunchSugg(d,p)}`;
     p.seq.forEach((a,k)=>{const l=legs[k];if(p.seq.lunch&&!lp&&a.st>p.seq.lunch){h+=lunch();lp=true}
       h+=l.noloc?`<span class="mv">↓ ${esc(a.n)}: sin dirección, sin traslado calculado</span>`:l.metro?`<span class="mv">↓ ~${l.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
       h+=actRow(d,a,k,nonEve,SUN,days)});
@@ -1990,7 +2005,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
   if(attCity==="LO"){const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
     const L=LON.filter(a=>typOf(a)!=="esp").filter(a=>attFilt==="todas"||(attFilt==="prog"&&loSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>
-     <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div>
+     <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}${manBtn("att","LO")}</div>${manPanel("att","LO")}
      <div class="fichas">${L.map(a=>loFicha(a,LON.indexOf(a))).join("")}</div>`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA")+`<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`;
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
@@ -1998,7 +2013,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
   const L=PA.filter(a=>PA_F[a.id]).filter(a=>attFilt==="todas"||(attFilt==="prog"&&paSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
   L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp");
   return h+`<section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${CTX_PA.t}</h2>${tlSVG(CTX_PA.tl)}${CTX_PA.p.map(p=>`<p>${p}</p>`).join("")}</section>
-   <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div>
+   <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}${manBtn("att","PA")}</div>${manPanel("att","PA")}
    <div class="fichas">${CU.map(a=>loFicha(a,PA.indexOf(a))).join("")}${L.map(a=>paFicha(a,PA.indexOf(a))).join("")}</div>
    ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
    <section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas, series y libros · París</h2><div class="mgrid">${MEDIA_PA.map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas.</p></section>`}
@@ -2008,7 +2023,7 @@ let showCity="PA";
 function pShow(){const W=ST.wiz,lo=showCity==="LO",a=lo?W.ida_llega:W.eur_fecha,b=lo?W.eur_fecha:W.vue_fecha;const inT=s=>a&&b&&s.ini<=b&&s.fin>=a;
   const L=SHOWS.filter(s=>(s.w==="Londres")===lo).sort((x,y)=>(inT(y)-inT(x))||((y.top|0)-(x.top|0))||((x.al|0)-(y.al|0))||(x.ini<y.ini?-1:1));
   const ml=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-  return `${cityTabs(lo?"LO":"PA","data-showc")}${findBtn("show",lo?"LO":"PA")}${a&&b?`<p class="note">${lo?"En Londres":"En Francia"}: ${pretty(a)} → ${pretty(b)}. Los eventos con sello «EN SUS FECHAS» coinciden con el viaje.${lo?" Precios en libras.":""}</p>`:""}
+  return `${cityTabs(lo?"LO":"PA","data-showc")}<div class="filters" style="margin:6px 0">${findBtn("show",lo?"LO":"PA")}${manBtn("show",lo?"LO":"PA")}</div>${manPanel("show",lo?"LO":"PA")}${a&&b?`<p class="note">${lo?"En Londres":"En Francia"}: ${pretty(a)} → ${pretty(b)}. Los eventos con sello «EN SUS FECHAS» coinciden con el viaje.${lo?" Precios en libras.":""}</p>`:""}
    <div class="fichas">${L.map((s,i)=>{const ok=inT(s),x=SHOW_X[s.n]||{};const e=s.esc&&ESC.find(q=>q.id===s.esc);const chosen=s.esc&&ST.esc.some(q=>q.id===s.esc);
     return `<article class="ficha${ok?"":" off"}"><div class="ftab">EXP. EVT-${String(i+1).padStart(2,"0")} · ${s.w.toUpperCase()}</div>
      <header><h3>${s.e} ${s.n}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${s.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${ok?'<span class="fstamp ok">EN SUS FECHAS</span>':'<span class="fstamp">FUERA DE FECHAS</span>'}</header>
@@ -2133,18 +2148,18 @@ function lunchSel(name,key){const ds=daysFor(key);if(!ds.length)return"";const L
 const mlinkQ=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 function foodGuide(key){const G=FOOD_G[key];if(!G)return"";
   return `<div class="card buy fguide"><span class="eyebrow">Comer bien y barato · precios aproximados por persona</span>${G.p?`<p>${G.p}</p>`:""}
-   ${G.c.map(([t,L])=>`<h4 style="margin:12px 0 4px">${t}</h4><div class="tbl-wrap"><table class="ftbl lunch"><tbody>${L.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small class="muted">${esc(r[1])}</small><br><a href="${mlinkQ(r[3])}" target="_blank" rel="noopener">mapa</a></td><td class="r num"><b>${esc(r[2])}</b></td><td class="r">${lunchSel(r[0],key)}</td></tr>`).join("")}</tbody></table></div>`).join("")}
+   ${G.c.map(([t,L])=>`<h4 style="margin:12px 0 4px">${t}</h4><div class="tbl-wrap"><table class="ftbl lunch"><tbody>${L.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small class="muted">${esc(r[1])}</small><br><a href="${mlinkQ(r[3])}" target="_blank" rel="noopener">mapa</a></td><td class="r num"><b>${esc(r[2])}</b></td><td class="r">${key==="PA"||key==="LO"?`<button type="button" class="favb${favOf(r[0],key)?" on":""}" data-fav="${key}|${esc(r[0])}||${esc(r[2])}" title="Favorito">${favOf(r[0],key)?"★":"☆"}</button> `:""}${lunchSel(r[0],key)}</td></tr>`).join("")}</tbody></table></div>`).join("")}
    <p class="note">Selección de lugares conocidos y económicos; precios aproximados 2026, verificar en el lugar.</p></div>`}
 function foodCustomCard(key){const L=((ST.custom||{}).food||[]).filter(x=>(x.city||"PA")===key);
   return `<div class="card buy fcust"><span class="eyebrow">Lugares agregados por ustedes</span>
    ${L.length?`<div class="tbl-wrap"><table class="ftbl lunch"><tbody>${L.map(x=>`<tr><td><b>${esc(x.n)}</b>${x.ft?` <span class="tag">${esc(x.ft)}</span>`:""}<br><small class="muted">${esc(x.addr||"")}${x.s&&x.s!==x.n?" · "+esc(x.s):""}</small><br>${x.ll?`<a href="${mlinkQ(x.ll.join(","))}" target="_blank" rel="noopener">mapa</a> · `:""}<button type="button" class="lnkb" data-fdel="food|${x.id}">quitar</button></td><td class="r num"><b>${esc(x.pr||"")}</b></td><td class="r">${lunchSel(x.n,key)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted" style="font-size:14px">Todavía no agregan lugares aquí.</p>`}
    <details class="manf"><summary>✍ Agregar un lugar a mano (restaurante, café, local de una amiga…)</summary>
-    <form class="fform" data-foodman="${key}"><label class="f">Nombre<input name="n" required placeholder="Ej.: Bistrot Paul Bert"></label><label class="f">Tipo<select name="ft"><option>Restaurante</option><option>Bistró</option><option>Café</option><option>Panadería / boulangerie</option><option>Comida callejera</option><option>Comida rápida</option><option>Pub</option><option>Mercado</option></select></label><label class="f">Precio aprox. por persona<input name="pr" placeholder="Ej.: 15–20 €"></label><label class="f wide">Dirección (opcional)<input name="addr" placeholder="Para ubicarlo en el mapa"></label><label class="f wide">Nota (opcional)<input name="s" placeholder="Ej.: pedir el plato del día"></label><div class="act wide"><button type="submit" class="btn sm">＋ Agregar a Comidas</button></div></form></details>
+    <form class="fform" data-foodman="${key}"><label class="f">Nombre<input name="n" required placeholder="Ej.: Bistrot Paul Bert"></label><label class="f">Tipo<select name="ft"><option>Restaurante</option><option>Bistró</option><option>Café</option><option>Panadería / boulangerie</option><option>Comida callejera</option><option>Comida rápida</option><option>Pub</option><option>Mercado</option></select></label><label class="f">Precio aprox. por persona<input name="pr" placeholder="Ej.: 15–20 €"></label><label class="f">Barrio o zona (opcional)<input name="z"></label><label class="f wide">Dirección (opcional)<input name="addr" placeholder="Para ubicarlo en el mapa"></label><label class="f wide">Nota (opcional)<input name="s" placeholder="Ej.: pedir el plato del día"></label><div class="act wide"><button type="submit" class="btn sm">＋ Agregar a Comidas</button></div></form></details>
    ${key==="PA"||key==="LO"?findBtn("food",key):""}</div>`}
 async function saveFoodMan(f){const key=f.dataset.foodman;const g=k=>(f[k]&&f[k].value||"").trim();const n=g("n");if(!n)return;const b=f.querySelector("button[type=submit]");b.disabled=true;b.textContent="Guardando…";
   let ll=null,addr=g("addr");const ctx=key==="PA"?"Paris":key==="LO"?"London":((ESC.find(x=>x.id===key)||{}).n||"");
   if(addr){try{const j=await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(addr+", "+ctx)}`)).json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];addr=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
-  const c=ST.custom=ST.custom||{};(c.food=c.food||[]).push({id:"cf"+Date.now().toString(36),n,city:key,ft:g("ft"),pr:g("pr"),addr,ll,s:g("s"),u:"",by:(user&&user.email)||""});save();render();toast(`✔ <b>${esc(n)}</b> agregado a Comidas · pueden elegirlo como almuerzo de cualquier día`)}
+  const c=ST.custom=ST.custom||{};(c.food=c.food||[]).push({id:"cf"+Date.now().toString(36),n,city:key,ft:g("ft"),pr:g("pr"),addr:addr||g("z"),z:g("z"),ll,s:g("s"),u:"",by:(user&&user.email)||""});save();render();toast(`✔ <b>${esc(n)}</b> agregado a Comidas · pueden elegirlo como almuerzo de cualquier día`)}
 function bindFood2(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-lunchx]",b=>b.onclick=()=>{if(ST.lunchAt)delete ST.lunchAt[b.dataset.lunchx];save();render()});
   Q("[data-lunchpick]",x=>x.onchange=()=>{const [name,key]=x.dataset.lunchpick.split(/\|(?=[^|]*$)/);ST.lunchAt=ST.lunchAt||{};daysFor(key).forEach(d=>{if(ST.lunchAt[d.id]===name&&x.value!==d.id)delete ST.lunchAt[d.id]});if(x.value&&x.value!=="-"){ST.lunchAt[x.value]=name;const d=daysFor(key).find(z=>z.id===x.value);toast(`🍽 Almuerzo en <b>${esc(name)}</b> el ${d?pretty(d.d):""}`)}save();render()});
@@ -2159,8 +2174,8 @@ function pFood(A){const C=[...(lonDays().length?[{k:"LO",n:"Londres"}]:[]),A.C.f
    <div class="attbar" role="group" aria-label="Lugar">${C.map(c=>`<button type="button" class="btn ${c.k===foodCity?"":"alt"}" data-foodc="${c.k}" aria-pressed="${c.k===foodCity}">${short(c.n)}</button>`).join("")}</div>`;
   const mlink=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
   const fkey=foodCity==="PA"||foodCity==="LO"?foodCity:(C.find(z=>z.k===foodCity)||{}).id;
-  if(foodCity==="LO"){h+=foodGuide("LO")+foodCustomCard("LO");return h+`<p class="note">Precios aproximados por persona, 2026; verificar en el lugar. En Londres se paga en libras.</p>`}
-  if(foodCity==="PA"){h+=foodCustomCard("PA");
+  if(foodCity==="LO"){h+=favCard("LO")+foodGuide("LO")+foodCustomCard("LO");return h+`<p class="note">Precios aproximados por persona, 2026; verificar en el lugar. En Londres se paga en libras.</p>`}
+  if(foodCity==="PA"){h+=favCard("PA")+foodCustomCard("PA");
     h+=`<div class="card buy"><span class="eyebrow">✓ Precios verificados · almuerzo francés rápido y barato</span><h3>Bouillons, crêpes y bistrós de menú único</h3>
      <p>Los <b>bouillons</b> son comedores tradicionales franceses con platos clásicos (huevo mayo, salchicha con puré, bœuf bourguignon) a precio bajo y servicio rápido. La mayoría <b>no toma reservas</b>: llegar 12:00–12:30 o después de las 14:00.</p>
      <div class="tbl-wrap"><table class="ftbl lunch"><thead><tr><th>Lugar</th><th>Qué se pide</th><th class="r">Precio p/p</th></tr></thead><tbody>${LUNCH_V.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small class="muted">${r[1]}</small><br><a href="${mlink(r[6])}" target="_blank" rel="noopener">mapa</a> · <a href="${r[5]}" target="_blank" rel="noopener">fuente: ${r[4]}</a></td><td>${r[2]}</td><td class="r num"><b>${esc(r[3])}</b></td></tr>`).join("")}</tbody></table></div>
@@ -2181,7 +2196,7 @@ const PA_T={louvre:"mus",orsay:"mus",orang:"mus",rodin:"mus",picasso:"mus",carna
  notre:"igl",chapelle:"igl",sacre:"igl",
  catac:"ent",lumi:"ent",seine:"ent",evol:"ent",lafay:"ent",moulin:"ent"};
 const typOf=a=>a.t||PA_T[a.id]||"pas";
-const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["otr","Personales y otros"],["cen","Cenas entretenidas"],["per","Personalizada"],["com","Restaurantes"],["via","Viajes"]];
+const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["tie","Tiendas"],["otr","Personales y otros"],["cen","Cenas entretenidas"],["per","Personalizada"],["com","Restaurantes"],["via","Viajes"]];
 function nearDays(id){const a=actById(id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
 function daySelPA(id,cls){const days=isLO(id)?lonDays():parisDays();const pin=(ST.paPin||{})[id]||"";const on=selOf(actById(id));const N=nearDays(id);
   return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Automático${!pin&&ACTDAY[id]?" → "+pretty(ACTDAY[id]):""}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar (día automático)…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
@@ -2207,14 +2222,15 @@ async function savePer(f){const [d,city]=f.dataset.perform.split("|");const g=k=
   const c=ST.custom=ST.custom||{};(c.att=c.att||[]).push(a);ST.paSel=ST.paSel||{};ST.paSel[id]=true;ST.paPin=ST.paPin||{};ST.paPin[id]=d;addDay=null;save();render();
   toast(`✔ <b>${esc(n)}</b> agregada al ${pretty(d)}${addr&&!ll?" · no encontré la dirección: quedó sin traslado":""}`)}
 function addSheet(){if(!addDay)return"";const lo=addDay.startsWith("L"),d=addDay.replace(/^L/,"");let list="";
-  if(addTyp==="per"){const L=(lo?LON:PA).filter(a=>typOf(a)==="per"&&!selOf(a));list=perForm(d,lo)+(L.length?`<span class="eyebrow" style="margin-top:10px">Personalizadas anteriores</span>`+L.map(a=>`<div class="addrow"><span><b>${esc(a.n)}</b><small>~${String(a.h).replace(".",",")} h · ${esc(a.v||"")}</small></span><button type="button" class="btn sm" data-addact="${a.id}">Agregar</button></div>`).join(""):"")}
+  if(addTyp==="new")list=perForm(d,lo);
+  else if(addTyp==="per"){const L=(lo?LON:PA).filter(a=>typOf(a)==="per"&&!selOf(a));list=L.length?L.map(a=>`<div class="addrow"><span><b>${esc(a.n)}</b><small>~${String(a.h).replace(".",",")} h · ${esc(a.v||"")}</small></span><button type="button" class="btn sm" data-addact="${a.id}">Agregar</button></div>`).join(""):`<p class="muted">Todavía no hay actividades personalizadas sin programar. Creen una con <b>«＋ Nueva actividad»</b>.</p>`}
   else if(addTyp==="com"&&lo){const G=[...FOOD_G.LO.c.flatMap(c=>c[1]).map(r=>[r[0],r[1],r[2]]),...((ST.custom||{}).food||[]).filter(x=>x.city==="LO").map(x=>[x.n,x.ft||"",x.pr||""])];list=`<form class="fsearch" data-lunchfree><input name="n" placeholder="Otro lugar: escriban el nombre" aria-label="Nombre del lugar"><button type="submit" class="btn sm">Almorzar aquí</button></form>`+G.map(r=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${esc(r[1])} · ${esc(r[2])}</small></span><button type="button" class="btn sm" data-addlunchn="${esc(r[0])}">Almorzar aquí</button></div>`).join("")}
   else if(addTyp==="com")list=`<form class="fsearch" data-lunchfree><input name="n" placeholder="Otro lugar: escriban el nombre" aria-label="Nombre del lugar"><button type="submit" class="btn sm">Almorzar aquí</button></form>`+LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
   else if(addTyp==="via"){const ok=x=>!overlap(d,d);list=ESC.filter(x=>x.k!=="noche").map(x=>`<div class="addrow"><span><b>${x.p} ${x.n}</b><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":"día o 1 noche"}</small></span><button type="button" class="btn sm" data-addtrip="${x.id}" ${ok(x)?"":"disabled"}>Ir este día</button></div>`).join("")+`<p class="muted" style="font-size:13px">Las escapadas con noches se agregan en 4 · Escapadas.</p>`}
   else{const L=(lo?LON:PA).filter(a=>!selOf(a)&&typOf(a)===addTyp);list=L.map(a=>{const N=nearDays(a.id);const alt=Object.entries(N).filter(([dd,v])=>dd!==d&&v.fits).sort((x,y)=>x[1].k-y[1].k)[0];const here=N[d];return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}${here?`<small class="okl">★ Este día ya visitan ${here.n}, a ~${here.min} min a pie.</small>`:alt?`<small class="hint">💡 El ${pretty(alt[0])} visitan ${alt[1].n}, a ~${alt[1].min} min a pie. <button type="button" class="lnkb" data-addactd="${a.id}|${alt[0]}">Ponerlo ese día</button></small>`:""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
   return `<div class="fov" data-aclose="1"><article class="fsheet" style="--c:${lo?LO_C:PA_C}" role="dialog" aria-label="Agregar actividad"><button type="button" class="btn alt sm fx" data-aclose="1" aria-label="Cerrar">✕</button>
    <span class="eyebrow">${pretty(d)} · ${lo?"Londres":"París"}</span><h2>Agregar actividad</h2>
-   <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.filter(t=>!lo||t[0]!=="via").map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}</div>
+   <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.filter(t=>!lo||t[0]!=="via").map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}<button type="button" class="chip newchip" data-addtyp="new" aria-pressed="${addTyp==="new"}">＋ Nueva actividad</button></div>
    <div class="addlist">${list}</div></article></div>`}
 // ---------- planos del día con calles (OpenStreetMap) y zonas de precaución achuradas ----------
 let _hz=0;
@@ -2376,9 +2392,10 @@ prog:{t:"Programa: armar los días",i:"El corazón de la app: qué hacen cada d�
  ["Organizar todo de una vez","En Londres toquen <b>«🧭 Organizar Londres»</b>; en París, <b>«👭 Días con Alli»</b>. Paso 1: marquen los días <b>ocupados</b> (entrada comprada, plan fijo) o <b>libres</b>. Paso 2: marquen todo lo que quieren hacer. Al tocar <b>«Listo»</b> la app lo reparte en los días disponibles, por barrio y desde el alojamiento."],
  ["Agregar de a una","En «Agregar actividades por categoría» marquen la casilla (se asigna un día automático) o elijan el día en el selector. Un aviso abajo confirma el día y la actividad queda marcada con «✔ fecha · ver el día →». En cada fecha el selector sugiere días en que ya visitan algo cerca."],
  ["Categorías","Paseos y barrios, Museos, Monumentos y miradores, Iglesias, Atracciones entretenidas, <b>Espectáculos</b> (se programan de noche y en sus fechas), <b>Cenas entretenidas</b> (Wagamama, Dishoom, Pink Mamma, Bouillon Pigalle: de noche, el día que elijan) y <b>Personales y otros</b> (casas de amigos, tiendas, direcciones propias)."],
- ["Personalizada","En «+ Agregar actividad a este día», la categoría <b>Personalizada</b> registra cualquier cosa propia (un cumpleaños, compras, una visita): nombre, duración, hora y dirección opcionales. Con dirección se ubica en el plano y se calcula el traslado; sin dirección queda registrada en el día sin traslado."],
+ ["Personalizada y nueva actividad","En «+ Agregar actividad a este día», <b>Personalizada</b> y <b>Tiendas</b> muestran lo que ya crearon para sumarlo a ese día. El botón azul <b>«＋ Nueva actividad»</b> crea una desde cero (un cumpleaños, compras, una visita): nombre, duración, hora y dirección opcionales. Con dirección se ubica en el plano y se calcula el traslado; sin dirección queda registrada en el día sin traslado."],
  ["Algo que no está en la lista","Agréguenlo con <b>«🔎 Buscar y agregar»</b> en 3 · Atracciones, 4 · Escapadas, 5 · Espectáculos u 8 · Comidas: después aparece aquí para programarlo."],
  ["Ajustar cada día","↑ ↓ cambia el orden, ✕ la quita, el selector 📅 fija otro día y <b>«+ Agregar actividad a este día»</b> abre la lista por categoría. En <b>Comidas</b> marquen qué comidas hacen y elijan la opción; en <b>Traslados, alojamiento y plano</b> están los tramos y su costo."],
+ ["Almuerzo","Cada día con actividades tiene una franja de almuerzo de 1 hora desde las 13:00. Debajo aparecen <b>sugerencias cerca</b> de donde están: una de la guía de la app y dos del mapa. Colores: 🟢 precio verificado · 🟠 precio estimado · 🔵 favorito. «Elegir» lo deja como almuerzo; ☆ lo marca como favorito (si es cadena, cada día se sugiere el local más cercano)."],
  ["Plano del día","Toquen el plano chico para ampliarlo: números en orden de visita, caminatas por las calles (línea punteada negra), metro en azul y zonas de precaución achuradas en rojo. Se puede hacer zoom."],
  ["Calendario","Botón <b>«📅 Calendario»</b> o el ícono 📅 junto a la fecha de cada día: ven todo el viaje por colores. El número indica cuántas actividades tiene el día; tóquenlo para ver la lista y toquen el día para ir a él."],
  ["Pronóstico del tiempo","Aparece 16 días antes de cada ciudad. Si se anuncia lluvia, sugiere cambiar una actividad al aire libre por una techada: botón <b>«Aplicar cambio»</b>."],
@@ -2390,6 +2407,7 @@ att:{t:"Atracciones: conocer cada lugar",i:"Fichas tipo expediente de cada atrac
  ["Leer la ficha","Historia, qué van a ver, dato o consejo, horario, precio, cierres y fotos (toquen la foto para ver más en Google)."],
  ["Agregar al programa","En Londres, el botón de cada ficha la agrega o la quita; en París, desde el programa. Desde un día del programa, «Ver ficha completa →» trae a esta sección."],
  ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, elijan la ciudad, escriban el nombre o la dirección y elijan el resultado correcto. Completen precio, horas y horario si los saben (la búsqueda casi nunca los trae). Para quitarlo, «quitar de la lista». Al elegir el resultado, la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
+ ["Agregar a mano","El botón azul <b>«＋ Agregar a mano»</b> junto a los filtros abre un formulario según la sección: categoría (incluye <b>Tiendas</b> y Personalizada), barrio, dirección, duración, precio y horario en atracciones; tipo (concierto, teatro, show, evento, feria), fechas y hora en espectáculos; noches, tren y qué ver en escapadas. Solo el nombre es obligatorio."],
  ["Destinos personales","Para la casa de una amiga, una tienda o cualquier lugar: busquen el nombre o la dirección y elijan el tipo «Personales y otros». Queda en el programa como cualquier actividad."],
  ["Contexto","En París hay un resumen histórico con línea de tiempo y una lista de películas, series y libros para ver antes del viaje."]]},
 esc:{t:"Escapadas: salir de París",i:"Viajes de un día o con noches a ciudades a pocas horas en tren.",s:[
@@ -2398,6 +2416,7 @@ esc:{t:"Escapadas: salir de París",i:"Viajes de un día o con noches a ciudades
  ["Agregar","«+ Agregar» (o «+ Agregar fechas»): elijan fecha de ida y noches («Solo el día» para excursión). Avisa si choca con otra escapada."],
  ["Dónde aparece","La escapada entra al programa con su propia pestaña, plano y puntos sugeridos, y también al mapa del viaje, al calendario y al presupuesto."],
  ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, elijan la ciudad, escriban el nombre o la dirección y elijan el resultado correcto. Completen precio, horas y horario si los saben (la búsqueda casi nunca los trae). Para quitarlo, «quitar de la lista». Al elegir el resultado, la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
+ ["Agregar a mano","El botón azul <b>«＋ Agregar a mano»</b> junto a los filtros abre un formulario según la sección: categoría (incluye <b>Tiendas</b> y Personalizada), barrio, dirección, duración, precio y horario en atracciones; tipo (concierto, teatro, show, evento, feria), fechas y hora en espectáculos; noches, tren y qué ver en escapadas. Solo el nombre es obligatorio."],
  ["Quitar","Con ✕ en la lista «Escapadas · orden de visita»."]],
  tip:"Las fichas completas de las escapadas elegidas aparecen al final de esta sección."},
 show:{t:"Espectáculos: eventos y noches especiales",i:"Eventos, ferias de Navidad, teatro y shows durante el viaje.",s:[
@@ -2405,6 +2424,7 @@ show:{t:"Espectáculos: eventos y noches especiales",i:"Eventos, ferias de Navid
  ["Fechas","El sello <b>«EN SUS FECHAS»</b> indica que el evento coincide con sus días en esa ciudad; los demás quedan atenuados."],
  ["Agregar al programa","<b>«+ Agregar al programa»</b> lo programa de noche en un día en que funcione (respeta fechas y días cerrados)."],
  ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, elijan la ciudad, escriban el nombre o la dirección y elijan el resultado correcto. Completen precio, horas y horario si los saben (la búsqueda casi nunca los trae). Para quitarlo, «quitar de la lista». Al elegir el resultado, la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
+ ["Agregar a mano","El botón azul <b>«＋ Agregar a mano»</b> junto a los filtros abre un formulario según la sección: categoría (incluye <b>Tiendas</b> y Personalizada), barrio, dirección, duración, precio y horario en atracciones; tipo (concierto, teatro, show, evento, feria), fechas y hora en espectáculos; noches, tren y qué ver en escapadas. Solo el nombre es obligatorio."],
  ["Eventos de escapadas","Si el evento es en otra ciudad (por ejemplo Lyon), el botón lleva a esa escapada."]]},
 hot:{t:"Alojamiento: comparar y elegir",i:"Opciones de alojamiento por ciudad y su costo por persona.",s:[
  ["Elegir lugar","Una pestaña por cada estadía (París y cada escapada con noche), con sus fechas."],
@@ -2422,7 +2442,8 @@ food:{t:"Comidas: dónde y cuánto",i:"Sugerencias de comida por lugar y precios
  ["Comida rápida","En el almuerzo y la cena de cada día está la opción «Comida rápida americana» (McDonald's, Burger King, KFC); también aparecen en las guías de Londres y París."],
  ["Ideas por lugar","Pestañas <b>Londres</b>, <b>París</b> y cada escapada elegida: comida callejera típica, opciones baratas y bistrós de precio acotado, con precio aproximado y mapa."],
  ["Elegir dónde almorzar","Junto a cada lugar, el selector <b>«🍽 almorzar aquí el…»</b> lo deja como almuerzo de ese día: aparece en el programa (en Atracciones y bajo Almuerzo en Comidas, con opción de quitar). También desde un día: «+ Agregar actividad a este día» → Restaurantes, o escribiendo el nombre de cualquier lugar."],
- ["Agregar sus lugares","En «Lugares agregados por ustedes»: <b>«✍ Agregar un lugar a mano»</b> (nombre, tipo, precio y dirección opcional) o «🔎 Buscar y agregar». Quedan para las dos y se pueden elegir como almuerzo."],
+ ["Favoritos","Marquen con ☆ los lugares que les gusten (en la guía o en las sugerencias de almuerzo de cada día): aparecen en «⭐ Favoritos» y se sugieren otros días cuando estén cerca; si tiene varios locales (cadena), se busca el más cercano."],
+ ["Agregar sus lugares","En «Lugares agregados por ustedes»: <b>«✍ Agregar un lugar a mano»</b> (nombre, tipo, precio, barrio y dirección opcional) o «🔎 Buscar y agregar». Quedan para las dos y se pueden elegir como almuerzo."],
  ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, elijan la ciudad, escriban el nombre o la dirección y elijan el resultado correcto. Completen precio, horas y horario si los saben (la búsqueda casi nunca los trae). Para quitarlo, «quitar de la lista». Al elegir el resultado, la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
  ["Cambiar un día","Cada comida de cada día se ajusta en 2 · Programa → Comidas."]]},
 gas:{t:"Gastos: presupuesto y gasto real",i:"El presupuesto que estima el programa y el registro del gasto real.",s:[
@@ -2459,7 +2480,7 @@ function applyCustom(){const c=ST.custom||{};
   PA.length=0;PA.push(...PA0,...acts.filter(a=>a.city!=="LO"));
   LON.length=0;LON.push(...LON0,...acts.filter(a=>a.city==="LO"));
   ESC.length=0;ESC.push(...ESC0,...(c.esc||[]).map(x=>{EXT[x.id]={ll:x.ll,cost:x.cost||"por definir",how:x.how||"Revisar en SNCF Connect o Trainline.",f:{h:x.s||"",v:x.vv||[]}};return {id:x.id,n:x.n,p:x.p||"📍",k:x.k,tr:x.tr||"por definir",nt:x.nt||"1",c:"#6b5d43",t:x.s||"",tags:[],cu:1}}));
-  SHOWS.length=0;SHOWS.push(...SHOWS0,...(c.show||[]).map(x=>({n:x.n,w:x.city==="LO"?"Londres":"París",e:"⭐",ini:x.from||"2026-01-01",fin:x.to||"2027-12-31",al:!x.from,t:x.s||"",d:x.d||"",u:x.u||"",act:x.ll?x.id:null,cu:1})));
+  SHOWS.length=0;SHOWS.push(...SHOWS0,...(c.show||[]).map(x=>({n:x.n,w:x.city==="LO"?"Londres":"París",e:x.e||"⭐",ini:x.from||"2026-01-01",fin:x.to||"2027-12-31",al:!x.from,t:x.s||"",d:x.d||"",u:x.u||"",act:x.ll?x.id:null,cu:1})));
   LUNCH_V.length=0;LUNCH_V.push(...LUNCH0,...(c.food||[]).filter(x=>(x.city||"PA")==="PA").map(x=>[x.n,(x.ft||"Restaurante")+" · "+(x.addr||""),x.s||"",x.pr||"",x.src||"Agregado por ustedes",x.u||"",x.n+" "+(x.addr||"Paris")]))}
 let FIND=null;// {kind,city,q,res,busy,err,pick}
 const FK={att:"atracción o destino personal",esc:"escapada",show:"espectáculo o evento",food:"lugar para comer"};
@@ -2531,12 +2552,84 @@ function bindFind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-fform]",f=>f.onsubmit=e=>{e.preventDefault();saveFind(new FormData(f))});
   Q("[data-fdel]",b=>b.onclick=()=>{if(!b.dataset.sure){b.dataset.sure=1;b.textContent="¿seguro? toca otra vez";return}const [k,id]=b.dataset.fdel.split("|");const c=ST.custom||{};c[k]=(c[k]||[]).filter(x=>x.id!==id);if(ST.paSel)delete ST.paSel[id];ST.esc=ST.esc.filter(e=>e.id!==id);save();render();toast("Quitado de la lista")})}
 
+// ===== Almuerzo: franja y sugerencias cerca =====
+const CHAINS=/mcdonald|burger king|kfc|pret|starbucks|costa|caff[eè] nero|paul\b|brioche dor|columbus|exki|wagamama|franco manca|leon\b|gail|five guys|itsu|wasabi|greggs|subway|flunch|big fernand|bagelstein|pomme de pain|cojean|eat\b|nando/i;
+const favKey=n=>nrm(n).replace(/[^a-z0-9]+/g,"");
+const favOf=(n,city)=>(ST.favs||[]).find(f=>f.k===favKey(n)&&f.city===city);
+const LL_CACHE={};try{Object.assign(LL_CACHE,JSON.parse(localStorage.getItem("mp_near")||"{}"))}catch(e){}
+let NQ=Promise.resolve(),NQ_PEND={};
+function nomi(url){if(LL_CACHE[url])return Promise.resolve(LL_CACHE[url]);if(NQ_PEND[url])return NQ_PEND[url];
+  const pr=NQ=NQ.then(()=>new Promise(r=>setTimeout(r,1100))).then(()=>fetch(url).then(r=>r.json()).catch(()=>[])).then(j=>{LL_CACHE[url]=j;try{const ks=Object.keys(LL_CACHE);if(ks.length>200)delete LL_CACHE[ks[0]];localStorage.setItem("mp_near",JSON.stringify(LL_CACHE))}catch(e){}delete NQ_PEND[url];return j});
+  NQ_PEND[url]=pr;return pr}
+const nearUrl=(q,ll,r)=>`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=12&extratags=1&accept-language=es&q=${encodeURIComponent(q)}&viewbox=${(ll[1]-r).toFixed(4)},${(ll[0]+r*0.66).toFixed(4)},${(ll[1]+r).toFixed(4)},${(ll[0]-r*0.66).toFixed(4)}&bounded=1`;
+const estPr=(typ,city)=>{const lo=city==="LO";return typ==="fast_food"?(lo?"£7–12":"8–12 €"):typ==="cafe"||typ==="bakery"?(lo?"£6–12":"6–12 €"):typ==="pub"?(lo?"£15–20":"15–20 €"):(lo?"£15–25":"18–28 €")};
+let _nearT=null;
+function lunchSugg(d,p){const city=d.city,pos=p.seq.lunchPos||p.base;if(!pos||(city!=="PA"&&city!=="LO"))return"";const items=[];
+  // favoritos cerca (o la sucursal más cercana si es cadena)
+  (ST.favs||[]).filter(f=>f.city===city).forEach(f=>{if(f.chain){const u=nearUrl(f.n,pos,0.012);const R=LL_CACHE[u];if(!R){items.push({pend:u});return}const b=R.map(o=>({ll:[+o.lat,+o.lon]})).sort((x,y)=>km(pos,x.ll)-km(pos,y.ll))[0];if(b&&km(pos,b.ll)<1.6)items.push({n:f.n,ll:b.ll,pr:f.pr||"",src:"fav",note:"cadena · local más cercano"})}else if(f.ll&&km(pos,f.ll)<1.6)items.push({n:f.n,ll:f.ll,pr:f.pr||"",src:"fav"})});
+  // uno de la app
+  const i=(BF_IX[d.id]||0);
+  if(city==="PA"){const L=LUNCH_V.filter(r=>!/mcdonald|burger king/i.test(r[0]));const r=L[i%L.length];if(r)items.push({n:r[0],pr:r[3],src:/aprox|ustedes/i.test(r[4])?"est":"ver",note:"de la guía · "+(r[1].split("·").slice(1).join("·").trim()||r[1])})}
+  else{const L=FOOD_G.LO.c.flatMap(c=>c[1]).filter(r=>!/meal deal|chinatown|greggs|mcdonald|burger|kfc/i.test(r[0]));const r=L[i%L.length];if(r)items.push({n:r[0],pr:r[2],src:"est",note:"de la guía · "+r[1]})}
+  // dos del mapa
+  const u=nearUrl("restaurant",pos,0.006);const R=LL_CACHE[u];
+  if(!R)items.push({pend:u});else R.filter(o=>o.name&&!items.some(x=>x.n&&favKey(x.n)===favKey(o.name))).map(o=>({n:o.name,ll:[+o.lat,+o.lon],typ:o.type,cu:(o.extratags||{}).cuisine||""})).sort((x,y)=>km(pos,x.ll)-km(pos,y.ll)).slice(0,2).forEach(o=>items.push({n:o.n,ll:o.ll,pr:estPr(o.typ,city),src:"map",note:(o.typ==="fast_food"?"comida rápida":o.typ==="cafe"?"café":"restaurante")+(o.cu?" · "+o.cu.replace(/;/g,", ").replace(/_/g," "):"")}));
+  const pend=items.filter(x=>x.pend).map(x=>x.pend);if(pend.length){pend.forEach(u=>nomi(u).then(()=>{clearTimeout(_nearT);_nearT=setTimeout(()=>{if(tab==="prog")render()},400)}))}
+  const chosen=(ST.lunchAt||{})[d.id];
+  const row=x=>{const f=favOf(x.n,city);const dist=x.ll?Math.max(1,Math.round(km(pos,x.ll)*13)):null;
+    return `<li class="ls ${x.src}"><span class="lsdot" aria-hidden="true"></span><span class="lsn"><b>${esc(x.n)}</b>${x.note?` <small>${esc(x.note)}</small>`:""}<small class="num">${x.pr?esc(x.pr):""}${dist?` · ~${dist} min a pie`:""}${x.src==="ver"?" · precio verificado":x.src==="fav"?" · favorito":x.src==="map"?" · precio estimado":" · precio aprox."}</small></span>
+     <span class="lsact">${x.ll?`<a href="${mlinkQ(x.ll.join(","))}" target="_blank" rel="noopener" aria-label="Mapa de ${esc(x.n)}">mapa</a>`:""}<button type="button" class="favb${f?" on":""}" data-fav="${city}|${esc(x.n)}|${x.ll?x.ll.join(","):""}|${esc(x.pr||"")}" aria-pressed="${!!f}" title="${f?"Quitar de favoritos":"Marcar como favorito"}">${f?"★":"☆"}</button><button type="button" class="btn sm" data-lpick="${d.id}|${esc(x.n)}">${chosen===x.n?"✓ elegido":"Elegir"}</button></span></li>`};
+  const shown=items.filter(x=>!x.pend);
+  return `<div class="lsugg"><span class="lsh">Sugerencias cerca${p.seq.lunchPos?"":" del alojamiento"}:</span><ul>${shown.map(row).join("")}${pend.length?`<li class="ls wait"><small class="muted">Buscando lugares cerca en el mapa…</small></li>`:""}</ul><small class="lsleg"><i class="ver"></i>precio verificado <i class="est"></i>precio estimado <i class="fav"></i>favorito</small></div>`}
+function toggleFav(city,n,ll,pr){ST.favs=ST.favs||[];const k=favKey(n);const i=ST.favs.findIndex(f=>f.k===k&&f.city===city);
+  if(i>=0){ST.favs.splice(i,1);toast(`☆ ${esc(n)} quitado de favoritos`)}else{ST.favs.push({k,n,city,ll:ll||null,pr:pr||"",chain:CHAINS.test(n)});toast(`★ <b>${esc(n)}</b> en favoritos${CHAINS.test(n)?" · es cadena: se sugerirá el local más cercano cada día":" · se sugerirá cuando estén cerca"}`)}save();render()}
+function favCard(key){if(key!=="PA"&&key!=="LO")return"";const L=(ST.favs||[]).filter(f=>f.city===key);
+  return `<div class="card buy fcust"><span class="eyebrow">⭐ Favoritos y lugares recurrentes</span>${L.length?`<ul class="brief">${L.map(f=>`<li><b>${esc(f.n)}</b>${f.pr?` · ${esc(f.pr)}`:""}${f.ll?` · <a href="${mlinkQ(f.ll.join(","))}" target="_blank" rel="noopener">mapa</a>`:""} · <label class="chkin"><input type="checkbox" data-favchain="${key}|${f.k}" ${f.chain?"checked":""}> tiene varios locales (cadena)</label> · <button type="button" class="lnkb" data-fav="${key}|${esc(f.n)}||">quitar</button></li>`).join("")}</ul><p class="muted" style="font-size:13px">Cada día se sugieren en la hora de almuerzo si están cerca; si es cadena, se busca el local más cercano.</p>`:`<p class="muted" style="font-size:14px">Marquen con ☆ los lugares que les gusten (en las sugerencias de almuerzo de cada día o en esta guía) y aparecerán como opción en otros días cuando estén cerca.</p>`}</div>`}
+function bindLunch(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-fav]",b=>b.onclick=()=>{const [c,n,ll,pr]=b.dataset.fav.split("|");toggleFav(c,n,ll?ll.split(",").map(Number):null,pr)});
+  Q("[data-favchain]",x=>x.onchange=()=>{const [c,k]=x.dataset.favchain.split("|");const f=(ST.favs||[]).find(z=>z.k===k&&z.city===c);if(f){f.chain=x.checked;save();render()}});
+  Q("[data-lpick]",b=>b.onclick=()=>{const [id,n]=b.dataset.lpick.split(/\|(.+)/);ST.lunchAt=ST.lunchAt||{};if(ST.lunchAt[id]===n)delete ST.lunchAt[id];else ST.lunchAt[id]=n;save();render();if(ST.lunchAt[id])toast(`🍽 Almuerzo en <b>${esc(n)}</b>`)})}
+
+// ===== Agregar a mano (atracciones, espectáculos, escapadas) =====
+let MAN=null;// "att|PA" etc.
+const SHOW_T=[["🎵","Concierto"],["🎭","Teatro o musical"],["🎪","Show"],["🎉","Evento"],["🎄","Feria o mercado"],["⭐","Otro"]];
+function manBtn(kind,city){const k=kind+"|"+(city||"");return `<button type="button" class="chip addchip" data-man="${k}" aria-pressed="${MAN===k}">＋ Agregar a mano</button>`}
+function manPanel(kind,city){const k=kind+"|"+(city||"");if(MAN!==k)return"";const lo=city==="LO";
+  const common=`<label class="f">Barrio o zona (opcional)<input name="z" placeholder="${lo?"Ej.: Soho":"Ej.: Le Marais"}"></label><label class="f wide">Dirección (opcional, para el plano)<input name="addr" placeholder="${lo?"Ej.: 10 Carnaby Street":"Ej.: 12 rue de Rivoli"}"></label>`;
+  let f="";
+  if(kind==="att")f=`<label class="f">Nombre<input name="n" required placeholder="Ej.: Librería Shakespeare and Company"></label><label class="f">Categoría<select name="t">${TYP.filter(t=>["pas","mus","mon","igl","ent","tie","otr","per"].includes(t[0])).map(([k,t])=>`<option value="${k}" ${k==="tie"?"selected":""}>${t}</option>`).join("")}</select></label>${common}
+   <label class="f">Duración (horas)<input name="h" type="number" min="0.25" step="0.25" value="1"></label><label class="f">Precio por persona (€)<input name="p" type="number" min="0" step="0.5" value="0"></label><label class="f">Cierra a las (opcional)<input name="close" type="time"></label><label class="chk f"><input type="checkbox" name="in"><span class="t">🏛 Techado</span></label>
+   <label class="f wide">Nota (opcional)<input name="s" placeholder="Ej.: comprar regalos, ver la sección de cómics"></label><label class="chk f wide"><input type="checkbox" name="add" checked><span class="t">Agregar también al programa (día automático)</span></label>`;
+  if(kind==="show")f=`<label class="f">Nombre<input name="n" required placeholder="Ej.: Concierto en Saint-Eustache"></label><label class="f">Tipo<select name="e">${SHOW_T.map(([e,t])=>`<option value="${e}">${e} ${t}</option>`).join("")}</select></label>${common}
+   <label class="f">Desde<input name="from" type="date"></label><label class="f">Hasta<input name="to" type="date"></label><label class="f">Hora (opcional)<input name="at" type="time"></label><label class="f">Duración (horas)<input name="h" type="number" min="0.25" step="0.25" value="2"></label><label class="f">Precio por persona (€)<input name="p" type="number" min="0" step="0.5" value="0"></label>
+   <label class="f wide">Descripción (opcional)<input name="s"></label><label class="chk f wide"><input type="checkbox" name="add" checked><span class="t">Agregar también al programa (de noche, en sus fechas)</span></label>`;
+  if(kind==="esc")f=`<label class="f">Destino<input name="n" required placeholder="Ej.: Honfleur"></label><label class="f">Tipo<select name="k"><option value="dia">De un día</option><option value="noche" selected>Con noche</option><option value="ambos">Día o 1 noche</option></select></label><label class="f">Noches sugeridas<input name="nt" value="1"></label><label class="f">Tiempo en tren desde París<input name="tr" placeholder="Ej.: 2 h (TGV)"></label><label class="f">Costo del tren (ida)<input name="cost" placeholder="Ej.: 30–80 € ida"></label>
+   <label class="f wide">Qué ver (separado por comas)<input name="vv" placeholder="Ej.: puerto viejo, iglesia de madera"></label><label class="f wide">Por qué ir (opcional)<input name="s"></label>`;
+  return `<form class="fform manform" data-manform="${k}"><span class="eyebrow wide">Agregar a mano · ${kind==="att"?"atracción, tienda o lugar":kind==="show"?"espectáculo o evento":"escapada"}</span>${f}
+   <div class="act wide"><button type="submit" class="btn sm">＋ Agregar</button><button type="button" class="btn alt sm" data-man="${k}">Cancelar</button></div>
+   <p class="muted wide" style="font-size:13px;margin:0">Todo es opcional salvo el nombre. ${kind==="esc"?"El destino se ubica en el mapa por su nombre.":"Con dirección se ubica en el plano y se calculan los traslados; sin dirección queda sin traslado."}</p></form>`}
+async function saveMan(f){const [kind,city]=f.dataset.manform.split("|");const g=k=>(f[k]&&f[k].value||"").trim();const n=g("n");if(!n)return;const b=f.querySelector("button[type=submit]");b.disabled=true;b.textContent="Guardando…";
+  const ctx=kind==="esc"?"":city==="LO"?", London":", Paris";let ll=null,addr=g("addr");const q=addr||(kind==="esc"?n:"");
+  if(q){try{const j=await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(q+ctx)}${kind!=="esc"?`&viewbox=${VB[city]}`:""}`)).json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];if(addr)addr=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
+  const c=ST.custom=ST.custom||{};const tm=x=>x?(+x.split(":")[0]+(+x.split(":")[1])/60):0;const base=city==="LO"?lonBase():baseLL();
+  if(kind==="esc"){if(!ll){b.disabled=false;b.textContent="＋ Agregar";toast("⚠ No encontré ese destino en el mapa: prueben con otro nombre o agreguen el país");return}
+    (c.esc=c.esc||[]).push({id:"cu"+Date.now().toString(36),n,ll,s:g("s")||"Escapada agregada por ustedes.",k:g("k")||"noche",nt:g("nt")||"1",tr:g("tr"),cost:g("cost"),vv:g("vv").split(",").map(x=>x.trim()).filter(Boolean),p:"📍",by:(user&&user.email)||""});MAN=null;save();render();toast(`✔ <b>${esc(n)}</b> agregada a Escapadas`);return}
+  const id=(city==="LO"?"lo_cu":"cu")+Date.now().toString(36);
+  const a={id,n,ll:ll||base,noloc:ll?0:1,addr,z:g("z")||"Agregado",city,h:+g("h")||1,p:+g("p")||0,s:g("s")||n,v:addr?(ll?"📍 "+addr:"Dirección sin ubicar: "+addr):(g("z")?"Zona: "+g("z"):"Agregado por ustedes"),d:g("s")||"",u:ll?mlinkQ(ll.join(",")):"",by:(user&&user.email)||""};
+  if(kind==="att"){Object.assign(a,{t:g("t")||"tie",in:f.in&&f.in.checked?1:0});const cl=tm(g("close"));if(cl)a.close=cl;(c.att=c.att||[]).push(a)}
+  if(kind==="show"){const at=tm(g("at"));Object.assign(a,{t:"esp",in:1,eve:!at||at>=17?1:0,from:g("from"),to:g("to")||g("from"),e:g("e")||"⭐"});if(at)a.at=at;(c.show=c.show||[]).push(a)}
+  if(f.add&&f.add.checked){ST.paSel=ST.paSel||{};ST.paSel[id]=true}
+  MAN=null;save();render();toast(`✔ <b>${esc(n)}</b> agregado${f.add&&f.add.checked?" y en el programa":""}${addr&&!ll?" · no encontré la dirección: quedó sin traslado":""}`)}
+function bindMan(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-man]",b=>b.onclick=()=>{MAN=MAN===b.dataset.man?null:b.dataset.man;render();const f=document.querySelector("[data-manform] [name=n]");if(f)f.focus()});
+  Q("[data-manform]",f=>f.onsubmit=e=>{e.preventDefault();saveMan(f)})}
+
 function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
