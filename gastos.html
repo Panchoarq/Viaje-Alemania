@@ -168,16 +168,17 @@ async function boot(){
   F=FS;const fa=A.initializeApp(FBC);const auth=U.getAuth(fa);
   try{db=FS.initializeFirestore(fa,{localCache:FS.persistentLocalCache({tabManager:FS.persistentMultipleTabManager()})})}catch(e){db=FS.getFirestore(fa)}
   window._au={U,auth};
-  U.onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
-function listen(){const den=()=>gate(true);
+  U.getRedirectResult(auth).catch(e=>{window._autherr=e&&e.code});
+  U.onAuthStateChanged(auth,u=>{window._authu=u?(u.isAnonymous?"anónima":u.email):"ninguna";unsubs.forEach(f=>f());unsubs=[];if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
+function listen(){const den=e=>{window._autherr=e&&e.code;gate(true)};
   unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"users",em()),s=>{P=s.exists()?s.data():{};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];render()},den));
   unsubs.push(F.onSnapshot(F.collection(db,"trips",TK,"users",em(),"gastos"),s=>{G=s.docs.map(d=>({id:d.id,...d.data()}));render()},den));
   unsubs.push(F.onSnapshot(F.collection(db,"trips",TK,"juntas"),s=>{J=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
   unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"meta","presupuesto"),s=>{BUD=s.exists()?s.data():{days:[]};render()},()=>{}))}
 function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">${T.nom}</span><h1 class="h1">Mis gastos</h1>
   ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada persona ve solo sus gastos.</p>`}
-  <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="${T.back}">← Volver al viaje</a></div>`;
-  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);const pr=new U.GoogleAuthProvider();try{await U.signInWithPopup(auth,pr)}catch(e){const c=e&&e.code||"";if(/popup-blocked|cancelled-popup|operation-not-supported/.test(c)){try{await U.signInWithRedirect(auth,pr);return}catch(e2){}}
+  <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="${T.back}">← Volver al viaje</a><small class="sub" id="dbg">Sesión: ${window._authu||"—"}${window._autherr?" · "+window._autherr:""}</small></div>`;
+  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);const pr=new U.GoogleAuthProvider();pr.setCustomParameters({prompt:"select_account"});try{const rs=await U.signInWithPopup(auth,pr);if(rs&&rs.user&&!rs.user.isAnonymous){unsubs.forEach(f=>f());unsubs=[];user=rs.user;listen()}}catch(e){const c=e&&e.code||"";if(/popup-blocked|cancelled-popup|operation-not-supported/.test(c)){try{await U.signInWithRedirect(auth,pr);return}catch(e2){}}
     const m=/unauthorized-domain/.test(c)?"Dominio no autorizado en Firebase ("+location.hostname+")":/popup-closed/.test(c)?"Cerraste la ventana de Google":/operation-not-allowed/.test(c)?"Google no está habilitado en Firebase":"No se pudo entrar: "+c;
     const w=document.createElement("p");w.className="alert";w.textContent=m;app.querySelector(".gate").appendChild(w)}}}
 
