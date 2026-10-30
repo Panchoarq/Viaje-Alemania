@@ -971,6 +971,34 @@ span.tc-d{cursor:default}
 .chkin{font-size:13px;color:var(--muted)}
 .addchip,.newchip{background:#2e4f8f!important;color:#fff!important;border-color:#2e4f8f!important}.addchip[aria-pressed=true],.newchip[aria-pressed=true]{background:#1d3566!important;outline:2px solid #e2b33c}
 .manform{background:var(--card);border:1.5px solid #2e4f8f;border-radius:8px;padding:12px;margin:6px 0 14px}
+
+/* calendario estilo cuaderno */
+.calov{background:rgba(42,36,32,.55)}
+.calsheet.tcal{position:relative;background:var(--card);border:1px solid var(--line);border-radius:4px;box-shadow:0 18px 50px rgba(0,0,0,.4);padding:18px 20px 16px;background-image:linear-gradient(transparent 27px,color-mix(in srgb,#8fb2d6 30%,transparent) 28px);background-size:100% 28px}
+.tcal .ms-head{margin:0 0 6px 58px;align-items:flex-start}
+.tcal .ms-head h3{font:700 26px/1.1 "Courier Prime",monospace;letter-spacing:.02em}
+.tcal .ms-x{font-size:22px;text-decoration:none;color:var(--ink);border:0;background:none}
+.tcal .tc-leg{font:13px var(--f-mono);margin:4px 0 12px;padding:6px 0;border-top:3px double var(--ink);border-bottom:1px solid var(--line)}
+.tcal .tc-month h4{font:700 15px "Courier Prime",monospace;letter-spacing:.16em;border-bottom:3px double var(--ink);padding-bottom:4px;margin-bottom:8px}
+.tcal .tc-h{font:700 11px "Courier Prime",monospace;color:#a8352b}
+.tcal .tc-grid{gap:4px}
+.tcal .tc-c:not(.off){background:color-mix(in srgb,var(--c) 12%,var(--card));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:4px solid var(--c);border-left-width:1px;border-radius:3px;box-shadow:0 1px 2px rgba(60,45,20,.12)}
+.tcal .tc-c.es{background:color-mix(in srgb,var(--c) 22%,var(--card))}
+.tcal .tc-c.trv{outline:none;background-image:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--c) 18%,transparent) 5px 7px)}
+.tcal .tc-c.off{color:color-mix(in srgb,var(--muted) 45%,transparent);font:13px "Courier Prime",monospace}
+.tcal .tc-d{font:700 15px "Courier Prime",monospace}
+.tcal .tc-n{background:var(--card);color:#a8352b;border:2px solid #a8352b;font:700 12px "Courier Prime",monospace;transform:rotate(-8deg);box-shadow:none;top:-7px;right:-6px}
+.tcal .tc-n:hover,.tcal .tc-n:focus-visible{background:#a8352b;color:#fff}
+.tcal .tc-c.today{box-shadow:0 0 0 2px #e2b33c}
+.tcal .tc-c.pop{box-shadow:0 0 0 2.5px var(--ink)}
+.tcal .tc-leg i{border-radius:2px;border-left:0;border-top:3px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--card))}
+.tcal .tc-leg i.trk{outline:0;background-image:repeating-linear-gradient(135deg,transparent 0 3px,#2a222044 3px 5px);border-top:3px solid #2a2220}
+.tcal .tc-nb{background:var(--card);color:#a8352b;border:2px solid #a8352b}
+.tcal .tc-pop{background:var(--card);border-top:3px double var(--ink);box-shadow:0 -8px 18px rgba(60,45,20,.15)}
+.tcal .tc-pop ul{font-family:var(--f-body)}
+.ritseg{width:max-content;max-width:100%}.ritseg button{min-width:0}
+.jcard.pas{border-left-color:#2e4f8f}
+@media (max-width:600px){.calsheet.tcal{padding:14px 12px}.tcal .ms-head{margin-left:40px}}
 </style>
 </head>
 <body>
@@ -1030,7 +1058,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},favs:ST.favs||[],custom:ST.custom||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},ritmoT:ST.ritmoT||{},soloOrg:!!ST.soloOrg,favs:ST.favs||[],custom:ST.custom||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -1043,7 +1071,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.favs=d.favs||[];ST.custom=d.custom||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.ritmoT=d.ritmoT||{};ST.soloOrg=!!d.soloOrg;ST.favs=d.favs||[];ST.custom=d.custom||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1235,10 +1263,33 @@ const LON=[
  {id:"lo_dish",t:"cen",n:"Dishoom (Covent Garden)",ll:[51.5124,-0.1269],h:1.5,p:G(25),in:1,eve:1,z:"Covent Garden",s:"Comida india en un café al estilo de los antiguos cafés iraníes de Bombay.",v:"Decoración de época, música y el famoso naan de tocino o el black daal.",d:"Hay fila en la noche: ir temprano (antes de las 18:00) o anotarse en la lista. Precio aproximado.",u:"https://www.dishoom.com/"},
 ];
 
+// ===== Ritmo por tramo =====
+const RIT={rap:{n:"Rápido",cap:7.5,step:1,d:"muchas cosas por día"},int:{n:"Intermedio",cap:5.5,step:1,d:"equilibrado"},rel:{n:"Relajado",cap:4,step:2,d:"tiempo libre para caminar"}};
+const TRAMOS={LO:"Londres con Alli",PAJ:"París con Alli",PAS:"París (después de Alli)"};
+function ritOf(k){const r=(ST.ritmoT||{})[k];if(r&&RIT[r])return r;if(k==="PAJ")return "rap";if(k==="PAS")return ST.ritmo==="intenso"?"int":"rel";return "int"}
+function ritSel(k){const cur=ritOf(k);return `<div class="seg ritseg" role="group" aria-label="Ritmo ${TRAMOS[k]}">${Object.entries(RIT).map(([r,o])=>`<button type="button" data-rit="${k}|${r}" aria-pressed="${cur===r}" title="${o.d}">${o.n}</button>`).join("")}</div>`}
+function bindRit(){document.querySelectorAll("[data-rit]").forEach(b=>b.onclick=()=>{const [k,r]=b.dataset.rit.split("|");ST.ritmoT=ST.ritmoT||{};ST.ritmoT[k]=r;save();render();toast(`Ritmo ${RIT[r].n.toLowerCase()} en ${TRAMOS[k]}: ${RIT[r].d}`)})}
+// ===== Organizar París después de Alli =====
+function soloDays(){const j=ST.jun||{};return parisDays().filter(x=>!(junOn()&&x.d>=j.ini&&x.d<=j.fin))}
+function soloCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const sd=soloDays();if(!sd.length)return"";const jun=ST.paJun||{};const L=PA.filter(a=>paSel(a)&&!jun[a.id]);const nb=sd.filter(x=>blkOf(x.d)).length;const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>!jun[a.id]).length;
+  const tit=junOn()?"Organizar París después de Alli":"Organizar París";
+  const head=`<span>🧭 <b>${tit}:</b> ${pretty(sd[0].d)} → ${pretty(sd[sd.length-1].d)} · ${sd.length} días · <b>${L.length}</b> actividad${L.length===1?"":"es"} · ritmo ${RIT[ritOf("PAS")].n.toLowerCase()}${nb?` · ${nb} bloqueado${nb>1?"s":""}`:""}${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
+  if(!ST.soloOrg)return `<div class="jcard pas">${head}<span class="jact"><button type="button" class="btn sm" data-soloorg>✏️ Organizar</button></span></div>`;
+  return `<div class="jcard pas open"><div class="jtop">${head}<button type="button" class="btn sm" data-solodone>✓ Listo · organizar</button></div>
+   <span class="flab" style="display:block;margin-top:6px">1 · Ritmo</span>${ritSel("PAS")}
+   ${blkUI(sd,2)}
+   <span class="flab" style="display:block;margin-top:10px">3 · Escapadas</span><p class="muted" style="font-size:14px;margin:2px 0">Las escapadas elegidas ya ocupan sus días (${ST.esc.length?ST.esc.map(e=>{const x=ESC.find(z=>z.id===e.id);return x?short(x.n)+" "+pretty(e.ini):""}).join(" · "):"ninguna todavía"}). <button type="button" class="lnkb" data-gotab="esc">Elegir o cambiar escapadas →</button></p>
+   <span class="flab" style="display:block;margin-top:10px">4 · ¿Qué quieren hacer en estos días?</span>
+   <div class="jcats">${TYP.filter(t=>!["com","via","per","new"].includes(t[0])).map(([k,t])=>{const L2=PA.filter(a=>typOf(a)===k&&!jun[a.id]);if(!L2.length)return"";const n=L2.filter(paSel).length;
+     return `<details class="pool" data-k="solo-${k}" ${n?"open":""}><summary>${t} <span class="poolcnt">(${n?n+" de ":""}${L2.length})</span></summary>${L2.map(a=>{const on=paSel(a),dd=ACTDAY[a.id];return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-pasel="${a.id}" ${on?"checked":""}><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?" 🏛":""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}</small></span></label>${on?`<small class="pdst${dd?"":" bad"}">${dd?`✔ ${pretty(dd)}`:"⚠ No cabe"}</small>`:""}</div>`}).join("")}</details>`}).join("")}</div></div>`}
+function bindSolo(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-soloorg]",b=>b.onclick=()=>{ST.soloOrg=true;save();render()});
+  Q("[data-solodone]",b=>b.onclick=()=>{ST.soloOrg=false;const sd=new Set(soloDays().map(x=>x.d));const jun=ST.paJun||{};PA.forEach(a=>{if(!jun[a.id]&&ST.paPin&&ST.paPin[a.id]&&!blkOf(ST.paPin[a.id])&&sd.has(ST.paPin[a.id]))delete ST.paPin[a.id]});if(ST.paOrd)Object.keys(ST.paOrd).forEach(k=>{if(sd.has(k))delete ST.paOrd[k]});save();render();toast("🧭 París organizado en los días disponibles");const t=document.getElementById("daytabs");if(t)t.scrollIntoView({behavior:"smooth"})})}
+
 // Arma el programa: agrupa por zona, reparte zonas en los días (dejando días libres), ordena por cercanía desde la base.
 // Ventana «juntas»: las actividades marcadas como juntas se reparten solo en esos días (ritmo intenso).
 function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
-  const plan=days.map(x=>{const b=blkOf(x.d);const cap0=x.first||x.ret?3:(x.jun?7:5.5);return {...x,acts:[],ev:[],blk:b,cap:!b?cap0:b.k==='am'||b.k==='pm'?Math.min(cap0,3.5):0,base}});
+  const plan=days.map(x=>{const b=blkOf(x.d);const R=RIT[opt.rit?opt.rit(x):"int"]||RIT.int;const cap0=x.first||x.ret?Math.min(3,R.cap):R.cap;return {...x,acts:[],ev:[],blk:b,cap:!b?cap0:b.k==='am'||b.k==='pm'?Math.min(cap0,3.5):0,base}});
   const byDay=d=>plan.find(p=>p.d===d),dow=p=>D(p.d).getDay();
   const okDay=(p,a)=>!(p.blk&&(p.blk.k==='free'||p.blk.k==='busy'||(p.blk.k==='pm'&&(a.eve||a.eveok||a.lateo))))&&!(a.cl&&a.cl.includes(dow(p)))&&!(a.from&&p.d<a.from)&&!(a.to&&p.d>a.to)&&!(a.no&&a.no.includes(p.d));
   const load=p=>p.acts.reduce((t,a)=>t+a.h+0.3,0);
@@ -1259,10 +1310,10 @@ function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
         if(!p){left.shift();continue}
         {const a=left.shift();p.acts.push(a);placed.add(a)}while(left.length&&load(p)+left[0].h+0.3<=p.cap+0.01&&okDay(p,left[0])){const a=left.shift();p.acts.push(a);placed.add(a)}
         ix=(P.indexOf(p)+step)%P.length}})};
-  const step=ST.ritmo==="intenso"?1:2;
+  const step=(RIT[opt.restRit||"int"]||RIT.int).step,stepJ=(RIT[opt.junRit||"rap"]||RIT.rap).step;
   const J=opt.jun?plan.filter(p=>p.jun):[];
   if(J.length){const jun=ST.paJun||{};
-    dist(sel.filter(a=>jun[a.id]),J,1);
+    dist(sel.filter(a=>jun[a.id]),J,stepJ);
     const out=plan.filter(p=>!p.jun);dist(sel.filter(a=>!jun[a.id]),out.length?out:plan,step)}
   else dist(sel,plan,step);
   dist(sel.filter(a=>!(J.length&&(ST.paJun||{})[a.id])),plan,step);// lo que no cupo: cualquier día con espacio
@@ -1279,11 +1330,11 @@ function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
 function junOn(){const j=ST.jun;return !!(j&&j.ini&&j.fin&&j.use!==false)}
 function buildPA(){const j=ST.jun||{};const days=parisDays().map(x=>({...x,jun:junOn()&&x.d>=j.ini&&x.d<=j.fin}));
-  return schedule(days,PA.filter(paSel),baseLL(),{jun:true})}
+  return schedule(days,PA.filter(paSel),baseLL(),{jun:true,rit:x=>x.jun?ritOf("PAJ"):ritOf("PAS"),junRit:ritOf("PAJ"),restRit:ritOf("PAS")})}
 const loSel=a=>!!(ST.paSel&&ST.paSel[a.id]);
 function lonDays(){const W=ST.wiz;if(!W.ida_llega||!W.eur_fecha||W.ida_llega>=W.eur_fecha)return[];const out=[];for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))out.push({d,first:d===W.ida_llega});return out}
 function lonBase(){const W=ST.wiz||{};if(ST.lonLL&&W.lon_dir&&ST.lonLLq===W.lon_dir)return ST.lonLL;return LONDON}
-function buildLO(){return schedule(lonDays(),LON.filter(loSel),lonBase(),{})}
+function buildLO(){return schedule(lonDays(),LON.filter(loSel),lonBase(),{rit:()=>ritOf("LO"),restRit:ritOf("LO")})}
 const actById=id=>PA.find(a=>a.id===id)||LON.find(a=>a.id===id);
 const isLO=id=>String(id).startsWith("lo_");
 const selOf=a=>a?(isLO(a.id)?loSel(a):paSel(a)):false;
@@ -1301,6 +1352,7 @@ function loOrgCard(A){const ld=lonDays();if(!ld.length)return"";const n=LON.filt
   const head=`<span>🧭 <b>Organizar Londres (con Alli):</b> ${ld.length} días · <b>${n}</b> actividad${n===1?"":"es"}${nb?` · ${nb} día${nb>1?"s":""} bloqueado${nb>1?"s":""} o libre${nb>1?"s":""}`:""}${lr.unpl.length?` · <b class="bad">✕ no caben ${lr.unpl.length}</b>`:""}</span>`;
   if(!ST.loOrg)return `<div class="jcard lo">${head}<span class="jact"><button type="button" class="btn sm" data-loorg>✏️ Organizar Londres</button></span></div>`;
   return `<div class="jcard lo open"><div class="jtop">${head}<button type="button" class="btn sm" data-loorgdone>✓ Listo · organizar</button></div>
+   <span class="flab" style="display:block;margin-top:6px">Ritmo</span>${ritSel("LO")}
    ${blkUI(ld,1)}
    <span class="flab" style="display:block;margin-top:10px">2 · ¿Qué quieren hacer?</span><p class="muted" style="margin:2px 0 6px;font-size:14px">Marquen todo lo que les interese: se reparte en los días disponibles, por barrio desde el alojamiento, con los museos que abren de noche después del atardecer y los eventos en sus fechas.</p>
    <div class="jcats">${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=LON.filter(a=>typOf(a)===k);if(!L.length)return"";const ns=L.filter(loSel).length;
@@ -1321,7 +1373,7 @@ function jCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const j=
   const last=parisDays().slice(-1)[0];
   return `<div class="jcard open"><div class="jtop">${head}<button type="button" class="btn sm" data-jdone>✓ Listo · volver al programa</button></div>
    <p class="muted" style="margin:6px 0 8px;font-size:14px">Marquen lo que quieren hacer <b>con Alli</b>: se reparte solo entre estos días, agrupado por barrio y con ritmo intenso. Después pueden mover, agregar o quitar como siempre.</p>
-   <span class="flab" style="display:block">1 · ¿Qué días está Alli en París?</span><div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
+   <span class="flab" style="display:block">Ritmo</span>${ritSel("PAJ")}<span class="flab" style="display:block;margin-top:8px">1 · ¿Qué días está Alli en París?</span><div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
    ${blkUI(parisDays(),2)}<span class="flab" style="display:block;margin-top:10px">3 · ¿Qué quieren hacer con Alli?</span>
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${need>avail?"--bad":"--ok"})"></span></div>
    <div class="jcats">${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=PA.filter(a=>typOf(a)===k);if(!L.length)return"";const n=L.filter(a=>jun[a.id]&&paSel(a)).length;
@@ -1712,7 +1764,7 @@ function pCfg(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
   return `<div class="card cfg">
    ${f("eur_fecha","Llegada a París (Eurostar)","date")}${f("eur_hora","Hora de salida de Londres","time")}${f("vue_fecha","Vuelo de regreso","date")}
    <div class="field"><label for="paBase">Barrio del alojamiento en París</label><select id="paBase">${Object.keys(BASES).map(k=>`<option ${(ST.base||"Otro / centro")===k?"selected":""}>${k}</option>`).join("")}</select></div>
-   <div class="field"><span>Ritmo en París</span><div class="seg" role="group"><button type="button" data-ritmo="tranquilo" aria-pressed="${ST.ritmo!=="intenso"}">Tranquilo</button><button type="button" data-ritmo="intenso" aria-pressed="${ST.ritmo==="intenso"}">Intenso</button></div></div>
+   <div class="field"><span>Ritmo · Londres con Alli</span>${ritSel("LO")}</div><div class="field"><span>Ritmo · París con Alli</span>${ritSel("PAJ")}</div><div class="field"><span>Ritmo · París (después de Alli)</span>${ritSel("PAS")}</div>
    <div class="field"><span>Moneda</span><div class="seg" role="group"><button type="button" data-cur="EUR" aria-pressed="${cur==="EUR"}">EUR €</button><button type="button" data-cur="CLP" aria-pressed="${cur==="CLP"}">CLP $</button></div></div>
    <div class="field"><label for="rate">1 € en CLP (editar)</label><input id="rate" type="number" value="${rate()}" step="10"></div></div>
   ${cfgRoute(A)}
@@ -1790,8 +1842,8 @@ function tripCal(A){if(!calOpen)return "";const {M,ini,fin}=tripDays(A);if(!ini|
       s+=`<div class="tc-c ${X.k}${X.tr?" trv":""}${ds===today?" today":""}${calPop===ds?" pop":""}" style="--c:${X.c}">${X.id?`<button type="button" class="tc-d" data-calgo="${X.id}" title="${esc(X.lab)}" aria-label="${pretty(ds)} · ${esc(X.lab)} · ir al día">${dd}</button>`:`<span class="tc-d" title="${esc(X.lab)}">${dd}</span>`}${n?`<button type="button" class="tc-n" data-calpop="${ds}" aria-label="${n} actividad${n>1?"es":""} el ${pretty(ds)}">${n}</button>`:""}</div>`}
     s+=`</div></div>`;m++;if(m>11){m=0;y++}}
   const P=calPop&&M[calPop];
-  return `<div class="calov"><div class="calsheet" role="dialog" aria-modal="true" aria-label="Calendario del viaje">
-   <div class="ms-head"><div><span class="eyebrow">${pretty(ini)} → ${pretty(fin)}</span><h3>Calendario del viaje</h3></div><button type="button" class="ms-x" data-calclose aria-label="Cerrar calendario">✕</button></div>
+  return `<div class="calov"><div class="calsheet tcal" role="dialog" aria-modal="true" aria-label="Calendario del viaje"><span class="clip big" aria-hidden="true"></span>
+   <div class="ms-head"><div><span class="eyebrow">${pretty(ini)} → ${pretty(fin)}</span><h3>Calendario del viaje</h3></div><button type="button" class="ms-x lnkb" data-calclose aria-label="Cerrar calendario">✕</button></div>
    <div class="tc-leg"><span><i style="--c:${LO_C}"></i>Londres</span><span><i style="--c:${PA_C}"></i>París</span><span><i style="--c:#a8352b"></i>Escapada</span><span><i class="trk"></i>Día de viaje</span><span><b class="tc-nb">3</b> actividades</span></div>
    <div class="tc-months">${s}</div>
    ${P?`<div class="tc-pop"><div class="tc-ph"><b>${pretty(calPop)} · ${esc(P.lab)}</b><button type="button" class="ms-x sm" data-calpop="" aria-label="Cerrar lista">✕</button></div><ul>${P.acts.map(a=>`<li>${a.t!=null?`<span class="num">${hm(a.t)}</span> `:""}${esc(a.n)}</li>`).join("")}</ul>${P.id?`<button type="button" class="btn sm" data-calgo="${P.id}">Ir a este día →</button>`:""}</div>`:`<p class="muted tc-hint">Toca un día para abrirlo en el programa · toca el número para ver sus actividades.</p>`}
@@ -1912,7 +1964,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
 function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fechas de llegada a París y del vuelo de regreso en <b>1 · Configurar</b>.</p></div>`;
   if(!A.C.some(c=>c.k===progCity))progCity="PA";const ds=A.days.filter(d=>d.city===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
   const nun=A.R.unpl.length;
-  return `${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A):""}<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
+  return `${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}<div id="feas" class="feas">${fcards(A)}</div><div id="feasmini" class="feasmini ${nun?"bad":"ok"}" role="button" tabindex="0"><span>${nun?`✕ París: no caben ${nun} actividad${nun>1?"es":""}`:"✓ París: todo cabe"}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div>
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" class="calopen" data-calopen aria-label="Abrir calendario del viaje">📅 Calendario</button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}
     <div class="dchips">${ds.map((d,i)=>`<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}">${pretty(d.d).replace(/ [a-zé]+$/,"")}${d.kind==="first"||d.kind==="go"?" <small>llegada</small>":d.kind==="final"?" <small>fin</small>":d.kind==="ret"?" <small>vuelta</small>":""}</button>`).join("")}</div></div>
    ${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
@@ -2383,13 +2435,13 @@ cfg:{t:"Configurar: crear el viaje",i:"Aquí se arma la base del viaje. Sin las 
  ["Fechas principales","Completen <b>Llegada a París (Eurostar)</b>, <b>Hora de salida de Londres</b> y <b>Vuelo de regreso</b>."],
  ["Vuelos y Londres","En «Vuelos, Londres y alojamiento» ingresen el vuelo Santiago → Londres y la <b>Llegada a Londres</b>: eso crea los días de Londres en el programa."],
  ["Direcciones","<b>Dónde se quedan en Londres</b> y <b>Dirección en París</b>: desde ahí parten todos los recorridos y se calculan las distancias. Si cambian la dirección, todo se recalcula solo."],
- ["Ritmo","<b>Tranquilo</b> deja días libres entre medio; <b>Intenso</b> usa todos los días con actividades."],
+ ["Ritmo por tramo","Para Londres con Alli, París con Alli y París después de Alli elijan <b>Rápido</b> (hasta ~7,5 h de actividades al día), <b>Intermedio</b> (~5,5 h) o <b>Relajado</b> (~4 h y días libres entre medio)."],
  ["Moneda","Elijan EUR o CLP y ajusten el valor del euro: todos los montos de la app cambian."],
  ["Revisar el resumen","A la izquierda, las ciudades en orden con sus noches; a la derecha, el <b>mapa del viaje</b> con los trayectos numerados. Los círculos vacíos son otras escapadas posibles: tóquenlos para verlas. Abajo, la <b>línea de tiempo</b> con vuelos, trenes y escapadas."]],
  tip:"Todo se guarda solo y lo ven las dos (aviso «☁ Guardado para los dos»)."},
 prog:{t:"Programa: armar los días",i:"El corazón de la app: qué hacen cada día, a qué hora, cuánto cuesta y cómo se mueven.",s:[
  ["Elegir ciudad","Usen las pestañas de arriba (Londres, París y cada escapada). Las fechas debajo llevan directo a cada día."],
- ["Organizar todo de una vez","En Londres toquen <b>«🧭 Organizar Londres»</b>; en París, <b>«👭 Días con Alli»</b>. Paso 1: marquen los días <b>ocupados</b> (entrada comprada, plan fijo) o <b>libres</b>. Paso 2: marquen todo lo que quieren hacer. Al tocar <b>«Listo»</b> la app lo reparte en los días disponibles, por barrio y desde el alojamiento."],
+ ["Organizar todo de una vez","En Londres toquen <b>«🧭 Organizar Londres»</b>; en París, <b>«👭 Días con Alli»</b> y <b>«🧭 Organizar París después de Alli»</b> (incluye ritmo y escapadas). Paso 1: marquen los días <b>ocupados</b> (entrada comprada, plan fijo) o <b>libres</b>. Paso 2: marquen todo lo que quieren hacer. Al tocar <b>«Listo»</b> la app lo reparte en los días disponibles, por barrio y desde el alojamiento."],
  ["Agregar de a una","En «Agregar actividades por categoría» marquen la casilla (se asigna un día automático) o elijan el día en el selector. Un aviso abajo confirma el día y la actividad queda marcada con «✔ fecha · ver el día →». En cada fecha el selector sugiere días en que ya visitan algo cerca."],
  ["Categorías","Paseos y barrios, Museos, Monumentos y miradores, Iglesias, Atracciones entretenidas, <b>Espectáculos</b> (se programan de noche y en sus fechas), <b>Cenas entretenidas</b> (Wagamama, Dishoom, Pink Mamma, Bouillon Pigalle: de noche, el día que elijan) y <b>Personales y otros</b> (casas de amigos, tiendas, direcciones propias)."],
  ["Personalizada y nueva actividad","En «+ Agregar actividad a este día», <b>Personalizada</b> y <b>Tiendas</b> muestran lo que ya crearon para sumarlo a ese día. El botón azul <b>«＋ Nueva actividad»</b> crea una desde cero (un cumpleaños, compras, una visita): nombre, duración, hora y dirección opcionales. Con dirección se ubica en el plano y se calcula el traslado; sin dirección queda registrada en el día sin traslado."],
@@ -2629,7 +2681,7 @@ function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();bindRit();bindSolo();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
