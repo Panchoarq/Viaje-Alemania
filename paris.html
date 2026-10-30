@@ -941,6 +941,20 @@ span.tc-d{cursor:default}
 .gtip{margin:6px 0;padding:6px 10px;background:color-mix(in srgb,#e2b33c 18%,var(--card));border-radius:4px;font-size:14px}
 .gindex{columns:2;font-size:14px;margin:6px 0 12px;padding-left:20px}@media (max-width:600px){.gindex{columns:1}}
 .gsec{border-top:1px solid var(--line);padding:12px 0 6px}.gsec h4{margin:0 0 4px;font:700 17px var(--f-body)}
+.findbtn{margin:4px 0 10px}
+.fsearch{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 10px}
+.fsearch input{flex:1 1 220px;font:16px var(--f-body);padding:9px 10px;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink)}
+.fres{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.fres button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);cursor:pointer}
+.fres button:hover,.fres button:focus-visible{border-color:var(--ink);background:color-mix(in srgb,#e2b33c 12%,var(--card))}
+.fres small{color:var(--muted);font-size:13px}
+.fpick{display:flex;gap:12px;align-items:flex-start;margin:4px 0 10px}.fpick .fimg{width:120px;height:90px;object-fit:cover;border-radius:4px;flex:none}
+.fpick small{display:block}.fpn{font-size:17px}
+.fform{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 12px}
+.fform .f{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--muted)}
+.fform .f input,.fform .f select,.fform .f textarea{font:15px var(--f-body);padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
+.fform .wide{grid-column:1/-1}.fform .chk{flex-direction:row;align-items:center}
+.cust{margin:8px 0}
 </style>
 </head>
 <body>
@@ -1000,7 +1014,7 @@ let ST={wiz:{},esc:[],step:0},user=null,ref=null,F=null,tab="resumen",filt="toda
 try{tab=localStorage.getItem("paris_tab")||"resumen"}catch(e){}
 function sync(t,cls){const s=$("#sync");s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
 function save(){if(DEMO){try{localStorage.setItem("paris_demo",JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
-  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
+  clearTimeout(saveT);sync("Guardando…","busy");saveT=setTimeout(async()=>{try{await F.setDoc(ref,{wiz:ST.wiz,esc:ST.esc,step:ST.step,paSel:ST.paSel||{},paPin:ST.paPin||{},paJun:ST.paJun||{},jun:ST.jun||{},custom:ST.custom||{},dayBlk:ST.dayBlk||{},loOrg:!!ST.loOrg,lonLL:ST.lonLL||null,lonLLq:ST.lonLLq||"",base:ST.base||"",parLL:ST.parLL||null,parLLq:ST.parLLq||"",ritmo:ST.ritmo||"",meals:ST.meals||{},paOrd:ST.paOrd||{},lunchAt:ST.lunchAt||{},transMode:ST.transMode||"auto",hot:ST.hot||{},tk:ST.tk||{},chk:ST.chk||{},mealOpt:ST.mealOpt||{},rate:ST.rate||1100,foodStyle:ST.foodStyle||"local",by:user.email,at:Date.now()});sync("☁ Guardado para los dos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 
 // ===== Ingreso =====
 async function boot(){
@@ -1013,7 +1027,7 @@ async function boot(){
     if(!em)em=prompt("Confirma tu correo")||"";try{await U.signInWithEmailLink(auth,em,location.href);history.replaceState(null,"",location.pathname)}catch(e){gate("El link expiró o ya se usó. Pide uno nuevo.")}}
   U.onAuthStateChanged(auth,u=>{if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 let unsub=null;
-function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
+function listen(){if(unsub)unsub();unsub=F.onSnapshot(ref,s=>{const d=s.exists()?s.data():{};ST.wiz=d.wiz||{};ST.esc=d.esc||[];ST.step=d.step||0;ST.paSel=d.paSel||{};ST.paPin=d.paPin||{};ST.base=d.base||"";ST.paJun=d.paJun||{};ST.jun=d.jun||{};ST.custom=d.custom||{};ST.dayBlk=d.dayBlk||{};ST.loOrg=!!d.loOrg;ST.lonLL=d.lonLL||null;ST.lonLLq=d.lonLLq||"";ST.parLL=d.parLL||null;ST.parLLq=d.parLLq||"";ST.ritmo=d.ritmo||"";ST.meals=d.meals||{};ST.paOrd=d.paOrd||{};ST.lunchAt=d.lunchAt||{};ST.transMode=d.transMode||"auto";ST.hot=d.hot||{};ST.tk=d.tk||{};ST.chk=d.chk||{};ST.mealOpt=d.mealOpt||{};ST.rate=d.rate||1100;ST.foodStyle=d.foodStyle||"local";render()},e=>{gate(null,true)})}
 function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"></div>
   <span class="eyebrow">Viaje privado</span><h1>Viaje a París</h1>
   ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
@@ -1789,7 +1803,7 @@ function pEsc(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
     <span class="muted" style="font-size:13px">${lim?`${nt} noches en Francia · ${nt-ne} en París · ${ne} en escapadas`:"Completa las fechas de llegada y regreso."}</span>
     ${calendar()}</div>
    <div class="card" style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="eyebrow">Mapa de escapadas · máx. ~3 h en tren</span>${frMap()}${escCard()}</div></div>
-  <div class="card"><span class="eyebrow">Ideas de escapadas</span>
+  ${customList("esc")}<div class="card"><span class="eyebrow">Ideas de escapadas</span> ${findBtn("esc","")}
    <div class="filters" style="margin:8px 0 10px">${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}</div>
    <div class="ideas">${list.map(x=>{const sel=ST.esc.some(e=>e.id===x.id);return `<div class="idea${sel?" sel":""}" style="--c:${x.c}"><div class="itop"><span>${x.p}</span><b>${x.n}</b>${sel?'<span class="tag">✓ elegida</span>':""}</div><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":x.nt==="0–1"?"día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")}</small><p>${x.t}</p>
      ${open===x.id?planForm(x,lim):`<div class="act"><button type="button" class="btn sm" data-open="${x.id}">${sel?"+ Otra fecha":"+ Agregar"}</button><button type="button" class="btn alt sm" data-efic="${x.id}">📖 Ficha</button></div>`}</div>`}).join("")}</div></div>
@@ -1955,29 +1969,29 @@ let attFilt="todas";
 function cityTabs(cur,attr){const nP=attr==="data-attc"?PA.filter(a=>typOf(a)!=="esp").length:SHOWS.filter(s=>s.w!=="Londres").length,nL=attr==="data-attc"?LON.filter(a=>typOf(a)!=="esp").length:SHOWS.filter(s=>s.w==="Londres").length;
   return `<div class="daytabs ctabs" role="tablist" aria-label="Ciudad"><button type="button" role="tab" class="dtab" style="--c:${LO_C}" ${attr}="LO" aria-selected="${cur==="LO"}"><b>🇬🇧 Londres</b><small>${nL} ${attr==="data-attc"?"atracciones":"eventos"}</small></button><button type="button" role="tab" class="dtab" style="--c:${PA_C}" ${attr}="PA" aria-selected="${cur!=="LO"}"><b>🇫🇷 París</b><small>${nP} ${attr==="data-attc"?"atracciones":"eventos"}</small></button></div>`}
 const LO_WK={lo_bm:"Museo Británico",lo_ng:"National Gallery",lo_npg:"National Portrait Gallery (Londres)",lo_va:"Museo Victoria y Alberto",lo_nhm:"Museo de Historia Natural de Londres",lo_sci:"Museo de Ciencias de Londres",lo_tm:"Tate Modern",lo_wal:"Colección Wallace",lo_tower:"Torre de Londres",lo_tb:"Tower Bridge",lo_wa:"Abadía de Westminster",lo_spc:"Catedral de San Pablo (Londres)",lo_cwr:"Churchill War Rooms",lo_eye:"London Eye",lo_shard:"The Shard",lo_sky:"20 Fenchurch Street",lo_guard:"Palacio de Buckingham",lo_wm:"Palacio de Westminster",lo_sjp:"St. James's Park",lo_hyde:"Hyde Park",lo_kp:"Palacio de Kensington",lo_cg:"Covent Garden",lo_lights:"Regent Street",lo_bor:"Borough Market",lo_cam:"Camden Town",lo_prim:"Primrose Hill",lo_nh:"Portobello Road",lo_shore:"Brick Lane",lo_lead:"Leadenhall Market",lo_kx:"Estación de King's Cross",lo_sb:"South Bank",lo_gr:"Real Observatorio de Greenwich",lo_kew:"Real Jardín Botánico de Kew",lo_hp:"Warner Bros. Studio Tour London",lo_ww:"Hyde Park",lo_we:"West End de Londres",lo_kewx:"Real Jardín Botánico de Kew",lo_skate:"Somerset House",lo_keys:"Torre de Londres",lo_lms:"Lord Mayor's Show"};
-function loFicha(a,i){const sel=loSel(a),w=LO_WK[a.id];const late=a.lateo?Object.entries(a.lateo).map(([d,h])=>DOW[d]+" hasta "+hm(h)).join(", "):"";
-  return `<article class="ficha" id="fpa-${a.id}"><div class="ftab">EXP. LON-${String(i+1).padStart(2,"0")} · ${a.z.toUpperCase()}</div>
+function loFicha(a,i){const sel=selOf(a),w=LO_WK[a.id]||a.wk,lo=isLO(a.id),cu=/^(lo_)?cu/.test(a.id);const late=a.lateo?Object.entries(a.lateo).map(([d,h])=>DOW[d]+" hasta "+hm(h)).join(", "):"";
+  return `<article class="ficha" id="fpa-${a.id}"><div class="ftab">EXP. ${lo?"LON":"PAR"}-${String(i+1).padStart(2,"0")} · ${esc(String(a.z).toUpperCase())}${cu?" · AGREGADA":""}</div>
    <header><h3>${a.n}</h3>${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
    <p class="flead">${a.s}</p>
    <div><span class="flab">Qué van a ver</span><p>${a.v}</p></div>
    <div class="fnote"><span class="flab">Dato / consejo</span><p>${a.d}</p></div>
-   <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p)+" (≈ £"+Math.round(a.p/GBP)+")":"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${late?` · 🌙 ${late}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
-   ${w?`<div class="fphotos"><a class="polaroid" href="${GIq(a.n+" London")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${w}" alt="${esc(a.n)}" loading="lazy"><span class="cap">${esc(a.n.split(/ \(|:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${WKq(w)}" target="_blank" rel="noopener">${w}</a></p>`:""}
-   <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a><button type="button" class="btn ${sel?"alt ":""}sm" data-pasel-btn="${a.id}">${sel?"✕ Quitar del programa":"+ Agregar al programa"}</button></div></article>`}
+   <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p)+(lo?" (≈ £"+Math.round(a.p/GBP)+")":""):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${late?` · 🌙 ${late}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
+   ${w?`<div class="fphotos"><a class="polaroid" href="${GIq(a.n+" London")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${a.img?`<img class="ph" src="${a.img}" alt="${esc(a.n)}" loading="lazy">`:`<img class="ph" data-wk="${w}" alt="${esc(a.n)}" loading="lazy">`}<span class="cap">${esc(a.n.split(/ \(|:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${a.wkl==="en"?"https://en.wikipedia.org/wiki/"+encodeURIComponent(w.replace(/ /g,"_")):WKq(w)}" target="_blank" rel="noopener">${w}</a></p>`:""}
+   <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a><button type="button" class="btn ${sel?"alt ":""}sm" data-pasel-btn="${a.id}">${sel?"✕ Quitar del programa":"+ Agregar al programa"}</button>${cu?`<button type="button" class="lnkb" data-fdel="att|${a.id}">quitar de la lista</button>`:""}</div></article>`}
 function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA";
   if(attCity==="LO"){const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
     const L=LON.filter(a=>typOf(a)!=="esp").filter(a=>attFilt==="todas"||(attFilt==="prog"&&loSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
-    return cityTabs("LO","data-attc")+`<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>
+    return cityTabs("LO","data-attc")+findBtn("att","LO")+`<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>
      <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div>
      <div class="fichas">${L.map(a=>loFicha(a,LON.indexOf(a))).join("")}</div>`}
-  let h=cityTabs("PA","data-attc")+`<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`;
+  let h=cityTabs("PA","data-attc")+findBtn("att","PA")+`<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`;
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
   const L=PA.filter(a=>PA_F[a.id]).filter(a=>attFilt==="todas"||(attFilt==="prog"&&paSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
-  L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp");
+  L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp");
   return h+`<section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${CTX_PA.t}</h2>${tlSVG(CTX_PA.tl)}${CTX_PA.p.map(p=>`<p>${p}</p>`).join("")}</section>
    <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div>
-   <div class="fichas">${L.map(a=>paFicha(a,PA.indexOf(a))).join("")}</div>
+   <div class="fichas">${CU.map(a=>loFicha(a,PA.indexOf(a))).join("")}${L.map(a=>paFicha(a,PA.indexOf(a))).join("")}</div>
    ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
    <section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas, series y libros · París</h2><div class="mgrid">${MEDIA_PA.map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas.</p></section>`}
 
@@ -1986,7 +2000,7 @@ let showCity="PA";
 function pShow(){const W=ST.wiz,lo=showCity==="LO",a=lo?W.ida_llega:W.eur_fecha,b=lo?W.eur_fecha:W.vue_fecha;const inT=s=>a&&b&&s.ini<=b&&s.fin>=a;
   const L=SHOWS.filter(s=>(s.w==="Londres")===lo).sort((x,y)=>(inT(y)-inT(x))||((y.top|0)-(x.top|0))||((x.al|0)-(y.al|0))||(x.ini<y.ini?-1:1));
   const ml=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-  return `${cityTabs(lo?"LO":"PA","data-showc")}${a&&b?`<p class="note">${lo?"En Londres":"En Francia"}: ${pretty(a)} → ${pretty(b)}. Los eventos con sello «EN SUS FECHAS» coinciden con el viaje.${lo?" Precios en libras.":""}</p>`:""}
+  return `${cityTabs(lo?"LO":"PA","data-showc")}${findBtn("show",lo?"LO":"PA")}${a&&b?`<p class="note">${lo?"En Londres":"En Francia"}: ${pretty(a)} → ${pretty(b)}. Los eventos con sello «EN SUS FECHAS» coinciden con el viaje.${lo?" Precios en libras.":""}</p>`:""}
    <div class="fichas">${L.map((s,i)=>{const ok=inT(s),x=SHOW_X[s.n]||{};const e=s.esc&&ESC.find(q=>q.id===s.esc);const chosen=s.esc&&ST.esc.some(q=>q.id===s.esc);
     return `<article class="ficha${ok?"":" off"}"><div class="ftab">EXP. EVT-${String(i+1).padStart(2,"0")} · ${s.w.toUpperCase()}</div>
      <header><h3>${s.e} ${s.n}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${s.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${ok?'<span class="fstamp ok">EN SUS FECHAS</span>':'<span class="fstamp">FUERA DE FECHAS</span>'}</header>
@@ -1996,7 +2010,7 @@ function pShow(){const W=ST.wiz,lo=showCity==="LO",a=lo?W.ida_llega:W.eur_fecha,
      <div class="fnote"><span class="flab">Dato / consejo</span><p>${s.d}</p></div>
      <p class="fmeta">📍 ${s.w} · 📅 ${s.al?"todas las noches":`${pretty(s.ini)} → ${pretty(s.fin)}${s.ap?" (aprox.)":""}`}${x.q?" · 🎟 "+x.q:""}</p>
      ${x.w?`<div class="fphotos"><a class="polaroid" href="${GIq(s.n)}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${x.w}" alt="${s.n}" loading="lazy"><span class="cap">${s.n.split(":")[0]}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${WKq(x.w)}" target="_blank" rel="noopener">${x.w}</a></p>`:""}
-     <div class="flinks"><a href="${s.u}" target="_blank" rel="noopener">Sitio oficial ↗</a>${x.w?`<a href="${WKq(x.w)}" target="_blank" rel="noopener">Wikipedia ↗</a>`:""}${x.m?`<a href="${ml(x.m)}" target="_blank" rel="noopener">Mapa ↗</a>`:""}${s.act&&actById(s.act)?`<button type="button" class="btn ${selOf(actById(s.act))?"alt ":""}sm" data-pasel-btn="${s.act}">${selOf(actById(s.act))?"✕ Quitar del programa":"+ Agregar al programa"}</button>`:""}${e?(chosen?`<span class="tag">✓ escapada elegida</span>`:`<button type="button" class="btn alt sm" data-goesc="${s.esc}">Ver escapada a ${e.n} →</button>`):""}</div></article>`}).join("")}</div>
+     <div class="flinks"><a href="${s.u}" target="_blank" rel="noopener">Sitio oficial ↗</a>${x.w?`<a href="${WKq(x.w)}" target="_blank" rel="noopener">Wikipedia ↗</a>`:""}${x.m?`<a href="${ml(x.m)}" target="_blank" rel="noopener">Mapa ↗</a>`:""}${s.cu&&s.act?`<button type="button" class="lnkb" data-fdel="show|${s.act}">quitar de la lista</button>`:""}${s.act&&actById(s.act)?`<button type="button" class="btn ${selOf(actById(s.act))?"alt ":""}sm" data-pasel-btn="${s.act}">${selOf(actById(s.act))?"✕ Quitar del programa":"+ Agregar al programa"}</button>`:""}${e?(chosen?`<span class="tag">✓ escapada elegida</span>`:`<button type="button" class="btn alt sm" data-goesc="${s.esc}">Ver escapada a ${e.n} →</button>`):""}</div></article>`}).join("")}</div>
    <p class="note">Fuentes: <a href="https://icalendrier.fr/evenements/fete-des-lumieres" target="_blank" rel="noopener">iCalendrier (Fête des Lumières 2026)</a> · <a href="https://www.parisinsidersguide.com/paris-events-in-december.html" target="_blank" rel="noopener">Paris Insiders Guide</a>. Las fechas «aprox.» se confirman en noviembre.</p>`}
 // ===== 8 · Comidas: sugerencias y precios aproximados 2026 (por persona; verificar en el lugar) =====
 const FOOD_PA=[
@@ -2058,7 +2072,7 @@ const BARRIOS=[
 let foodCity="PA";
 function pFood(A){const C=[A.C.find(c=>c.k==="PA"),...A.C.filter(c=>c.e).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===foodCity))foodCity="PA";
   const fs=ST.foodStyle==="fast";const daily=(PA_MEAL.d[0][1]+3*PA_MEAL.d[2][1])/4+["a","c"].reduce((t,k)=>t+PA_MEAL[k][fs?1:0][1],0);
-  let h=`<div class="card cfg"><div class="field"><span>Estilo de comida (por defecto en todos los días)</span><div class="seg" role="group"><button type="button" data-food="fast" aria-pressed="${fs}">Comida rápida</button><button type="button" data-food="local" aria-pressed="${!fs}">Bistró y boulangerie</button></div></div>
+  let h=`${findBtn("food","PA")}${customList("food","PA").replace("Agregados por ustedes","Agregados por ustedes · París")}${customList("food","LO").replace("Agregados por ustedes","Agregados por ustedes · Londres")}<div class="card cfg"><div class="field"><span>Estilo de comida (por defecto en todos los días)</span><div class="seg" role="group"><button type="button" data-food="fast" aria-pressed="${fs}">Comida rápida</button><button type="button" data-food="local" aria-pressed="${!fs}">Bistró y boulangerie</button></div></div>
    <p class="muted" style="font-size:13.5px;margin:0;align-self:end">Desayuno en la casa (1 de cada 4 días en boulangerie), ${fs?"almuerzo crêpe o sándwich, cena al paso":"almuerzo «formule» de bistró, cena en bistró de barrio"} ≈ <b>${fmt(daily)}</b> por persona al día. Cada día se puede cambiar en 2 · Programa → Comidas.</p></div>
    <div class="attbar" role="group" aria-label="Lugar">${C.map(c=>`<button type="button" class="btn ${c.k===foodCity?"":"alt"}" data-foodc="${c.k}" aria-pressed="${c.k===foodCity}">${short(c.n)}</button>`).join("")}</div>`;
   const mlink=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
@@ -2265,18 +2279,21 @@ att:{t:"Atracciones: conocer cada lugar",i:"Fichas tipo expediente de cada atrac
  ["Filtrar","«En el programa», «★ Imperdibles» o «🏛 Techadas» (útil para días de lluvia)."],
  ["Leer la ficha","Historia, qué van a ver, dato o consejo, horario, precio, cierres y fotos (toquen la foto para ver más en Google)."],
  ["Agregar al programa","En Londres, el botón de cada ficha la agrega o la quita; en París, desde el programa. Desde un día del programa, «Ver ficha completa →» trae a esta sección."],
+ ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, escriban el nombre y elijan el resultado: la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
  ["Contexto","En París hay un resumen histórico con línea de tiempo y una lista de películas, series y libros para ver antes del viaje."]]},
 esc:{t:"Escapadas: salir de París",i:"Viajes de un día o con noches a ciudades a pocas horas en tren.",s:[
  ["Explorar","Toquen un destino en el mapa: la tarjeta muestra <b>Por qué ir</b>, el tiempo de viaje, cómo llegar, el costo y las noches sugeridas. El recuadro muestra las excursiones de un día cerca de París."],
  ["Filtrar ideas","Todas, Con noche, De un día o Fuera de Francia."],
  ["Agregar","«+ Agregar» (o «+ Agregar fechas»): elijan fecha de ida y noches («Solo el día» para excursión). Avisa si choca con otra escapada."],
  ["Dónde aparece","La escapada entra al programa con su propia pestaña, plano y puntos sugeridos, y también al mapa del viaje, al calendario y al presupuesto."],
+ ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, escriban el nombre y elijan el resultado: la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
  ["Quitar","Con ✕ en la lista «Escapadas · orden de visita»."]],
  tip:"Las fichas completas de las escapadas elegidas aparecen al final de esta sección."},
 show:{t:"Espectáculos: eventos y noches especiales",i:"Eventos, ferias de Navidad, teatro y shows durante el viaje.",s:[
  ["Elegir ciudad","Pestañas <b>Londres</b> y <b>París</b>."],
  ["Fechas","El sello <b>«EN SUS FECHAS»</b> indica que el evento coincide con sus días en esa ciudad; los demás quedan atenuados."],
  ["Agregar al programa","<b>«+ Agregar al programa»</b> lo programa de noche en un día en que funcione (respeta fechas y días cerrados)."],
+ ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, escriban el nombre y elijan el resultado: la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
  ["Eventos de escapadas","Si el evento es en otra ciudad (por ejemplo Lyon), el botón lleva a esa escapada."]]},
 hot:{t:"Alojamiento: comparar y elegir",i:"Opciones de alojamiento por ciudad y su costo por persona.",s:[
  ["Elegir lugar","Una pestaña por cada estadía (París y cada escapada con noche), con sus fechas."],
@@ -2292,6 +2309,7 @@ food:{t:"Comidas: dónde y cuánto",i:"Sugerencias de comida por lugar y precios
  ["Estilo por defecto","Elijan «Comida rápida» o «Bistró y boulangerie»: cambia el costo diario estimado de todo el viaje."],
  ["Desayuno","Por defecto en la casa, con un desayuno en boulangerie cada 4 días."],
  ["Ideas por lugar","Pestañas por ciudad y escapada con lugares verificados, platos típicos y precios."],
+ ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, escriban el nombre y elijan el resultado: la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
  ["Cambiar un día","Cada comida de cada día se ajusta en 2 · Programa → Comidas."]]},
 gas:{t:"Gastos: presupuesto y gasto real",i:"El presupuesto que estima el programa y el registro del gasto real.",s:[
  ["Presupuesto","Tabla por ciudad y por persona: alojamiento, comidas, entradas y transporte."],
@@ -2320,12 +2338,83 @@ function bindGuide(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-guidego]",b=>b.onclick=()=>{guideAll=false;document.body.style.overflow="";go(b.dataset.guidego)});
   Q(".gindex a",a=>a.onclick=e=>{e.preventDefault();const t=document.querySelector(a.getAttribute("href"));if(t)t.scrollIntoView({behavior:"smooth"})})}
 
-function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
+// ===== Buscar y agregar (atracciones, escapadas, espectáculos, comidas) =====
+const PA0=PA.slice(),LON0=LON.slice(),ESC0=ESC.slice(),SHOWS0=SHOWS.slice(),LUNCH0=LUNCH_V.slice();
+function applyCustom(){const c=ST.custom||{};
+  const acts=[...(c.att||[]),...(c.show||[]).filter(x=>x.ll)];
+  PA.length=0;PA.push(...PA0,...acts.filter(a=>a.city!=="LO"));
+  LON.length=0;LON.push(...LON0,...acts.filter(a=>a.city==="LO"));
+  ESC.length=0;ESC.push(...ESC0,...(c.esc||[]).map(x=>{EXT[x.id]={ll:x.ll,cost:x.cost||"por definir",how:x.how||"Revisar en SNCF Connect o Trainline.",f:{h:x.s||"",v:x.vv||[]}};return {id:x.id,n:x.n,p:x.p||"📍",k:x.k,tr:x.tr||"por definir",nt:x.nt||"1",c:"#6b5d43",t:x.s||"",tags:[],cu:1}}));
+  SHOWS.length=0;SHOWS.push(...SHOWS0,...(c.show||[]).map(x=>({n:x.n,w:x.city==="LO"?"Londres":"París",e:"⭐",ini:x.from||"2026-01-01",fin:x.to||"2027-12-31",al:!x.from,t:x.s||"",d:x.d||"",u:x.u||"",act:x.ll?x.id:null,cu:1})));
+  LUNCH_V.length=0;LUNCH_V.push(...LUNCH0,...(c.food||[]).filter(x=>x.city!=="LO").map(x=>[x.n,(x.ft||"Restaurante")+" · "+(x.addr||""),x.s||"",x.pr||"",x.src||"Agregado por ustedes",x.u||"",x.n+" "+(x.addr||"Paris")]))}
+let FIND=null;// {kind,city,q,res,busy,err,pick}
+const FK={att:"atracción",esc:"escapada",show:"espectáculo o evento",food:"lugar para comer"};
+function findBtn(kind,city){return `<button type="button" class="btn sm findbtn" data-find="${kind}|${city||""}">🔎 Buscar y agregar ${FK[kind]}</button>`}
+const VB={PA:"2.22,48.92,2.47,48.80",LO:"-0.35,51.62,0.10,51.40"};
+async function wikiFor(title,lang){try{const u=`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&titles=${encodeURIComponent(title)}&prop=extracts|pageimages|info&exintro=1&explaintext=1&exsentences=4&piprop=thumbnail&pithumbsize=400&inprop=url`;const j=await (await fetch(u)).json();const p=Object.values(j.query.pages)[0];if(!p||p.missing!=null)return null;return {t:p.title,x:p.extract||"",img:p.thumbnail&&p.thumbnail.source,url:p.fullurl,lang}}catch(e){return null}}
+async function wikiSearch(q){for(const lang of ["es","en"]){try{const j=await (await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srlimit=1&srsearch=${encodeURIComponent(q)}`)).json();const h=j.query.search[0];if(h){const w=await wikiFor(h.title,lang);if(w)return w}}catch(e){}}return null}
+async function runFind(){const F=FIND;if(!F||!F.q.trim())return;F.busy=true;F.err="";F.res=null;F.pick=null;render();
+  try{const vb=F.kind!=="esc"&&VB[F.city]?`&viewbox=${VB[F.city]}&bounded=1`:"";
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1&extratags=1&namedetails=1&accept-language=es&q=${encodeURIComponent(F.q)}${vb}`);
+    const j=await r.json();F.res=j.map(o=>({n:(o.namedetails&&(o.namedetails["name:es"]||o.namedetails.name))||o.name||o.display_name.split(",")[0],addr:o.display_name.split(",").slice(1,4).join(",").trim(),ll:[+(+o.lat).toFixed(5),+(+o.lon).toFixed(5)],cat:o.category,typ:o.type,et:o.extratags||{},cc:(o.address||{}).country_code||"",city:(o.address||{}).city||(o.address||{}).town||(o.address||{}).village||""}));
+    if(!F.res.length)F.err="No encontré coincidencias. Prueben con otro nombre, en inglés o francés, o agreguen la ciudad.";}
+  catch(e){F.err="No se pudo buscar ahora (sin conexión o servicio ocupado). Intenten de nuevo."}
+  F.busy=false;render()}
+const guessT=r=>/museum|gallery/.test(r.typ)?"mus":r.typ==="place_of_worship"||/church|cathedral/.test(r.typ)?"igl":/monument|memorial|castle|viewpoint|tower|palace|attraction/.test(r.typ)||r.cat==="historic"?"mon":/park|garden|market|square/.test(r.typ)||r.cat==="leisure"?"pas":/theatre|cinema|arts_centre|nightclub|stadium|zoo|theme_park|aquarium/.test(r.typ)?"ent":"pas";
+async function pickFind(i){const F=FIND,r=F.res[i];F.pick={...r,load:true};render();
+  let w=null;const wt=r.et.wikipedia;if(wt&&wt.includes(":")){const [l,t]=wt.split(/:(.+)/);if(l==="es"||l==="en")w=await wikiFor(t,l)}
+  if(!w)w=await wikiSearch(r.n+" "+(r.city||""));
+  const flag=r.cc?String.fromCodePoint(...[...r.cc.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"📍";
+  F.pick={...r,load:false,w,flag,t:guessT(r),s:w?w.x.split(/(?<=\.)\s/).slice(0,3).join(" "):"",u:r.et.website||(w&&w.url)||"",oh:r.et.opening_hours||"",in:/museum|gallery|church|cathedral|place_of_worship|theatre|cinema/.test(r.typ)?1:0};render()}
+function findSheet(){const F=FIND;if(!F)return"";const city=F.city||"PA";const P=F.pick;
+  const cityPick=F.kind!=="esc"?`<div class="seg" role="group" aria-label="Ciudad"><button type="button" data-fcity="PA" aria-pressed="${city==="PA"}">París</button><button type="button" data-fcity="LO" aria-pressed="${city==="LO"}">Londres</button></div>`:"";
+  let body="";
+  if(F.busy)body=`<p class="muted">Buscando…</p>`;
+  else if(F.err)body=`<p class="status bad">${F.err}</p>`;
+  if(P&&P.load)body=`<p class="muted">Obteniendo datos de ${esc(P.n)}…</p>`;
+  else if(P){const w=P.w;body=`<div class="fpick">${w&&w.img?`<img src="${w.img}" alt="${esc(P.n)}" class="fimg">`:""}<div style="min-width:0"><b class="fpn">${P.flag||""} ${esc(P.n)}</b><small class="muted">${esc(P.addr)}</small>${w?`<small class="muted">Descripción: Wikipedia (${w.lang}) · <a href="${w.url}" target="_blank" rel="noopener">${esc(w.t)}</a></small>`:""}${P.oh?`<small class="muted">Horario (OpenStreetMap): ${esc(P.oh)}</small>`:""}</div></div>
+    <form class="fform" data-fform>
+     <label class="f">Nombre<input name="n" value="${esc(P.n)}" required></label>
+     <label class="f wide">Descripción (pueden editarla)<textarea name="s" rows="4">${esc(P.s)}</textarea></label>
+     ${F.kind==="att"?`<label class="f">Tipo<select name="t">${TYP.filter(t=>!["com","via","esp"].includes(t[0])).map(([k,t])=>`<option value="${k}" ${P.t===k?"selected":""}>${t}</option>`).join("")}</select></label><label class="f">Visita (horas)<input name="h" type="number" step="0.25" min="0.25" value="1.5"></label><label class="f">Precio por persona (€)<input name="p" type="number" step="0.5" min="0" value="0"></label><label class="f">Cierra a las<input name="close" type="time" value="18:00"></label><label class="chk f"><input type="checkbox" name="in" ${P.in?"checked":""}><span class="t">🏛 Techado</span></label>`:""}
+     ${F.kind==="show"?`<label class="f">Desde<input name="from" type="date"></label><label class="f">Hasta<input name="to" type="date"></label><label class="f">Duración (horas)<input name="h" type="number" step="0.25" min="0.25" value="2"></label><label class="f">Precio por persona (€)<input name="p" type="number" step="0.5" min="0" value="0"></label><label class="chk f"><input type="checkbox" name="eve" checked><span class="t">🌙 Es de noche</span></label>`:""}
+     ${F.kind==="food"?`<label class="f">Tipo<select name="ft"><option>Restaurante</option><option>Bistró</option><option>Café</option><option>Panadería / boulangerie</option><option>Comida rápida</option><option>Pub</option><option>Mercado</option></select></label><label class="f">Precio aprox. por persona<input name="pr" placeholder="Ej.: 15–20 €"></label>`:""}
+     ${F.kind==="esc"?`<label class="f">Tipo<select name="k"><option value="dia">De un día</option><option value="noche" selected>Con noche</option><option value="ambos">Día o 1 noche</option></select></label><label class="f">Noches sugeridas<input name="nt" value="1"></label><label class="f">Tiempo en tren desde París<input name="tr" placeholder="Ej.: 2 h (TGV)"></label><label class="f">Costo aprox. del tren (ida)<input name="cost" placeholder="Ej.: 30–80 € ida"></label><label class="f wide">Qué ver (separado por comas)<input name="vv" placeholder="Ej.: catedral, casco antiguo, mercado"></label>`:""}
+     <label class="f wide">Sitio web<input name="u" type="url" value="${esc(P.u)}"></label>
+     ${F.kind==="att"||F.kind==="show"?`<label class="chk f wide"><input type="checkbox" name="add" checked><span class="t">Agregar también al programa (día automático)</span></label>`:""}
+     <div class="act wide"><button type="submit" class="btn sm">＋ Agregar a ${F.kind==="att"?"atracciones":F.kind==="esc"?"escapadas":F.kind==="show"?"espectáculos":"comidas"}</button><button type="button" class="btn alt sm" data-funpick>← Otros resultados</button></div></form>`}
+  else if(F.res&&F.res.length)body=`<ul class="fres">${F.res.map((r,i)=>`<li><button type="button" data-fpick="${i}"><b>${esc(r.n)}</b><small>${esc(r.typ.replace(/_/g," "))} · ${esc(r.addr)}</small></button></li>`).join("")}</ul><p class="muted" style="font-size:13px">Elijan el resultado correcto: la app completa la descripción, el sitio web y la ubicación en el mapa.</p>`;
+  return `<div class="calov fov2"><div class="calsheet" role="dialog" aria-modal="true" aria-label="Buscar y agregar">
+   <div class="ms-head"><div><span class="eyebrow">Buscar y agregar</span><h3>${F.kind==="att"?"Nueva atracción":F.kind==="esc"?"Nueva escapada":F.kind==="show"?"Nuevo espectáculo o evento":"Nuevo lugar para comer"}</h3></div><button type="button" class="ms-x" data-fclose aria-label="Cerrar">✕</button></div>
+   <form class="fsearch" data-fsearch>${cityPick}<input name="q" value="${esc(F.q||"")}" placeholder="${F.kind==="esc"?"Ej.: Brujas, Honfleur, Bayeux":F.kind==="food"?"Ej.: Café de Flore, Dishoom":F.kind==="show"?"Ej.: Lido, Royal Albert Hall":"Ej.: Musée Grévin, Sky Garden"}" aria-label="Qué buscar" autocomplete="off"><button type="submit" class="btn sm">Buscar</button></form>
+   ${body}<p class="ms-src">Búsqueda: OpenStreetMap (Nominatim) y Wikipedia. Precios y horarios no vienen en la búsqueda: complétenlos si los saben.</p></div></div>`}
+function saveFind(fd){const F=FIND,P=F.pick,c=ST.custom=ST.custom||{att:[],esc:[],show:[],food:[]};const g=k=>(fd.get(k)||"").toString().trim();const city=F.city||"PA";const id=(city==="LO"&&F.kind!=="esc"?"lo_cu":"cu")+Date.now().toString(36);
+  const base={id,n:g("n")||P.n,ll:P.ll,s:g("s"),v:g("s").split(/(?<=\.)\s/)[0]||"",d:P.oh?"Horario según OpenStreetMap: "+P.oh+" (verificar).":"Agregado por ustedes: verificar horario y precio.",u:g("u"),wk:P.w?P.w.t:"",wkl:P.w?P.w.lang:"",img:P.w&&P.w.img||"",z:P.city||"Agregado",city,addr:P.addr,by:(user&&user.email)||""};
+  let msg="";
+  if(F.kind==="att"){const cl=g("close");const a={...base,t:g("t")||"pas",h:+g("h")||1.5,p:+g("p")||0,in:fd.get("in")?1:0,close:cl?(+cl.split(":")[0]+(+cl.split(":")[1])/60):18};(c.att=c.att||[]).push(a);if(fd.get("add")){ST.paSel=ST.paSel||{};ST.paSel[id]=true}msg=`✔ <b>${esc(a.n)}</b> agregada a Atracciones${fd.get("add")?" y al programa":""}`}
+  if(F.kind==="show"){const a={...base,t:"esp",h:+g("h")||2,p:+g("p")||0,in:1,eve:fd.get("eve")?1:0,from:g("from")||"",to:g("to")||""};(c.show=c.show||[]).push(a);if(fd.get("add")){ST.paSel=ST.paSel||{};ST.paSel[id]=true}msg=`✔ <b>${esc(a.n)}</b> agregado a Espectáculos${fd.get("add")?" y al programa":""}`}
+  if(F.kind==="food"){(c.food=c.food||[]).push({...base,ft:g("ft"),pr:g("pr")});msg=`✔ <b>${esc(base.n)}</b> agregado a Comidas${city==="PA"?" (también disponible para «Almorzar aquí» en cada día)":""}`}
+  if(F.kind==="esc"){const vv=g("vv").split(",").map(x=>x.trim()).filter(Boolean);(c.esc=c.esc||[]).push({...base,id:"cu"+Date.now().toString(36),k:g("k")||"noche",nt:g("nt")||"1",tr:g("tr"),cost:g("cost"),vv,p:P.flag||"📍"});msg=`✔ <b>${esc(base.n)}</b> agregada a Escapadas: ya pueden elegir fechas`}
+  FIND=null;save();render();toast(msg)}
+function customList(kind,city){const c=(ST.custom||{})[kind]||[];const L=c.filter(x=>kind==="esc"||(x.city||"PA")===city);if(!L.length)return"";
+  return `<div class="card cust"><span class="eyebrow">Agregados por ustedes</span><ul class="brief">${L.map(x=>`<li><b>${esc(x.n)}</b>${x.ft?` · ${esc(x.ft)}`:""}${x.pr?` · ${esc(x.pr)}`:""}${x.addr?` <small class="muted">· ${esc(x.addr)}</small>`:""} ${x.s?`<br><small>${esc(x.s)}</small>`:""} · <a href="https://www.google.com/maps/search/?api=1&query=${x.ll.join(",")}" target="_blank" rel="noopener">mapa</a>${x.u?` · <a href="${esc(x.u)}" target="_blank" rel="noopener">sitio</a>`:""} · <button type="button" class="lnkb" data-fdel="${kind}|${x.id}">quitar</button></li>`).join("")}</ul></div>`}
+function bindFind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-find]",b=>b.onclick=()=>{const [k,c]=b.dataset.find.split("|");FIND={kind:k,city:c||"PA",q:""};render();setTimeout(()=>{const i=document.querySelector("[data-fsearch] input");if(i)i.focus()},50)});
+  Q("[data-fclose]",b=>b.onclick=()=>{FIND=null;render()});
+  const o=document.querySelector(".fov2");if(o){o.onclick=e=>{if(e.target===o){FIND=null;render()}};document.body.style.overflow="hidden"}
+  Q("[data-fcity]",b=>b.onclick=()=>{FIND.city=b.dataset.fcity;FIND.res=null;FIND.pick=null;render()});
+  Q("[data-fsearch]",f=>f.onsubmit=e=>{e.preventDefault();FIND.q=f.q.value;runFind()});
+  Q("[data-fpick]",b=>b.onclick=()=>pickFind(+b.dataset.fpick));
+  Q("[data-funpick]",b=>b.onclick=()=>{FIND.pick=null;render()});
+  Q("[data-fform]",f=>f.onsubmit=e=>{e.preventDefault();saveFind(new FormData(f))});
+  Q("[data-fdel]",b=>b.onclick=()=>{if(!b.dataset.sure){b.dataset.sure=1;b.textContent="¿seguro? toca otra vez";return}const [k,id]=b.dataset.fdel.split("|");const c=ST.custom||{};c[k]=(c[k]||[]).filter(x=>x.id!==id);if(ST.paSel)delete ST.paSel[id];ST.esc=ST.esc.filter(e=>e.id!==id);save();render();toast("Quitado de la lista")})}
+
+function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}`;
+   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
