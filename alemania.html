@@ -177,15 +177,6 @@ label.vchk input{accent-color:var(--ok);margin:0}
     <div class="stylebar"><span class="eyebrow">Estilo</span><div class="seg" role="group"><button id="styRetro" aria-pressed="true">Retro</button><button id="styMod" aria-pressed="false">Moderno</button><button id="styPap" aria-pressed="false">Papel (prueba)</button></div></div>
   </header>
 
-  <section class="summary" aria-label="Resumen de costos">
-    <div class="tile main"><span class="eyebrow">Total grupo (5)</span><span class="big" id="tGroup">—</span><span id="tGroupClp" class="num" style="opacity:.8;font-size:13px"></span></div>
-    <div class="tile"><span class="eyebrow">Por persona</span><span class="big" id="tPP">—</span><span id="tPPClp" class="num muted" style="font-size:13px"></span></div>
-    <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big" id="tDay">—</span><span class="muted" style="font-size:13px" id="tNights"></span><span class="v" style="font-size:12.5px" id="tVer"></span></div>
-  </section>
-  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose">
-    <div class="bar" id="bar"></div><div class="legend" id="legend"></div>
-  </section>
-
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-cfg" aria-selected="true" data-tab="cfg">1 · Configurar</button>
     <button role="tab" id="tab-prog" aria-selected="false" data-tab="prog">2 · Programa</button>
@@ -197,6 +188,15 @@ label.vchk input{accent-color:var(--ok);margin:0}
 
   <!-- CONFIGURAR -->
   <section class="panel" id="p-cfg">
+  <section class="summary" aria-label="Resumen de costos">
+    <div class="tile main"><span class="eyebrow">Total grupo (5)</span><span class="big" id="tGroup">—</span><span id="tGroupClp" class="num" style="opacity:.8;font-size:13px"></span></div>
+    <div class="tile"><span class="eyebrow">Por persona</span><span class="big" id="tPP">—</span><span id="tPPClp" class="num muted" style="font-size:13px"></span></div>
+    <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big" id="tDay">—</span><span class="muted" style="font-size:13px" id="tNights"></span><span class="v" style="font-size:12.5px" id="tVer"></span></div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose">
+    <div class="bar" id="bar"></div><div class="legend" id="legend"></div>
+  </section>
+
     <div class="card cfg">
       <div class="field"><label for="start">Fecha de inicio</label><input type="date" id="start" value="2027-02-21"></div>
       <div id="orderSel" style="display:contents"></div>
