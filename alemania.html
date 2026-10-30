@@ -4,6 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}.gastosbtn{display:inline-block;margin:8px 0 0;font:700 13px var(--f-mono,monospace);border:1.5px solid currentColor;border-radius:999px;padding:5px 12px;text-decoration:none;color:var(--stamp,#a8352b);white-space:nowrap}
+
+/* Calendario del viaje (cuaderno) */
+.calbtn{align-self:flex-start;font:700 13px var(--f-mono);border:1.5px solid var(--stamp);color:var(--stamp);background:transparent;border-radius:999px;padding:5px 14px;cursor:pointer;margin-bottom:8px}
+.calov{position:fixed;inset:0;z-index:60;background:rgba(42,36,32,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.calsheet{position:relative;background:var(--card);border:1px solid var(--line);border-radius:4px;width:min(980px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:18px 20px 16px;box-shadow:0 18px 50px rgba(0,0,0,.4);background-image:linear-gradient(transparent 27px,color-mix(in srgb,#8fb2d6 30%,transparent) 28px);background-size:100% 28px}
+.calsheet .ms-head{display:flex;justify-content:space-between;align-items:flex-start;margin:0 0 6px 8px}
+.calsheet h3{font:700 26px/1.1 "Courier Prime",monospace;margin:0;letter-spacing:.02em}
+.calsheet .ms-x{font:22px sans-serif;border:0;background:none;color:var(--ink);cursor:pointer}
+.tc-leg{display:flex;flex-wrap:wrap;gap:6px 16px;font:13px var(--f-mono);color:var(--muted);margin:4px 0 12px;padding:6px 0;border-top:3px double var(--ink);border-bottom:1px solid var(--line)}
+.tc-leg i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:color-mix(in srgb,var(--c) 22%,var(--card));border-left:3px solid var(--c)}
+.tc-nb{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;background:var(--ink);color:var(--card);font:700 11px system-ui;margin-right:4px}
+.tc-months{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.tc-month h4{font:700 15px "Courier Prime",monospace;letter-spacing:.16em;border-bottom:3px double var(--ink);padding-bottom:4px;margin:0 0 8px;text-transform:uppercase}
+.tc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.tc-month{min-width:0}
+.tc-h{font:700 11px "Courier Prime",monospace;color:var(--stamp);text-align:center}
+.tc-c{position:relative;aspect-ratio:1;display:grid;place-items:center;font:700 15px "Courier Prime",monospace}
+.tc-c.off{color:color-mix(in srgb,var(--muted) 45%,transparent);font-weight:400;font-size:13px}
+.tc-c:not(.off){background:color-mix(in srgb,var(--c) 12%,var(--card));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:4px solid var(--c);border-radius:3px;box-shadow:0 1px 2px rgba(60,45,20,.12)}
+.tc-c.trv{background-image:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--c) 18%,transparent) 5px 7px)}
+.tc-c.today{box-shadow:0 0 0 2px var(--stamp)}
+.tc-d{all:unset;box-sizing:border-box;width:100%;height:100%;display:grid;place-items:center;cursor:pointer}
+.tc-d:hover,.tc-d:focus-visible{background:color-mix(in srgb,var(--c) 25%,transparent)}
+.tc-n{position:absolute;top:-7px;right:-6px;background:var(--card);color:var(--stamp);border:2px solid var(--stamp);font:700 12px "Courier Prime",monospace;border-radius:9px;min-width:18px;text-align:center;transform:rotate(-8deg)}
+.tc-lbl{position:absolute;bottom:1px;left:3px;font:9px var(--f-mono);color:var(--muted)}
 </style>
 <title>Ruta Hamburgo · Berlín · Praga · Múnich</title>
 </head>
@@ -230,7 +254,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
   </section>
 
   <!-- PROGRAMA -->
-  <section class="panel" id="p-prog" hidden><div id="feas" class="feas"></div><div id="feasmini" class="feasmini" role="button" tabindex="0"></div><div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"></div><div class="days" id="days"></div></section>
+  <section class="panel" id="p-prog" hidden><button type="button" class="calbtn" id="calBtn">📅 Calendario del viaje</button><div id="feas" class="feas"></div><div id="feasmini" class="feasmini" role="button" tabindex="0"></div><div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"></div><div class="days" id="days"></div></section>
 
   <!-- ALOJAMIENTO -->
   <section class="panel" id="p-hot" hidden><div class="daytabs" id="hottabs" role="tablist" aria-label="Ciudad"></div><div id="hotels" style="display:flex;flex-direction:column;gap:22px"></div></section>
@@ -1760,6 +1784,29 @@ function renderAll(rebuild){refreshNightDates();
   renderRoute(PLAN);renderDays(PLAN);renderHotels(PLAN);renderHotTabs(PLAN);renderRail(PLAN);renderSummary(PLAN);
 }
 
+
+/* ---------- Calendario del viaje ---------- */
+const MONL=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function openCal(){const days=PLAN.filter(d=>d.date);if(!days.length)return;const M={};days.forEach(d=>{M[iso(d.date)]=d});
+  const ini=iso(days[0].date),fin=iso(days[days.length-1].date),today=iso(new Date());const d0=new Date(ini+"T12:00:00"),end=new Date(fin+"T12:00:00");
+  let y=d0.getFullYear(),m=d0.getMonth(),h="";
+  while(new Date(y,m,1)<=end){const lead=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate();
+    h+=`<div class="tc-month"><h4>${MONL[m]} ${y}</h4><div class="tc-grid">${["L","M","M","J","V","S","D"].map(x=>`<span class="tc-h">${x}</span>`).join("")}${"<span></span>".repeat(lead)}`;
+    for(let dd=1;dd<=dim;dd++){const ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(dd).padStart(2,"0"),X=M[ds];
+      if(!X){h+=`<span class="tc-c off">${dd}</span>`;continue}
+      const n=(X.acts||[]).length,col=`var(--${{M:"mun",P:"pra",B:"ber",H:"ham"}[X.city]||"mun"})`;
+      h+=`<div class="tc-c${X.leg?" trv":""}${ds===today?" today":""}" style="--c:${col}"><button type="button" class="tc-d" data-calgo="${X.id}" data-calcity="${X.city}" title="${pretty(X.date)} · ${CN[X.city]}${X.leg?" · día de viaje":""}">${dd}</button>${n?`<span class="tc-n">${n}</span>`:""}</div>`}
+    h+=`</div></div>`;m++;if(m>11){m=0;y++}}
+  const w=document.createElement("div");w.className="calov";
+  w.innerHTML=`<div class="calsheet" role="dialog" aria-modal="true" aria-label="Calendario del viaje"><div class="ms-head"><div><span class="eyebrow">${pretty(new Date(ini+"T12:00:00"))} → ${pretty(new Date(fin+"T12:00:00"))}</span><h3>Calendario del viaje</h3></div><button type="button" class="ms-x" data-calclose aria-label="Cerrar">✕</button></div>
+   <div class="tc-leg">${cfg.order.map(c=>`<span><i style="--c:var(--${{M:"mun",P:"pra",B:"ber",H:"ham"}[c]})"></i>${CN[c]}</span>`).join("")}<span>▨ Día de viaje</span><span><b class="tc-nb">3</b> actividades</span></div>
+   <div class="tc-months">${h}</div><p class="muted" style="font:13px var(--f-mono);margin:12px 0 0">Toca un día para ir a su programa.</p></div>`;
+  document.body.appendChild(w);
+  w.onclick=e=>{const g=e.target.closest("[data-calgo]");if(g){const c=g.dataset.calcity;w.remove();document.getElementById("tab-prog").click();progCity=c;progDay[c]=g.dataset.calgo;renderDayTabs(PLAN);
+      setTimeout(()=>{const dv=[...document.querySelectorAll("#days > .day:not([hidden])")].find(x=>x.dataset.day===g.dataset.calgo);if(dv)dv.scrollIntoView({behavior:"smooth",block:"start"})},80);return}
+    if(e.target===w||e.target.closest("[data-calclose]"))w.remove()};
+  document.addEventListener("keydown",function k(e){if(e.key==="Escape"){w.remove();document.removeEventListener("keydown",k)}})}
+document.addEventListener("click",e=>{if(e.target.closest("#calBtn"))openCal()});
 /* ---------- Eventos ---------- */
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
