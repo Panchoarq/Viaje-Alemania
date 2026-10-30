@@ -1250,9 +1250,9 @@ function schedule(days,sel,base,opt){opt=opt||{};const pin=ST.paPin||{};
     while(rest.length){const fx=!p.man&&rest.find(a=>a.at);
       if(fx)rest.splice(rest.indexOf(fx),1),rest.unshift(fx);
       else if(p.man)rest.sort((a,b)=>oi(a)-oi(b));else rest.sort((a,b)=>{const ca=(a.close||24)-(b.close||24);return (mv(pos,a.ll)-mv(pos,b.ll))+(Math.abs(ca)>2?ca*0.15:0)});
-      const a=rest.shift();t+=mv(pos,a.ll);if(a.at&&t<a.at)t=a.at;
-      if(t>=12.5&&t<13.75&&!seq.lunch){seq.lunch=t;t+=1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;pos=a.ll}
-    p.ev.forEach(a=>{const lo=a.lateo&&a.lateo[D(p.d).getDay()];t=Math.max(t+mv(pos,a.ll),a.eve?18:17.25,a.at||0);seq.push({...a,st:t,night:1,late:lo!=null?t+a.h>lo+0.01:false,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;pos=a.ll});
+      const a=rest.shift();t+=a.noloc?0:mv(pos,a.ll);if(a.at&&t<a.at)t=a.at;
+      if(t>=12.5&&t<13.75&&!seq.lunch){seq.lunch=t;t+=1}seq.push({...a,st:t,late:a.close&&t+a.h>a.close+0.01,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;if(!a.noloc)pos=a.ll}
+    p.ev.forEach(a=>{const lo=a.lateo&&a.lateo[D(p.d).getDay()];t=Math.max(t+(a.noloc?0:mv(pos,a.ll)),a.eve?18:17.25,a.at||0);seq.push({...a,st:t,night:1,late:lo!=null?t+a.h>lo+0.01:false,closed:a.cl&&a.cl.includes(D(p.d).getDay())});t+=a.h;if(!a.noloc)pos=a.ll});
     p.acts=p.acts.concat(p.ev);p.seq=seq;p.end=t});
   return {plan,unpl:sel.filter(a=>!plan.some(p=>p.acts.includes(a)))}}
 function junOn(){const j=ST.jun;return !!(j&&j.ini&&j.fin&&j.use!==false)}
@@ -1341,7 +1341,7 @@ function wxCard(A,k){const ds=A.days.filter(d=>d.city===k&&d.kind!=="final");if(
    ${sug.length?`<ul class="wxsug">${sug.join("")}</ul>`:`<small class="muted">${vis.some(d=>rainy(wxOf(k,d.d)))?"Días con lluvia: el programa de esos días ya es techado o está libre.":"Sin lluvia importante en el pronóstico."}</small>`}</div>`}
 async function geoLon(){const q=(ST.wiz||{}).lon_dir;if(!q)return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/london|londres/i.test(q)?"":", London")));const j=await r.json();if(j[0]){ST.lonLL=[+j[0].lat,+j[0].lon];ST.lonLLq=q;save();render()}}catch(e){}}
 
-function routeUrl(p){const base=p.base||baseLL();const pts=p.seq.map(a=>a.ll.join(","));if(!pts.length)return"";
+function routeUrl(p){const base=p.base||baseLL();const pts=p.seq.filter(a=>!a.noloc).map(a=>a.ll.join(","));if(!pts.length)return"";
   return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
 function sunOf(date,ll){const y=date.getFullYear(),n=Math.round((Date.UTC(y,date.getMonth(),date.getDate())-Date.UTC(y,0,0))/864e5),g=2*Math.PI/365*(n-1),
   eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g)),
@@ -1506,9 +1506,9 @@ const MT=d=>d&&d.city==="LO"?LON_MEAL:PA_MEAL;
 let BF_IX={};// desayuno: 1 de cada 4 días en boulangerie, el resto en la casa
 const mealIxP=(d,k,T=PA_MEAL)=>{const o=ST.mealOpt||{},key=d+"|"+k;const i=key in o?o[key]|0:k==="d"?((BF_IX[d]??0)%4===0?0:2):(ST.foodStyle==="fast"&&(k==="a"||k==="c")?1:0);return Math.min(i,T[k].length-1)};
 function legsOfDay(p){const base=p.base||baseLL();const L=[];let pos=base,nm="alojamiento";
-  p.seq.forEach((a,k)=>{L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
+  p.seq.forEach((a,k)=>{if(a.noloc){L.push({from:pos,to:pos,fn:nm,tn:a.n,k:k+1,noloc:1});return}L.push({from:pos,to:a.ll,fn:nm,tn:a.n.replace(/\s*\(.*?\)/,""),k:k+1});pos=a.ll;nm=a.n.replace(/\s*\(.*?\)/,"")});
   if(p.seq.length)L.push({from:pos,to:base,fn:nm,tn:"alojamiento",k:0});
-  return L.map(l=>{const d=km(l.from,l.to);return {...l,d,metro:d>(p.esc?2.5:1.2),min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
+  return L.map(l=>{const d=km(l.from,l.to);return l.noloc?{...l,d:0,metro:false,min:0}:{...l,d,metro:d>(p.esc?2.5:1.2),min:Math.max(5,Math.round(mv(l.from,l.to)*60/5)*5)}})}
 const trUrl=(a,b,m)=>`https://www.google.com/maps/dir/?api=1&origin=${a.join(",")}&destination=${b.join(",")}&travelmode=${m?"transit":"walking"}`;
 // Sena aproximada (lat,lng) de este a oeste
 const SEINE=[[48.8255,2.4100],[48.8300,2.3880],[48.8360,2.3760],[48.8430,2.3650],[48.8490,2.3600],[48.8515,2.3540],[48.8545,2.3480],[48.8575,2.3410],[48.8590,2.3350],[48.8615,2.3270],[48.8640,2.3200],[48.8645,2.3080],[48.8635,2.3010],[48.8605,2.2935],[48.8560,2.2870],[48.8495,2.2790],[48.8440,2.2740],[48.8380,2.2690],[48.8300,2.2630]];
@@ -1858,7 +1858,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(d.pa&&d.pa.seq.length){const p=d.pa,legs=c.legs,nonEve=p.seq.filter(a=>!a.night);const days=d.city==="LO"?lonDays():parisDays();let lp=false;
     const lr=(ST.lunchAt||{})[d.id];const lunch=()=>`<div class="lunch">🍽 <b>${hm(p.seq.lunch)}</b> ${lr?"Almuerzo en <b>"+esc(lr)+"</b>":"Almuerzo con calma (~1 h)"}</div>`;
     p.seq.forEach((a,k)=>{const l=legs[k];if(p.seq.lunch&&!lp&&a.st>p.seq.lunch){h+=lunch();lp=true}
-      h+=l.metro?`<span class="mv">↓ ~${l.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
+      h+=l.noloc?`<span class="mv">↓ ${esc(a.n)}: sin dirección, sin traslado calculado</span>`:l.metro?`<span class="mv">↓ ~${l.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
       h+=actRow(d,a,k,nonEve,SUN,days)});
     if(p.seq.lunch&&!lp)h+=lunch();
     const back=legs[legs.length-1];h+=`<span class="mv">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>`;
@@ -2096,13 +2096,34 @@ const PA_T={louvre:"mus",orsay:"mus",orang:"mus",rodin:"mus",picasso:"mus",carna
  notre:"igl",chapelle:"igl",sacre:"igl",
  catac:"ent",lumi:"ent",seine:"ent",evol:"ent",lafay:"ent",moulin:"ent"};
 const typOf=a=>a.t||PA_T[a.id]||"pas";
-const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["otr","Personales y otros"],["com","Restaurantes"],["via","Viajes"]];
+const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["otr","Personales y otros"],["per","Personalizada"],["com","Restaurantes"],["via","Viajes"]];
 function nearDays(id){const a=actById(id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
 function daySelPA(id,cls){const days=isLO(id)?lonDays():parisDays();const pin=(ST.paPin||{})[id]||"";const on=selOf(actById(id));const N=nearDays(id);
   return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Automático${!pin&&ACTDAY[id]?" → "+pretty(ACTDAY[id]):""}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar (día automático)…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
 let addDay=null,addTyp="pas";
+
+function perForm(d,lo){return `<form class="fform perf" data-perform="${d}|${lo?"LO":"PA"}">
+  <label class="f wide">Actividad<input name="n" required placeholder="Ej.: Cumpleaños de Sofía, compras en Primark, visita a la tía"></label>
+  <label class="f wide">Dirección (opcional)<input name="addr" placeholder="${lo?"Ej.: 200 Camden High Street":"Ej.: 12 rue de Rivoli"}"></label>
+  <label class="f">Duración (horas)<input name="h" type="number" min="0.25" step="0.25" value="1"></label>
+  <label class="f">Hora (opcional)<input name="at" type="time"></label>
+  <label class="f">Costo por persona (€, opcional)<input name="p" type="number" min="0" step="0.5" value="0"></label>
+  <label class="f wide">Nota (opcional)<input name="s" placeholder="Ej.: llevar regalo, reservar mesa"></label>
+  <div class="act wide"><button type="submit" class="btn sm">＋ Agregar a este día</button></div>
+  <p class="muted wide" style="font-size:13px;margin:0">Con dirección, la app la ubica en el plano y calcula el traslado. Sin dirección, queda registrada en el día con su duración, sin traslado.</p></form>`}
+async function savePer(f){const [d,city]=f.dataset.perform.split("|");const g=k=>(f[k]&&f[k].value||"").trim();const n=g("n");if(!n)return;
+  const btn=f.querySelector("button[type=submit]");btn.disabled=true;btn.textContent="Guardando…";
+  let ll=null,addr=g("addr"),found="";
+  if(addr){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(addr+(city==="LO"?", London":", Paris"))}&viewbox=${VB[city]}`);const j=await r.json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];found=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
+  const at=g("at");const atH=at?(+at.split(":")[0]+(+at.split(":")[1])/60):0;
+  const id=(city==="LO"?"lo_cu":"cu")+Date.now().toString(36);const base=city==="LO"?lonBase():baseLL();
+  const a={id,t:"per",n,h:+g("h")||1,p:+g("p")||0,in:0,ll:ll||base,noloc:ll?0:1,addr:found||addr,s:g("s")||(ll?found:"Actividad personal"),v:addr?(ll?"📍 "+found:"Dirección sin ubicar: "+addr):"Sin dirección",d:g("s")||"",u:ll?`https://www.google.com/maps/search/?api=1&query=${ll.join(",")}`:"",z:"Personal",city,by:(user&&user.email)||""};
+  if(atH){a.at=atH;if(atH>=17)a.eve=1}
+  const c=ST.custom=ST.custom||{};(c.att=c.att||[]).push(a);ST.paSel=ST.paSel||{};ST.paSel[id]=true;ST.paPin=ST.paPin||{};ST.paPin[id]=d;addDay=null;save();render();
+  toast(`✔ <b>${esc(n)}</b> agregada al ${pretty(d)}${addr&&!ll?" · no encontré la dirección: quedó sin traslado":""}`)}
 function addSheet(){if(!addDay)return"";const lo=addDay.startsWith("L"),d=addDay.replace(/^L/,"");let list="";
-  if(addTyp==="com")list=LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
+  if(addTyp==="per"){const L=(lo?LON:PA).filter(a=>typOf(a)==="per"&&!selOf(a));list=perForm(d,lo)+(L.length?`<span class="eyebrow" style="margin-top:10px">Personalizadas anteriores</span>`+L.map(a=>`<div class="addrow"><span><b>${esc(a.n)}</b><small>~${String(a.h).replace(".",",")} h · ${esc(a.v||"")}</small></span><button type="button" class="btn sm" data-addact="${a.id}">Agregar</button></div>`).join(""):"")}
+  else if(addTyp==="com")list=LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
   else if(addTyp==="via"){const ok=x=>!overlap(d,d);list=ESC.filter(x=>x.k!=="noche").map(x=>`<div class="addrow"><span><b>${x.p} ${x.n}</b><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":"día o 1 noche"}</small></span><button type="button" class="btn sm" data-addtrip="${x.id}" ${ok(x)?"":"disabled"}>Ir este día</button></div>`).join("")+`<p class="muted" style="font-size:13px">Las escapadas con noches se agregan en 4 · Escapadas.</p>`}
   else{const L=(lo?LON:PA).filter(a=>!selOf(a)&&typOf(a)===addTyp);list=L.map(a=>{const N=nearDays(a.id);const alt=Object.entries(N).filter(([dd,v])=>dd!==d&&v.fits).sort((x,y)=>x[1].k-y[1].k)[0];const here=N[d];return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}${here?`<small class="okl">★ Este día ya visitan ${here.n}, a ~${here.min} min a pie.</small>`:alt?`<small class="hint">💡 El ${pretty(alt[0])} visitan ${alt[1].n}, a ~${alt[1].min} min a pie. <button type="button" class="lnkb" data-addactd="${a.id}|${alt[0]}">Ponerlo ese día</button></small>`:""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
   return `<div class="fov" data-aclose="1"><article class="fsheet" style="--c:${lo?LO_C:PA_C}" role="dialog" aria-label="Agregar actividad"><button type="button" class="btn alt sm fx" data-aclose="1" aria-label="Cerrar">✕</button>
@@ -2139,7 +2160,7 @@ function walkGeo(l){const k=wkey(l);if(WALK[k])return Promise.resolve(WALK[k]);
 const circ=(ll,r)=>{const out=[];for(let i=0;i<=48;i++){const a=i/48*2*Math.PI;out.push([ll[1]+r/111320/Math.cos(ll[0]*Math.PI/180)*Math.cos(a),ll[0]+r/110540*Math.sin(a)])}return out};
 let ML=[];
 function hatchImg(){const c=document.createElement("canvas");c.width=c.height=12;const x=c.getContext("2d");x.fillStyle="rgba(179,38,30,.08)";x.fillRect(0,0,12,12);x.strokeStyle="rgba(179,38,30,.55)";x.lineWidth=2.5;x.beginPath();x.moveTo(-3,15);x.lineTo(15,-3);x.moveTo(-9,9);x.lineTo(9,-9);x.moveTo(3,21);x.lineTo(21,3);x.stroke();return x.getImageData(0,0,12,12)}
-function mlMap(el,d,big){const p=planOf(d),base=p.base||baseLL(),legs=legsOf(d),pts=[base,...p.seq.map(a=>a.ll)];
+function mlMap(el,d,big){const p=planOf(d),base=p.base||baseLL(),legs=legsOf(d).filter(l=>!l.noloc),pts=[base,...p.seq.filter(a=>!a.noloc).map(a=>a.ll)];
   const m=new maplibregl.Map({container:el,style:mlStyle(),interactive:big,attributionControl:big?{compact:true,customAttribution:"© OpenFreeMap · © OpenStreetMap"}:false,bounds:[[Math.min(...pts.map(x=>x[1])),Math.min(...pts.map(x=>x[0]))],[Math.max(...pts.map(x=>x[1])),Math.max(...pts.map(x=>x[0]))]],fitBoundsOptions:{padding:big?{top:50,bottom:50,left:40,right:140}:24,maxZoom:16}});
   el._m=m;ML.push(m);if(big){m.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-left");m.scrollZoom.disable()}
   const mk=(ll,html,lab)=>{const w=document.createElement("div");w.className="mlmk";w.innerHTML=html+(lab?`<span class="mllab">${esc(lab)}</span>`:"");new maplibregl.Marker({element:w,anchor:"left",offset:[big?-15:-11,0]}).setLngLat([ll[1],ll[0]]).addTo(m)};
@@ -2156,7 +2177,7 @@ function mlMap(el,d,big){const p=planOf(d),base=p.base||baseLL(),legs=legsOf(d),
     if(wl.some(l=>!WALK[wkey(l)]))Promise.all(wl.map(l=>walkGeo(l).catch(()=>straight(l)))).then(gs=>{const s=m.getSource&&m.getSource("walk");if(s)s.setData({type:"FeatureCollection",features:gs.map(g=>({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:g}}))})});
   });
   mk(base,'<div class="lm-h">H</div>',big?"Alojamiento":"");
-  p.seq.forEach((a,k)=>mk(a.ll,`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,big?(a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""):""));
+  p.seq.forEach((a,k)=>!a.noloc&&mk(a.ll,`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,big?(a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""):""));
   return m}
 
 
@@ -2172,12 +2193,12 @@ const legsOf=d=>{const p=planOf(d);return p?(d.pa===p&&d.cost.legs?d.cost.legs:l
 function initMaps(A){ML=ML.filter(m=>{if(!document.body.contains(m.getContainer())){try{m.remove()}catch(e){}return false}return true});if(!window.L&&!window.maplibregl)return;document.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m||!el.offsetParent)return;const d=A.days.find(x=>x.id===el.dataset.lday);if(!d||!planOf(d))return;
   const big=!!el.dataset.big;if(window.maplibregl){try{el.classList.add("ml");mlMap(el,d,big);return}catch(e){el.classList.remove("ml");el._m=null}}if(!window.L)return;const m=L.map(el,{zoomControl:big,dragging:big,scrollWheelZoom:false,doubleClickZoom:big,touchZoom:big,boxZoom:big,keyboard:big,attributionControl:true});el._m=m;
   m.attributionControl.setPrefix(false);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(m);
-  const base=planOf(d).base||baseLL(),pts=[base,...planOf(d).seq.map(a=>a.ll)];
+  const base=planOf(d).base||baseLL(),pts=[base,...planOf(d).seq.filter(a=>!a.noloc).map(a=>a.ll)];
   const zs=zonesNearPA(pts),id="hz"+(++_hz);
   zs.forEach(z=>{const c=L.circle(z.ll,{radius:z.r,color:"#b3261e",weight:1.5,dashArray:"4 3",fillOpacity:1,interactive:big}).addTo(m);if(big)c.bindTooltip(z.n);c._hz=1});
-  legsOf(d).forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
+  legsOf(d).filter(l=>!l.noloc).forEach(l=>L.polyline([l.from,l.to],{color:l.metro?"#2e4f8f":"#2a2420",weight:l.metro?3.5:2.5,dashArray:l.metro?null:"5 6",opacity:l.k?0.9:0.4}).addTo(m));
   L.marker(base,{icon:L.divIcon({className:"",html:'<div class="lm-h">H</div>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(m);
-  planOf(d).seq.forEach((a,k)=>{const sz=big?30:22;const mk=L.marker(a.ll,{icon:L.divIcon({className:"",html:`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}).addTo(m);if(big)mk.bindTooltip((a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""),{permanent:true,direction:"right",offset:[14,0],className:"lm-lab"})});
+  planOf(d).seq.forEach((a,k)=>{if(a.noloc)return;const sz=big?30:22;const mk=L.marker(a.ll,{icon:L.divIcon({className:"",html:`<div class="lm-a${a.top?" top":""}${big?" big":""}">${k+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}).addTo(m);if(big)mk.bindTooltip((a.top?"★ ":"")+a.n.replace(/\s*\(.*?\)/,""),{permanent:true,direction:"right",offset:[14,0],className:"lm-lab"})});
   m.fitBounds(L.latLngBounds(pts).pad(big?0.15:0.25),{maxZoom:16});
   // achurado: patrón SVG en el panel de vectores
   setTimeout(()=>{const svg=el.querySelector(".leaflet-overlay-pane svg");if(!svg)return;const ns="http://www.w3.org/2000/svg";
@@ -2269,6 +2290,7 @@ prog:{t:"Programa: armar los días",i:"El corazón de la app: qué hacen cada d�
  ["Organizar todo de una vez","En Londres toquen <b>«🧭 Organizar Londres»</b>; en París, <b>«👭 Modo juntas»</b>. Paso 1: marquen los días <b>ocupados</b> (entrada comprada, plan fijo) o <b>libres</b>. Paso 2: marquen todo lo que quieren hacer. Al tocar <b>«Listo»</b> la app lo reparte en los días disponibles, por barrio y desde el alojamiento."],
  ["Agregar de a una","En «Agregar actividades por categoría» marquen la casilla (se asigna un día automático) o elijan el día en el selector. Un aviso abajo confirma el día y la actividad queda marcada con «✔ fecha · ver el día →». En cada fecha el selector sugiere días en que ya visitan algo cerca."],
  ["Categorías","Paseos y barrios, Museos, Monumentos y miradores, Iglesias, Atracciones entretenidas, <b>Espectáculos</b> (se programan de noche y en sus fechas) y <b>Personales y otros</b> (casas de amigos, tiendas, direcciones propias)."],
+ ["Personalizada","En «+ Agregar actividad a este día», la categoría <b>Personalizada</b> registra cualquier cosa propia (un cumpleaños, compras, una visita): nombre, duración, hora y dirección opcionales. Con dirección se ubica en el plano y se calcula el traslado; sin dirección queda registrada en el día sin traslado."],
  ["Algo que no está en la lista","Agréguenlo con <b>«🔎 Buscar y agregar»</b> en 3 · Atracciones, 4 · Escapadas, 5 · Espectáculos u 8 · Comidas: después aparece aquí para programarlo."],
  ["Ajustar cada día","↑ ↓ cambia el orden, ✕ la quita, el selector 📅 fija otro día y <b>«+ Agregar actividad a este día»</b> abre la lista por categoría. En <b>Comidas</b> marquen qué comidas hacen y elijan la opción; en <b>Traslados, alojamiento y plano</b> están los tramos y su costo."],
  ["Plano del día","Toquen el plano chico para ampliarlo: números en orden de visita, caminatas por las calles (línea punteada negra), metro en azul y zonas de precaución achuradas en rojo. Se puede hacer zoom."],
@@ -2379,7 +2401,7 @@ function findSheet(){const F=FIND;if(!F)return"";const city=F.city||"PA";const P
     <form class="fform" data-fform>
      <label class="f">Nombre<input name="n" value="${esc(P.n)}" required></label>
      <label class="f wide">Descripción (pueden editarla)<textarea name="s" rows="4">${esc(P.s)}</textarea></label>
-     ${F.kind==="att"?`<label class="f">Tipo<select name="t">${TYP.filter(t=>!["com","via","esp"].includes(t[0])).map(([k,t])=>`<option value="${k}" ${P.t===k?"selected":""}>${t}</option>`).join("")}</select></label><label class="f">Visita (horas)<input name="h" type="number" step="0.25" min="0.25" value="1.5"></label><label class="f">Precio por persona (€)<input name="p" type="number" step="0.5" min="0" value="0"></label><label class="f">Cierra a las<input name="close" type="time" value="18:00"></label><label class="chk f"><input type="checkbox" name="in" ${P.in?"checked":""}><span class="t">🏛 Techado</span></label>`:""}
+     ${F.kind==="att"?`<label class="f">Tipo<select name="t">${TYP.filter(t=>!["com","via","esp","per"].includes(t[0])).map(([k,t])=>`<option value="${k}" ${P.t===k?"selected":""}>${t}</option>`).join("")}</select></label><label class="f">Visita (horas)<input name="h" type="number" step="0.25" min="0.25" value="1.5"></label><label class="f">Precio por persona (€)<input name="p" type="number" step="0.5" min="0" value="0"></label><label class="f">Cierra a las<input name="close" type="time" value="18:00"></label><label class="chk f"><input type="checkbox" name="in" ${P.in?"checked":""}><span class="t">🏛 Techado</span></label>`:""}
      ${F.kind==="show"?`<label class="f">Desde<input name="from" type="date"></label><label class="f">Hasta<input name="to" type="date"></label><label class="f">Duración (horas)<input name="h" type="number" step="0.25" min="0.25" value="2"></label><label class="f">Precio por persona (€)<input name="p" type="number" step="0.5" min="0" value="0"></label><label class="chk f"><input type="checkbox" name="eve" checked><span class="t">🌙 Es de noche</span></label>`:""}
      ${F.kind==="food"?`<label class="f">Tipo<select name="ft"><option>Restaurante</option><option>Bistró</option><option>Café</option><option>Panadería / boulangerie</option><option>Comida rápida</option><option>Pub</option><option>Mercado</option></select></label><label class="f">Precio aprox. por persona<input name="pr" placeholder="Ej.: 15–20 €"></label>`:""}
      ${F.kind==="esc"?`<label class="f">Tipo<select name="k"><option value="dia">De un día</option><option value="noche" selected>Con noche</option><option value="ambos">Día o 1 noche</option></select></label><label class="f">Noches sugeridas<input name="nt" value="1"></label><label class="f">Tiempo en tren desde París<input name="tr" placeholder="Ej.: 2 h (TGV)"></label><label class="f">Costo aprox. del tren (ida)<input name="cost" placeholder="Ej.: 30–80 € ida"></label><label class="f wide">Qué ver (separado por comas)<input name="vv" placeholder="Ej.: catedral, casco antiguo, mercado"></label>`:""}
@@ -2463,6 +2485,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-addtyp]",b=>b.onclick=()=>{addTyp=b.dataset.addtyp;render()});
   Q("[data-addactd]",b=>b.onclick=()=>{const [id,dd]=b.dataset.addactd.split("|");ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=dd;addDay=null;save();render()});
   Q("[data-addact]",b=>b.onclick=()=>{const id=b.dataset.addact;ST.paSel=ST.paSel||{};ST.paPin=ST.paPin||{};ST.paSel[id]=true;ST.paPin[id]=addDay.replace(/^L/,"");addDay=null;save();render();toast(selMsg(id))});
+  Q("[data-perform]",f=>f.onsubmit=e=>{e.preventDefault();savePer(f)});
   Q("[data-addlunch]",b=>b.onclick=()=>{const r=LUNCH_V[+b.dataset.addlunch];ST.lunchAt=ST.lunchAt||{};ST.lunchAt[addDay]=r[0];if(/bouillon|6\.90/i.test(r[0])){ST.mealOpt=ST.mealOpt||{};ST.mealOpt[addDay+"|a"]=3}addDay=null;save();render()});
   Q("[data-addtrip]",b=>b.onclick=()=>{const d=addDay;if(overlap(d,d))return;ST.esc.push({id:b.dataset.addtrip,ini:d,fin:d});addDay=null;save();render()});
   Q("[data-mclose]",b=>b.onclick=e=>{if(e.target===b||b.classList.contains("fx")){mapOpen=null;render()}});
