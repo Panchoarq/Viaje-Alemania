@@ -96,6 +96,10 @@ nav.tb svg{width:22px;height:22px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script type="module">
 const FBC={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
+const TK=new URLSearchParams(location.search).get("trip")==="alemania"?"alemania":"paris";
+const T=TK==="alemania"?{nom:"Viaje a Alemania",c2:{code:"CZK",sym:"Kč",rk:"rateCZK",ck:"cashCZK",def:0.04,city:"Praga",pl:"Coronas checas",re:/corona|koruna|kč|czk/i},n:5,back:"/alemania",ctr:[50.5,11],who:"los cinco",ellos:"entre los cinco",pres:"1500"}
+ :{nom:"Viaje a París",c2:{code:"GBP",sym:"£",rk:"rateGBP",ck:"cashGBP",def:1.17,city:"Londres",pl:"Libras",re:/libra|pound|£/i},n:2,back:"/paris",ctr:[48.8566,2.3522],who:"las dos",ellos:"entre las dos",pres:"2000"};
+const sy=c=>c==="EUR"?"€":T.c2.sym;
 const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has("demo");
 const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -126,29 +130,35 @@ function parseVoice(t){let s=" "+t.toLowerCase()+" ";let amount=null;
     if(nums.length===1)amount=nums[0];else if(nums.length>=2)amount=nums[nums.length-2]+nums[nums.length-1]/100}
   let com="";const e=t.match(/\b(?:en|at)\s+([^\d,.]+?)(?=\s+(?:\d|cero|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|quince|veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa|cien|por|euros?|libras?)|$)/i);
   if(e)com=e[1].trim();
-  let cur2=/libra|pound|£/i.test(t)?"GBP":/euro|€/i.test(t)?"EUR":null;
+  let cur2=T.c2.re.test(t)?T.c2.code:/euro|€/i.test(t)?"EUR":null;
   return {amount,com:com.replace(/\b\w/,c=>c.toUpperCase()),cat:suggest(t),cur:cur2,raw:t}}
 
 // ---------- estado y datos ----------
 let user=null,F=null,db=null,P={},G=[],J=[],BUD=null,tab="add",unsubs=[];
 let form={amt:"",cur:null,com:"",cat:null,pay:null,loc:true,shared:false,ll:null,acc:null};
 const em=()=>user&&user.email;
-function rates(){return {clp:+(P.rateCLP||1100),gbp:+(P.rateGBP||1.17)}}
-const toEUR=(a,c)=>c==="GBP"?a*rates().gbp:a;
+function rates(){return {clp:+(P.rateCLP||1100),c2:+(P[T.c2.rk]||T.c2.def)}}
+const toEUR=(a,c)=>c==="EUR"?a:a*rates().c2;
 const clp=e=>"≈ $"+Math.round(e*rates().clp).toLocaleString("es-CL")+" CLP";
 const fe=e=>num(Math.round(e*100)/100)+" €";
 function todayISO(){return iso(new Date())}
-function cityOn(d){const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?x.city:(BUD&&BUD.days&&BUD.days.length&&d<BUD.days[0].d?"Antes del viaje":"Fuera del programa")}
-const curOfCity=c=>c==="Londres"?"GBP":"EUR";
+const CN={H:"Hamburgo",B:"Berlín",P:"Praga",M:"Múnich"};
+function deCity(d){let cfg={start:"2027-02-21",order:["H","B","P","M"],nights:{M:2,P:2,B:2,H:2}};
+  try{const c=JSON.parse(localStorage.getItem("ruta_cfg")||"null");if(c&&c.order&&c.nights)cfg=c}catch(e){}
+  const t0=D(cfg.start);const k=Math.round((D(d)-t0)/864e5);if(k<0)return "Antes del viaje";let acc=0;
+  for(let i=0;i<cfg.order.length;i++){const c=cfg.order[i];acc+=+(cfg.nights[c]||0);if(k<acc||i===cfg.order.length-1&&k<=acc)return CN[c]||c}
+  return "Fuera del programa"}
+function cityOn(d){if(TK==="alemania"&&!(BUD&&BUD.days&&BUD.days.length))return deCity(d);const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?x.city:(BUD&&BUD.days&&BUD.days.length&&d<BUD.days[0].d?"Antes del viaje":"Fuera del programa")}
+const curOfCity=c=>c===T.c2.city?T.c2.code:"EUR";
 
 // demo store
 const LS={get(k,d){try{return JSON.parse(localStorage.getItem("gdemo_"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("gdemo_"+k,JSON.stringify(v))}catch(e){}}};
-async function saveProf(p){P={...P,...p};if(DEMO){LS.set("prof",P);render();return}await F.setDoc(F.doc(db,"trips","paris","users",em()),P,{merge:true})}
+async function saveProf(p){P={...P,...p};if(DEMO){LS.set("prof",P);render();return}await F.setDoc(F.doc(db,"trips",TK,"users",em()),P,{merge:true})}
 async function addGasto(g){if(DEMO){if(g.shared){J=[...J,{...g,id:"j"+Date.now(),by:em(),byName:P.nombre||"Yo"}];LS.set("juntas",J)}else{G=[...G,{...g,id:"g"+Date.now()}];LS.set("gastos",G)}render();return}
-  if(g.shared)await F.addDoc(F.collection(db,"trips","paris","juntas"),{...g,by:em(),byName:P.nombre||user.displayName||em()});
-  else await F.addDoc(F.collection(db,"trips","paris","users",em(),"gastos"),g)}
+  if(g.shared)await F.addDoc(F.collection(db,"trips",TK,"juntas"),{...g,by:em(),byName:P.nombre||user.displayName||em()});
+  else await F.addDoc(F.collection(db,"trips",TK,"users",em(),"gastos"),g)}
 async function delGasto(x){if(DEMO){if(x.by){J=J.filter(z=>z.id!==x.id);LS.set("juntas",J)}else{G=G.filter(z=>z.id!==x.id);LS.set("gastos",G)}render();return}
-  if(x.by)await F.deleteDoc(F.doc(db,"trips","paris","juntas",x.id));else await F.deleteDoc(F.doc(db,"trips","paris","users",em(),"gastos",x.id))}
+  if(x.by)await F.deleteDoc(F.doc(db,"trips",TK,"juntas",x.id));else await F.deleteDoc(F.doc(db,"trips",TK,"users",em(),"gastos",x.id))}
 
 async function boot(){
   if(DEMO){user={email:"demo@local",displayName:"Modo demo"};P=LS.get("prof",{});G=LS.get("gastos",[]);J=LS.get("juntas",[]);
@@ -160,20 +170,20 @@ async function boot(){
   window._au={U,auth};
   U.onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 function listen(){const den=()=>gate(true);
-  unsubs.push(F.onSnapshot(F.doc(db,"trips","paris","users",em()),s=>{P=s.exists()?s.data():{};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];render()},den));
-  unsubs.push(F.onSnapshot(F.collection(db,"trips","paris","users",em(),"gastos"),s=>{G=s.docs.map(d=>({id:d.id,...d.data()}));render()},den));
-  unsubs.push(F.onSnapshot(F.collection(db,"trips","paris","juntas"),s=>{J=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
-  unsubs.push(F.onSnapshot(F.doc(db,"trips","paris","meta","presupuesto"),s=>{BUD=s.exists()?s.data():{days:[]};render()},()=>{}))}
-function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">Viaje a París</span><h1 class="h1">Mis gastos</h1>
-  ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada una ve solo sus gastos.</p>`}
-  <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="/paris">← Volver al viaje</a></div>`;
+  unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"users",em()),s=>{P=s.exists()?s.data():{};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];render()},den));
+  unsubs.push(F.onSnapshot(F.collection(db,"trips",TK,"users",em(),"gastos"),s=>{G=s.docs.map(d=>({id:d.id,...d.data()}));render()},den));
+  unsubs.push(F.onSnapshot(F.collection(db,"trips",TK,"juntas"),s=>{J=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
+  unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"meta","presupuesto"),s=>{BUD=s.exists()?s.data():{days:[]};render()},()=>{}))}
+function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">${T.nom}</span><h1 class="h1">Mis gastos</h1>
+  ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada persona ve solo sus gastos.</p>`}
+  <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="${T.back}">← Volver al viaje</a></div>`;
   $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);try{await U.signInWithPopup(auth,new U.GoogleAuthProvider())}catch(e){toast("No se pudo entrar")}}}
 
 // ---------- cálculos ----------
 function mine(){// gastos personales: propios + mitad de los compartidos
   const own=G.filter(g=>!g.retiro).map(g=>({...g,mineEur:g.eur}));
-  const sh=J.map(g=>({...g,mineEur:g.eur/2}));return [...own,...sh].sort((a,b)=>b.ts-a.ts)}
-function cash(){const c={EUR:+(P.cashEUR||0),GBP:+(P.cashGBP||0)};
+  const sh=J.map(g=>({...g,mineEur:g.eur/T.n}));return [...own,...sh].sort((a,b)=>b.ts-a.ts)}
+function cash(){const c={EUR:+(P.cashEUR||0),[T.c2.code]:+(P[T.c2.ck]||0)};
   G.forEach(g=>{if(g.retiro)c[g.cur]+=g.amt;else if(g.pay==="Efectivo")c[g.cur]-=g.amt});
   J.forEach(g=>{if(g.by===em()&&g.pay==="Efectivo")c[g.cur]-=g.amt});return c}
 function budDay(d){const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?{com:x.meal||0,ent:x.act||0,tra:x.loc||0,alo:x.hot||0}:null}
@@ -190,17 +200,17 @@ function vAdd(){const today=todayISO(),city=cityOn(today);const cur=form.cur||cu
   return `<div class="top"><div><span class="eb">${pretty(today)} · ${esc(city)}</span><h1 class="h1">Nuevo gasto</h1></div><div style="text-align:right"><span class="eb">Hoy llevas</span><div style="font:700 18px var(--mono);color:var(--red)">${fe(spent)}${bd?` <span class="sub">/ ${fe(tot(bd))}</span>`:""}</div></div></div>
   <button class="mic" id="mic"><i>${'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fffdf6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>'}</i><span><b id="micT">Dictar el gasto</b><small>«café en Flore cuatro cincuenta»</small></span></button>
   <div class="box"><label class="eb" for="amt">Monto</label>
-   <div class="amt"><input id="amt" inputmode="decimal" placeholder="0" value="${esc(form.amt)}" autocomplete="off"><div class="cur"><button data-cur="EUR" aria-pressed="${cur==="EUR"}">€</button><button data-cur="GBP" aria-pressed="${cur==="GBP"}">£</button></div></div>
+   <div class="amt"><input id="amt" inputmode="decimal" placeholder="0" value="${esc(form.amt)}" autocomplete="off"><div class="cur"><button data-cur="EUR" aria-pressed="${cur==="EUR"}">€</button><button data-cur="${T.c2.code}" aria-pressed="${cur!=="EUR"}">${T.c2.sym}</button></div></div>
    <label class="eb" for="com" style="margin-top:4px">Comercio o detalle</label><input id="com" class="line" value="${esc(form.com)}" placeholder="Ej.: Café de Flore" autocomplete="off">
-   <span class="sub" id="conv">${a?(cur==="GBP"?`= ${fe(e)} · `:"")+clp(e):"Toca el micrófono o escribe el monto"}</span></div>
+   <span class="sub" id="conv">${a?(cur!=="EUR"?`= ${fe(e)} · `:"")+clp(e):"Toca el micrófono o escribe el monto"}</span></div>
   <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Categoría${form.cat?"":" · sugerida"}</span><div class="chips">${cats().map(c=>`<button class="chip" data-cat="${esc(c[0])}" aria-pressed="${cat===c[0]}"><i style="background:${c[1]}"></i>${esc(c[0])}</button>`).join("")}<button class="chip add" id="addcat">+ Nueva</button></div></div>
   <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Pagado con</span><div class="seg">${pays.map(p=>`<button data-pay="${p}" aria-pressed="${pay===p}">${p}</button>`).join("")}</div></div>
   <div class="box" style="padding:4px 12px;gap:0"><label class="tg"><input type="checkbox" id="loc" ${form.loc?"checked":""}><span>Guardar ubicación</span><small class="sub" id="locT">${form.loc?(form.ll?`±${Math.round(form.acc||0)} m`:"buscando…"):"sin ubicación"}</small></label>
-   <label class="tg"><input type="checkbox" id="shr" ${form.shared?"checked":""}><span>Gasto compartido (las dos)</span><small class="sub">${form.shared&&a?num(a/2)+(cur==="GBP"?" £":" €")+" c/u":form.shared?"mitad c/u":"solo mío"}</small></label></div>
+   <label class="tg"><input type="checkbox" id="shr" ${form.shared?"checked":""}><span>Gasto compartido (${T.who})</span><small class="sub">${form.shared&&a?num(a/T.n)+" "+sy(cur)+" c/u":form.shared?"partes iguales":"solo mío"}</small></label></div>
   <button class="go" id="save" ${a>0?"":"disabled"}>Guardar gasto</button>
   <button class="btn" id="retiro" style="align-self:center">Registrar retiro de efectivo (cajero)</button>
   ${G.length+J.length?`<div><span class="eb">Últimos</span><div class="gl">${mine().slice(0,5).map(gRow).join("")}</div></div>`:""}`}
-function gRow(g){const c=catOf(g.cat);return `<button class="g" data-g="${g.id}"><i style="background:${c[1]}"></i><span>${esc(g.com||g.cat)}${g.by?" 👭":""}</span><b>${num(g.amt)} ${g.cur==="GBP"?"£":"€"}</b><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.cat)} · ${esc(g.pay)}${g.city?" · "+esc(g.city):""}${g.by?" · pagó "+esc(g.byName||g.by):""}</small></button>`}
+function gRow(g){const c=catOf(g.cat);return `<button class="g" data-g="${g.id}"><i style="background:${c[1]}"></i><span>${esc(g.com||g.cat)}${g.by?" 👭":""}</span><b>${num(g.amt)} ${sy(g.cur)}</b><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.cat)} · ${esc(g.pay)}${g.city?" · "+esc(g.city):""}${g.by?" · pagó "+esc(g.byName||g.by):""}</small></button>`}
 let rv="hoy";
 function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C=cash();const days=(BUD&&BUD.days)||[];
   const scope=rv==="hoy"?M.filter(g=>g.d===today):rv==="ciudad"?M.filter(g=>g.city===city):M;
@@ -216,7 +226,7 @@ function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C
   <div class="seg dark">${["hoy","ciudad","viaje"].map(k=>`<button data-rv="${k}" aria-pressed="${rv===k}">${esc(lbl[k])}</button>`).join("")}</div>
   <div class="k2"><div class="kpi dk"><span class="eb">Gastado · ${esc(lbl[rv])}</span><b>${fe(spent)}</b><small>${clp(spent)}</small></div>
    <div class="kpi"><span class="eb">Presupuesto del programa</span><b>${bt?fe(bt):"—"}</b><small style="color:${bt?(spent<=bt?"var(--ok)":"var(--red)"):""}">${bt?(spent<=bt?`vas ${fe(bt-spent)} bajo`:`te pasaste ${fe(spent-bt)}`):"abre el viaje para cargarlo"}</small></div>
-   <div class="kpi"><span class="eb">Efectivo</span><b>${num(C.EUR)} €</b><small>+ £${num(C.GBP)}</small></div>
+   <div class="kpi"><span class="eb">Efectivo</span><b>${num(C.EUR)} €</b><small>+ ${T.c2.sym} ${num(C[T.c2.code])}</small></div>
    <div class="kpi"><span class="eb">Te queda</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
   ${left.length?`<div class="alert"><span class="eb" style="color:var(--red)">Para los días que quedan</span><br>Quedan <b>${left.length} día${left.length>1?"s":""} en ${esc(city)}</b>: puedes gastar <b>${fe(Math.max(0,perDay))}/día</b> para cerrar en el presupuesto (el programa estima ${fe(progDay)}/día).</div>`:""}
   <div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Por categoría · real vs presupuesto</span>
@@ -234,29 +244,32 @@ function vMap(){const pts=mine().filter(g=>g.ll);const cities=[...new Set(pts.ma
 let LMAP=null;
 function drawMap(){const el=$("#map");if(!el||!window.L)return;const pts=mine().filter(g=>g.ll&&(mapF==="todo"||g.city===mapF));
   LMAP=L.map(el,{zoomControl:true});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(LMAP);
-  const ms=pts.map(g=>{const c=catOf(g.cat)[1];return L.marker(g.ll,{icon:L.divIcon({className:"",html:`<div class="pin" style="background:${c}"></div>`,iconSize:[24,24],iconAnchor:[12,24],popupAnchor:[0,-22]})}).bindPopup(`<b>${esc(g.com||g.cat)}</b><br>${num(g.amt)} ${g.cur==="GBP"?"£":"€"} · ${esc(g.cat)}<br><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.pay)}</small>`).addTo(LMAP)});
-  if(ms.length)LMAP.fitBounds(L.featureGroup(ms).getBounds().pad(0.25),{maxZoom:16});else LMAP.setView([48.8566,2.3522],12)}
+  const ms=pts.map(g=>{const c=catOf(g.cat)[1];return L.marker(g.ll,{icon:L.divIcon({className:"",html:`<div class="pin" style="background:${c}"></div>`,iconSize:[24,24],iconAnchor:[12,24],popupAnchor:[0,-22]})}).bindPopup(`<b>${esc(g.com||g.cat)}</b><br>${num(g.amt)} ${sy(g.cur)} · ${esc(g.cat)}<br><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.pay)}</small>`).addTo(LMAP)});
+  if(ms.length)LMAP.fitBounds(L.featureGroup(ms).getBounds().pad(0.25),{maxZoom:16});else LMAP.setView(T.ctr,TK==="alemania"?5:12)}
 function vJun(){const by={};J.forEach(g=>{by[g.by]=by[g.by]||{n:g.byName||g.by,e:0};by[g.by].e+=g.eur});const total=J.reduce((t,g)=>t+g.eur,0);
   const per={};J.forEach(g=>{per[g.city||"—"]=(per[g.city||"—"]||0)+g.eur});const ppl=Object.values(by);
-  let bal="";if(ppl.length===2){const [a,b]=ppl;const d=(a.e-b.e)/2;bal=Math.abs(d)<0.01?"Están a mano.":`${esc(d>0?b.n:a.n)} le debe ${fe(Math.abs(d))} a ${esc(d>0?a.n:b.n)}`}
-  else if(ppl.length===1)bal=`${esc(ppl[0].n)} pagó todo: la otra le debe ${fe(total/2)}`;
+  // saldos: quien pagó más que su parte recibe; quien menos, debe
+  const share=total/T.n;let bal="";
+  if(ppl.length){const cr=ppl.filter(p=>p.e-share>0.01).map(p=>({n:p.n,v:p.e-share})).sort((x,y)=>y.v-x.v);const lines=[];
+    if(T.n===2&&ppl.length===2){const [a,b]=ppl;const d=(a.e-b.e)/2;bal=Math.abs(d)<0.01?"Están a mano.":`${esc(d>0?b.n:a.n)} le debe ${fe(Math.abs(d))} a ${esc(d>0?a.n:b.n)}`}
+    else{cr.forEach(c=>lines.push(`${esc(c.n)} recibe ${fe(c.v)}`));bal=(lines.join(" · ")||"Están a mano.")+` · cada uno pone ${fe(share)} en total`}}
   const cat={};J.forEach(g=>{cat[g.cat]=(cat[g.cat]||0)+g.eur});
-  return `<div class="top"><div><span class="eb">Las dos · solo lo compartido</span><h1 class="h1">Gastos juntas</h1></div><b style="font:700 20px var(--mono)">${fe(total)}</b></div>
-  <div class="k2">${Object.entries(per).map(([c,v])=>`<div class="kpi"><span class="eb">${esc(c)}</span><b>${fe(v)}</b><small>${fe(v/2)} c/u</small></div>`).join("")||'<div class="empty" style="grid-column:1/-1">Marquen «Gasto compartido» al registrar.</div>'}</div>
-  ${J.length?`<div class="kpi dk"><span class="eb">Saldo entre las dos</span><span style="font-size:15px">${ppl.map(p=>`${esc(p.n)} pagó <b>${fe(p.e)}</b>`).join(" · ")}</span><b style="font-size:16px;color:#f2b8a0">${bal}</b></div>
+  return `<div class="top"><div><span class="eb">${T.who[0].toUpperCase()+T.who.slice(1)} · solo lo compartido</span><h1 class="h1">Gastos juntos</h1></div><b style="font:700 20px var(--mono)">${fe(total)}</b></div>
+  <div class="k2">${Object.entries(per).map(([c,v])=>`<div class="kpi"><span class="eb">${esc(c)}</span><b>${fe(v)}</b><small>${fe(v/T.n)} c/u</small></div>`).join("")||`<div class="empty" style="grid-column:1/-1">Marquen «Gasto compartido» al registrar.</div>`}</div>
+  ${J.length?`<div class="kpi dk"><span class="eb">Saldo ${T.ellos}</span><span style="font-size:15px">${ppl.map(p=>`${esc(p.n)} pagó <b>${fe(p.e)}</b>`).join(" · ")}</span><b style="font-size:16px;color:#f2b8a0">${bal}</b></div>
   <div><span class="eb">Por categoría</span><table class="tbl">${Object.entries(cat).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<tr><td>${esc(n)}</td><td>${fe(v)}</td></tr>`).join("")}</table></div>
   <div><span class="eb">Todos los compartidos</span><div class="gl">${[...J].sort((a,b)=>b.ts-a.ts).map(gRow).join("")}</div></div>`:""}`}
 function vSet(){const pays=P.medios||PAYS;
   return `<div class="top"><div><span class="eb">Una vez · al empezar</span><h1 class="h1">Mi bolsillo</h1></div><span class="sub">${esc(em())}</span></div>
   <div class="box"><label class="fld">Mi nombre (para los gastos compartidos)<input id="s-nom" value="${esc(P.nombre||"")}"></label>
-   <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="2000"></label>
+   <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="${T.pres}"></label>
    <span class="sub">${P.pres?clp(+P.pres):""}${BUD&&BUD.days&&BUD.days.length?` · el programa estima ${fe(tot(sumBud(BUD.days)))} en comidas, entradas, transporte y alojamiento`:""}</span></div>
-  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">Libras<input id="s-cg" inputmode="decimal" value="${esc(P.cashGBP||"")}" placeholder="40"></label></div></div>
+  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div></div>
   <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${PAYS.map(p=>`<label class="tg"><input type="checkbox" data-med="${p}" ${pays.includes(p)?"checked":""}><span>${p}</span></label>`).join("")}</div>
-  <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">£1 en €<input id="s-rg" inputmode="decimal" value="${esc(P.rateGBP||1.17)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
+  <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">1 ${T.c2.sym} en €<input id="s-rg" inputmode="decimal" value="${esc(P[T.c2.rk]||T.c2.def)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
   <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
   <button class="go" id="s-save">Guardar</button>
-  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit" href="/paris">← Viaje a París</a>${DEMO?"":`<button class="btn" id="out">Salir</button>`}</div>`}
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit" href="${T.back}">← ${T.nom}</a>${DEMO?"":`<button class="btn" id="out">Salir</button>`}</div>`}
 
 // ---------- render y eventos ----------
 let geoWatch=null;
@@ -274,12 +287,12 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-tab]",b=>b.onclick=()=>{tab=b.dataset.tab;scrollTo(0,0);render()});
   Q("[data-g]",b=>b.onclick=()=>{const g=mine().find(x=>x.id===b.dataset.g);if(!g)return;
     sheet(`<span class="eb">${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.city||"")}</span><b style="font-size:20px">${esc(g.com||g.cat)}</b>
-     <table class="tbl"><tr><td>Monto</td><td>${num(g.amt)} ${g.cur==="GBP"?"£":"€"}${g.cur==="GBP"?" = "+fe(g.eur):""}</td></tr><tr><td>Categoría</td><td>${esc(g.cat)}</td></tr><tr><td>Pagado con</td><td>${esc(g.pay)}</td></tr>${g.by?`<tr><td>Compartido · pagó</td><td>${esc(g.byName||g.by)}</td></tr><tr><td>Mi parte</td><td>${fe(g.eur/2)}</td></tr>`:""}</table>
+     <table class="tbl"><tr><td>Monto</td><td>${num(g.amt)} ${sy(g.cur)}${g.cur!=="EUR"?" = "+fe(g.eur):""}</td></tr><tr><td>Categoría</td><td>${esc(g.cat)}</td></tr><tr><td>Pagado con</td><td>${esc(g.pay)}</td></tr>${g.by?`<tr><td>Compartido · pagó</td><td>${esc(g.byName||g.by)}</td></tr><tr><td>Mi parte</td><td>${fe(g.eur/T.n)}</td></tr>`:""}</table>
      ${g.ll?`<a class="btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none;color:inherit" href="https://www.openstreetmap.org/?mlat=${g.ll[0]}&mlon=${g.ll[1]}#map=18/${g.ll[0]}/${g.ll[1]}" target="_blank" rel="noopener">📍 Ver dónde fue</a>`:'<span class="sub">Sin ubicación guardada.</span>'}
      ${!g.by||g.by===em()?`<button class="btn red" id="del">Eliminar gasto</button>`:""}<button class="btn" id="cl">Cerrar</button>`,
      d=>{d.querySelector("#cl").onclick=()=>d.remove();const x=d.querySelector("#del");if(x)x.onclick=async()=>{if(x.dataset.arm!=="1"){x.dataset.arm="1";x.textContent="¿Eliminar? toca de nuevo";return}d.remove();await delGasto(g);toast("Eliminado")}})});
   // registrar
-  const amt=$("#amt");if(amt){amt.oninput=()=>{form.amt=amt.value;const a=parseFloat(amt.value.replace(",","."))||0;const cur=form.cur||curOfCity(cityOn(todayISO()));$("#save").disabled=!(a>0);$("#conv").textContent=a?(cur==="GBP"?`= ${fe(toEUR(a,cur))} · `:"")+clp(toEUR(a,cur)):"Toca el micrófono o escribe el monto"}}
+  const amt=$("#amt");if(amt){amt.oninput=()=>{form.amt=amt.value;const a=parseFloat(amt.value.replace(",","."))||0;const cur=form.cur||curOfCity(cityOn(todayISO()));$("#save").disabled=!(a>0);$("#conv").textContent=a?(cur!=="EUR"?`= ${fe(toEUR(a,cur))} · `:"")+clp(toEUR(a,cur)):"Toca el micrófono o escribe el monto"}}
   const com=$("#com");if(com){com.oninput=()=>{form.com=com.value;if(!form.cat){const sg=suggest(com.value);document.querySelectorAll("[data-cat]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cat===sg))}}}
   Q("[data-cur]",b=>b.onclick=()=>{form.cur=b.dataset.cur;render()});
   Q("[data-cat]",b=>b.onclick=()=>{form.cat=b.dataset.cat;render()});
@@ -292,7 +305,7 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
     const g={ts:Date.now(),d:today,amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:form.cat||suggest(form.com),pay:form.pay||(pays.includes("Global66")?"Global66":pays[0]),com:form.com.trim(),city,ll:form.loc?form.ll:null,shared:form.shared};
     sv.disabled=true;try{await addGasto(g);toast("✓ Guardado"+(navigator.onLine?"":" (se sincroniza con señal)"))}catch(e){toast("No se pudo guardar");sv.disabled=false;return}
     form={...form,amt:"",com:"",cat:null,shared:false};render()};
-  const rt=$("#retiro");if(rt)rt.onclick=()=>sheet(`<span class="eb">Retiro en cajero</span><div class="k2"><label class="fld">Monto<input id="rm" inputmode="decimal"></label><label class="fld">Moneda<select id="rc"><option value="EUR">€</option><option value="GBP" ${curOfCity(cityOn(todayISO()))==="GBP"?"selected":""}>£</option></select></label></div><label class="fld">Desde<select id="rp">${PAYS.filter(p=>p!=="Efectivo").map(p=>`<option>${p}</option>`).join("")}</select></label><span class="sub">Suma al efectivo; no cuenta como gasto. Elegir siempre cobrar en la moneda local.</span><button class="go" id="rok">Registrar retiro</button>`,
+  const rt=$("#retiro");if(rt)rt.onclick=()=>sheet(`<span class="eb">Retiro en cajero</span><div class="k2"><label class="fld">Monto<input id="rm" inputmode="decimal"></label><label class="fld">Moneda<select id="rc"><option value="EUR">€</option><option value="${T.c2.code}" ${curOfCity(cityOn(todayISO()))===T.c2.code?"selected":""}>${T.c2.sym}</option></select></label></div><label class="fld">Desde<select id="rp">${PAYS.filter(p=>p!=="Efectivo").map(p=>`<option>${p}</option>`).join("")}</select></label><span class="sub">Suma al efectivo; no cuenta como gasto. Elegir siempre cobrar en la moneda local.</span><button class="go" id="rok">Registrar retiro</button>`,
     d=>{d.querySelector("#rok").onclick=async()=>{const a=parseFloat(d.querySelector("#rm").value.replace(",","."))||0;if(!(a>0))return;const cur=d.querySelector("#rc").value;d.remove();
       const g={ts:Date.now(),d:todayISO(),amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:"Retiro",pay:d.querySelector("#rp").value,com:"Retiro de efectivo",city:cityOn(todayISO()),ll:form.ll,retiro:true,shared:false};
       await addGasto(g);toast("✓ Retiro registrado")}});
@@ -306,7 +319,7 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-mf]",b=>b.onclick=()=>{mapF=b.dataset.mf;render()});
   // ajustes
   const ss=$("#s-save");if(ss)ss.onclick=async()=>{const n=v=>parseFloat(String(v).replace(/\./g,"").replace(",","."))||0;const f=v=>parseFloat(String(v).replace(",","."))||0;
-    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),cashEUR:f($("#s-ce").value),cashGBP:f($("#s-cg").value),rateCLP:n($("#s-rc").value)||1100,rateGBP:f($("#s-rg").value)||1.17,
+    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),cashEUR:f($("#s-ce").value),[T.c2.ck]:f($("#s-cg").value),rateCLP:n($("#s-rc").value)||1100,[T.c2.rk]:f($("#s-rg").value)||T.c2.def,
       medios:[...document.querySelectorAll("[data-med]")].filter(x=>x.checked).map(x=>x.dataset.med)});toast("✓ Guardado")};
   Q("[data-delcat]",b=>b.onclick=()=>saveProf({cats:(P.cats||[]).filter(c=>c!==b.dataset.delcat)}));
   const out=$("#out");if(out)out.onclick=()=>window._au.U.signOut(window._au.auth)}
