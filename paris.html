@@ -2377,6 +2377,11 @@ const FK={att:"atracción o destino personal",esc:"escapada",show:"espectáculo 
 function findBtn(kind,city){return `<button type="button" class="btn sm findbtn" data-find="${kind}|${city||""}">🔎 Buscar y agregar ${FK[kind]}</button>`}
 const VB={PA:"2.22,48.92,2.47,48.80",LO:"-0.35,51.62,0.10,51.40"};
 async function wikiFor(title,lang){try{const u=`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&titles=${encodeURIComponent(title)}&prop=extracts|pageimages|info&exintro=1&explaintext=1&exsentences=4&piprop=thumbnail&pithumbsize=400&inprop=url`;const j=await (await fetch(u)).json();const p=Object.values(j.query.pages)[0];if(!p||p.missing!=null)return null;return {t:p.title,x:p.extract||"",img:p.thumbnail&&p.thumbnail.source,url:p.fullurl,lang}}catch(e){return null}}
+const nrm=x=>String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const GEN=new Set("museo musee museum tienda shop store boutique cafe restaurant restaurante bar pub place plaza street rue avenue church iglesia eglise park parque jardin garden gallery galeria galerie london paris londres the les des del de la le los las saint sainte market mercado marche hotel house casa".split(" "));
+const keyW=n=>nrm(n).split(/[^a-z0-9]+/).filter(w=>w.length>=4&&!GEN.has(w));
+const relevant=(name,title)=>{const k=keyW(name);if(!k.length)return nrm(title).includes(nrm(name));const t=nrm(title);return k.some(w=>t.includes(w))};
+async function wikiCands(name,ctx){const out=[];for(const lang of ["es","en"]){try{const j=await (await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srlimit=5&srsearch=${encodeURIComponent(name+" "+(ctx||""))}`)).json();j.query.search.forEach(h=>{if(relevant(name,h.title)&&!out.some(o=>nrm(o.t)===nrm(h.title)))out.push({t:h.title,lang})})}catch(e){}}return out.slice(0,5)}
 async function wikiSearch(q){for(const lang of ["es","en"]){try{const j=await (await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srlimit=1&srsearch=${encodeURIComponent(q)}`)).json();const h=j.query.search[0];if(h){const w=await wikiFor(h.title,lang);if(w)return w}}catch(e){}}return null}
 async function runFind(){const F=FIND;if(!F||!F.q.trim())return;F.busy=true;F.err="";F.res=null;F.pick=null;render();
   try{const vb=F.kind!=="esc"&&VB[F.city]?`&viewbox=${VB[F.city]}&bounded=1`:"";
@@ -2387,17 +2392,19 @@ async function runFind(){const F=FIND;if(!F||!F.q.trim())return;F.busy=true;F.er
   F.busy=false;render()}
 const guessT=r=>r.cat==="shop"||r.cat==="building"||r.cat==="place"||/house|residential|apartments|shop|office/.test(r.typ)?"otr":/museum|gallery/.test(r.typ)?"mus":r.typ==="place_of_worship"||/church|cathedral/.test(r.typ)?"igl":/monument|memorial|castle|viewpoint|tower|palace|attraction/.test(r.typ)||r.cat==="historic"?"mon":/park|garden|market|square/.test(r.typ)||r.cat==="leisure"?"pas":/theatre|cinema|arts_centre|nightclub|stadium|zoo|theme_park|aquarium/.test(r.typ)?"ent":"pas";
 async function pickFind(i){const F=FIND,r=F.res[i];F.pick={...r,load:true};render();
-  let w=null;const wt=r.et.wikipedia;if(wt&&wt.includes(":")){const [l,t]=wt.split(/:(.+)/);if(l==="es"||l==="en")w=await wikiFor(t,l)}
-  if(!w)w=await wikiSearch(r.n+" "+(r.city||""));
+  let w=null,alts=[];const wt=r.et.wikipedia;if(wt&&wt.includes(":")){const [l,t]=wt.split(/:(.+)/);if(l==="es"||l==="en")w=await wikiFor(t,l)}
+  if(!w&&guessT(r)!=="otr"){alts=await wikiCands(r.n,r.city);if(alts[0])w=await wikiFor(alts[0].t,alts[0].lang)}
+  if(w&&!relevant(r.n,w.t)&&!(wt&&nrm(wt).includes(nrm(w.t))))w=null;
   const flag=r.cc?String.fromCodePoint(...[...r.cc.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"📍";
-  F.pick={...r,load:false,w,flag,t:guessT(r),s:w?w.x.split(/(?<=\.)\s/).slice(0,3).join(" "):"",u:r.et.website||(w&&w.url)||"",oh:r.et.opening_hours||"",in:/museum|gallery|church|cathedral|place_of_worship|theatre|cinema/.test(r.typ)?1:0};render()}
+  F.pick={...r,load:false,w,alts,flag,t:guessT(r),s:w?w.x.split(/(?<=\.)\s/).slice(0,3).join(" "):(FIND.q||r.n),u:r.et.website||(w&&w.url)||"",oh:r.et.opening_hours||"",in:/museum|gallery|church|cathedral|place_of_worship|theatre|cinema/.test(r.typ)?1:0};render()}
 function findSheet(){const F=FIND;if(!F)return"";const city=F.city||"PA";const P=F.pick;
   const cityPick=F.kind!=="esc"?`<div class="seg" role="group" aria-label="Ciudad"><button type="button" data-fcity="PA" aria-pressed="${city==="PA"}">París</button><button type="button" data-fcity="LO" aria-pressed="${city==="LO"}">Londres</button></div>`:"";
   let body="";
   if(F.busy)body=`<p class="muted">Buscando…</p>`;
   else if(F.err)body=`<p class="status bad">${F.err}</p>`;
   if(P&&P.load)body=`<p class="muted">Obteniendo datos de ${esc(P.n)}…</p>`;
-  else if(P){const w=P.w;body=`<div class="fpick">${w&&w.img?`<img src="${w.img}" alt="${esc(P.n)}" class="fimg">`:""}<div style="min-width:0"><b class="fpn">${P.flag||""} ${esc(P.n)}</b><small class="muted">${esc(P.addr)}</small>${w?`<small class="muted">Descripción: Wikipedia (${w.lang}) · <a href="${w.url}" target="_blank" rel="noopener">${esc(w.t)}</a></small>`:""}${P.oh?`<small class="muted">Horario (OpenStreetMap): ${esc(P.oh)}</small>`:""}</div></div>
+  else if(P){const w=P.w;body=`<div class="fpick">${w&&w.img?`<img src="${w.img}" alt="${esc(P.n)}" class="fimg">`:""}<div style="min-width:0"><b class="fpn">${P.flag||""} ${esc(P.n)}</b><small class="muted">${esc(P.addr)}</small>${w?`<small class="muted">Descripción: Wikipedia (${w.lang}) · <a href="${w.url}" target="_blank" rel="noopener">${esc(w.t)}</a></small>`:`<small class="muted">Sin descripción de Wikipedia: escriban la suya.</small>`}
+   ${(P.alts||[]).length||w?`<label class="f fwk">¿Es esta la descripción correcta?<select data-fwk><option value="">Ninguna · usar solo mi texto</option>${(P.alts||[]).concat(w&&!(P.alts||[]).some(a=>a.t===w.t)?[{t:w.t,lang:w.lang}]:[]).map((a,i)=>`<option value="${a.lang}|${esc(a.t)}" ${w&&a.t===w.t?"selected":""}>${esc(a.t)} (Wikipedia ${a.lang})</option>`).join("")}</select></label>`:""}${P.oh?`<small class="muted">Horario (OpenStreetMap): ${esc(P.oh)}</small>`:""}</div></div>
     <form class="fform" data-fform>
      <label class="f">Nombre<input name="n" value="${esc(P.n)}" required></label>
      <label class="f wide">Descripción (pueden editarla)<textarea name="s" rows="4">${esc(P.s)}</textarea></label>
@@ -2431,6 +2438,7 @@ function bindFind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-fsearch]",f=>f.onsubmit=e=>{e.preventDefault();FIND.q=f.q.value;runFind()});
   Q("[data-fpick]",b=>b.onclick=()=>pickFind(+b.dataset.fpick));
   Q("[data-funpick]",b=>b.onclick=()=>{FIND.pick=null;render()});
+  Q("[data-fwk]",x=>x.onchange=async()=>{const P=FIND.pick;if(!x.value){P.w=null;P.s=FIND.q||P.n;P.u=P.et.website||"";render();return}const [l,t]=x.value.split(/\|(.+)/);const w=await wikiFor(t,l);if(w){P.w=w;P.s=w.x.split(/(?<=\.)\s/).slice(0,3).join(" ");if(!P.et.website)P.u=w.url}render()});
   Q("[data-fform]",f=>f.onsubmit=e=>{e.preventDefault();saveFind(new FormData(f))});
   Q("[data-fdel]",b=>b.onclick=()=>{if(!b.dataset.sure){b.dataset.sure=1;b.textContent="¿seguro? toca otra vez";return}const [k,id]=b.dataset.fdel.split("|");const c=ST.custom||{};c[k]=(c[k]||[]).filter(x=>x.id!==id);if(ST.paSel)delete ST.paSel[id];ST.esc=ST.esc.filter(e=>e.id!==id);save();render();toast("Quitado de la lista")})}
 
