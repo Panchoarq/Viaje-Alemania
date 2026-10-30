@@ -955,6 +955,7 @@ span.tc-d{cursor:default}
 .fform .f input,.fform .f select,.fform .f textarea{font:15px var(--f-body);padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
 .fform .wide{grid-column:1/-1}.fform .chk{flex-direction:row;align-items:center}
 .cust{margin:8px 0}
+.lunchsel{max-width:170px;font-size:12.5px}.fguide h4{font:700 15px var(--f-body)}.manf{margin-top:8px}.manf summary{cursor:pointer;font-weight:600}.fcust .ftbl td{vertical-align:top}
 </style>
 </head>
 <body>
@@ -2070,13 +2071,85 @@ const BARRIOS=[
   ["🍽 Comer",[["Marché Saint-Germain","mercado techado: fruta, queso y algo para picnic (cerrado lunes)"],["Freddy's (rue de Seine)","platitos y vino; pizarra de temporada"],["Les Deux Magots o Café de Flore","caro para lo que es: solo un chocolate caliente por la experiencia"]]],
   ["📸 Gratis o casi",[["Jardín de Luxemburgo","picnic, veleritos del estanque y vista a la Torre Eiffel"],["La Grande Épicerie (Le Bon Marché)","mirar los productos franceses; comprar mantequilla o té de regalo"],["Marin Montagut (rue Madame)","souvenirs ilustrados (cerrado fines de semana)"]]]]}];
 let foodCity="PA";
-function pFood(A){const C=[A.C.find(c=>c.k==="PA"),...A.C.filter(c=>c.e).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===foodCity))foodCity="PA";
+// ===== Guía de comida económica por lugar: callejera típica · barato · bistró de precio acotado (precios aprox. 2026 por persona; verificar) =====
+// [nombre, qué pedir, precio, búsqueda en mapa]
+const FOOD_G={
+ LO:{p:"Londres es caro para comer sentado, pero tiene muy buena comida al paso: mercados, «meal deals» de supermercado y cadenas buenas y baratas. Clásicos: fish & chips, sausage roll, pie con puré y el desayuno inglés.",c:[
+  ["🌭 Callejera y mercados",[["Borough Market","Puestos de comida del mundo; probar el sándwich de queso tostado o la paella","£8–14","Borough Market London"],["Camden Market","Comida callejera de todo el mundo junto al canal","£8–13","Camden Market London"],["Greggs","Sausage roll o empanada caliente, el clásico barato","£1,50–4","Greggs London"],["Mercado de Brick Lane / Beigel Bake","Bagel de carne salada (salt beef) abierto 24 h","£2–9","Beigel Bake Brick Lane"]]],
+  ["🥪 Barato (menos de £10)",[["«Meal deal» de supermercado (Tesco, Sainsbury's, Boots)","Sándwich + snack + bebida","£4–6","Tesco Express London"],["Pret a Manger","Sándwich o sopa y café","£6–10","Pret a Manger London"],["Franco Manca","Pizza de masa madre","£8–12","Franco Manca London"],["Chinatown","Dim sum o fideos en local sencillo","£8–12","Chinatown London"]]],
+  ["🍽 Bistró y pub (precio acotado)",[["Pub tradicional","Fish & chips o pie con puré","£15–20","pub fish and chips London"],["Poppies Fish & Chips","Fish & chips clásico en Spitalfields o Camden","£15–20","Poppies Fish and Chips"],["Dishoom","Comida india estilo café de Bombay (hay fila)","£20–30","Dishoom London"],["Flat Iron","Steak con papas a precio fijo","£15–20","Flat Iron London"],["The Breakfast Club","Desayuno inglés y brunch","£12–17","The Breakfast Club London"]]]]},
+ bru:{c:[["🌭 Callejera típica",[["Maison Antoine","Papas fritas belgas en cono con salsa","4–6 €","Maison Antoine Bruxelles"],["Maison Dandoy","Gofre de Bruselas o de Lieja","4–8 €","Maison Dandoy Bruxelles"],["Mer du Nord (Noordzee)","Pescado y mariscos al paso, de pie","8–15 €","Mer du Nord Noordzee Bruxelles"]]],
+  ["🥖 Barato",[["Chocolate en Galeries Royales Saint-Hubert","Bombones belgas por unidad","2–8 €","Galeries Royales Saint-Hubert"],["Sándwich en panadería","Pistolet relleno","5–8 €","boulangerie Bruxelles centre"]]],
+  ["🍽 Bistró de precio acotado",[["Chez Léon","Mejillones con papas (moules-frites)","22–30 €","Chez Leon Bruxelles"],["Délirium Café","Cervezas belgas (no es para comer barato)","4–7 € la cerveza","Delirium Cafe Bruxelles"],["Brujas · Chez Vincent","Papas fritas artesanales","4–6 €","Chez Vincent Brugge"]]]]},
+ ams:{c:[["🌭 Callejera típica",[["Albert Cuyp Markt","Stroopwafel recién hecho","3–4 €","Albert Cuyp Markt"],["Vleminckx Sausmeesters","Papas fritas con salsa","4–6 €","Vleminckx Sausmeesters"],["Stubbe's Haring","Arenque crudo en pan, típico holandés","4–6 €","Stubbe's Haring Amsterdam"]]],
+  ["🥖 Barato",[["Winkel 43","Tarta de manzana con crema","5–7 €","Winkel 43 Amsterdam"],["Foodhallen","Mercado techado con puestos variados","10–15 €","Foodhallen Amsterdam"]]],
+  ["🍽 Bistró de precio acotado",[["Pancakes Amsterdam","Panqueques holandeses dulces o salados","12–16 €","Pancakes Amsterdam"],["Eetcafé de barrio","Plato del día","16–24 €","eetcafe Amsterdam Jordaan"]]]]},
+ col:{c:[["🌭 Callejera típica",[["Puesto de Bratwurst","Salchicha en pan con mostaza","4–6 €","Bratwurst Koln Altstadt"],["Mercados de Navidad","Glühwein (vino caliente) y papas rösti","4–8 €","Weihnachtsmarkt am Kolner Dom"]]],
+  ["🥖 Barato",[["Bäckerei (panadería)","Brezel o sándwich","3–6 €","Backerei Koln Dom"]]],
+  ["🍽 Brauhaus de precio acotado",[["Früh am Dom","Plato típico + cerveza Kölsch","15–22 €","Fruh am Dom Koln"],["Brauhaus Sion","Codillo o schnitzel","15–22 €","Brauhaus Sion Koln"],["Peters Brauhaus","Cocina renana tradicional","15–22 €","Peters Brauhaus Koln"]]]]},
+ lil:{c:[["🌭 Callejera típica",[["Méert","Gofre relleno de vainilla, desde 1761","3–5 €","Meert Lille"],["Paul (local original)","Sándwich o viennoiserie; la cadena nació en Lille","5–9 €","Paul rue de Paris Lille"]]],
+  ["🍽 Estaminet de precio acotado",[["Au Vieux de la Vieille","Welsch o carbonnade flamande","15–22 €","Au Vieux de la Vieille Lille"],["Aux Moules","Mejillones con papas","18–25 €","Aux Moules Lille"]]]]},
+ rei:{c:[["🌭 Típico",[["Fossier","Biscuits roses de Reims (caja)","5–8 €","Fossier Reims"],["Waïda","Pastelería histórica","3–6 €","Waida Reims"]]],
+  ["🍽 Brasserie de precio acotado",[["Brasseries de Place Drouet-d'Erlon","«Formule» del mediodía","16–24 €","Place Drouet d'Erlon Reims"],["Le Bocal","Pescados y mariscos en una pescadería","15–25 €","Le Bocal Reims"]]]]},
+ str:{c:[["🌭 Callejera típica",[["Mercado de Navidad","Bretzel, bredele (galletas) y vino caliente","2–6 €","Christkindelsmarik Strasbourg"],["Panadería alsaciana","Kouglof o bretzel","2–5 €","boulangerie Strasbourg centre"]]],
+  ["🥖 Barato",[["Flam's","Tarte flambée (tipo pizza fina alsaciana) a voluntad","12–16 €","Flam's Strasbourg"]]],
+  ["🍽 Winstub de precio acotado",[["Au Pont Corbeau","Choucroute o baeckeoffe","18–25 €","Au Pont Corbeau Strasbourg"],["Colmar · winstub del centro","Tarte flambée o choucroute","15–22 €","winstub Colmar"]]]]},
+ lyo:{c:[["🌭 Típico",[["Pralus","Brioche con praliné rosa","5–8 €","Pralus Lyon"],["Les Halles Paul Bocuse","Mercado gourmet: quesos, embutidos, ostras","8–20 €","Les Halles de Lyon Paul Bocuse"]]],
+  ["🍽 Bouchon de precio acotado",[["Bouchon con «menu du midi»","Entrada + plato lyonés (quenelle, salchichón)","18–25 €","bouchon lyonnais menu midi Vieux Lyon"],["Café Comptoir Abel","Uno de los bouchons más antiguos","25–35 €","Cafe Comptoir Abel Lyon"]]]]},
+ dij:{c:[["🌭 Típico",[["Les Halles de Dijon","Mercado: quesos, jamón persillé, mostaza","5–15 €","Les Halles Dijon"],["Mulot & Petitjean","Pan de especias","4–8 €","Mulot Petitjean Dijon"],["Maille","Mostaza al grifo para llevar","5–15 €","Maille Dijon"]]],
+  ["🍽 Bistró de precio acotado",[["Bistró con «formule déjeuner»","Plato del día borgoñón (bœuf bourguignon, œufs en meurette)","16–24 €","bistrot Dijon centre"]]]]},
+ bdx:{c:[["🌭 Típico",[["Baillardran","Canelés (pastelito de Burdeos)","2–3 € c/u","Baillardran Bordeaux"],["Marché des Capucins","Ostras con copa de vino blanco en la barra","10–18 €","Marche des Capucins Bordeaux"]]],
+  ["🍽 Bistró de precio acotado",[["Bistró del barrio Saint-Pierre","«Formule» del mediodía","16–24 €","bistrot Saint-Pierre Bordeaux"]]]]},
+ loi:{c:[["🥖 Barato",[["Picnic de panadería","Sándwich, rillettes de Tours y queso de cabra","8–12 €","boulangerie Amboise"]]],
+  ["🍽 Crêperie y bistró",[["Crêperie en Amboise","Galette salada + crêpe","12–18 €","creperie Amboise"],["Restaurantes junto a los castillos","Menú del día (caro dentro de los castillos)","18–28 €","restaurant Chenonceaux"]]]]},
+ nor:{c:[["🌭 Típico",[["Crêperie","Galette + sidra normanda","12–18 €","creperie Rouen"],["Quesería","Camembert, livarot, neufchâtel para picnic","5–10 €","fromagerie Rouen"]]],
+  ["🍽 Bistró de precio acotado",[["Bistró en Rouen centro","«Formule» con plato normando (cerdo a la crema, sidra)","16–24 €","bistrot Rouen centre"],["Étretat · crêperie o fish & chips","Comida simple frente al mar","12–18 €","creperie Etretat"]]]]},
+ msm:{c:[["🥖 Barato",[["Sándwich y crêpes en la Grande Rue","Comida al paso dentro del pueblo","6–12 €","creperie Mont Saint Michel"]]],
+  ["🍽 Restaurante",[["La Mère Poulard","La famosa omelette (cara: es más experiencia que comida)","35–50 €","La Mere Poulard Mont Saint Michel"],["Restaurantes en La Caserne (tierra firme)","Menú más barato que en la isla","18–25 €","La Caserne Mont Saint Michel restaurant"]]]]},
+ gin:{c:[["🥖 Barato (Suiza es cara)",[["Migros o Coop (para llevar)","Ensaladas, sándwiches y platos calientes","CHF 8–15","Migros Geneve"],["Manor (food court)","Comida preparada al peso","CHF 12–18","Manor Geneve"]]],
+  ["🍽 Restaurante de precio acotado",[["Café du Soleil","Fondue de queso clásica","CHF 30–40","Cafe du Soleil Geneve"],["Annecy · tartiflette","Plato saboyano en la ciudad vieja","15–22 €","tartiflette Annecy vieille ville"]]]]},
+ ver:{c:[["🥖 Barato",[["Panaderías de la rue de Satory","Sándwich o quiche para picnic en el parque","8–12 €","boulangerie rue de Satory Versailles"]]],
+  ["🍽 Dentro del parque",[["La Petite Venise","Brasserie italiana junto al Gran Canal","20–30 €","La Petite Venise Versailles"],["Angelina (en el palacio)","Té y el famoso chocolate caliente","10–15 €","Angelina Chateau de Versailles"]]]]},
+ giv:{c:[["🍽 Restaurante",[["Ancien Hôtel Baudy","Antigua posada de pintores impresionistas (cerrado en invierno)","22–30 €","Ancien Hotel Baudy Giverny"]]]]},
+ fon:{c:[["🥖 Barato",[["Panaderías de la Grande Rue","Sándwich o «formule» de panadería","8–12 €","boulangerie Fontainebleau"]]],
+  ["🍽 Bistró de precio acotado",[["Bistró frente al castillo","«Formule» del mediodía","16–24 €","bistrot Fontainebleau chateau"]]]]},
+ cha:{c:[["🌭 Típico",[["Crema Chantilly","Probarla sobre fresas o un barquillo","5–10 €","creme Chantilly chateau"]]],
+  ["🍽 Restaurante",[["La Capitainerie (en el castillo)","Cocina tradicional con crema Chantilly de postre","25–35 €","La Capitainerie Chantilly"]]]]}
+};
+
+function daysFor(key){const A=window.LAST_A;if(!A)return[];return A.days.filter(d=>key==="PA"?d.city==="PA"&&d.kind!=="final":key==="LO"?d.city==="LO":d.c&&d.c.id===key)}
+function lunchSel(name,key){const ds=daysFor(key);if(!ds.length)return"";const L=ST.lunchAt||{};const cur=ds.find(d=>L[d.id]===name);
+  return `<select class="daysel lunchsel" data-lunchpick="${esc(name)}|${key}" aria-label="Almorzar en ${esc(name)} el día"><option value="">🍽 almorzar aquí el…</option>${ds.map(d=>`<option value="${d.id}" ${cur&&cur.id===d.id?"selected":""}>${pretty(d.d)}</option>`).join("")}${cur?`<option value="-">✕ quitar</option>`:""}</select>`}
+const mlinkQ=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+function foodGuide(key){const G=FOOD_G[key];if(!G)return"";
+  return `<div class="card buy fguide"><span class="eyebrow">Comer bien y barato · precios aproximados por persona</span>${G.p?`<p>${G.p}</p>`:""}
+   ${G.c.map(([t,L])=>`<h4 style="margin:12px 0 4px">${t}</h4><div class="tbl-wrap"><table class="ftbl lunch"><tbody>${L.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small class="muted">${esc(r[1])}</small><br><a href="${mlinkQ(r[3])}" target="_blank" rel="noopener">mapa</a></td><td class="r num"><b>${esc(r[2])}</b></td><td class="r">${lunchSel(r[0],key)}</td></tr>`).join("")}</tbody></table></div>`).join("")}
+   <p class="note">Selección de lugares conocidos y económicos; precios aproximados 2026, verificar en el lugar.</p></div>`}
+function foodCustomCard(key){const L=((ST.custom||{}).food||[]).filter(x=>(x.city||"PA")===key);
+  return `<div class="card buy fcust"><span class="eyebrow">Lugares agregados por ustedes</span>
+   ${L.length?`<div class="tbl-wrap"><table class="ftbl lunch"><tbody>${L.map(x=>`<tr><td><b>${esc(x.n)}</b>${x.ft?` <span class="tag">${esc(x.ft)}</span>`:""}<br><small class="muted">${esc(x.addr||"")}${x.s&&x.s!==x.n?" · "+esc(x.s):""}</small><br>${x.ll?`<a href="${mlinkQ(x.ll.join(","))}" target="_blank" rel="noopener">mapa</a> · `:""}<button type="button" class="lnkb" data-fdel="food|${x.id}">quitar</button></td><td class="r num"><b>${esc(x.pr||"")}</b></td><td class="r">${lunchSel(x.n,key)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted" style="font-size:14px">Todavía no agregan lugares aquí.</p>`}
+   <details class="manf"><summary>✍ Agregar un lugar a mano (restaurante, café, local de una amiga…)</summary>
+    <form class="fform" data-foodman="${key}"><label class="f">Nombre<input name="n" required placeholder="Ej.: Bistrot Paul Bert"></label><label class="f">Tipo<select name="ft"><option>Restaurante</option><option>Bistró</option><option>Café</option><option>Panadería / boulangerie</option><option>Comida callejera</option><option>Comida rápida</option><option>Pub</option><option>Mercado</option></select></label><label class="f">Precio aprox. por persona<input name="pr" placeholder="Ej.: 15–20 €"></label><label class="f wide">Dirección (opcional)<input name="addr" placeholder="Para ubicarlo en el mapa"></label><label class="f wide">Nota (opcional)<input name="s" placeholder="Ej.: pedir el plato del día"></label><div class="act wide"><button type="submit" class="btn sm">＋ Agregar a Comidas</button></div></form></details>
+   ${key==="PA"||key==="LO"?findBtn("food",key):""}</div>`}
+async function saveFoodMan(f){const key=f.dataset.foodman;const g=k=>(f[k]&&f[k].value||"").trim();const n=g("n");if(!n)return;const b=f.querySelector("button[type=submit]");b.disabled=true;b.textContent="Guardando…";
+  let ll=null,addr=g("addr");const ctx=key==="PA"?"Paris":key==="LO"?"London":((ESC.find(x=>x.id===key)||{}).n||"");
+  if(addr){try{const j=await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(addr+", "+ctx)}`)).json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];addr=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
+  const c=ST.custom=ST.custom||{};(c.food=c.food||[]).push({id:"cf"+Date.now().toString(36),n,city:key,ft:g("ft"),pr:g("pr"),addr,ll,s:g("s"),u:"",by:(user&&user.email)||""});save();render();toast(`✔ <b>${esc(n)}</b> agregado a Comidas · pueden elegirlo como almuerzo de cualquier día`)}
+function bindFood2(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  Q("[data-lunchpick]",x=>x.onchange=()=>{const [name,key]=x.dataset.lunchpick.split(/\|(?=[^|]*$)/);ST.lunchAt=ST.lunchAt||{};daysFor(key).forEach(d=>{if(ST.lunchAt[d.id]===name&&x.value!==d.id)delete ST.lunchAt[d.id]});if(x.value&&x.value!=="-"){ST.lunchAt[x.value]=name;const d=daysFor(key).find(z=>z.id===x.value);toast(`🍽 Almuerzo en <b>${esc(name)}</b> el ${d?pretty(d.d):""}`)}save();render()});
+  Q("[data-foodman]",f=>f.onsubmit=e=>{e.preventDefault();saveFoodMan(f)});
+  Q("[data-addlunchn]",b=>b.onclick=()=>{ST.lunchAt=ST.lunchAt||{};ST.lunchAt[addDay]=b.dataset.addlunchn;const n=b.dataset.addlunchn;addDay=null;save();render();toast(`🍽 Almuerzo en <b>${esc(n)}</b>`)});
+  Q("[data-lunchfree]",f=>f.onsubmit=e=>{e.preventDefault();const n=f.n.value.trim();if(!n)return;ST.lunchAt=ST.lunchAt||{};ST.lunchAt[addDay]=n;addDay=null;save();render();toast(`🍽 Almuerzo en <b>${esc(n)}</b>`)})}
+
+function pFood(A){const C=[...(lonDays().length?[{k:"LO",n:"Londres"}]:[]),A.C.find(c=>c.k==="PA"),...A.C.filter(c=>c.e).filter((c,i,a)=>a.findIndex(z=>z.id===c.id)===i)];if(!C.some(c=>c.k===foodCity))foodCity="PA";
   const fs=ST.foodStyle==="fast";const daily=(PA_MEAL.d[0][1]+3*PA_MEAL.d[2][1])/4+["a","c"].reduce((t,k)=>t+PA_MEAL[k][fs?1:0][1],0);
-  let h=`${findBtn("food","PA")}${customList("food","PA").replace("Agregados por ustedes","Agregados por ustedes · París")}${customList("food","LO").replace("Agregados por ustedes","Agregados por ustedes · Londres")}<div class="card cfg"><div class="field"><span>Estilo de comida (por defecto en todos los días)</span><div class="seg" role="group"><button type="button" data-food="fast" aria-pressed="${fs}">Comida rápida</button><button type="button" data-food="local" aria-pressed="${!fs}">Bistró y boulangerie</button></div></div>
+  let h=`<div class="card cfg"><div class="field"><span>Estilo de comida (por defecto en todos los días)</span><div class="seg" role="group"><button type="button" data-food="fast" aria-pressed="${fs}">Comida rápida</button><button type="button" data-food="local" aria-pressed="${!fs}">Bistró y boulangerie</button></div></div>
    <p class="muted" style="font-size:13.5px;margin:0;align-self:end">Desayuno en la casa (1 de cada 4 días en boulangerie), ${fs?"almuerzo crêpe o sándwich, cena al paso":"almuerzo «formule» de bistró, cena en bistró de barrio"} ≈ <b>${fmt(daily)}</b> por persona al día. Cada día se puede cambiar en 2 · Programa → Comidas.</p></div>
    <div class="attbar" role="group" aria-label="Lugar">${C.map(c=>`<button type="button" class="btn ${c.k===foodCity?"":"alt"}" data-foodc="${c.k}" aria-pressed="${c.k===foodCity}">${short(c.n)}</button>`).join("")}</div>`;
   const mlink=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-  if(foodCity==="PA"){
+  const fkey=foodCity==="PA"||foodCity==="LO"?foodCity:(C.find(z=>z.k===foodCity)||{}).id;
+  if(foodCity==="LO"){h+=foodGuide("LO")+foodCustomCard("LO");return h+`<p class="note">Precios aproximados por persona, 2026; verificar en el lugar. En Londres se paga en libras.</p>`}
+  if(foodCity==="PA"){h+=foodCustomCard("PA");
     h+=`<div class="card buy"><span class="eyebrow">✓ Precios verificados · almuerzo francés rápido y barato</span><h3>Bouillons, crêpes y bistrós de menú único</h3>
      <p>Los <b>bouillons</b> son comedores tradicionales franceses con platos clásicos (huevo mayo, salchicha con puré, bœuf bourguignon) a precio bajo y servicio rápido. La mayoría <b>no toma reservas</b>: llegar 12:00–12:30 o después de las 14:00.</p>
      <div class="tbl-wrap"><table class="ftbl lunch"><thead><tr><th>Lugar</th><th>Qué se pide</th><th class="r">Precio p/p</th></tr></thead><tbody>${LUNCH_V.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small class="muted">${r[1]}</small><br><a href="${mlink(r[6])}" target="_blank" rel="noopener">mapa</a> · <a href="${r[5]}" target="_blank" rel="noopener">fuente: ${r[4]}</a></td><td>${r[2]}</td><td class="r num"><b>${esc(r[3])}</b></td></tr>`).join("")}</tbody></table></div>
@@ -2085,6 +2158,7 @@ function pFood(A){const C=[A.C.find(c=>c.k==="PA"),...A.C.filter(c=>c.e).filter(
      ${BARRIOS.map(b=>`<div class="card buy"><span class="eyebrow">Guía de barrio · solo opciones económicas</span><h3>${b.n}</h3>${b.g.map(g=>`<h4 style="margin:10px 0 2px">${g[0]}</h4><ul class="brief">${g[1].map(x=>`<li><b>${x[0]}</b>: ${x[1]} · <a href="${mlink(x[0]+" "+b.n+" Paris")}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul>`).join("")}<p class="note">Selección de <a href="${b.u}" target="_blank" rel="noopener">Everyday Parisian</a>, sin hoteles, spas ni tiendas caras. La guía no publica precios.</p></div>`).join("")}
      <div class="card buy"><span class="eyebrow">Recomendados en París</span><h3>Dónde comer</h3><ul class="brief">${PLACES_PA.map(p=>`<li><b>${p[0]}</b> <span class="tag">${p[1]}</span> <span class="tag">${p[2]}</span><br>${p[3]} <a href="${mlink(p[4])}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul></div>`}
   else{const c=C.find(z=>z.k===foodCity),F=FOOD_ESC[c.id];
+    h+=foodGuide(c.id)+foodCustomCard(c.id);
     h+=F?`<div class="fichas"><article class="ficha"><div class="ftab">COMIDAS · ${short(c.n).toUpperCase()}</div><header><h3>${c.p} ${c.n}</h3></header><p class="flead">${F.p}</p><table class="ftbl"><tbody>${F.r.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join("")}</tbody></table>
      <div><span class="flab">Dónde</span><ul class="brief">${F.l.map(l=>`<li>${l[0]} · <a href="${mlink(l[1])}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul></div></article></div>`:`<p class="note">Sin datos de comida para ${c.n}.</p>`}
   return h+`<p class="note">Precios aproximados por persona, 2026; verificar en el lugar. En Suiza se paga en francos (CHF).</p>`}
@@ -2123,12 +2197,13 @@ async function savePer(f){const [d,city]=f.dataset.perform.split("|");const g=k=
   toast(`✔ <b>${esc(n)}</b> agregada al ${pretty(d)}${addr&&!ll?" · no encontré la dirección: quedó sin traslado":""}`)}
 function addSheet(){if(!addDay)return"";const lo=addDay.startsWith("L"),d=addDay.replace(/^L/,"");let list="";
   if(addTyp==="per"){const L=(lo?LON:PA).filter(a=>typOf(a)==="per"&&!selOf(a));list=perForm(d,lo)+(L.length?`<span class="eyebrow" style="margin-top:10px">Personalizadas anteriores</span>`+L.map(a=>`<div class="addrow"><span><b>${esc(a.n)}</b><small>~${String(a.h).replace(".",",")} h · ${esc(a.v||"")}</small></span><button type="button" class="btn sm" data-addact="${a.id}">Agregar</button></div>`).join(""):"")}
-  else if(addTyp==="com")list=LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
+  else if(addTyp==="com"&&lo){const G=[...FOOD_G.LO.c.flatMap(c=>c[1]).map(r=>[r[0],r[1],r[2]]),...((ST.custom||{}).food||[]).filter(x=>x.city==="LO").map(x=>[x.n,x.ft||"",x.pr||""])];list=`<form class="fsearch" data-lunchfree><input name="n" placeholder="Otro lugar: escriban el nombre" aria-label="Nombre del lugar"><button type="submit" class="btn sm">Almorzar aquí</button></form>`+G.map(r=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${esc(r[1])} · ${esc(r[2])}</small></span><button type="button" class="btn sm" data-addlunchn="${esc(r[0])}">Almorzar aquí</button></div>`).join("")}
+  else if(addTyp==="com")list=`<form class="fsearch" data-lunchfree><input name="n" placeholder="Otro lugar: escriban el nombre" aria-label="Nombre del lugar"><button type="submit" class="btn sm">Almorzar aquí</button></form>`+LUNCH_V.map((r,i)=>`<div class="addrow"><span><b>${esc(r[0])}</b><small>${r[1]} · ${r[3]}</small></span><button type="button" class="btn sm" data-addlunch="${i}">Almorzar aquí</button></div>`).join("");
   else if(addTyp==="via"){const ok=x=>!overlap(d,d);list=ESC.filter(x=>x.k!=="noche").map(x=>`<div class="addrow"><span><b>${x.p} ${x.n}</b><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":"día o 1 noche"}</small></span><button type="button" class="btn sm" data-addtrip="${x.id}" ${ok(x)?"":"disabled"}>Ir este día</button></div>`).join("")+`<p class="muted" style="font-size:13px">Las escapadas con noches se agregan en 4 · Escapadas.</p>`}
   else{const L=(lo?LON:PA).filter(a=>!selOf(a)&&typOf(a)===addTyp);list=L.map(a=>{const N=nearDays(a.id);const alt=Object.entries(N).filter(([dd,v])=>dd!==d&&v.fits).sort((x,y)=>x[1].k-y[1].k)[0];const here=N[d];return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}${here?`<small class="okl">★ Este día ya visitan ${here.n}, a ~${here.min} min a pie.</small>`:alt?`<small class="hint">💡 El ${pretty(alt[0])} visitan ${alt[1].n}, a ~${alt[1].min} min a pie. <button type="button" class="lnkb" data-addactd="${a.id}|${alt[0]}">Ponerlo ese día</button></small>`:""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${a.in?" · 🏛 techado":""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""} · ${a.s}</small></span><button type="button" class="btn sm" data-addact="${a.id}" ${a.cl&&a.cl.includes(D(d).getDay())?"disabled title=\"Cerrado ese día\"":""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`}
   return `<div class="fov" data-aclose="1"><article class="fsheet" style="--c:${lo?LO_C:PA_C}" role="dialog" aria-label="Agregar actividad"><button type="button" class="btn alt sm fx" data-aclose="1" aria-label="Cerrar">✕</button>
    <span class="eyebrow">${pretty(d)} · ${lo?"Londres":"París"}</span><h2>Agregar actividad</h2>
-   <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.filter(t=>!lo||!["com","via"].includes(t[0])).map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}</div>
+   <div class="filters" style="margin:4px 0 10px;flex-wrap:wrap">${TYP.filter(t=>!lo||t[0]!=="via").map(([k,t])=>`<button type="button" class="chip" data-addtyp="${k}" aria-pressed="${addTyp===k}">${t}</button>`).join("")}</div>
    <div class="addlist">${list}</div></article></div>`}
 // ---------- planos del día con calles (OpenStreetMap) y zonas de precaución achuradas ----------
 let _hz=0;
@@ -2333,7 +2408,9 @@ buy:{t:"Trámites previos: lista antes de viajar",i:"Todo lo que conviene compra
 food:{t:"Comidas: dónde y cuánto",i:"Sugerencias de comida por lugar y precios aproximados.",s:[
  ["Estilo por defecto","Elijan «Comida rápida» o «Bistró y boulangerie»: cambia el costo diario estimado de todo el viaje."],
  ["Desayuno","Por defecto en la casa, con un desayuno en boulangerie cada 4 días."],
- ["Ideas por lugar","Pestañas por ciudad y escapada con lugares verificados, platos típicos y precios."],
+ ["Ideas por lugar","Pestañas <b>Londres</b>, <b>París</b> y cada escapada elegida: comida callejera típica, opciones baratas y bistrós de precio acotado, con precio aproximado y mapa."],
+ ["Elegir dónde almorzar","Junto a cada lugar, el selector <b>«🍽 almorzar aquí el…»</b> lo deja como almuerzo de ese día (aparece en el programa). También desde un día: «+ Agregar actividad a este día» → Restaurantes, o escribiendo el nombre de cualquier lugar."],
+ ["Agregar sus lugares","En «Lugares agregados por ustedes»: <b>«✍ Agregar un lugar a mano»</b> (nombre, tipo, precio y dirección opcional) o «🔎 Buscar y agregar». Quedan para las dos y se pueden elegir como almuerzo."],
  ["Buscar y agregar","¿Tienen una idea que no está? Toquen <b>«🔎 Buscar y agregar»</b>, elijan la ciudad, escriban el nombre o la dirección y elijan el resultado correcto. Completen precio, horas y horario si los saben (la búsqueda casi nunca los trae). Para quitarlo, «quitar de la lista». Al elegir el resultado, la app trae ubicación, descripción, sitio web y horario, y queda en la lista para las dos (con opción de sumarlo al programa)."],
  ["Cambiar un día","Cada comida de cada día se ajusta en 2 · Programa → Comidas."]]},
 gas:{t:"Gastos: presupuesto y gasto real",i:"El presupuesto que estima el programa y el registro del gasto real.",s:[
@@ -2371,7 +2448,7 @@ function applyCustom(){const c=ST.custom||{};
   LON.length=0;LON.push(...LON0,...acts.filter(a=>a.city==="LO"));
   ESC.length=0;ESC.push(...ESC0,...(c.esc||[]).map(x=>{EXT[x.id]={ll:x.ll,cost:x.cost||"por definir",how:x.how||"Revisar en SNCF Connect o Trainline.",f:{h:x.s||"",v:x.vv||[]}};return {id:x.id,n:x.n,p:x.p||"📍",k:x.k,tr:x.tr||"por definir",nt:x.nt||"1",c:"#6b5d43",t:x.s||"",tags:[],cu:1}}));
   SHOWS.length=0;SHOWS.push(...SHOWS0,...(c.show||[]).map(x=>({n:x.n,w:x.city==="LO"?"Londres":"París",e:"⭐",ini:x.from||"2026-01-01",fin:x.to||"2027-12-31",al:!x.from,t:x.s||"",d:x.d||"",u:x.u||"",act:x.ll?x.id:null,cu:1})));
-  LUNCH_V.length=0;LUNCH_V.push(...LUNCH0,...(c.food||[]).filter(x=>x.city!=="LO").map(x=>[x.n,(x.ft||"Restaurante")+" · "+(x.addr||""),x.s||"",x.pr||"",x.src||"Agregado por ustedes",x.u||"",x.n+" "+(x.addr||"Paris")]))}
+  LUNCH_V.length=0;LUNCH_V.push(...LUNCH0,...(c.food||[]).filter(x=>(x.city||"PA")==="PA").map(x=>[x.n,(x.ft||"Restaurante")+" · "+(x.addr||""),x.s||"",x.pr||"",x.src||"Agregado por ustedes",x.u||"",x.n+" "+(x.addr||"Paris")]))}
 let FIND=null;// {kind,city,q,res,busy,err,pick}
 const FK={att:"atracción o destino personal",esc:"escapada",show:"espectáculo o evento",food:"lugar para comer"};
 function findBtn(kind,city){return `<button type="button" class="btn sm findbtn" data-find="${kind}|${city||""}">🔎 Buscar y agregar ${FK[kind]}</button>`}
@@ -2447,7 +2524,7 @@ function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();setTimeout(()=>initMaps(A),0);
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
