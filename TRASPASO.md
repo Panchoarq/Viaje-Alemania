@@ -57,3 +57,10 @@ Firebase 10.12.2 (CDN gstatic), MapLibre GL 4.7.1 + tiles OpenFreeMap con estilo
 
 ## Pruebas
 Playwright con Chromium (headless). Probar escritorio y celular, sin errores de consola, y comparar capturas contra la versión actual.
+
+## Estado de la migración al motor v2 (2026-10-31)
+- `/v2/paris`: motor original con datos separados (`v2/engine.js`, `v2/trips/paris*.js`). Sin cambios.
+- `/v2/alemania` (`v2/alemania.html` + `v2/alemania.js`): página sobre el módulo genérico `v2/city.js` (fechas, organizador, costos) y `v2/mapa.js` (plano con calles). Datos: `v2/trips/alemania.js` (tramos), `alemania.confirmado.js` (valores confirmados por Francisco: alojamientos, días, trenes; solo lectura) y `alemania.data.js` (contenido copiado de `alemania.html`).
+- Pestañas: Configurar (con calendario), Programa (plano por día), Atracciones (fichas), Comidas, Alojamiento, Pasajes, Trámites previos, Costos; enlace a `/gastos?trip=alemania`.
+- Guardado: Google + Firestore `trips/alemania` (campos de `CAMPOS` en `alemania.js`); con `?demo` solo localStorage. No toca `plan/estado`.
+- Pendiente: probar guardado real (reglas de `trips/alemania`), 3 correos de Alemania, nombres reales de los viajeros, comparación con capturas contra `/alemania`, y el motor de París sobre el módulo genérico. `/alemania` y `/paris` siguen siendo las versiones en uso.
