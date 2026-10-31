@@ -48,32 +48,32 @@ function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><im
 
 // ===== Resumen: línea de tiempo + calendario =====
 function timeline(){const W=ST.wiz,it=[];
-  if(W.ida_fecha)it.push([W.ida_fecha,"✈ Santiago → Londres",[W.ida_vuelo,W.ida_aerop&&"llega a "+W.ida_aerop].filter(Boolean).join(" · ")]);
-  if(W.ida_llega)it.push([W.ida_llega,"🇬🇧 Londres con Alli",[W.lon_dir,W.eur_fecha&&nights(W.ida_llega,W.eur_fecha)+" noches"].filter(Boolean).join(" · ")]);
-  if(W.eur_fecha)it.push([W.eur_fecha,"🚄 Londres → París (inicio del viaje)",[W.eur_hora,W.eur_tren].filter(Boolean).join(" · ")]);
+  if(W[K.ini])it.push([W[K.ini],"✈ Santiago → Londres",[W.ida_vuelo,W.ida_aerop&&"llega a "+W.ida_aerop].filter(Boolean).join(" · ")]);
+  if(W[K.llega])it.push([W[K.llega],"🇬🇧 Londres con Alli",[W[K.lonDir],W[K.parIni]&&nights(W[K.llega],W[K.parIni])+" noches"].filter(Boolean).join(" · ")]);
+  if(W[K.parIni])it.push([W[K.parIni],"🚄 Londres → París (inicio del viaje)",[W.eur_hora,W.eur_tren].filter(Boolean).join(" · ")]);
   [...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini)).forEach(e=>{const x=ESC.find(z=>z.id===e.id);if(!x)return;it.push([e.ini,`${x.p} ${x.n}`,e.fin===e.ini?"Excursión de un día":`${nights(e.ini,e.fin)} noche${nights(e.ini,e.fin)>1?"s":""} · vuelve ${pretty(e.fin)} · tren ${x.tr}`])});
-  if(W.vue_fecha)it.push([W.vue_fecha,"✈ París → Santiago",[W.vue_vuelo,W.vue_aerop].filter(Boolean).join(" · ")]);
+  if(W[K.parFin])it.push([W[K.parFin],"✈ París → Santiago",[W.vue_vuelo,W.vue_aerop].filter(Boolean).join(" · ")]);
   it.sort((a,b)=>a[0].localeCompare(b[0]));
   return it.length?`<ol class="ptl">${it.map(([d,t,s])=>`<li><span class="d">${pretty(d).replace(" ","<br>")}</span><span><b>${esc(t)}</b><small>${esc(s||"")}</small></span></li>`).join("")}</ol>`:`<div class="empty">Completa la configuración para ver la línea de tiempo.</div>`}
-function calendar(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";
+function calendar(){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return"";
   const map={};ST.esc.forEach(e=>{const x=ESC.find(z=>z.id===e.id);if(!x)return;let d=e.ini;for(let i=0;i<=Math.max(0,nights(e.ini,e.fin));i++){map[d]=map[d]||[];map[d].push({x,first:d===e.ini,last:d===e.fin});d=add(d,1)}});
-  let s=`<div class="cal">`,d=W.eur_fecha,m=-1;const first=D(d);const lead=(first.getDay()+6)%7;
+  let s=`<div class="cal">`,d=W[K.parIni],m=-1;const first=D(d);const lead=(first.getDay()+6)%7;
   ["L","M","M","J","V","S","D"].forEach(h=>s+=`<span class="h">${h}</span>`);
   s+=`<span class="m">${MON[first.getMonth()]}</span>`;
   for(let i=0;i<lead;i++)s+=`<span></span>`;
-  while(d<=W.vue_fecha){const dd=D(d);if(dd.getMonth()!==m&&d!==W.eur_fecha&&dd.getDate()===1){s+=`<span class="m">${MON[dd.getMonth()]}</span>`;for(let i=0;i<(dd.getDay()+6)%7;i++)s+=`<span></span>`}m=dd.getMonth();
+  while(d<=W[K.parFin]){const dd=D(d);if(dd.getMonth()!==m&&d!==W[K.parIni]&&dd.getDate()===1){s+=`<span class="m">${MON[dd.getMonth()]}</span>`;for(let i=0;i<(dd.getDay()+6)%7;i++)s+=`<span></span>`}m=dd.getMonth();
     const E=map[d];const c=E?E[0].x.c:"";const tr=E&&(E[0].first||E[0].last);s+=`<span class="c ${E?"es":"pa"} ${tr?"tr":""}" style="${c?`--c:${c}`:""}" title="${pretty(d)}${E?" · "+E.map(z=>z.x.n).join(", "):" · París"}">${dd.getDate()}</span>`;d=add(d,1)}
   return s+`</div><div class="clegend"><span><i style="background:color-mix(in srgb,#2e4f8f 16%,#fffdf6)"></i>París</span><span><i style="background:#a8352b"></i>Escapada</span><span><i style="outline:2px solid #a8352b;outline-offset:-2px;background:#fff"></i>Día de tren</span></div>`}
 function overlap(ini,fin,skip){return ST.esc.some(e=>e!==skip&&!(fin<e.ini||ini>e.fin))}
-function planForm(x,lim){const W=ST.wiz;const def=W.eur_fecha?add(W.eur_fecha,3):"";const n0=x.k==="dia"?0:parseInt(x.nt)||1;
-  return `<form class="plan" data-plan="${x.id}"><div class="row2"><label class="f">Fecha de ida<input type="date" name="ini" value="${def}" ${lim?`min="${W.eur_fecha}" max="${W.vue_fecha}"`:""} required></label>
+function planForm(x,lim){const W=ST.wiz;const def=W[K.parIni]?add(W[K.parIni],3):"";const n0=x.k==="dia"?0:parseInt(x.nt)||1;
+  return `<form class="plan" data-plan="${x.id}"><div class="row2"><label class="f">Fecha de ida<input type="date" name="ini" value="${def}" ${lim?`min="${W[K.parIni]}" max="${W[K.parFin]}"`:""} required></label>
   <label class="f">Noches<select name="n">${[0,1,2,3,4].map(n=>`<option value="${n}" ${n===n0?"selected":""}>${n?n+" noche"+(n>1?"s":""):"Solo el día"}</option>`).join("")}</select></label></div>
   <p class="warn" id="pw-${x.id}"></p><div class="act"><button class="btn sm" type="submit">Guardar</button><button class="btn alt sm" type="button" data-close>Cancelar</button></div></form>`}
 
 // ===== Programa en París (fase 2) =====
 // Precios adulto no residente UE, temporada 2026 (verificar antes de comprar). close = hora de cierre en invierno. cl = días cerrado (0=dom..6=sáb).
 const PAR_DEF="4 rue Bachaumont, 75002 París";
-function baseLL(){const W=ST.wiz||{};if(ST.parLL&&ST.parLLq===(W.par_dir||PAR_DEF))return ST.parLL;if(/bachaumont/i.test(W.par_dir||PAR_DEF))return [48.8659,2.3463];return BASES[ST.base]||BASES["Otro / centro"]}
+function baseLL(){const W=ST.wiz||{};if(ST.parLL&&ST.parLLq===(W[K.parDir]||PAR_DEF))return ST.parLL;if(/bachaumont/i.test(W[K.parDir]||PAR_DEF))return [48.8659,2.3463];return BASES[ST.base]||BASES["Otro / centro"]}
 async function geoPar(){const q=(ST.wiz||{}).par_dir;if(!q||/bachaumont/i.test(q))return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/paris|parís/i.test(q)?"":", Paris")));const j=await r.json();if(j[0]){ST.parLL=[+j[0].lat,+j[0].lon];ST.parLLq=q;save();render()}}catch(e){}}
 const km=(a,b)=>{const R=6371,t=x=>x*Math.PI/180;const d1=t(b[0]-a[0]),d2=t(b[1]-a[1]);const h=Math.sin(d1/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const hm=x=>{const t=Math.round(x*60);return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
@@ -82,20 +82,20 @@ const isDefSel=a=>!!a.top;
 const paSel=a=>ST.paSel&&a.id in ST.paSel?!!ST.paSel[a.id]:isDefSel(a);
 const fmtE=v=>v?v.toLocaleString("es-CL",{maximumFractionDigits:2})+" €":"gratis";
 
-function parisDays(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return[];const out=[];
+function parisDays(){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return[];const out=[];
   const escDays=new Set();ST.esc.forEach(e=>{let d=e.ini;const n=Math.max(0,nights(e.ini,e.fin));for(let i=0;i<=n;i++){if(!(n>0&&i===n))escDays.add(d);d=add(d,1)}});
-  for(let d=W.eur_fecha;d<W.vue_fecha;d=add(d,1)){if(escDays.has(d))continue;out.push({d,first:d===W.eur_fecha,ret:ST.esc.some(e=>e.fin===d&&e.fin!==e.ini)})}
+  for(let d=W[K.parIni];d<W[K.parFin];d=add(d,1)){if(escDays.has(d))continue;out.push({d,first:d===W[K.parIni],ret:ST.esc.some(e=>e.fin===d&&e.fin!==e.ini)})}
   return out}
 // ===== Londres: actividades (precios adulto 2026 en £ convertidos a € con 1 £ = 1,17 €; verificar antes de comprar) =====
 // ===== Ritmo por tramo =====
 const RIT={rap:{n:"Rápido",cap:7.5,step:1,d:"muchas cosas por día"},int:{n:"Intermedio",cap:5.5,step:1,d:"equilibrado"},rel:{n:"Relajado",cap:4,step:2,d:"tiempo libre para caminar"}};
-const TRAMOS=TRIP.tramos;
-function ritOf(k){const r=(ST.ritmoT||{})[k];if(r&&RIT[r])return r;if(k==="PAJ")return "rap";if(k==="PAS")return ST.ritmo==="intenso"?"int":"rel";return "int"}
+const TRAMOS=Object.fromEntries(TRIP.tramos.map(t=>[t.k,t.label])),K=TRIP.keys,tramoOf=k=>TRIP.tramos.find(t=>t.k===k);
+function ritOf(k){const r=(ST.ritmoT||{})[k];if(r&&RIT[r])return r;const t=tramoOf(k);if(!t)return "int";return t.ritmoSiIntenso&&ST.ritmo==="intenso"?t.ritmoSiIntenso:t.ritmo||"int"}
 function ritSel(k){const cur=ritOf(k);return `<div class="seg ritseg" role="group" aria-label="Ritmo ${TRAMOS[k]}">${Object.entries(RIT).map(([r,o])=>`<button type="button" data-rit="${k}|${r}" aria-pressed="${cur===r}" title="${o.d}">${o.n}</button>`).join("")}</div>`}
 function bindRit(){document.querySelectorAll("[data-rit]").forEach(b=>b.onclick=()=>{const [k,r]=b.dataset.rit.split("|");ST.ritmoT=ST.ritmoT||{};ST.ritmoT[k]=r;save();render();toast(`Ritmo ${RIT[r].n.toLowerCase()} en ${TRAMOS[k]}: ${RIT[r].d}`)})}
 // ===== Organizar París después de Alli =====
 function soloDays(){const j=ST.jun||{};return parisDays().filter(x=>!(junOn()&&x.d>=j.ini&&x.d<=j.fin))}
-function soloCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const sd=soloDays();if(!sd.length)return"";const jun=ST.paJun||{};const L=PA.filter(a=>paSel(a)&&!jun[a.id]);const nb=sd.filter(x=>blkOf(x.d)).length;const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>!jun[a.id]).length;
+function soloCard(A){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return"";const sd=soloDays();if(!sd.length)return"";const jun=ST.paJun||{};const L=PA.filter(a=>paSel(a)&&!jun[a.id]);const nb=sd.filter(x=>blkOf(x.d)).length;const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>!jun[a.id]).length;
   const tit=junOn()?"Organizar París después de Alli":"Organizar París";
   const head=`<span>🧭 <b>${tit}:</b> ${pretty(sd[0].d)} → ${pretty(sd[sd.length-1].d)} · ${sd.length} días · <b>${L.length}</b> actividad${L.length===1?"":"es"} · ritmo ${RIT[ritOf("PAS")].n.toLowerCase()}${nb?` · ${nb} bloqueado${nb>1?"s":""}`:""}${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
   if(!ST.soloOrg)return `<div class="jcard pas">${head}<span class="jact"><button type="button" class="btn sm" data-soloorg>✏️ Organizar</button></span></div>`;
@@ -156,8 +156,8 @@ function junOn(){const j=ST.jun;return !!(j&&j.ini&&j.fin&&j.use!==false)}
 function buildPA(){const j=ST.jun||{};const days=parisDays().map(x=>({...x,jun:junOn()&&x.d>=j.ini&&x.d<=j.fin}));
   return schedule(days,PA.filter(paSel),baseLL(),{jun:true,rit:x=>x.jun?ritOf("PAJ"):ritOf("PAS"),junRit:ritOf("PAJ"),restRit:ritOf("PAS")})}
 const loSel=a=>!!(ST.paSel&&ST.paSel[a.id]);
-function lonDays(){const W=ST.wiz;if(!W.ida_llega||!W.eur_fecha||W.ida_llega>=W.eur_fecha)return[];const out=[];for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))out.push({d,first:d===W.ida_llega});return out}
-function lonBase(){const W=ST.wiz||{};if(ST.lonLL&&W.lon_dir&&ST.lonLLq===W.lon_dir)return ST.lonLL;return LONDON}
+function lonDays(){const W=ST.wiz;if(!W[K.llega]||!W[K.parIni]||W[K.llega]>=W[K.parIni])return[];const out=[];for(let d=W[K.llega];d<W[K.parIni];d=add(d,1))out.push({d,first:d===W[K.llega]});return out}
+function lonBase(){const W=ST.wiz||{};if(ST.lonLL&&W[K.lonDir]&&ST.lonLLq===W[K.lonDir])return ST.lonLL;return LONDON}
 function buildLO(){return schedule(lonDays(),LON.filter(loSel),lonBase(),{rit:()=>ritOf("LO"),restRit:ritOf("LO")})}
 const actById=id=>PA.find(a=>a.id===id)||LON.find(a=>a.id===id);
 const isLO=id=>String(id).startsWith("lo_");
@@ -187,7 +187,7 @@ function bindBlk(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-loorg]",b=>b.onclick=()=>{ST.loOrg=true;save();render()});
   Q("[data-loorgdone]",b=>b.onclick=()=>{ST.loOrg=false;const ld=new Set(lonDays().map(x=>x.d));LON.forEach(a=>{if(ST.paPin&&ST.paPin[a.id]&&!blkOf(ST.paPin[a.id]))delete ST.paPin[a.id]});if(ST.paOrd)Object.keys(ST.paOrd).forEach(k=>{if(ld.has(k))delete ST.paOrd[k]});save();render();const n=LON.filter(loSel).length;toast(`🧭 Londres organizado: ${n} actividad${n===1?"":"es"} en los días disponibles`);const t=document.getElementById("daytabs");if(t)t.scrollIntoView({behavior:"smooth"})})}
 
-function jCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const j=ST.jun||{};
+function jCard(A){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return"";const j=ST.jun||{};
   if(!j.ini)return `<div class="jcard off"><span>👭 <b>Días con Alli</b> · elijan lo que quieren ver mientras Alli está en París; se reparte solo en esos días (ritmo intenso). El resto de París queda para después.</span><button type="button" class="btn sm" data-jstart>Configurar días con Alli</button></div>`;
   const JD=junDays(),jun=ST.paJun||{};const JL=PA.filter(a=>jun[a.id]&&paSel(a));
   const need=JL.reduce((t,a)=>t+a.h+0.3,0),avail=JD.reduce((t,x)=>{const b=blkOf(x.d);const c=x.first||x.ret?3:7;return t+(!b?c:b.k==="am"||b.k==="pm"?Math.min(c,3.5):0)},0);
@@ -197,13 +197,13 @@ function jCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const j=
   const last=parisDays().slice(-1)[0];
   return `<div class="jcard open"><div class="jtop">${head}<button type="button" class="btn sm" data-jdone>✓ Listo · volver al programa</button></div>
    <p class="muted" style="margin:6px 0 8px;font-size:14px">Marquen lo que quieren hacer <b>con Alli</b>: se reparte solo entre estos días, agrupado por barrio y con ritmo intenso. Después pueden mover, agregar o quitar como siempre.</p>
-   <span class="flab" style="display:block">Ritmo</span>${ritSel("PAJ")}<span class="flab" style="display:block;margin-top:8px">1 · ¿Qué días está Alli en París?</span><div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W.eur_fecha}" max="${last?last.d:W.vue_fecha}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
+   <span class="flab" style="display:block">Ritmo</span>${ritSel("PAJ")}<span class="flab" style="display:block;margin-top:8px">1 · ¿Qué días está Alli en París?</span><div class="jdates"><label>Desde<input type="date" data-jini value="${j.ini}" min="${W[K.parIni]}" max="${last?last.d:W[K.parFin]}"></label><label>Hasta<input type="date" data-jfin value="${j.fin}" min="${W[K.parIni]}" max="${last?last.d:W[K.parFin]}"></label><button type="button" class="lnkb" data-jclear>Quitar modo juntas</button></div>
    ${blkUI(parisDays(),2)}<span class="flab" style="display:block;margin-top:10px">3 · ¿Qué quieren hacer con Alli?</span>
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${need>avail?"--bad":"--ok"})"></span></div>
    <div class="jcats">${TYP.filter(t=>!["com","via"].includes(t[0])).map(([k,t])=>{const L=PA.filter(a=>typOf(a)===k);if(!L.length)return"";const n=L.filter(a=>jun[a.id]&&paSel(a)).length;
      return `<details class="pool" data-k="jun-${k}" ${n?"open":""}><summary>${t} <span class="poolcnt">(${n?n+" de ":""}${L.length})</span></summary>${L.map(a=>{const on=!!(jun[a.id]&&paSel(a)),dd=ACTDAY[a.id];return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-jsel="${a.id}" ${on?"checked":""}><span class="t">${a.n}${a.top?'<span class="top">★ famosa</span>':""}${a.in?" 🏛":""}<small>~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p):"gratis"}${!on&&paSel(a)?" · ya está en el programa (fuera de los días con Alli)":""}</small></span></label>${on?`<small class="pdst${dd?"":" bad"}">${dd?`👭 ${pretty(dd)}`:"⚠ No cabe en los días con Alli"}</small>`:""}</div>`}).join("")}</details>`}).join("")}</div></div>`}
 function bindJun(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);const W=ST.wiz;
-  Q("[data-jstart]",b=>b.onclick=()=>{const pd=parisDays();const fin=pd[Math.min(pd.length-1,8)];ST.jun={ini:W.eur_fecha,fin:fin?fin.d:W.eur_fecha,mode:true};save();render()});
+  Q("[data-jstart]",b=>b.onclick=()=>{const pd=parisDays();const fin=pd[Math.min(pd.length-1,8)];ST.jun={ini:W[K.parIni],fin:fin?fin.d:W[K.parIni],mode:true};save();render()});
   Q("[data-jmode]",b=>b.onclick=()=>{ST.jun.mode=true;save();render()});
   Q("[data-jdone]",b=>b.onclick=()=>{ST.jun.mode=false;save();render();const n=PA.filter(a=>(ST.paJun||{})[a.id]&&paSel(a)).length;toast(`👭 ${n} actividad${n===1?"":"es"} repartidas en los días con Alli`);const t=document.getElementById("daytabs");if(t)t.scrollIntoView({behavior:"smooth"})});
   Q("[data-jclear]",b=>b.onclick=()=>{if(!b.dataset.sure){b.dataset.sure=1;b.textContent="¿Seguro? Toca otra vez para quitarlo";return}ST.jun={};ST.paJun={};save();render()});
@@ -278,9 +278,9 @@ function paFicha(a,i){const x=PA_F[a.id];const sel=paSel(a);
   </article>`}
 // ===== Alojamiento =====
 const uid=()=>Math.random().toString(36).slice(2,8);
-function stays(){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return[];
+function stays(){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return[];
   const escN=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0);
-  const L=[{k:"par",n:"París",p:"🇫🇷",ini:W.eur_fecha,fin:W.vue_fecha,nn:nights(W.eur_fecha,W.vue_fecha)-escN,city:"Paris"}];
+  const L=[{k:"par",n:"París",p:"🇫🇷",ini:W[K.parIni],fin:W[K.parFin],nn:nights(W[K.parIni],W[K.parFin])-escN,city:"Paris"}];
   ST.esc.filter(e=>nights(e.ini,e.fin)>0).sort((a,b)=>a.ini<b.ini?-1:1).forEach(e=>{const x=ESC.find(q=>q.id===e.id)||{n:e.id,p:""};L.push({k:"esc-"+e.id+"-"+e.ini,n:x.n,p:x.p,ini:e.ini,fin:e.fin,nn:nights(e.ini,e.fin),city:x.n})});
   return L}
 const hotList=k=>((ST.hot||{})[k]||[]);
@@ -358,7 +358,7 @@ function bindEsc(){document.querySelectorAll("[data-esc]").forEach(g=>{const f=(
   document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setTimeout(()=>{const f=document.querySelector(`form[data-plan="${b.dataset.open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},50)))}
 
 // ===================== Interfaz con la plantilla del Viaje a Alemania =====================
-const PEOPLE=TRIP.people,PA_C=TRIP.colors.PA,LO_C=TRIP.colors.LO,LONDON=[51.5074,-0.1278];
+const PEOPLE=TRIP.people,peopleOf=k=>{const t=tramoOf(k);return t&&t.viajeros?t.viajeros.length:PEOPLE},PA_C=TRIP.colors.PA,LO_C=TRIP.colors.LO,LONDON=[51.5074,-0.1278];
 let cur="EUR",sty="papel";try{cur=localStorage.getItem(TRIP.ls+"_cur")||"EUR";sty=localStorage.getItem(TRIP.ls+"_sty")||"papel"}catch(e){}
 const rate=()=>+(ST.rate||1100);
 const fmt=v=>cur==="CLP"?"$"+Math.round(v*rate()).toLocaleString("es-CL"):(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -371,15 +371,15 @@ let progCity="PA",progDay={},openActs=new Set(),mapOpen=null,attCity="PA";
 try{progCity=localStorage.getItem(TRIP.ls+"_progcity")||"PA"}catch(e){}
 
 // ---------- modelo de ciudades y días ----------
-function cityList(){const W=ST.wiz;const L=[];if(W.ida_llega&&W.eur_fecha&&W.ida_llega<W.eur_fecha)L.push({k:"LO",n:"Londres",p:"🇬🇧",c:LO_C,nn:nights(W.ida_llega,W.eur_fecha)});L.push({k:"PA",n:"París",p:"🇫🇷",c:PA_C});
+function cityList(){const W=ST.wiz;const L=[];if(W[K.llega]&&W[K.parIni]&&W[K.llega]<W[K.parIni])L.push({k:"LO",n:TRIP.cities.LO.n,p:TRIP.cities.LO.p,c:LO_C,nn:nights(W[K.llega],W[K.parIni])});L.push({k:"PA",n:TRIP.cities.PA.n,p:TRIP.cities.PA.p,c:PA_C});
   ST.esc.slice().sort((a,b)=>a.ini<b.ini?-1:1).forEach(e=>{const x=ESC.find(q=>q.id===e.id);if(x)L.push({k:"E"+e.id+e.ini.replace(/-/g,""),id:e.id,n:x.n,p:x.p,c:x.c,e,nn:nights(e.ini,e.fin),x})});return L}
 const stayKeyOf=e=>"esc-"+e.id+"-"+e.ini;
 function trainEst(id){const s=(EXT[id]||{}).cost||"";const m=s.match(/(\d+(?:[.,]\d+)?)\s*(?:[–-]\s*(\d+(?:[.,]\d+)?))?\s*€/);if(!m)return 0;const a=parseFloat(m[1].replace(",",".")),b=m[2]?parseFloat(m[2].replace(",",".")):a;return Math.round((a+b)/2)}
-function buildAll(){const W=ST.wiz;const C=cityList();if(!W.eur_fecha||!W.vue_fecha||W.vue_fecha<=W.eur_fecha)return {days:[],R:null,C};
+function buildAll(){const W=ST.wiz;const C=cityList();if(!W[K.parIni]||!W[K.parFin]||W[K.parFin]<=W[K.parIni])return {days:[],R:null,C};
   const R=buildPA();const days=[];
   R.plan.forEach(p=>{const rf=p.ret?ST.esc.find(e=>e.fin===p.d&&e.fin!==e.ini):null;days.push({id:p.d,d:p.d,city:"PA",kind:p.first?"first":p.ret?"ret":"pa",pa:p,from:rf})});
-  days.push({id:W.vue_fecha,d:W.vue_fecha,city:"PA",kind:"final"});
-  const RL=buildLO();if(W.ida_llega&&W.ida_llega<W.eur_fecha)for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))days.push({id:"L"+d,d,city:"LO",kind:d===W.ida_llega?"lonfirst":"lon",pa:RL.plan.find(p=>p.d===d)});
+  days.push({id:W[K.parFin],d:W[K.parFin],city:"PA",kind:"final"});
+  const RL=buildLO();if(W[K.llega]&&W[K.llega]<W[K.parIni])for(let d=W[K.llega];d<W[K.parIni];d=add(d,1))days.push({id:"L"+d,d,city:"LO",kind:d===W[K.llega]?"lonfirst":"lon",pa:RL.plan.find(p=>p.d===d)});
   C.filter(c=>c.e).forEach(c=>{const e=c.e;const v=((EXT[e.id]||{}).f||{}).v||[];const n=c.nn;
     if(n<=0){days.push({id:e.ini+"-"+e.id,d:e.ini,city:c.k,kind:"trip",c,items:v.slice()});return}
     const per=Math.ceil(v.length/n)||1;for(let i=0;i<n;i++)days.push({id:add(e.ini,i)+"-"+e.id,d:add(e.ini,i),city:c.k,kind:i?"stay":"go",c,items:v.slice(i*per,(i+1)*per)})});
@@ -399,7 +399,7 @@ const hotSelName=k=>{const h=hotList(k).find(x=>x.sel);return h?h.n:null};
 function header(A){const W=ST.wiz,C=A.C;const nn=c=>c.k==="PA"?A.days.filter(d=>d.city==="PA"&&d.kind!=="final").length+A.days.filter(d=>d.kind==="trip").length:c.nn;
   const uniq=[...new Set(C.map(c=>short(c.n)))];
   return `<header class="has-sticker"><button type="button" class="sticker" id="logoBtn" title="Volver a Marco Polo"><img src="/img/logo-marcopolo.jpg" alt="Marco Polo · Planifica · Explora · Vive"></button>
-  <span class="eyebrow">2 viajeras${W.eur_fecha&&W.vue_fecha?` · ${pretty(W.eur_fecha)} – ${pretty(W.vue_fecha)} ${W.vue_fecha.slice(0,4)}`:""}</span>
+  <span class="eyebrow">2 viajeras${W[K.parIni]&&W[K.parFin]?` · ${pretty(W[K.parIni])} – ${pretty(W[K.parFin])} ${W[K.parFin].slice(0,4)}`:""}</span>
   <h1>Viaje a ${uniq.join(" · ")}</h1>
   <div class="route" aria-label="Ruta">${C.map((c,i)=>`${i?'<span class="arrow">→</span>':""}<span class="stop" style="border-color:${c.c};color:${c.c}">${short(c.n)} ${c.e&&!c.nn?"· día":"×"+nn(c)}</span>`).join("")}</div>
   <div class="stylebar"><span class="eyebrow">Estilo</span><div class="seg" role="group">${[["retro","Retro"],["mod","Moderno"],["papel","Papel (prueba)"]].map(([k,t])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}">${t}</button>`).join("")}</div>
@@ -419,11 +419,11 @@ function costStrip(c){const C=[["🛏️","Alojamiento",c.hot,"var(--mun)"],["�
   return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
 
 // ---------- 1 · Configurar ----------
-function pCfg(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
+function pCfg(A){const W=ST.wiz;const lim=W[K.parIni]&&W[K.parFin];
   const f=(k,l,t="text",ph="")=>`<div class="field"><label for="w-${k}">${l}</label><input id="w-${k}" type="${t}" data-w="${k}" value="${esc(W[k]||"")}" placeholder="${esc(ph)}"></div>`;
   const sl=(k,l,o)=>`<div class="field"><label for="w-${k}">${l}</label><select id="w-${k}" data-w="${k}"><option value="">—</option>${o.map(x=>`<option ${W[k]===x?"selected":""}>${x}</option>`).join("")}</select></div>`;
   const list=ESC.filter(x=>filt==="todas"||(filt==="noche"&&x.k!=="dia")||(filt==="dia"&&x.k!=="noche")||(filt==="fuera"&&x.p!=="🇫🇷"));
-  const ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0),nt=lim?nights(W.eur_fecha,W.vue_fecha):0;
+  const ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0),nt=lim?nights(W[K.parIni],W[K.parFin]):0;
   return `<div class="card cfg">
    ${f("eur_fecha","Llegada a París (Eurostar)","date")}${f("eur_hora","Hora de salida de Londres","time")}${f("vue_fecha","Vuelo de regreso","date")}
    <div class="field"><label for="paBase">Barrio del alojamiento en París</label><select id="paBase">${Object.keys(BASES).map(k=>`<option ${(ST.base||"Otro / centro")===k?"selected":""}>${k}</option>`).join("")}</select></div>
@@ -440,22 +440,22 @@ function pCfg(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
 
 // ===== Configurar: ruta general + mapa del viaje =====
 const f1=v=>(+v).toFixed(1);
-function cfgRoute(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return "";
+function cfgRoute(A){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return "";
   const E=[...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini)).map(e=>({e,x:ESC.find(z=>z.id===e.id),n:Math.max(0,nights(e.ini,e.fin))})).filter(z=>z.x);
-  const lonIn=W.ida_llega||W.ida_fecha,nl=lonIn?nights(lonIn,W.eur_fecha):0;let k=1;
-  let h=`<div class="end">✈ Inicio: Santiago → Londres${W.ida_fecha?` · sale ${pretty(W.ida_fecha)}`:""}${W.ida_vuelo?` · ${esc(W.ida_vuelo)}`:""}</div>`;
-  h+=`<div class="n" style="--c:${LO_C}"><span style="flex:1;min-width:0"><b>${k++}.</b> 🇬🇧 Londres<br><small class="muted num">${lonIn?`Llega ${pretty(lonIn)} · `:""}sale ${pretty(W.eur_fecha)}</small></span><span class="nn"><b class="num">${nl}</b> noches</span></div>`;
+  const lonIn=W[K.llega]||W[K.ini],nl=lonIn?nights(lonIn,W[K.parIni]):0;let k=1;
+  let h=`<div class="end">✈ Inicio: Santiago → Londres${W[K.ini]?` · sale ${pretty(W[K.ini])}`:""}${W.ida_vuelo?` · ${esc(W.ida_vuelo)}`:""}</div>`;
+  h+=`<div class="n" style="--c:${LO_C}"><span style="flex:1;min-width:0"><b>${k++}.</b> 🇬🇧 Londres<br><small class="muted num">${lonIn?`Llega ${pretty(lonIn)} · `:""}sale ${pretty(W[K.parIni])}</small></span><span class="nn"><b class="num">${nl}</b> noches</span></div>`;
   h+=`<div class="arr">↓ <b>Eurostar</b>${W.eur_hora?` · sale <b>${esc(W.eur_hora)}</b>`:""} St Pancras → Gare du Nord · ≈ 2 h 20</div>`;
   const paSeg=(a,b,ret,trips)=>`<div class="n" style="--c:${PA_C}"><span style="flex:1;min-width:0"><b>${k++}.</b> 🇫🇷 París${ret?" · vuelta":""}<br><small class="muted num">Llega ${pretty(a)} · sale ${pretty(b)}</small>${trips.length?`<small class="trips">${trips.map(z=>`↺ ${z.x.p} ${esc(short(z.x.n))} · ${pretty(z.e.ini)}`).join("<br>")}</small>`:""}</span><span class="nn"><b class="num">${nights(a,b)}</b> noches</span></div>`;
-  let cur=W.eur_fecha,trips=[],ret=false;
+  let cur=W[K.parIni],trips=[],ret=false;
   E.forEach(z=>{if(!z.n){trips.push(z);return}
     h+=paSeg(cur,z.e.ini,ret,trips);trips=[];
     h+=`<div class="arr">↓ ${z.x.p} tren ${esc(z.x.tr)} · ida ${pretty(z.e.ini)}</div>`;
     h+=`<div class="n" style="--c:${z.x.c}"><span style="flex:1;min-width:0"><b>${k++}.</b> ${z.x.p} ${esc(short(z.x.n))} <small class="muted">escapada</small><br><small class="muted num">Llega ${pretty(z.e.ini)} · sale ${pretty(z.e.fin)}</small></span><span class="nn"><b class="num">${z.n}</b> noche${z.n>1?"s":""}</span></div>`;
     h+=`<div class="arr">↓ tren de vuelta a París · ${pretty(z.e.fin)}</div>`;cur=z.e.fin;ret=true});
-  h+=paSeg(cur,W.vue_fecha,ret,trips);
-  h+=`<div class="end">✈ Fin: París → Santiago · ${pretty(W.vue_fecha)}${W.vue_vuelo?` · ${esc(W.vue_vuelo)}`:""}</div>`;
-  const ne=E.reduce((t,z)=>t+z.n,0),nt=nights(W.eur_fecha,W.vue_fecha),tot=lonIn?nights(lonIn,W.vue_fecha):nt;
+  h+=paSeg(cur,W[K.parFin],ret,trips);
+  h+=`<div class="end">✈ Fin: París → Santiago · ${pretty(W[K.parFin])}${W.vue_vuelo?` · ${esc(W.vue_vuelo)}`:""}</div>`;
+  const ne=E.reduce((t,z)=>t+z.n,0),nt=nights(W[K.parIni],W[K.parFin]),tot=lonIn?nights(lonIn,W[K.parFin]):nt;
   const nd=E.filter(z=>!z.n).length;
   return `<div class="routegrid">
    <div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0"><span class="eyebrow">Noches en cada ciudad · orden de visita</span><div class="nights">${h}</div>
@@ -487,8 +487,8 @@ function cfgMap(nl,np,E){const M=FRMAP;const pr=ll=>[(ll[1]-M.W)*M.kx*M.sc,(M.N-
 // ===== Calendario del viaje (programa) =====
 const MONL=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 let calOpen=false,calPop=null,ACTDAY={};
-function tripDays(A){const W=ST.wiz,M={};const ini=W.ida_fecha||W.ida_llega||(A.days[0]&&A.days[0].d),fin=W.vue_fecha||(A.days.length&&A.days[A.days.length-1].d);
-  if(W.ida_fecha&&W.ida_fecha!==W.ida_llega)M[W.ida_fecha]={k:"fly",c:"#5b6770",lab:"✈ Santiago → Londres",acts:[],tr:1};
+function tripDays(A){const W=ST.wiz,M={};const ini=W[K.ini]||W[K.llega]||(A.days[0]&&A.days[0].d),fin=W[K.parFin]||(A.days.length&&A.days[A.days.length-1].d);
+  if(W[K.ini]&&W[K.ini]!==W[K.llega])M[W[K.ini]]={k:"fly",c:"#5b6770",lab:"✈ Santiago → Londres",acts:[],tr:1};
   A.days.forEach(d=>{const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:{n:short(d.c.n),c:d.c.c};
     const acts=d.pa?d.pa.seq.map(a=>({n:a.n,t:a.st})):d.items?d.items.map(n=>({n})):[];
     const tr=["first","go","ret","final","lonfirst"].includes(d.kind);
@@ -530,9 +530,9 @@ function bindCal(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   if(!window._calEsc){window._calEsc=1;addEventListener("keydown",e=>{if(e.key==="Escape"&&calOpen){calOpen=false;calPop=null;render()}})}}
 
 // ---------- 4 · Escapadas ----------
-function pEsc(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
+function pEsc(A){const W=ST.wiz;const lim=W[K.parIni]&&W[K.parFin];
   const list=ESC.filter(x=>filt==="todas"||(filt==="noche"&&x.k!=="dia")||(filt==="dia"&&x.k!=="noche")||(filt==="fuera"&&x.p!=="🇫🇷"));
-  const ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0),nt=lim?nights(W.eur_fecha,W.vue_fecha):0;
+  const ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0),nt=lim?nights(W[K.parIni],W[K.parFin]):0;
   const ch=[...new Set(ST.esc.map(e=>e.id))];
   return `  <div class="routegrid">
    <div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0"><span class="eyebrow">Escapadas · orden de visita</span>
@@ -551,8 +551,8 @@ function fcards(A){const R=A.R;const pd=A.days.filter(d=>d.city==="PA"&&d.pa);
   const need=pd.reduce((t,d)=>t+d.pa.seq.reduce((u,a)=>u+a.h+0.3,0),0),avail=pd.reduce((t,d)=>t+d.pa.cap,0);const over=R.unpl.length>0;
   const off=PA.filter(a=>!paSel(a));const n=A.days.filter(d=>d.city==="PA"&&d.kind!=="final").length+A.days.filter(d=>d.kind==="trip").length;
   let h=`<div class="legendtr" style="grid-column:1/-1"><span class="eyebrow">Leyenda</span><span style="font-size:13px">↑↓ cambia el orden del día · ✕ quita del programa · volver a agregar en «Agregar otras actividades»</span><span class="tr pie">a pie</span><span class="tr metro">metro/RER</span><span class="tr fuera">⟶ escapada</span><span class="top">★ atracción más famosa/demandada</span><span>🏛 techada</span></div>`;
-  {const L=A.C.find(c=>c.k==="LO");if(L){const ld=A.days.filter(d=>d.city==="LO");h+=`<div class="fcard" style="--c:${LO_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>Londres · ${L.nn} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.ida_llega)} · sale ${pretty(ST.wiz.eur_fecha)}</small></span><span class="num muted" style="font-size:13px">${fmt(ld.reduce((t,d)=>t+d.cost.total,0))} p/p</span></div><div class="meter"><span style="width:100%;background:${LO_C}"></span></div><span class="status ok">✓ Con Alli · sin alojamiento pagado</span>${loPool(A)}</div>`}}
-  h+=`<div class="fcard" style="--c:${PA_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>París · ${n} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz.eur_fecha)} · sale ${pretty(ST.wiz.vue_fecha)}</small></span><span class="num muted" style="font-size:13px;white-space:nowrap">${need.toFixed(1)} / ${avail.toFixed(1)} h</span></div>
+  {const L=A.C.find(c=>c.k==="LO");if(L){const ld=A.days.filter(d=>d.city==="LO");h+=`<div class="fcard" style="--c:${LO_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>Londres · ${L.nn} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz[K.llega])} · sale ${pretty(ST.wiz[K.parIni])}</small></span><span class="num muted" style="font-size:13px">${fmt(ld.reduce((t,d)=>t+d.cost.total,0))} p/p</span></div><div class="meter"><span style="width:100%;background:${LO_C}"></span></div><span class="status ok">✓ Con Alli · sin alojamiento pagado</span>${loPool(A)}</div>`}}
+  h+=`<div class="fcard" style="--c:${PA_C}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>París · ${n} noches</b><br><small class="muted" style="font-size:13px">Llega ${pretty(ST.wiz[K.parIni])} · sale ${pretty(ST.wiz[K.parFin])}</small></span><span class="num muted" style="font-size:13px;white-space:nowrap">${need.toFixed(1)} / ${avail.toFixed(1)} h</span></div>
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div>
    <span class="status ${over?"bad":"ok"}">${over?`No alcanza: faltan ${R.unpl.length} actividad(es) → ritmo intenso o quitar otras`:"✓ Todo cabe"}</span>
    ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora</span>`+R.unpl.map(a=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-pasel="${a.id}" checked><span class="t">${a.n}<small>~${String(a.h).replace(".",",")} h</small></span></label>`).join(""):""}
@@ -579,7 +579,7 @@ function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);cons
 function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:d.c;
   const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN0=sunOf(D(d.d),ll),SUN=d.city==="LO"?Object.fromEntries(Object.entries(SUN0).map(([k,v])=>[k,typeof v==="number"?v-1:v])):SUN0;
   const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"||d.city==="LO"?null:"par";
-  const night=nightK?`Noche en ${esc(hotSelName(nightK)||("alojamiento en "+(nightK==="par"?"París":short(d.c.n))+" (por definir)"))}`:d.city==="LO"?`Noche donde Alli${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
+  const night=nightK?`Noche en ${esc(hotSelName(nightK)||("alojamiento en "+(nightK==="par"?"París":short(d.c.n))+" (por definir)"))}`:d.city==="LO"?`Noche donde Alli${W[K.lonDir]?" ("+esc(W[K.lonDir])+")":""}`:"Sin noche de hotel";
   const X=d.c?EXT[d.c.id]||{}:{},fx=d.from?ESC.find(x=>x.id===d.from.id):null;
   const tl={first:`🚄 Eurostar ${W.eur_hora?"sale "+esc(W.eur_hora)+" de":"desde"} Londres St Pancras → <b>París Gare du Nord</b> · metro al alojamiento (${esc(ST.base||"centro")}) · <b>París: actividades desde las 14:30</b>`,
     ret:fx?`🚄 Tren ${fx.n} → París (${fx.tr}) por la mañana · <b>París: actividades desde las 14:30</b>`:"",
@@ -704,7 +704,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
 
 // ---------- 6 · Espectáculos ----------
 let showCity="PA";
-function pShow(){const W=ST.wiz,lo=showCity==="LO",a=lo?W.ida_llega:W.eur_fecha,b=lo?W.eur_fecha:W.vue_fecha;const inT=s=>a&&b&&s.ini<=b&&s.fin>=a;
+function pShow(){const W=ST.wiz,lo=showCity==="LO",a=lo?W[K.llega]:W[K.parIni],b=lo?W[K.parIni]:W[K.parFin];const inT=s=>a&&b&&s.ini<=b&&s.fin>=a;
   const L=SHOWS.filter(s=>(s.w==="Londres")===lo).sort((x,y)=>(inT(y)-inT(x))||((y.top|0)-(x.top|0))||((x.al|0)-(y.al|0))||(x.ini<y.ini?-1:1));
   const ml=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
   return `${cityTabs(lo?"LO":"PA","data-showc")}<div class="filters" style="margin:6px 0">${findBtn("show",lo?"LO":"PA")}${manBtn("show",lo?"LO":"PA")}</div>${manPanel("show",lo?"LO":"PA")}${a&&b?`<p class="note">${lo?"En Londres":"En Francia"}: ${pretty(a)} → ${pretty(b)}. Los eventos con sello «EN SUS FECHAS» coinciden con el viaje.${lo?" Precios en libras.":""}</p>`:""}
@@ -945,7 +945,7 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
    <div class="ms-head"><span class="eyebrow">${pretty(d.d)} · ${d.city==="LO"?"Londres":d.city==="PA"?"París":esc(short(d.c.n))}</span><h3>Recorrido del día</h3><button type="button" class="ms-x lnkb" data-mclose="1" aria-label="Cerrar" style="text-decoration:none">✕</button></div>
    ${(window.L||window.maplibregl)?`<div class="lmap big" data-lday="${d.id}" data-big="1"></div>`:dayMap(P,legs).split("</svg>")[0]+"</svg>"}
    <div class="ms-leg"><span><i class="k"></i>a pie</span><span><i class="k tr" style="border-top-color:#24477a"></i>metro / RER</span><span><i class="k h">H</i>alojamiento</span><span><i class="hz"></i>zona de precaución</span></div>
-   <ol class="ms-list"><li><span class="anum h num">H</span> ${isE?(d.kind==="trip"?"Llegada a "+esc(short(d.c.n))+" (tren desde París)":"Alojamiento en "+esc(short(d.c.n))):d.city==="LO"?esc("Donde Alli"+((ST.wiz||{}).lon_dir?" · "+ST.wiz.lon_dir:"")):esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
+   <ol class="ms-list"><li><span class="anum h num">H</span> ${isE?(d.kind==="trip"?"Llegada a "+esc(short(d.c.n))+" (tren desde París)":"Alojamiento en "+esc(short(d.c.n))):d.city==="LO"?esc("Donde Alli"+((ST.wiz||{}).lon_dir?" · "+ST.wiz[K.lonDir]:"")):esc(hotSelName("par")||(ST.wiz||{}).par_dir||PAR_DEF)}</li>
    ${P.seq.map((a,k)=>`<li><span class="anum num">${k+1}</span> <span class="num">${hm(a.st)}</span> ${typeof PA_F!=="undefined"&&PA_F[a.id]?`<a href="#" data-ficha="${a.id}">${a.top?"★ ":""}${a.n}</a>`:`${a.top?"★ ":""}${a.n}`}${box(legs[k])}</li>`).join("")}
    <li><span class="anum h num">H</span> ${isE&&d.kind==="trip"?"Tren de vuelta a París":"Vuelta al alojamiento"}${back.metro?box(back):` · a pie ~${back.min} min`}</li></ol>
    <p class="ms-src">Plano: © OpenFreeMap · © colaboradores de OpenStreetMap · caminatas calculadas con OSRM. Tiempos de traslado estimados por distancia: confirmar la ruta exacta en la app Bonjour RATP o con «ver línea y estaciones». Clic fuera del plano para cerrar.</p></div></div>`}
@@ -1123,7 +1123,7 @@ function bindMan(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-man]",b=>b.onclick=()=>{MAN=MAN===b.dataset.man?null:b.dataset.man;render();const f=document.querySelector("[data-manform] [name=n]");if(f)f.focus()});
   Q("[data-manform]",f=>f.onsubmit=e=>{e.preventDefault();saveMan(f)})}
 
-function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
+function render(){if(ST.wiz&&!ST.wiz[K.parDir])ST.wiz[K.parDir]=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz[K.parIni]&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
@@ -1147,7 +1147,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-del]",b=>b.onclick=()=>{if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="¿Quitar? toca de nuevo";return}const [ini,id]=b.dataset.del.split("|");ST.esc=ST.esc.filter(e=>!(e.ini===ini&&e.id===id));save();render()});
   Q("form[data-plan]",f=>{const id=f.dataset.plan,w=$("#pw-"+id);
     const chk=()=>{const ini=f.ini.value,n=+f.n.value,fin=ini?add(ini,n):"";let m="";
-      if(ini&&W.eur_fecha&&(ini<W.eur_fecha||fin>W.vue_fecha))m="⚠ Queda fuera de las fechas en Francia.";else if(ini&&overlap(ini,fin))m="⚠ Se cruza con otra escapada ya elegida.";
+      if(ini&&W[K.parIni]&&(ini<W[K.parIni]||fin>W[K.parFin]))m="⚠ Queda fuera de las fechas en Francia.";else if(ini&&overlap(ini,fin))m="⚠ Se cruza con otra escapada ya elegida.";
       else if(ini)m=n?`Vuelven a París el ${pretty(fin)}.`:"Ida y vuelta en el día.";w.textContent=m;w.style.color=m.startsWith("⚠")?"":"var(--ok)";return !m.startsWith("⚠")};
     f.oninput=chk;chk();f.onsubmit=e=>{e.preventDefault();if(!chk())return;ST.esc.push({id,ini:f.ini.value,fin:add(f.ini.value,+f.n.value)});open=null;save();render()}});
   bindEsc();
