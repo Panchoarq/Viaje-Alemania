@@ -89,7 +89,7 @@ function parisDays(){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return[];const
 // ===== Londres: actividades (precios adulto 2026 en £ convertidos a € con 1 £ = 1,17 €; verificar antes de comprar) =====
 // ===== Ritmo por tramo =====
 const RIT={rap:{n:"Rápido",cap:7.5,step:1,d:"muchas cosas por día"},int:{n:"Intermedio",cap:5.5,step:1,d:"equilibrado"},rel:{n:"Relajado",cap:4,step:2,d:"tiempo libre para caminar"}};
-const TRAMOS=Object.fromEntries(TRIP.tramos.map(t=>[t.k,t.label])),K=TRIP.keys,tramoOf=k=>TRIP.tramos.find(t=>t.k===k);
+const cc=c=>TRIP.cities[c]||TRIP.cities.PA,TRAMOS=Object.fromEntries(TRIP.tramos.map(t=>[t.k,t.label])),K=TRIP.keys,tramoOf=k=>TRIP.tramos.find(t=>t.k===k);
 function ritOf(k){const r=(ST.ritmoT||{})[k];if(r&&RIT[r])return r;const t=tramoOf(k);if(!t)return "int";return t.ritmoSiIntenso&&ST.ritmo==="intenso"?t.ritmoSiIntenso:t.ritmo||"int"}
 function ritSel(k){const cur=ritOf(k);return `<div class="seg ritseg" role="group" aria-label="Ritmo ${TRAMOS[k]}">${Object.entries(RIT).map(([r,o])=>`<button type="button" data-rit="${k}|${r}" aria-pressed="${cur===r}" title="${o.d}">${o.n}</button>`).join("")}</div>`}
 function bindRit(){document.querySelectorAll("[data-rit]").forEach(b=>b.onclick=()=>{const [k,r]=b.dataset.rit.split("|");ST.ritmoT=ST.ritmoT||{};ST.ritmoT[k]=r;save();render();toast(`Ritmo ${RIT[r].n.toLowerCase()} en ${TRAMOS[k]}: ${RIT[r].d}`)})}
@@ -221,20 +221,20 @@ function loPool(A){const lr=A.RL||{unpl:[]};const n=LON.filter(loSel).length;
 // ===== Pronóstico del tiempo (Open-Meteo) =====
 let WX={};
 const WXI=c=>c===0?"☀️":c<=2?"🌤":c===3?"☁️":c<=48?"🌫":c<=57?"🌦":c<=67?"🌧":c<=77?"🌨":c<=82?"🌧":"⛈";
-function wxLoad(k){if(WX[k])return;WX[k]={loading:1};const ll=k==="LO"?LONDON:PARIS;
+function wxLoad(k){if(WX[k])return;WX[k]={loading:1};const ll=cc(k).ll;
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ll[0]}&longitude=${ll[1]}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=16`).then(r=>r.json()).then(j=>{const o={};(j.daily.time||[]).forEach((t,i)=>o[t]={c:j.daily.weather_code[i],mx:j.daily.temperature_2m_max[i],mn:j.daily.temperature_2m_min[i],pp:j.daily.precipitation_probability_max[i],mm:j.daily.precipitation_sum[i]});WX[k]={d:o,at:Date.now()};if(tab==="prog")render()}).catch(()=>{WX[k]={err:1}})}
 const wxOf=(k,d)=>{const w=WX[k]&&WX[k].d&&WX[k].d[d];return w&&w.mx!=null&&w.pp!=null?w:null};
 const rainy=w=>w&&(w.pp>=60||(w.pp>=40&&w.mm>=4)),dry=w=>w&&w.pp<40&&w.mm<1.5;
 function wxMini(k,d){const w=wxOf(k,d);return w?`<span class="wxm" title="Pronóstico: ${Math.round(w.mn)}–${Math.round(w.mx)} °C · lluvia ${w.pp}%">${WXI(w.c)} ${Math.round(w.mx)}°</span>`:""}
 function wxCard(A,k){const ds=A.days.filter(d=>d.city===k&&d.kind!=="final");if(!ds.length)return"";const today=iso(new Date()),lim=add(today,15);
-  if(ds[0].d>lim)return `<div class="wxcard muted">🌦 El pronóstico del tiempo de ${k==="LO"?"Londres":"París"} aparece aquí desde el ${pretty(add(ds[0].d,-15))} (16 días antes), con sugerencias si llueve.</div>`;
+  if(ds[0].d>lim)return `<div class="wxcard muted">🌦 El pronóstico del tiempo de ${cc(k).n} aparece aquí desde el ${pretty(add(ds[0].d,-15))} (16 días antes), con sugerencias si llueve.</div>`;
   if(ds[ds.length-1].d<today)return"";wxLoad(k);if(!WX[k]||WX[k].loading)return `<div class="wxcard muted">🌦 Cargando pronóstico…</div>`;if(WX[k].err)return `<div class="wxcard muted">🌦 No se pudo cargar el pronóstico.</div>`;
   const vis=ds.filter(d=>wxOf(k,d.d));if(!vis.length)return"";
   const sug=[];vis.forEach(d=>{const w=wxOf(k,d.d);if(!rainy(w)||!d.pa)return;d.pa.seq.filter(a=>!a.in&&!a.night&&!a.at).forEach(a=>{if(sug.length>=3)return;
       const alt=vis.filter(e=>e!==d&&e.pa&&dry(wxOf(k,e.d))&&e.kind!=="first");let best=null;alt.forEach(e=>e.pa.seq.filter(b=>b.in&&!b.night&&!b.at&&!(b.cl&&b.cl.includes(D(d.d).getDay()))).forEach(b=>{if(!best||Math.abs(b.h-a.h)<Math.abs(best.b.h-a.h))best={e,b}}));
       if(best)sug.push(`<li>☂ <b>${pretty(d.d)}</b> (lluvia ${wxOf(k,d.d).pp}%): cambiar <b>${esc(a.n)}</b> por <b>${esc(best.b.n)}</b> (🏛 techado), que pasa al ${pretty(best.e.d)} con ${WXI(wxOf(k,best.e.d).c)}. <button type="button" class="btn sm" data-wxswap="${a.id}|${best.e.d}|${best.b.id}|${d.d}">Aplicar cambio</button></li>`);
       else{const dd=dry(wxOf(k,d.d));const e=alt.find(e=>!(a.cl&&a.cl.includes(D(e.d).getDay())));if(e)sug.push(`<li>☂ <b>${pretty(d.d)}</b> (lluvia ${wxOf(k,d.d).pp}%): mover <b>${esc(a.n)}</b> (al aire libre) al ${pretty(e.d)}. <button type="button" class="btn sm" data-wxswap="${a.id}|${e.d}||">Mover</button></li>`)}})});
-  return `<div class="wxcard"><div class="wxh"><span class="eyebrow">Pronóstico · ${k==="LO"?"Londres":"París"}</span><small class="muted">Open-Meteo · se actualiza al abrir</small></div>
+  return `<div class="wxcard"><div class="wxh"><span class="eyebrow">Pronóstico · ${cc(k).n}</span><small class="muted">Open-Meteo · se actualiza al abrir</small></div>
    <div class="wxrow">${vis.map(d=>{const w=wxOf(k,d.d);return `<button type="button" class="wxd${rainy(w)?" wet":""}" data-calgo="${d.id}" title="${pretty(d.d)}: ${Math.round(w.mn)}–${Math.round(w.mx)} °C, lluvia ${w.pp}% (${w.mm} mm)"><small>${pretty(d.d).replace(/ [a-zé]+$/,"")}</small><span class="wi">${WXI(w.c)}</span><b>${Math.round(w.mx)}°</b><small>${Math.round(w.mn)}° · ${w.pp}%</small></button>`}).join("")}</div>
    ${sug.length?`<ul class="wxsug">${sug.join("")}</ul>`:`<small class="muted">${vis.some(d=>rainy(wxOf(k,d.d)))?"Días con lluvia: el programa de esos días ya es techado o está libre.":"Sin lluvia importante en el pronóstico."}</small>`}</div>`}
 async function geoLon(){const q=(ST.wiz||{}).lon_dir;if(!q)return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/london|londres/i.test(q)?"":", London")));const j=await r.json();if(j[0]){ST.lonLL=[+j[0].lat,+j[0].lon];ST.lonLLq=q;save();render()}}catch(e){}}
@@ -322,7 +322,7 @@ function dayMap(p,legs){const base=p.base||baseLL();const pts=[base,...p.seq.map
   return `<svg class="pmap" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Plano del día"><rect width="${W}" height="${Hh}" class="pm-bg"/>${g}</svg>
   <div class="pm-leg"><span><i class="w"></i>a pie</span><span><i class="m"></i>metro/RER</span><span>⌂ alojamiento</span><span class="muted">Sena aprox.</span></div>`}
 // ===== Mapa y fichas de escapadas =====
-const PARIS=[48.8566,2.3522];
+const PARIS=TRIP.cities.PA.ll;
 // ll destino · cost = tren ida aprox. 2.ª clase comprando con anticipación (verificar) · how = cómo llegar · f = ficha
 function frMap(){const M=FRMAP;const pr=ll=>[(ll[1]-M.W)*M.kx*M.sc,(M.N-ll[0])*M.sc];
   const p0=pr(PARIS);const day=ESC.filter(x=>x.k==="dia"),far=ESC.filter(x=>x.k!=="dia");const chosen=new Set(ST.esc.map(e=>e.id));
@@ -358,7 +358,7 @@ function bindEsc(){document.querySelectorAll("[data-esc]").forEach(g=>{const f=(
   document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setTimeout(()=>{const f=document.querySelector(`form[data-plan="${b.dataset.open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},50)))}
 
 // ===================== Interfaz con la plantilla del Viaje a Alemania =====================
-const PEOPLE=TRIP.people,peopleOf=k=>{const t=tramoOf(k);return t&&t.viajeros?t.viajeros.length:PEOPLE},PA_C=TRIP.colors.PA,LO_C=TRIP.colors.LO,LONDON=[51.5074,-0.1278];
+const PEOPLE=TRIP.people,peopleOf=k=>{const t=tramoOf(k);return t&&t.viajeros?t.viajeros.length:PEOPLE},PA_C=TRIP.colors.PA,LO_C=TRIP.colors.LO,LONDON=TRIP.cities.LO.ll;
 let cur="EUR",sty="papel";try{cur=localStorage.getItem(TRIP.ls+"_cur")||"EUR";sty=localStorage.getItem(TRIP.ls+"_sty")||"papel"}catch(e){}
 const rate=()=>+(ST.rate||1100);
 const fmt=v=>cur==="CLP"?"$"+Math.round(v*rate()).toLocaleString("es-CL"):(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -595,11 +595,11 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(d.pa&&d.pa.seq.length){const p=d.pa,legs=c.legs,nonEve=p.seq.filter(a=>!a.night);const days=d.city==="LO"?lonDays():parisDays();let lp=false;
     const lr=(ST.lunchAt||{})[d.id];const lunch=()=>`<div class="lunch">🍽 <b>${hm(p.seq.lunch)}–${hm(p.seq.lunch+1)}</b> ${lr?"Almuerzo en <b>"+esc(lr)+"</b>":"Almuerzo (1 h)"}</div>${lunchSugg(d,p)}`;
     p.seq.forEach((a,k)=>{const l=legs[k];if(p.seq.lunch&&!lp&&a.st>p.seq.lunch){h+=lunch();lp=true}
-      h+=l.noloc?`<span class="mv">↓ ${esc(a.n)}: sin dirección, sin traslado calculado</span>`:l.metro?`<span class="mv">↓ ~${l.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
+      h+=l.noloc?`<span class="mv">↓ ${esc(a.n)}: sin dirección, sin traslado calculado</span>`:l.metro?`<span class="mv">↓ ~${l.min} min en ${cc(d.city).transit}${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
       h+=actRow(d,a,k,nonEve,SUN,days)});
     if(p.seq.lunch&&!lp)h+=lunch();
     if(!p.seq.lunch&&lr)h+=`<div class="lunch">🍽 ${lr?"Almuerzo en <b>"+esc(lr)+"</b>":""} <small class="muted">(a la hora que les acomode)</small></div>`;
-    const back=legs[legs.length-1];h+=`<span class="mv">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en ${d.city==="LO"?"metro (Tube)":"metro/RER"}`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>`;
+    const back=legs[legs.length-1];h+=`<span class="mv">↓ vuelta al alojamiento ${back.metro?`~${back.min} min en ${cc(d.city).transit}`:`a pie ~${back.min} min`} · llegada ~${hm(p.end+mv(back.from,back.to))}</span>`;
     const zs=zonesNearPA([p.base||baseLL(),...p.seq.map(a=>a.ll)]);
     if(zs.length)h+=`<details class="riskbox"><summary>⚠ Zona${zs.length>1?"s":""} de precaución: ${zs.map(z=>z.n).join(" · ")}</summary>${zs.map(z=>`<p><b>${z.n}:</b> ${z.t}</p>`).join("")}<p class="muted">Emergencias: <b>112</b> · Policía: <b>17</b> · Ambulancia: <b>15</b></p></details>`;
     if(p.man)h+=`<div class="manord">✋ <b>Orden manual</b>${p.seq.some(a=>a.late||a.closed)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-pmreset="${d.id}">↺ Orden automático</button></div>`;
@@ -613,7 +613,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   if(c.trn){const fr=d.kind==="ret"?short(fx.n):"París",to=d.kind==="ret"?"París":short(d.c.n);
     h+=`<div class="leg"><div class="line"><span><a href="https://www.sncf-connect.com/" target="_blank" rel="noopener">${fr} → ${to}${d.kind==="trip"?" (ida y vuelta)":""}</a></span><span class="p">${fmt(c.trn)}</span></div><span class="muted" style="font-size:12px">${(d.kind==="ret"?fx:d.c.x).tr} · costo estimado (promedio del rango, 2.ª clase)</span></div>`}
   if(c.navigo!=null)h+=`<div class="line"><span>🎫 Navigo Semaine (prorrateado en la semana) · <a href="#" data-gotab="tra">ver por qué</a></span><span class="p">${fmt(c.navigo)}</span></div>`;
-  else if(c.nm)h+=`<div class="line"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en ${d.city==="LO"?"metro (Tube)":"metro/RER"} × ${fmt(METRO)} · <a href="#" data-gotab="tra">opciones</a></span><span class="p">${fmt(c.nm*METRO)}</span></div>`;
+  else if(c.nm)h+=`<div class="line"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en ${cc(d.city).transit} × ${fmt(METRO)} · <a href="#" data-gotab="tra">opciones</a></span><span class="p">${fmt(c.nm*METRO)}</span></div>`;
   if(d.kind==="first"&&c.navigo==null)h+=`<div class="line"><span>Metro Gare du Nord → alojamiento</span><span class="p">${fmt(METRO)}</span></div>`;
   if(d.kind==="final"&&c.navigo==null)h+=`<div class="line"><span>RER B al aeropuerto (boleto aeropuerto)</span><span class="p">${fmt(14)}</span></div>`;
   if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento donde Alli</span><span class="p">—</span></div>`;
@@ -792,7 +792,7 @@ function perForm(d,lo){return `<form class="fform perf" data-perform="${d}|${lo?
 async function savePer(f){const [d,city]=f.dataset.perform.split("|");const g=k=>(f[k]&&f[k].value||"").trim();const n=g("n");if(!n)return;
   const btn=f.querySelector("button[type=submit]");btn.disabled=true;btn.textContent="Guardando…";
   let ll=null,addr=g("addr"),found="";
-  if(addr){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(addr+(city==="LO"?", London":", Paris"))}&viewbox=${VB[city]}`);const j=await r.json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];found=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
+  if(addr){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(addr+(cc(city).geo))}&viewbox=${VB[city]}`);const j=await r.json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];found=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
   const at=g("at");const atH=at?(+at.split(":")[0]+(+at.split(":")[1])/60):0;
   const id=(city==="LO"?"lo_cu":"cu")+Date.now().toString(36);const base=city==="LO"?lonBase():baseLL();
   const a={id,t:"per",n,h:+g("h")||1,p:+g("p")||0,in:0,ll:ll||base,noloc:ll?0:1,addr:found||addr,s:g("s")||(ll?found:"Actividad personal"),v:addr?(ll?"📍 "+found:"Dirección sin ubicar: "+addr):"Sin dirección",d:g("s")||"",u:ll?`https://www.google.com/maps/search/?api=1&query=${ll.join(",")}`:"",z:"Personal",city,by:(user&&user.email)||""};
@@ -1108,7 +1108,7 @@ function manPanel(kind,city){const k=kind+"|"+(city||"");if(MAN!==k)return"";con
    <div class="act wide"><button type="submit" class="btn sm">＋ Agregar</button><button type="button" class="btn alt sm" data-man="${k}">Cancelar</button></div>
    <p class="muted wide" style="font-size:13px;margin:0">Todo es opcional salvo el nombre. ${kind==="esc"?"El destino se ubica en el mapa por su nombre.":"Con dirección se ubica en el plano y se calculan los traslados; sin dirección queda sin traslado."}</p></form>`}
 async function saveMan(f){const [kind,city]=f.dataset.manform.split("|");const g=k=>(f[k]&&f[k].value||"").trim();const n=g("n");if(!n)return;const b=f.querySelector("button[type=submit]");b.disabled=true;b.textContent="Guardando…";
-  const ctx=kind==="esc"?"":city==="LO"?", London":", Paris";let ll=null,addr=g("addr");const q=addr||(kind==="esc"?n:"");
+  const ctx=kind==="esc"?"":cc(city).geo;let ll=null,addr=g("addr");const q=addr||(kind==="esc"?n:"");
   if(q){try{const j=await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q=${encodeURIComponent(q+ctx)}${kind!=="esc"?`&viewbox=${VB[city]}`:""}`)).json();if(j[0]){ll=[+(+j[0].lat).toFixed(5),+(+j[0].lon).toFixed(5)];if(addr)addr=j[0].display_name.split(",").slice(0,3).join(",")}}catch(e){}}
   const c=ST.custom=ST.custom||{};const tm=x=>x?(+x.split(":")[0]+(+x.split(":")[1])/60):0;const base=city==="LO"?lonBase():baseLL();
   if(kind==="esc"){if(!ll){b.disabled=false;b.textContent="＋ Agregar";toast("⚠ No encontré ese destino en el mapa: prueben con otro nombre o agreguen el país");return}

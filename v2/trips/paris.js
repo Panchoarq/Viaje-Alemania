@@ -9,8 +9,8 @@ export const TRIP={
   viajeros:["Francisco","Alli"],
   colors:{PA:"#2e4f8f",LO:"#1d6f7a"},
   cities:{
-    LO:{n:"Londres",p:"🇬🇧"},
-    PA:{n:"París",p:"🇫🇷"}
+    LO:{n:"Londres",p:"🇬🇧",ll:[51.5074,-0.1278],transit:"metro (Tube)",geo:", London"},
+    PA:{n:"París",p:"🇫🇷",ll:[48.8566,2.3522],transit:"metro/RER",geo:", Paris"}
   },
   // nombres de los campos de fecha/dirección dentro de `wiz` (datos guardados en Firestore)
   keys:{llega:"ida_llega",ini:"ida_fecha",parIni:"eur_fecha",parFin:"vue_fecha",lonDir:"lon_dir",parDir:"par_dir"},
