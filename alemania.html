@@ -199,18 +199,9 @@ label.vchk input{accent-color:var(--ok);margin:0}
     <span class="eyebrow" id="hdrMeta">5 viajeros · 16 años</span>
     <h1 id="h1">Ruta Múnich · Praga · Berlín</h1>
     <div class="route" id="route" aria-label="Ruta"></div>
-    <a class="gastosbtn" href="/gastos?trip=alemania"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H17v3"/><rect x="3" y="8.5" width="18" height="11" rx="2"/><circle cx="16.5" cy="14" r="1.1"/></svg> Mis gastos</a>
+    <button type="button" class="gastosbtn" id="gLogin" hidden title="Entra con tu cuenta de Google para ver tu gasto real junto al presupuesto">Entrar con Google · ver mi gasto real</button><a class="gastosbtn" href="/gastos?trip=alemania"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H17v3"/><rect x="3" y="8.5" width="18" height="11" rx="2"/><circle cx="16.5" cy="14" r="1.1"/></svg> Mis gastos</a>
     <div class="stylebar"><span class="eyebrow">Estilo</span><div class="seg" role="group"><button id="styRetro" aria-pressed="true">Retro</button><button id="styMod" aria-pressed="false">Moderno</button><button id="styPap" aria-pressed="false">Papel (prueba)</button></div></div>
   </header>
-
-  <section class="summary" aria-label="Resumen de costos">
-    <div class="tile main"><span class="eyebrow">Total grupo (5)</span><span class="big" id="tGroup">—</span><span id="tGroupClp" class="num" style="opacity:.8;font-size:13px"></span></div>
-    <div class="tile"><span class="eyebrow">Por persona</span><span class="big" id="tPP">—</span><span id="tPPClp" class="num muted" style="font-size:13px"></span></div>
-    <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big" id="tDay">—</span><span class="muted" style="font-size:13px" id="tNights"></span><span class="v" style="font-size:12.5px" id="tVer"></span></div>
-  </section>
-  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose">
-    <div class="bar" id="bar"></div><div class="legend" id="legend"></div>
-  </section>
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-cfg" aria-selected="true" data-tab="cfg">1 · Configurar</button>
@@ -219,7 +210,9 @@ label.vchk input{accent-color:var(--ok);margin:0}
     <button role="tab" id="tab-rail" aria-selected="false" data-tab="rail">4 · Pasajes y Eurail</button>
     <button role="tab" id="tab-buy" aria-selected="false" data-tab="buy">5 · Trámites previos</button>
     <button role="tab" id="tab-att" aria-selected="false" data-tab="att">6 · Atracciones</button>
-    <button role="tab" id="tab-gas" aria-selected="false" data-tab="gas">7 · Gastos</button>
+    <button role="tab" id="tab-tra" aria-selected="false" data-tab="tra">7 · Transporte</button>
+    <button role="tab" id="tab-food" aria-selected="false" data-tab="food">8 · Comidas</button>
+    <button role="tab" id="tab-gas" aria-selected="false" data-tab="gas">9 · Gastos</button>
   </nav>
 
   <!-- CONFIGURAR -->
@@ -257,7 +250,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
   </section>
 
   <!-- PROGRAMA -->
-  <section class="panel" id="p-prog" hidden><button type="button" class="calbtn" id="calBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> Calendario del viaje</button><div id="feas" class="feas"></div><div id="feasmini" class="feasmini" role="button" tabindex="0"></div><div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"></div><div class="days" id="days"></div></section>
+  <section class="panel" id="p-prog" hidden><button type="button" class="calbtn" id="calBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> Calendario del viaje</button><div id="feas" class="feas"></div><div id="feasmini" class="feasmini" role="button" tabindex="0"></div><div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"></div><div id="wxbox"></div><div class="days" id="days"></div></section>
 
   <!-- ALOJAMIENTO -->
   <section class="panel" id="p-hot" hidden><div class="daytabs" id="hottabs" role="tablist" aria-label="Ciudad"></div><div id="hotels" style="display:flex;flex-direction:column;gap:22px"></div></section>
@@ -310,33 +303,6 @@ label.vchk input{accent-color:var(--ok);margin:0}
       </ol>
     </div>
 
-    <div class="card buy"><span class="eyebrow">Transporte en las ciudades</span>
-      <h3>Tarjetas de grupo: qué son y cuándo comprarlas</h3>
-      <p>Es un solo boleto diario para hasta 5 personas que viajan juntas en metro, tren urbano, tranvía y bus. Se cobra como si fueran 2 o 3 personas.</p>
-      <ul class="brief">
-        <li><b>Los 5 deben ir juntos.</b> Si el grupo se separa, quien no va con el que tiene el boleto viaja sin pasaje (multa en Alemania: ~60 € por persona).</li>
-        <li><b>Duración:</b> Hamburgo y Múnich, todo el día hasta las 6:00 del día siguiente. Berlín, 24 horas desde que se valida.</li>
-        <li><b>Compra:</b> en la app (hvv, BVG, MVV) o en máquinas de las estaciones, eligiendo 5 personas. Si es de papel, hay que validarla (timbrarla) antes del primer viaje. Si es digital, va en el celular de uno de ellos: que tenga batería.</li>
-      </ul>
-      <div class="tbl-wrap"><table><thead><tr><th>Ciudad</th><th class="r">Grupo ÷ 5</th><th class="r">Viaje suelto</th><th class="r">Pase diario individual</th><th>¿Conviene?</th></tr></thead><tbody>
-        <tr><td>Hamburgo</td><td class="r num">3,30 €</td><td class="r num">4,10 €</td><td class="r num">8,20 €</td><td>Sí, ya desde 1 viaje al día</td></tr>
-        <tr><td>Berlín</td><td class="r num">7,20 €</td><td class="r num">~4 €</td><td class="r num">11,50 €</td><td>Sí, con 2 o más viajes</td></tr>
-        <tr><td>Múnich</td><td class="r num">~4 €</td><td class="r num">~4 €</td><td class="r num">10,80 €</td><td>Sí, con 2 o más viajes</td></tr>
-        <tr><td>Praga</td><td class="r">no existe</td><td class="r num">18 Kč (junior)</td><td class="r num">70 Kč junior</td><td>Pase junior 24 h individual</td></tr>
-      </tbody></table></div>
-      <p><b>Regla práctica:</b> cada mañana miren la ruta del día. Si van a hacer 2 o más viajes (por ejemplo Tempelhof o East Side Gallery en Berlín, BMW y Parque Olímpico en Múnich, o un traslado con maletas hotel–estación), compran la tarjeta de grupo. En los días a pie, como el centro de Hamburgo o el centro histórico de Praga, puede no hacer falta. La planilla la deja cargada todos los días, así que el presupuesto queda con un pequeño margen.</p>
-      <div class="neu"><h4>Excursión a Neuschwanstein (solo ese día, desde Múnich)</h4>
-      <p>La entrada al castillo es gratis para menores de 18; solo se paga un <b>cargo fijo de 2,50 € por boleto</b> al reservar en línea. Lo que cuesta es el transporte: <b>tren regional</b> Múnich Hbf → Füssen (~2 h), luego <b>bus 73 o 78</b> Füssen → Hohenschwangau (~10 min) y <b>subida a pie</b> de 30–40 min. Es un día completo.</p>
-      <div class="tbl-wrap"><table><thead><tr><th></th><th>Bayern-Ticket</th><th>Tarjeta de grupo MVV M-13 (nueva 2027)</th></tr></thead><tbody>
-        <tr><td>Qué es</td><td>Boleto diario para hasta 5 personas, en toda Baviera</td><td>La tarjeta de grupo de Múnich ampliada hasta Füssen</td></tr>
-        <tr><td>Precio 5 pers.</td><td class="num">74 € (≈14,80 € p/p)</td><td class="num">43,90 € (≈8,80 € p/p)</td></tr>
-        <tr><td>Tren ida y vuelta</td><td>Incluido</td><td>Incluido</td></tr>
-        <tr><td>Bus a Hohenschwangau</td><td>Incluido</td><td><b>Por confirmar</b> (si no, ~2–3 € por tramo p/p, est.)</td></tr>
-        <tr><td>Transporte en Múnich ese día</td><td>Incluido</td><td>Incluido</td></tr>
-        <tr><td>Horario</td><td>Lun–vie desde las 9:00</td><td>Todo el día</td></tr>
-      </tbody></table></div>
-      <p><b>Qué hacer:</b> en enero de 2027 revisar en el mapa de zonas del MVV si el bus 73/78 está dentro de la zona M-13. Si está, comprar la tarjeta M-13 (43,90 €). Si no, comprar el Bayern-Ticket (74 €), que cubre todo con un solo boleto, y tomar el primer tren después de las 9:00. <b>Ambos sirven solo para el día de la excursión</b>; para los otros días en Múnich basta la tarjeta de grupo de zona M.</p></div>
-    </div>
     <div class="buycities">
       <div class="card buy city H" style="--c:var(--ham)"><span class="eyebrow">Hamburgo · 15–17 feb</span>
         <ul>
@@ -368,13 +334,68 @@ label.vchk input{accent-color:var(--ok);margin:0}
         </ul></div>
     </div>
 
+    </section>
+  <section class="panel" id="p-tra" hidden>
+    <div class="card buy"><span class="eyebrow">Resumen · qué comprar en cada ciudad</span>
+      <h3>Boleto suelto, tarjeta de grupo o pase</h3>
+      <p>Para los 5 viajeros, la tarjeta de grupo diaria sale más barata que 5 boletos sueltos apenas se hacen 2 viajes. Cada ciudad tiene la suya:</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Ciudad</th><th>Qué comprar</th><th class="r">Precio</th><th>Dónde</th></tr></thead><tbody>
+        <tr><td>Hamburgo</td><td>Gruppenkarte hvv Hamburg AB (hasta 5 personas, todo el día)</td><td class="r num">16,40 €</td><td>App hvv o máquinas</td></tr>
+        <tr><td>Berlín</td><td>Kleingruppen-Tageskarte BVG AB (hasta 5 personas, 24 h)</td><td class="r num">36,00 €</td><td>App BVG o máquinas</td></tr>
+        <tr><td>Praga</td><td>Pase de 24 h PID tarifa junior (15–18 años), uno por persona</td><td class="r num">70 Kč c/u</td><td>App PID Lítačka; mostrar el pasaporte</td></tr>
+        <tr><td>Múnich</td><td>Gruppen-Tageskarte zona M (2 a 5 personas)</td><td class="r num">desde 19,70 €</td><td>App MVV o máquinas</td></tr>
+        <tr><td>Entre ciudades</td><td>Tren con BahnCard 25 joven (gratis hasta el 12 dic 2026) o pase de tren</td><td class="r">ver Pasajes</td><td>bahn.de y RegioJet</td></tr>
+      </tbody></table></div>
+      <ul class="brief">
+        <li><b>Boleto suelto:</b> sirve solo si hacen un viaje al día. Con 5 personas conviene la tarjeta de grupo.</li>
+        <li><b>Tarjeta o ticket digital:</b> va en el celular de uno de ellos. Si es de papel hay que validarla (timbrarla) antes del primer viaje.</li>
+        <li><b>Pases de turista (Hamburg CARD, WelcomeCard, Prague Visitor Pass):</b> para este programa no suelen convenir; se detalla por ciudad abajo.</li>
+        <li><b>Pase o descuento de estudiante:</b> en Praga el pase junior de 15–18 años con el pasaporte; en Alemania, la BahnCard 25 joven y el carné escolar para entradas (no para el transporte urbano).</li>
+      </ul></div>
+    <div class="card buy"><span class="eyebrow">Transporte en las ciudades</span>
+      <h3>Tarjetas de grupo: qué son y cuándo comprarlas</h3>
+      <p>Es un solo boleto diario para hasta 5 personas que viajan juntas en metro, tren urbano, tranvía y bus. Se cobra como si fueran 2 o 3 personas.</p>
+      <ul class="brief">
+        <li><b>Los 5 deben ir juntos.</b> Si el grupo se separa, quien no va con el que tiene el boleto viaja sin pasaje (multa en Alemania: ~60 € por persona).</li>
+        <li><b>Duración:</b> Hamburgo y Múnich, todo el día hasta las 6:00 del día siguiente. Berlín, 24 horas desde que se valida.</li>
+        <li><b>Compra:</b> en la app (hvv, BVG, MVV) o en máquinas de las estaciones, eligiendo 5 personas. Si es de papel, hay que validarla (timbrarla) antes del primer viaje. Si es digital, va en el celular de uno de ellos: que tenga batería.</li>
+      </ul>
+      <div class="tbl-wrap"><table><thead><tr><th>Ciudad</th><th class="r">Grupo ÷ 5</th><th class="r">Viaje suelto</th><th class="r">Pase diario individual</th><th>¿Conviene?</th></tr></thead><tbody>
+        <tr><td>Hamburgo</td><td class="r num">3,30 €</td><td class="r num">4,10 €</td><td class="r num">8,20 €</td><td>Sí, ya desde 1 viaje al día</td></tr>
+        <tr><td>Berlín</td><td class="r num">7,20 €</td><td class="r num">~4 €</td><td class="r num">11,50 €</td><td>Sí, con 2 o más viajes</td></tr>
+        <tr><td>Múnich</td><td class="r num">~4 €</td><td class="r num">~4 €</td><td class="r num">10,80 €</td><td>Sí, con 2 o más viajes</td></tr>
+        <tr><td>Praga</td><td class="r">no existe</td><td class="r num">18 Kč (junior)</td><td class="r num">70 Kč junior</td><td>Pase junior 24 h individual</td></tr>
+      </tbody></table></div>
+      <p><b>Regla práctica:</b> cada mañana miren la ruta del día. Si van a hacer 2 o más viajes (por ejemplo Tempelhof o East Side Gallery en Berlín, BMW y Parque Olímpico en Múnich, o un traslado con maletas hotel–estación), compran la tarjeta de grupo. En los días a pie, como el centro de Hamburgo o el centro histórico de Praga, puede no hacer falta. La planilla la deja cargada todos los días, así que el presupuesto queda con un pequeño margen.</p>
+      <div class="neu"><h4>Excursión a Neuschwanstein (solo ese día, desde Múnich)</h4>
+      <p>La entrada al castillo es gratis para menores de 18; solo se paga un <b>cargo fijo de 2,50 € por boleto</b> al reservar en línea. Lo que cuesta es el transporte: <b>tren regional</b> Múnich Hbf → Füssen (~2 h), luego <b>bus 73 o 78</b> Füssen → Hohenschwangau (~10 min) y <b>subida a pie</b> de 30–40 min. Es un día completo.</p>
+      <div class="tbl-wrap"><table><thead><tr><th></th><th>Bayern-Ticket</th><th>Tarjeta de grupo MVV M-13 (nueva 2027)</th></tr></thead><tbody>
+        <tr><td>Qué es</td><td>Boleto diario para hasta 5 personas, en toda Baviera</td><td>La tarjeta de grupo de Múnich ampliada hasta Füssen</td></tr>
+        <tr><td>Precio 5 pers.</td><td class="num">74 € (≈14,80 € p/p)</td><td class="num">43,90 € (≈8,80 € p/p)</td></tr>
+        <tr><td>Tren ida y vuelta</td><td>Incluido</td><td>Incluido</td></tr>
+        <tr><td>Bus a Hohenschwangau</td><td>Incluido</td><td><b>Por confirmar</b> (si no, ~2–3 € por tramo p/p, est.)</td></tr>
+        <tr><td>Transporte en Múnich ese día</td><td>Incluido</td><td>Incluido</td></tr>
+        <tr><td>Horario</td><td>Lun–vie desde las 9:00</td><td>Todo el día</td></tr>
+      </tbody></table></div>
+      <p><b>Qué hacer:</b> en enero de 2027 revisar en el mapa de zonas del MVV si el bus 73/78 está dentro de la zona M-13. Si está, comprar la tarjeta M-13 (43,90 €). Si no, comprar el Bayern-Ticket (74 €), que cubre todo con un solo boleto, y tomar el primer tren después de las 9:00. <b>Ambos sirven solo para el día de la excursión</b>; para los otros días en Múnich basta la tarjeta de grupo de zona M.</p></div>
+    </div>
     <div class="card buy"><span class="eyebrow">Alternativa para Alemania</span>
       <h3>¿Deutschlandticket?</h3>
       <p>Cuesta 66,80 € al mes por persona desde enero 2027 y cubre todo el transporte local de Hamburgo, Berlín y Múnich, además de los trenes regionales (incluido Füssen). Para estas fechas, las tarjetas de grupo de cada ciudad más el Bayern-Ticket salen unos 45–55 € p/p, así que la diferencia es chica. El Deutschlandticket es una suscripción mensual que hay que cancelar. Recomendación: <b>tarjetas de grupo</b>.</p>
       <a href="https://regional.bahn.de/tickets/Deutschlandticket" target="_blank" rel="noopener">info Deutschlandticket</a></div>
   </section>
   <section class="panel" id="p-att" hidden><div id="att"></div></section>
-  <section class="panel" id="p-gas" hidden><div id="gas"></div></section>
+  <section class="panel" id="p-food" hidden><div id="food"></div></section>
+  <section class="panel" id="p-gas" hidden>
+  <section class="summary" aria-label="Resumen de costos">
+    <div class="tile main"><span class="eyebrow">Total grupo (5)</span><span class="big" id="tGroup">—</span><span id="tGroupClp" class="num" style="opacity:.8;font-size:13px"></span></div>
+    <div class="tile"><span class="eyebrow">Por persona</span><span class="big" id="tPP">—</span><span id="tPPClp" class="num muted" style="font-size:13px"></span></div>
+    <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big" id="tDay">—</span><span class="muted" style="font-size:13px" id="tNights"></span><span class="v" style="font-size:12.5px" id="tVer"></span></div>
+  </section>
+  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose">
+    <div class="bar" id="bar"></div><div class="legend" id="legend"></div>
+  </section>
+<div id="gas"></div></section>
 </div>
 
 <div id="syncChip" class="sync-chip" hidden></div>
@@ -411,7 +432,7 @@ async function _fbRef(){if(location.protocol!=="https:"&&location.hostname!=="lo
   try{const B="https://www.gstatic.com/firebasejs/10.12.2/";
     const [A,U,F]=await _tmo(Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]),8000);
     const app=A.initializeApp(FB_CFG);{const au=U.getAuth(app);try{await _tmo(au.authStateReady(),5000)}catch(e){}if(!au.currentUser)await _tmo(U.signInAnonymously(au),8000);}
-    const db=F.getFirestore(app);window._FB={F,db};const d=F.doc(db,"plan","estado");const w=s=>({exists:s.exists(),data:()=>s.data()});
+    const db=F.getFirestore(app);window._FB={F,db,U,au:U.getAuth(app)};const d=F.doc(db,"plan","estado");const w=s=>({exists:s.exists(),data:()=>s.data()});
     return{get:async()=>w(await _tmo(F.getDoc(d),8000)),set:x=>F.setDoc(d,x,{merge:true}),onSnapshot:(fn,err)=>F.onSnapshot(d,s=>{if(!s.metadata.hasPendingWrites)fn(w(s))},err)};
   }catch(e){console.warn("Firebase no disponible",e);return null}}
 async function _boot(){
@@ -609,7 +630,7 @@ const H=[
 ["inicio","Cómo funciona",`
 <p>Esta página es el plan compartido del viaje. <b>Todo lo que cambias se guarda solo y lo ven todos</b>: no hay botón de guardar. Abajo a la derecha, el aviso <b>«☁ Guardado para todos»</b> confirma que quedó grabado.</p>
 <p>Si otra persona cambia algo mientras tienes la página abierta, arriba aparece <b>«Alguien guardó cambios en el plan · Actualizar»</b>. Tócalo para ver la versión nueva.</p>
-<p>El plan se recorre por las pestañas de arriba, en orden: <b>1 · Configurar</b> → <b>2 · Programa</b> → <b>3 · Alojamiento</b> → <b>4 · Pasajes</b> → <b>5 · Trámites previos</b> → <b>6 · Atracciones</b> → <b>7 · Gastos</b>. Los totales de arriba (total del grupo, por persona, promedio diario y las 5 categorías de gasto) se recalculan con cada cambio.</p>
+<p>El plan se recorre por las pestañas de arriba, en orden: <b>1 · Configurar</b> → <b>2 · Programa</b> → <b>3 · Alojamiento</b> → <b>4 · Pasajes</b> → <b>5 · Trámites previos</b> → <b>6 · Atracciones</b> → <b>7 · Transporte</b> → <b>8 · Comidas</b> → <b>9 · Gastos</b>. Los totales de arriba (total del grupo, por persona, promedio diario y las 5 categorías de gasto) se recalculan con cada cambio.</p>
 `],
 ["cfg","1 · Configurar",`
 <ul>
@@ -726,7 +747,7 @@ cfg:{t:"Configurar: armar la ruta",i:"Aquí se define cuándo empieza el viaje, 
  ["Fecha de inicio","Es el día de llegada a la primera ciudad. Las demás fechas se calculan solas."],
  ["Orden y noches","Cambien el orden con los selectores de ciudad y las noches de cada una (de 1 a 6). El programa, el alojamiento y los trenes se recalculan."],
  ["Mapa y trenes","La ruta se dibuja en el mapa. Entre ciudades aparece el tren con su hora de salida y llegada; «verificado» significa que el horario y el precio ya están confirmados."],
- ["Costos","Arriba están el total del grupo, el costo por persona y el promedio diario, con el desglose por categoría."]]},
+ ["Costos","El total del grupo, el costo por persona, el promedio diario y el desglose por categoría están en la pestaña 8 · Gastos."]]},
 prog:{t:"Programa: armar cada día",i:"El programa reparte las atracciones elegidas en los días de cada ciudad. Se puede ajustar a mano.",s:[
  ["Cajón por ciudad","Cada ciudad muestra cuántas horas ocupa el programa y si todo cabe. «Llenar espacios libres» propone dónde encajan las pendientes."],
  ["Agregar o quitar","«Agregar otras actividades» lista lo que falta y permite elegir el día. La ✕ de cada actividad la saca del programa."],
@@ -746,14 +767,25 @@ rail:{t:"Pasajes: trenes entre ciudades",i:"Un boleto por cada traslado entre ci
 buy:{t:"Trámites previos",i:"Lista de cosas que hay que tramitar o comprar antes de viajar y consejos de transporte y entradas por ciudad.",s:[
  ["Marcar lo hecho","Marquen cada casilla cuando esté listo. Se guarda para todos."],
  ["Lo urgente","Lo que tiene plazo (como la BahnCard gratis hasta el 12 de diciembre de 2026) aparece marcado en rojo."],
- ["Por ciudad","Abajo hay recomendaciones de transporte y entradas para cada ciudad: qué comprar, cuánto cuesta y dónde."]]},
+ ["Por ciudad","Abajo hay recomendaciones de entradas para cada ciudad. El transporte público está en la pestaña 7 · Transporte."]]},
 att:{t:"Atracciones: fichas",i:"Fichas con la historia y los datos de cada atracción, ordenadas por ciudad.",s:[
  ["Elegir ciudad","Usen los botones de arriba para cambiar de ciudad."],
  ["Contexto histórico","Cada ciudad empieza con una línea de tiempo y un resumen para llegar sabiendo."],
  ["Fichas","Cada ficha trae historia, qué van a ver, un consejo y fotos. «En el programa» indica que ya está elegida."],
  ["Para llegar sabiendo","Al final hay películas y libros que ayudan a entender cada ciudad."]]},
+tra:{t:"Transporte: cómo moverse en cada ciudad",i:"Qué boleto o tarjeta conviene en cada ciudad, cuánto cuesta y dónde se compra.",s:[
+ ["Resumen","La primera tarjeta dice qué comprar en cada ciudad para los 5 viajeros."],
+ ["Tarjetas de grupo","Un solo boleto diario para hasta 5 personas que viajan juntas. Todos deben ir juntos y validar el boleto si es de papel."],
+ ["Excursión a Neuschwanstein","Compara el Bayern-Ticket con la tarjeta de grupo MVV M-13 para ese día."],
+ ["Pases de turista y de estudiante","Se explica cuándo no conviene comprarlos y qué descuentos hay con el pasaporte o el carné escolar."]]},
+food:{t:"Comidas: dónde comer en cada ciudad",i:"Guía de lugares baratos y rápidos, pensada para jóvenes de 16 años, con precios aproximados.",s:[
+ ["Elegir ciudad","Usen los botones de arriba. Cada ciudad trae dónde almorzar sin gastar mucho, dulces y mercados."],
+ ["Mapa","Cada lugar tiene un enlace al mapa para ver cómo llegar."],
+ ["Agregar a mano","«Agregar un lugar para comer a mano» guarda un restaurante, café o dato propio; lo ven todos y se puede quitar."],
+ ["En cada día","Las comidas de cada día y sus precios están en el Programa."]]},
 gas:{t:"Gastos: presupuesto del programa",i:"Aquí está el presupuesto que estima el programa, por ciudad y por persona.",s:[
- ["Presupuesto","La tabla suma pasajes, alojamiento, comidas, entradas y transporte de cada ciudad. El total es el mismo de Configurar."],
+ ["Totales","Arriba están el total del grupo, el costo por persona, el promedio diario y el desglose por categoría."],
+ ["Presupuesto por ciudad","La tabla suma pasajes, alojamiento, comidas, entradas y transporte de cada ciudad."],
  ["Gasto real","Lo que gastan de verdad se anota en «Mis gastos», cada uno en su celular."]]}
 };
 function guideHTML(tab){const g=GUIDE[tab];if(!g)return"";let seen=true;try{seen=!!localStorage.getItem("ruta_guide_"+tab);localStorage.setItem("ruta_guide_"+tab,"1")}catch(e){}
@@ -1047,7 +1079,7 @@ const CATMAP={"H:0":"ent","H:1":"pas","H:2":"ent","H:3":"igl","H:4":"mon","H:5":
  "B:0":"mus","B:1":"pas","B:2":"mus","B:3":"ent","B:4":"tie","B:5":"mon","B:6":"mus","B:7":"mus","B:8":"mon","B:9":"mon","B:10":"mon","B:11":"mon","B:12":"mon","B:13":"mon","B:14":"mus","B:15":"igl","B:16":"mon","B:17":"exc","B:18":"exc",
  "P:0":"mon","P:1":"mus","P:2":"mon","P:3":"mon","P:4":"ent","P:5":"mon","P:6":"mon","P:7":"pas","P:8":"mon","P:9":"mon","P:10":"pas","P:11":"mon","P:12":"mon",
  "M:0":"mon","M:1":"mon","M:2":"pas","M:3":"mus","M:4":"pas","M:5":"exc","M:6":"pas","M:7":"ent","M:8":"mus","M:9":"mon","M:10":"mon","M:11":"mon","M:12":"mus","M:13":"mus","M:14":"exc"};
-let custom={acts:[],cats:[]};try{custom=Object.assign(custom,JSON.parse(store.getItem("ruta_custom")||"null")||{})}catch(e){}
+let custom={acts:[],cats:[],food:[]};try{custom=Object.assign(custom,JSON.parse(store.getItem("ruta_custom")||"null")||{})}catch(e){}
 function saveCustom(){try{store.setItem("ruta_custom",JSON.stringify(custom))}catch(e){}}
 const allCats=()=>[...CATS0,...custom.cats];
 const catKey=(c,i)=>{const a=ACTS[c][i];return a.t||CATMAP[c+":"+i]||"pas"};
@@ -1578,8 +1610,8 @@ function routeUrl(seg){const ll=p=>p[0].toFixed(5)+","+p[1].toFixed(5);const a0=
   return"https://www.google.com/maps/dir/?"+q.toString()}
 function mealOn(d,k){const key=d.id+k;if(!(key in mealState)){mealState[key]=!((d.first&&k==="d")||(d.final&&k==="c"))}return mealState[key]}
 
-function costStrip(c){const C=[[IC.tren,"Pasaje",c.leg,"var(--ink)"],[IC.hotel,"Alojamiento",c.hot,"var(--mun)"],[IC.comida,"Comidas",c.meal,"var(--pra)"],[IC.entrada,"Entradas",c.act,"var(--ber)"],[IC.tram,"Transporte",c.loc,"var(--ok)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
-  return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
+function costStrip(c,d){const dr=!!d&&hasReal(g=>g.d===iso(d.date));const C=[[IC.tren,"Pasaje",c.leg,"var(--ink)"],[IC.hotel,"Alojamiento",c.hot,"var(--mun)"],[IC.comida,"Comidas",c.meal,"var(--pra)"],[IC.entrada,"Entradas",c.act,"var(--ber)"],[IC.tram,"Transporte",c.loc,"var(--ok)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
+  return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}${dr&&RKEY[x[1]]?`<span class="rl">/ ${fmt(realSum(g=>g.d===iso(d.date)&&g.k===RKEY[x[1]]))}</span>`:""}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
 function dayCost(d){
   let meal=0,act=0,leg=0,hot=0;
   ["d","a","m","c"].forEach(k=>{if(mealOn(d,k))meal+=mealPick(d,k)[0]});
@@ -1642,6 +1674,97 @@ function actLinks(a){return (a.u?`<a href="${a.u}" target="_blank" rel="noopener
 function trTag(a){return a.tr?`<span class="tr ${a.tr}">${a.tr==="fuera"?"⟶ ":""}${TRL[a.tr]}</span>`:""}
 function suggHTML(){const cur=cfg.order.includes(progCity)?progCity:cfg.order[0];return cfg.order.filter(c=>c===cur).map(c=>{const miss=ACTS[c].map((a,i)=>({...a,i})).filter(a=>a.top&&!isSel(c,a.i)&&a.tr!=="fuera"&&a.h<=1.5);
     return miss.length?`<div class="sugg" style="grid-column:1/-1"><b>${CN[c]} · famosas no incluidas:</b> ${miss.map(a=>a.n).join(" · ")}</div>`:""}).join("")}
+
+/* ===== Clima por día (Open-Meteo) con sugerencias si llueve ===== */
+let WX={};
+const WXI=c=>c===0?"☀️":c<=2?"🌤":c===3?"☁️":c<=48?"🌫":c<=57?"🌦":c<=67?"🌧":c<=77?"🌨":c<=82?"🌧":"⛈";
+function wxLoad(c){if(WX[c])return;WX[c]={loading:1};const ll=hotelOf(c).ll;
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ll[0]}&longitude=${ll[1]}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=16`).then(r=>r.json()).then(j=>{const o={};(j.daily.time||[]).forEach((t,i)=>o[t]={c:j.daily.weather_code[i],mx:j.daily.temperature_2m_max[i],mn:j.daily.temperature_2m_min[i],pp:j.daily.precipitation_probability_max[i],mm:j.daily.precipitation_sum[i]});WX[c]={d:o};renderAll(false)}).catch(()=>{WX[c]={err:1}})}
+const wxOf=(c,d)=>{const w=WX[c]&&WX[c].d&&WX[c].d[d];return w&&w.mx!=null&&w.pp!=null?w:null};
+const rainy=w=>w&&(w.pp>=60||(w.pp>=40&&w.mm>=4)),dry=w=>w&&w.pp<40&&w.mm<1.5;
+function wxMini(c,d){const w=wxOf(c,d);return w?`<span class="wxm" title="Pronóstico: ${Math.round(w.mn)}–${Math.round(w.mx)} °C · lluvia ${w.pp}%">${WXI(w.c)} ${Math.round(w.mx)}°</span>`:""}
+const wxActs=(d,c)=>d.segs.filter(s=>s.city===c).flatMap(s=>s.acts);
+function wxCard(c){const ds=cityDays(PLAN,c).filter(d=>d.date&&!d.final);if(!ds.length)return"";const today=iso(new Date()),lim=iso(addDays(today,15)),dk=d=>iso(d.date);
+  if(dk(ds[0])>lim)return `<div class="wxcard muted">El pronóstico del tiempo de ${CN[c]} aparece aquí desde el ${pretty(addDays(dk(ds[0]),-15))} (16 días antes), con sugerencias si llueve.</div>`;
+  if(dk(ds[ds.length-1])<today)return"";wxLoad(c);if(!WX[c]||WX[c].loading)return `<div class="wxcard muted">Cargando pronóstico…</div>`;if(WX[c].err)return `<div class="wxcard muted">No se pudo cargar el pronóstico.</div>`;
+  const vis=ds.filter(d=>wxOf(c,dk(d)));if(!vis.length)return"";const sug=[];
+  vis.forEach(d=>{const w=wxOf(c,dk(d));if(!rainy(w))return;
+    wxActs(d,c).filter(a=>!a.in&&!a.night&&!a.full&&a.tr!=="fuera").forEach(a=>{if(sug.length>=3)return;
+      const alt=vis.filter(e=>e!==d&&dry(wxOf(c,dk(e)))&&!e.arrival);let best=null;
+      alt.forEach(e=>wxActs(e,c).filter(b=>b.in&&!b.night&&!(b.closed&&b.closed.includes(d.date.getDay()))).forEach(b=>{if(!best||Math.abs(b.h-a.h)<Math.abs(best.b.h-a.h))best={e,b}}));
+      const ka=aKeyG(a.city,a.i);
+      if(best)sug.push(`<li>☂ <b>${pretty(d.date)}</b> (lluvia ${w.pp}%): cambiar <b>${a.n.replace(/\s*\(.*$/,"")}</b> por <b>${best.b.n.replace(/\s*\(.*$/,"")}</b> (techado), que pasa al ${pretty(best.e.date)} ${WXI(wxOf(c,dk(best.e)).c)}. <button type="button" class="btn sm" data-wxswap="${ka}|${dk(best.e)}|${aKeyG(best.b.city,best.b.i)}|${dk(d)}">Aplicar cambio</button></li>`);
+      else{const e=alt.find(e=>!(a.closed&&a.closed.includes(e.date.getDay())));if(e)sug.push(`<li>☂ <b>${pretty(d.date)}</b> (lluvia ${w.pp}%): mover <b>${a.n.replace(/\s*\(.*$/,"")}</b> (al aire libre) al ${pretty(e.date)}. <button type="button" class="btn sm" data-wxswap="${ka}|${dk(e)}||">Mover</button></li>`)}})});
+  return `<div class="wxcard"><div class="wxh"><span class="eyebrow">Pronóstico · ${CN[c]}</span><small class="muted">Open-Meteo · se actualiza al abrir</small></div>
+   <div class="wxrow">${vis.map(d=>{const w=wxOf(c,dk(d));return `<button type="button" class="wxd${rainy(w)?" wet":""}" data-calgo="${d.id}" data-calcity="${c}" title="${pretty(d.date)}: ${Math.round(w.mn)}–${Math.round(w.mx)} °C, lluvia ${w.pp}% (${w.mm} mm)"><small>${pretty(d.date).replace(/ [a-zé]+$/,"")}</small><span class="wi">${WXI(w.c)}</span><b>${Math.round(w.mx)}°</b><small>${Math.round(w.mn)}° · ${w.pp}%</small></button>`}).join("")}</div>
+   ${sug.length?`<ul class="wxsug">${sug.join("")}</ul>`:`<small class="muted">${vis.some(d=>rainy(wxOf(c,dk(d))))?"Días con lluvia: el programa de esos días ya es techado o está libre.":"Sin lluvia importante en el pronóstico."}</small>`}</div>`}
+function renderWx(){const b=$("wxbox");if(!b)return;const c=cfg.order.includes(progCity)?progCity:cfg.order[0];b.innerHTML=wxCard(c)}
+document.addEventListener("click",e=>{const g=e.target.closest("[data-calgo]");if(g&&!g.closest(".calov")){const c=g.dataset.calcity;document.getElementById("tab-prog").click();progCity=c;progDay[c]=g.dataset.calgo;renderDayTabs(PLAN);renderWx();setTimeout(()=>{const dv=[...document.querySelectorAll("#days > .day:not([hidden])")].find(x=>x.dataset.day===g.dataset.calgo);if(dv)dv.scrollIntoView({behavior:"smooth",block:"start"})},80)}});
+document.addEventListener("click",e=>{const sw=e.target.closest("[data-wxswap]");if(!sw)return;const [ka,ed,kb,dd]=sw.dataset.wxswap.split("|");
+  dayPin[ka]=ed;actSel[ka]=true;if(kb){dayPin[kb]=dd;actSel[kb]=true}saveDayPin();saveActs();renderAll(true);toast(kb?"✔ Cambio aplicado: las dos actividades se intercambiaron de día":"✔ Actividad movida a un día con mejor tiempo")});
+/* ===== Sugerencias de almuerzo cerca (desplegable) ===== */
+function lunchSuggHTML(c,ls,dayId){const fm=(FOOD[foodMode]||FOOD.fast)[c];const pr=fm&&fm.a?fm.a[0]:0;
+  const tipo=f=>/burger|chicken|pizza|italian/.test(f[4])?["Express","comida rápida"]:/kebab|turkish|sandwich|salad|bagel/.test(f[4])?["Barato","sándwich o kebab"]:["Económico",f[4]?f[4].replace(/;/g,", "):"para comer rápido"];
+  return `<details class="lsugg" data-k="ls-${dayId}-${c}"><summary><span class="lsh">Opciones para almorzar cerca</span><span class="muted" style="font-size:13px">· ${ls.length} alternativas económicas</span></summary><ul>${ls.map(x=>{const f=x.f,t=tipo(f);
+    return `<li class="ls est"><span class="lsdot" aria-hidden="true"></span><span class="lsn"><b>${f[2]}</b><span class="tg">${t[0]}</span><small>${t[1]}</small><small class="num">~${fmt(pr)} p/p · ~${walkMin(x.d)} min a pie · precio estimado</small></span><span class="lsact"><a href="${ffLink(f)}" target="_blank" rel="noopener">mapa</a></span></li>`}).join("")}</ul><small class="lsleg">Precios aproximados por persona; a los 16 años se paga como adulto.</small></details>`}
+
+/* ===== Gasto real (Mis gastos) en rojo junto al presupuesto ===== */
+const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot"};
+const RKEY={Alojamiento:"hot",Comidas:"meal",Entradas:"act",Transporte:"loc"};
+let REAL=[],realUn=[],budLast="",budT=null;
+const realSum=f=>REAL.filter(f).reduce((t,g)=>t+g.eur,0),hasReal=f=>REAL.some(f);
+const dayReal=d=>hasReal(g=>g.d===iso(d.date))?`<span class="rl">/ ${fmt(realSum(g=>g.d===iso(d.date)))}</span>`:"";
+const cellReal=(n,k)=>hasReal(g=>g.city===n)?`<span class="rl">/ ${fmt(realSum(g=>g.city===n&&(k?g.k===k:true)))}</span>`:"";
+function renderReal(){document.querySelectorAll(".summary .rl,#bar .rl").forEach(x=>x.remove());if(!REAL.length)return;
+  const pp=$("tPP");if(pp)pp.insertAdjacentHTML("afterend",`<span class="rl">/ ${fmt(realSum(()=>true))} gastado</span>`);
+  document.querySelectorAll("#bar .tkt").forEach(t=>{const k=RKEY[(t.querySelector(".tn")||{}).textContent];if(!k)return;t.querySelector("b.num").insertAdjacentHTML("beforeend",`<span class="rl">/ ${fmt(realSum(g=>g.k===k))}</span>`)})}
+window.__setReal=function(l){REAL=l;renderAll(false)};window.__setWX=function(c,d){WX[c]={d};renderAll(false)};
+function stopReal(){realUn.forEach(f=>f());realUn=[];if(REAL.length){REAL=[];renderAll(false)}}
+function listenReal(u){realUn.forEach(f=>f());realUn=[];const B=window._FB,F=B.F,em=String(u.email||"").toLowerCase();let own=[],jun=[];
+  const upd=()=>{REAL=[...own,...jun];renderAll(false)};
+  const conv=(g,div)=>{const k=CATGRP[g.cat];return k&&!g.retiro&&g.eur>0?{d:g.d,city:g.city||"",k,eur:g.eur/div}:null};
+  realUn.push(F.onSnapshot(F.collection(B.db,"trips","alemania","users",em,"gastos"),s=>{own=s.docs.map(x=>conv(x.data(),1)).filter(Boolean);upd()},()=>{}));
+  realUn.push(F.onSnapshot(F.collection(B.db,"trips","alemania","juntas"),s=>{jun=s.docs.map(x=>conv(x.data(),PEOPLE)).filter(Boolean);upd()},()=>{}))}
+// presupuesto del programa para que «Mis gastos» lo compare (transporte incluye los pasajes entre ciudades)
+function schedBudget(){const B=window._FB;if(!B||!B.au||!B.au.currentUser||B.au.currentUser.isAnonymous||!PLAN.length)return;clearTimeout(budT);budT=setTimeout(async()=>{
+  const days=PLAN.map(d=>{const c=dayCost(d);return {d:iso(d.date),city:CN[d.city],meal:+c.meal.toFixed(2),act:+c.act.toFixed(2),loc:+(c.loc+c.leg).toFixed(2),hot:+c.hot.toFixed(2)}});
+  const js=JSON.stringify(days);if(js===budLast)return;try{await B.F.setDoc(B.F.doc(B.db,"trips","alemania","meta","presupuesto"),{days,by:B.au.currentUser.email,at:Date.now()});budLast=js}catch(e){}},2000)}
+function gSetup(){const B=window._FB,btn=$("gLogin");if(!B||!B.au||!btn)return;
+  const upd=()=>{const u=B.au.currentUser,g=u&&!u.isAnonymous;btn.hidden=!!g;if(g){listenReal(u);schedBudget()}else stopReal()};
+  btn.onclick=async()=>{try{const pr=new B.U.GoogleAuthProvider();pr.setCustomParameters({prompt:"select_account"});await B.U.signInWithPopup(B.au,pr)}catch(e){if(!/popup-closed|cancelled/.test(e.code||""))toast("No se pudo entrar con Google ("+(e.code||"error")+")")}};
+  B.U.onAuthStateChanged(B.au,upd);upd()}
+
+/* ===== Comidas: guía por ciudad y lugares agregados a mano ===== */
+const FOOD_G={
+ H:[["Almorzar sin gastar mucho",[["Fischbrötchen en Brücke 10","Pan con arenque o salmón frente al puerto, en Landungsbrücken. El clásico de Hamburgo.","4–7 €"],["Currywurst o döner en St. Pauli","Puestos de comida rápida cerca de la Reeperbahn y de Landungsbrücken.","5–9 €"],["Supermercado (Rewe, Edeka)","Pan, queso, fruta y jugo: lo más barato si ya desayunaron bien.","3–6 €"]]],
+    ["Dulces y cena entretenida",[["Franzbrötchen en una panadería","Rollo de canela aplastado, típico de Hamburgo.","2–3 €"],["Barrio Schanzenviertel","Calles con falafel, pizza al trozo y burgers a precios razonables.","8–14 €"]]]],
+ B:[["Almorzar sin gastar mucho",[["Currywurst en Konnopke's Imbiss","Puesto clásico bajo el metro elevado, en Prenzlauer Berg.","4–6 €"],["Döner kebab","Berlín es famosa por el döner; hay en casi todas las esquinas.","5–8 €"],["Mustafas Gemüse Kebap (Mehringdamm)","Kebab de verduras muy conocido; suele haber fila.","6–8 €"]]],
+    ["Mercado y dulces",[["Markthalle Neun (Kreuzberg)","Mercado cubierto; los jueves hay comida callejera de distintos países.","8–14 €"],["Berliner (Pfannkuchen) en una panadería","Dona rellena típica, para la media tarde.","1,5–3 €"]]]],
+ P:[["Almorzar sin gastar mucho",[["Menú del día (polední menu) en un pub checo","Almuerzo de dos platos a precio fijo en días de semana.","150–200 Kč (≈ 6–8 €)"],["Chlebíčky (sándwiches abiertos)","Bocados pequeños que se piden en cafeterías y delicatessen.","40–70 Kč c/u"],["Pub Lokál","Cocina checa y cerveza de barril a precios razonables; pidan sin alcohol.","180–280 Kč"]]],
+    ["Dulces y mercado",[["Trdelník","Masa dulce en espiral: muy turística, pero entretenida.","90–150 Kč"],["Mercado de Náplavka (sábados)","Feria junto al río con comida callejera.","100–200 Kč"]]]],
+ M:[["Almorzar sin gastar mucho",[["Viktualienmarkt","Puestos de salchichas, sándwiches y fruta; se come de pie.","5–10 €"],["Brezel con Leberkäse o queso","Pan típico bávaro con embutido: barato y rápido.","3–6 €"],["Hofbräuhaus (Weißwurst)","Cervecería histórica; pidan platos simples.","10–16 €"]]],
+    ["Dulces",[["Schmalznudel Café Frischhut","Masa frita tradicional, cerca del Viktualienmarkt.","2–3 €"],["Apfelstrudel o Kaiserschmarrn","Postres típicos para compartir.","5–9 €"]]]]
+};
+let foodCity=null;
+const mapq=(n,c)=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(n+" "+CN[c]);
+function renderFood(){const host=$("food");if(!host)return;const c=cfg.order.includes(foodCity)?foodCity:cfg.order[0];foodCity=c;
+  const mine=custom.food.filter(x=>x.c===c);
+  let h=`<div class="attbar" role="group" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" class="btn ${k===c?"":"alt"}" data-foodc="${k}" aria-pressed="${k===c}">${CN[k]}</button>`).join("")}</div>
+   <p class="note">Precios aproximados por persona (2026–2027), sin verificar: confírmalos en el lugar. Para jóvenes de 16 años: comida rápida o local, sin restaurantes caros.</p>`;
+  FOOD_G[c].forEach(([t,L])=>{h+=`<div class="card"><span class="eyebrow">${esc2(CN[c])} · ${t}</span><div class="tbl-wrap"><table><thead><tr><th>Lugar</th><th class="r">Precio aprox.</th></tr></thead><tbody>${L.map(r=>`<tr><td><b>${r[0]}</b><br><small class="muted">${r[1]}</small> <a href="${mapq(r[0],c)}" target="_blank" rel="noopener">mapa</a></td><td class="r num">${r[2]}</td></tr>`).join("")}</tbody></table></div></div>`});
+  if(mine.length)h+=`<div class="card cust"><span class="eyebrow">Agregados por ustedes · ${esc2(CN[c])}</span><div class="tbl-wrap"><table><tbody>${mine.map(x=>`<tr><td><b>${esc2(x.n)}</b>${x.ft?` <small class="muted">· ${esc2(x.ft)}</small>`:""}${x.s?`<br><small class="muted">${esc2(x.s)}</small>`:""} <a href="${mapq(x.addr||x.n,c)}" target="_blank" rel="noopener">mapa</a>${x.addr?` <small class="muted">· ${esc2(x.addr)}</small>`:""}</td><td class="r num">${esc2(x.pr||"")}<br><button type="button" class="lnkb" data-fooddel="${x.id}">quitar</button></td></tr>`).join("")}</tbody></table></div></div>`;
+  h+=`<details class="card manf"><summary><b>＋ Agregar un lugar para comer a mano</b></summary><form class="fform" data-foodform>
+   <label class="f">Nombre<input name="n" required placeholder="Ej.: Café Einstein"></label>
+   <label class="f">Tipo<select name="ft"><option>Restaurante</option><option>Café</option><option>Panadería</option><option>Comida rápida</option><option>Mercado</option><option>Otro</option></select></label>
+   <label class="f">Precio aprox. por persona<input name="pr" placeholder="Ej.: 8–12 €"></label>
+   <label class="f">Dirección (opcional)<input name="addr" placeholder="Ej.: Unter den Linden 42"></label>
+   <label class="f wide">Nota (opcional)<input name="s" placeholder="Ej.: reservar, plato recomendado"></label>
+   <div class="act wide"><button type="submit" class="btn sm">＋ Agregar a ${esc2(CN[c])}</button></div></form></details>`;
+  host.innerHTML=h}
+document.addEventListener("click",e=>{const fc=e.target.closest("[data-foodc]");if(fc){foodCity=fc.dataset.foodc;renderFood();return}
+  const fd=e.target.closest("[data-fooddel]");if(fd){custom.food=custom.food.filter(x=>x.id!==fd.dataset.fooddel);saveCustom();renderFood();toast("Lugar quitado de Comidas")}});
+document.addEventListener("submit",e=>{const f=e.target.closest("[data-foodform]");if(!f)return;e.preventDefault();const g=n=>(f.elements[n].value||"").trim();if(!g("n"))return;
+  custom.food.push({id:"fd"+Date.now().toString(36),c:foodCity,n:g("n"),ft:g("ft"),pr:g("pr"),addr:g("addr"),s:g("s")});saveCustom();renderFood();toast(`✔ <b>${esc2(g("n"))}</b> agregado a Comidas`)});
 function renderFeas(plan){
   const F=plan.feas;let h="";
   cfg.order.forEach(c=>{const f=F[c];const pct=Math.min(100,f.need/f.avail*100);const over=f.unpl.length>0;
@@ -1830,9 +1953,9 @@ function renderDays(plan){
       tl=`<span class="part-from">${tl}</span><span class="part-to">Llegada desde ${CN[d.from]} · <b>${hm(d.arr)}</b> ${ai?ai.stName:""} → ${ai?ai.h.name:"hotel"} · check-in ~<b>${ai?hm(ai.atHotel):""}</b>`+(d.arrStart<18&&DAYEND-d.arrStart>=0.5?` · <b>${CN[d.city]}: actividades ${hm(d.arrStart)}–${hm(DAYEND)}</b>`:" · noche libre: cena cerca del hotel")+`</span>`;}
     else if(d.arrival)tl=`Llegada a ${CN[d.city]} · check-in desde ${hm(CHECKIN)}`;
     else if(d.final)tl=`Check-out ${CN[d.city]} 10:00 · dejar maletas en recepción · fin del viaje`;
-    let h=`<div class="dtabrow"><span class="dftab"><b>${pretty(d.date)}</b><span class="fc">${CN[d.city]}</span></span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${title}</h3>
+    let h=`<div class="dtabrow"><span class="dftab"><b>${pretty(d.date)}</b><span class="fc">${CN[d.city]}</span>${wxMini(d.city,iso(d.date))}</span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${title}</h3>
       <span class="muted" style="font-size:13px">${d.night?"Noche en "+hotelOf(d.night).name:"Sin noche de hotel"}</span>${(()=>{const S=sunOf(d.date,hotelOf(d.city).ll);return `<span class="sunline">🌇 Se pone el sol ${hm(S.set)} · 🌙 oscuro desde ${hm(S.dusk)}</span>`})()}</div>
-      ${costStrip(c)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}</span><span class="muted num" style="font-size:12px">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk blk-com"><h4>Comidas</h4>`;
+      ${costStrip(c,d)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}${dayReal(d)}</span><span class="muted num" style="font-size:12px">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk blk-com"><h4>Comidas</h4>`;
     ["d","a","m","c"].forEach(k=>{const mi=mealPick(d,k);
       h+=`<label class="chk"><input type="checkbox" data-meal="${d.id}|${k}" ${mealOn(d,k)?"checked":""}><span class="t">${MEAL_LBL[k]}${mi[3]?' <span class="tag hotel" title="Se compra en el hotel">🏨 hotel</span>':""}<small>${mi[1]}${mi[2]?` · <a href="${mi[2]}" target="_blank" rel="noopener">fuente</a>`:""}</small></span><span class="p">${fmt(mi[0])}</span></label>${mealSel(d,k)}`});
     h+=`</div><div class="blk blk-att"><h4>Atracciones</h4>`;
@@ -1844,7 +1967,7 @@ function renderDays(plan){
       h+=`<div class="${d.from?(sg.city===d.from?"part-from":"part-to"):""}">`;
       if(d.from&&sg.city===d.city&&!arrDone){h+=arrRow(d);arrDone=true}
       if(d.segs.length>1&&sg.acts.length)h+=`<span class="eyebrow seg">${CN[sg.city]} · ${hm(sg.st)}–${hm(sg.en)}</span>`;
-      const lunchRow=()=>{const ls=lunchSpots(sg.city,lunchPos(sg),3);return `<div class="lunch">🍽 <b>${hm(sg.lunchAt)}</b> Almuerzo con calma (~1 h)${ls.length?`<span class="ffs">Cerca: ${ls.map(x=>`<a href="${ffLink(x.f)}" target="_blank" rel="noopener">${x.f[2]}</a> <span class="muted">(${Math.round(x.d*100)*10} m)</span>`).join(" · ")}</span>`:""}</div>`};
+      const lunchRow=()=>{const ls=lunchSpots(sg.city,lunchPos(sg),3);return `<div class="lunch">${IC.comida} <b>${hm(sg.lunchAt)}</b> Almuerzo con calma (~1 h)</div>${ls.length?lunchSuggHTML(sg.city,ls,d.id):""}`};
       let lp=false;
       sg.acts.forEach(a=>{const tag=a.p===0?'<span class="tag free">gratis</span>':(a.est?'<span class="tag">est.</span>':"");
         const where=a.city!==d.city?` <span class="tag">${CN[a.city]}, mañana</span>`:"";
@@ -1882,7 +2005,7 @@ function renderDays(plan){
     h+=`</div></div><button type="button" class="btn alt addact" data-addday="${d.id}">+ Agregar actividad a este día</button><button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
     const el=document.createElement("article");el.className="day "+d.city+(d.from?" from-"+d.from:"");el.dataset.day=d.id;el.innerHTML=h;host.appendChild(el);
   });
-  renderDayTabs(plan);setTimeout(initDayMaps,80);
+  renderDayTabs(plan);renderWx();setTimeout(initDayMaps,80);
 }
 function bookingUrl(name,ci,co){
   return "https://www.booking.com/searchresults.es.html?ss="+encodeURIComponent(name)+"&checkin="+ci+"&checkout="+co+"&group_adults=5&no_rooms=1&group_children=0";
@@ -1998,12 +2121,12 @@ function renderGastos(plan){const host=$("gas");if(!host)return;const C={};
   plan.forEach(d=>{const c=dayCost(d),r=C[d.city]=C[d.city]||{n:CN[d.city],days:0,leg:0,hot:0,meal:0,act:0,loc:0,total:0};r.days++;["leg","hot","meal","act","loc","total"].forEach(x=>r[x]+=c[x])});
   const rows=cfg.order.filter(c=>C[c]).map(c=>C[c]);
   host.innerHTML=`<div class="card"><span class="eyebrow">Por ciudad · por persona</span><div class="tbl-wrap"><table><thead><tr><th>Ciudad</th><th class="r">Días</th><th class="r">Pasajes</th><th class="r">Alojamiento</th><th class="r">Comidas</th><th class="r">Entradas</th><th class="r">Transporte</th><th class="r">Total</th></tr></thead><tbody>
-   ${rows.map(r=>`<tr><td>${r.n}</td><td class="r num">${r.days}</td><td class="r num">${fmt(r.leg)}</td><td class="r num">${fmt(r.hot)}</td><td class="r num">${fmt(r.meal)}</td><td class="r num">${fmt(r.act)}</td><td class="r num">${fmt(r.loc)}</td><td class="r num"><b>${fmt(r.total)}</b></td></tr>`).join("")}</tbody></table></div>
-   <p class="note">Este es el presupuesto que estima el programa. El gasto real de cada uno se registra en <a href="/gastos?trip=alemania">💶 Mis gastos</a>.</p></div>`}
+   ${rows.map(r=>`<tr><td>${r.n}</td><td class="r num">${r.days}</td><td class="r num">${fmt(r.leg)}</td><td class="r num">${fmt(r.hot)}${cellReal(r.n,"hot")}</td><td class="r num">${fmt(r.meal)}${cellReal(r.n,"meal")}</td><td class="r num">${fmt(r.act)}${cellReal(r.n,"act")}</td><td class="r num">${fmt(r.loc)}${cellReal(r.n,"loc")}</td><td class="r num"><b>${fmt(r.total)}</b>${cellReal(r.n)}</td></tr>`).join("")}</tbody></table></div>
+   <p class="note">Este es el presupuesto que estima el programa. <span class="rl">En rojo, lo que ya gastaron de verdad</span> (se registra en <a href="/gastos?trip=alemania">Mis gastos</a>; el transporte real incluye los pasajes). Para verlo, entra con Google desde el botón de arriba.</p></div>`}
 let PLAN=[];
 function renderAll(rebuild){refreshNightDates();
   if(rebuild){PLAN=buildPlan();try{store.setItem("ruta_cfg",JSON.stringify(cfg))}catch(e){}}
-  renderRoute(PLAN);renderDays(PLAN);renderHotels(PLAN);renderHotTabs(PLAN);renderRail(PLAN);renderSummary(PLAN);renderGastos(PLAN);
+  renderRoute(PLAN);renderDays(PLAN);renderHotels(PLAN);renderHotTabs(PLAN);renderRail(PLAN);renderSummary(PLAN);renderGastos(PLAN);renderReal();schedBudget();
 }
 
 
@@ -2040,7 +2163,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#calBtn,[data-calopen
 /* ---------- Eventos ---------- */
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
-  ["cfg","prog","hot","rail","buy","att","gas"].forEach(t=>$("p-"+t).hidden=t!==b.dataset.tab);if(b.dataset.tab==="att")renderAtt();
+  ["cfg","prog","hot","rail","buy","att","tra","food","gas"].forEach(t=>$("p-"+t).hidden=t!==b.dataset.tab);if(b.dataset.tab==="att")renderAtt();if(b.dataset.tab==="food")renderFood();
 });
 ["change","input"].forEach(ev=>$("start").addEventListener(ev,e=>{const v=e.target.value;if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&v!==cfg.start){cfg.start=v;renderCfg();renderAll(true)}}));
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset.dep==null||!t.value)return;cfg.dep[t.dataset.dep]=toH(t.value);renderCfg();renderAll(true)});
@@ -2073,7 +2196,7 @@ document.addEventListener("click",e=>{
     const mv=e.target.closest(".blk-att .mv.tr");if(mv&&!e.target.closest("a")){mv.classList.toggle("full");return}
     const top=e.target.closest(".actrow2 .ar-top");if(top&&!e.target.closest("button,a,select,input")){const r=top.closest(".actrow2"),k=r.closest(".day").dataset.day+"|"+r.dataset.k;r.classList.toggle("open");if(r.classList.contains("open"))openActs.add(k);else openActs.delete(k);return}}
   const ht=e.target.closest("[data-htab]");if(ht){hotCity=ht.dataset.htab;try{store.setItem("ruta_hotcity",hotCity)}catch(_){}renderHotTabs(PLAN);try{$("hottabs").scrollIntoView({block:"start",behavior:"smooth"})}catch(_){}return}
-  const dt=e.target.closest("[data-dtab]");if(dt){progCity=dt.dataset.dtab;try{store.setItem("ruta_progcity",progCity)}catch(_){}renderDayTabs(PLAN);{const sb=$("suggbox");if(sb)sb.innerHTML=suggHTML()}try{$("daytabs").scrollIntoView({block:"start",behavior:"smooth"})}catch(_){}return}
+  const dt=e.target.closest("[data-dtab]");if(dt){progCity=dt.dataset.dtab;try{store.setItem("ruta_progcity",progCity)}catch(_){}renderDayTabs(PLAN);renderWx();{const sb=$("suggbox");if(sb)sb.innerHTML=suggHTML()}try{$("daytabs").scrollIntoView({block:"start",behavior:"smooth"})}catch(_){}return}
   const fz=e.target.closest("[data-ficha]");if(fz){e.preventDefault();openFicha(fz.dataset.ficha);return}
   const fc=e.target.closest("[data-attc]");if(fc){attCity=fc.dataset.attc;renderAtt();return}
   const vc=e.target.closest("[data-vlclear]");if(vc){delete verLeg[vc.dataset.vlclear];saveVerLeg();renderCfg();renderAll(true);return}
@@ -2108,7 +2231,7 @@ document.querySelectorAll("#tkSeg button").forEach(b=>{b.setAttribute("aria-pres
 seg("curEUR","curCLP",()=>cur="EUR");seg("curCLP","curEUR",()=>cur="CLP");
 seg("foodFast","foodLocal",()=>foodMode="fast");seg("foodLocal","foodFast",()=>foodMode="local");
 seg("resOut","resDE",()=>resid="out");seg("resDE","resOut",()=>resid="de");
-applyVerLeg();renderCfg();renderAll(true);mountGuides();
+applyVerLeg();renderCfg();renderAll(true);mountGuides();gSetup();
 
 }
 _boot();
@@ -2781,6 +2904,38 @@ span.tc-d{cursor:default}
 .btn.findbtn{align-self:flex-start;width:auto;background:var(--card);color:var(--stamp,#a8352b);border:1.5px solid var(--stamp,#a8352b);border-radius:999px;font:700 13px var(--f-mono,monospace);letter-spacing:.02em;padding:8px 16px;display:inline-flex;align-items:center;gap:8px;min-height:40px;cursor:pointer}
 .btn.findbtn:hover,.btn.findbtn:focus-visible{background:var(--stamp,#a8352b);color:var(--card)}
 .addact{display:inline-flex;align-items:center;gap:6px}
+
+/* Clima y sugerencias de almuerzo (de París) */
+.wxcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 12px;font-size:14px}
+.wxh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.wxrow{display:flex;gap:6px;overflow-x:auto;padding:6px 0 4px;scrollbar-width:thin}
+.wxd{flex:none;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:0;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:4px 6px;cursor:pointer;color:var(--ink);font:13px var(--f-mono)}
+.wxd .wi{font-size:22px;line-height:1.2}.wxd small{font-size:11px;color:var(--muted)}
+.wxd.wet{border-color:#24477a;background:color-mix(in srgb,#24477a 10%,var(--card))}
+.wxsug{margin:6px 0 0;padding-left:4px;list-style:none;display:flex;flex-direction:column;gap:6px}
+.wxsug .btn{margin-left:6px}
+.wxm{font:700 13px var(--f-mono);color:var(--card);opacity:.9;white-space:nowrap}
+.lsugg{margin:4px 0 10px 0;padding:8px 10px;border:1px dashed #b8860b;border-radius:6px;background:color-mix(in srgb,#b8860b 6%,var(--card));font-size:14px}
+.lsugg ul{list-style:none;margin:4px 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;border-bottom:1px dotted var(--line)}
+.lsdot{width:10px;height:10px;border-radius:50%;flex:none;background:#c97b12}
+.ls.ver .lsdot,.lsleg .ver{background:#3d6b3a}.ls.est .lsdot,.ls.map .lsdot,.lsleg .est{background:#c97b12}.ls.fav .lsdot,.lsleg .fav{background:#2e4f8f}
+.lsn{flex:1 1 180px;min-width:0}.lsn small{display:block;color:var(--muted);font-size:12.5px}
+.lsact{display:flex;gap:6px;align-items:center}
+.favb{border:1px solid var(--line);background:var(--card);border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:#b8860b}.favb.on{background:#fdf1cf;border-color:#b8860b}
+.lsh{font:700 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lsleg{color:var(--muted);font-size:12px}.lsleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px;vertical-align:0}
+details.lsugg>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}details.lsugg>summary::-webkit-details-marker{display:none}
+details.lsugg>summary::before{content:"▸";font-size:14px;transition:transform .15s;color:#b8860b}details.lsugg[open]>summary::before{transform:rotate(90deg)}
+.ls .tg{font:700 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid #b8860b;color:#7a4a17;border-radius:4px;padding:0 5px;margin-left:6px}
+.wxcard{margin:0 0 12px}
+
+/* Gasto real (rojo) junto al presupuesto */
+.rl{display:block;color:var(--bad,#b3261e);font-weight:700;font-size:.78em;line-height:1.25;letter-spacing:0;white-space:nowrap}
+.tile.main .rl{color:#ffb4a8}
+.note .rl,.legend .rl,p .rl{display:inline;font-size:inherit}
+.tkt b.num .rl{font-size:11px;font-family:var(--f-mono,monospace)}
+#gLogin{cursor:pointer;background:transparent}
 </style>
 <script>(function(){const c=document.getElementById("cover");let shown=false;try{shown=sessionStorage.getItem("ruta_cover")==="1"}catch(e){}
   const hide=()=>{c.classList.add("out");setTimeout(()=>c.hidden=true,750)};
