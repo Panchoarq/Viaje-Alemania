@@ -10,9 +10,19 @@ const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const LS=TRIP.ls+"_estado",N=TRIP.people,CN=c=>TRIP.cities[c].n;
 const clone=o=>JSON.parse(JSON.stringify(o));
-let ST=clone(CONFIRMADO),tab="cfg",city=ST.cfg.order[0],attCity=city,mapOpen=new Set(),focusFicha=null;
-try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s)ST=Object.assign(ST,s);tab=localStorage.getItem(TRIP.ls+"_tab")||tab}catch(e){}
-const save=()=>{try{localStorage.setItem(LS,JSON.stringify(ST))}catch(e){}};
+const FB={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
+// Con ?demo (o abierto como archivo) guarda solo en este navegador; si no, en Firestore (trips/alemania) con Google.
+const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has("demo");
+const CAMPOS=["cfg","hotel","roomMode","prices","trenes","acts","dayPin","lock","mealOpt"]; // lo que se guarda
+let ST=clone(CONFIRMADO),tab="cfg",city=ST.cfg.order[0],attCity=city,mapOpen=new Set(),focusFicha=null,user=null,ref=null,F=null,saveT=null;
+try{tab=localStorage.getItem(TRIP.ls+"_tab")||tab;if(DEMO){const s=JSON.parse(localStorage.getItem(LS)||"null");if(s)ST=Object.assign(ST,s)}}catch(e){}
+const pick=d=>{const o={};CAMPOS.forEach(k=>{if(d&&d[k]!==undefined)o[k]=d[k]});return o};
+function sync(t,cls){const s=$("#sync");if(!s)return;s.textContent=t;s.className="sync "+(cls||"");if(cls==="ok")setTimeout(()=>s.classList.add("hide"),2500)}
+function save(){
+  if(DEMO){try{localStorage.setItem(LS,JSON.stringify(ST))}catch(e){}sync("Guardado (demo local)","ok");return}
+  if(!F||!ref||!user)return;
+  clearTimeout(saveT);sync("Guardando…","busy");
+  saveT=setTimeout(async()=>{try{await F.setDoc(ref,{...pick(ST),by:user.email,at:Date.now()});sync("☁ Guardado para todos","ok")}catch(e){sync("No se pudo guardar","ro")}},600)}
 const go=t=>{tab=t;try{localStorage.setItem(TRIP.ls+"_tab",t)}catch(e){}render()};
 
 // El contenido de ATTR/CTX/MEDIA es texto propio con <b>/<i> ya incluido: se inserta sin escapar.
@@ -173,4 +183,23 @@ function bind(){
   Q("[data-rmode]",i=>i.onchange=()=>{ST.roomMode[i.dataset.rmode]=i.value;save();render()});
   Q("[data-leg]",i=>i.onchange=()=>{const [k,f]=i.dataset.leg.split("|");ST.trenes[k][f]=f==="price"?+i.value||0:i.value;save();render()});
 }
-render();
+
+// ---- ingreso con Google y sincronización ----
+function gate(msg,denied){app.innerHTML=`<div class="gate"><div class="logo"><img src="/img/logo-marcopolo.jpg" alt="Marco Polo"></div>
+  <span class="eyebrow">Viaje privado</span><h1>${esc(TRIP.title)}</h1>
+  ${denied?`<p class="note bad">Este viaje es privado y <b>${esc(user&&user.email)}</b> no está autorizado. Pídele a Francisco que agregue tu correo.</p><p><button class="btn alt" id="out">Entrar con otra cuenta</button></p>`:`
+  <p class="muted">Entra con tu cuenta de Google para ver y editar el plan. Solo las personas invitadas pueden verlo.</p>
+  ${msg?`<p class="note bad">${esc(msg)}</p>`:""}<button class="btn gbtn" id="g">Entrar con Google</button>`}
+  <p style="margin-top:22px"><a href="/">← Volver a Marco Polo</a></p></div>`;
+  const g=$("#g");if(g)g.onclick=async()=>{const {U,auth}=window._auth;try{await U.signInWithPopup(auth,new U.GoogleAuthProvider())}catch(e){if(e.code!=="auth/popup-closed-by-user")gate("No se pudo entrar con Google ("+e.code+").")}};
+  const o=$("#out");if(o)o.onclick=()=>window._auth.U.signOut(window._auth.auth)}
+async function boot(){
+  if(DEMO){user={email:"demo@local"};return render()}
+  const B="https://www.gstatic.com/firebasejs/10.12.2/";
+  const [A,U,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+  F=FS;const fa=A.initializeApp(FB),auth=U.getAuth(fa),db=FS.getFirestore(fa);ref=FS.doc(db,...TRIP.doc);window._auth={U,auth};
+  let unsub=null;
+  U.onAuthStateChanged(auth,u=>{if(unsub){unsub();unsub=null}if(!u||u.isAnonymous){user=null;return gate()}user=u;
+    // Si el documento no existe se muestran los valores confirmados; solo se escribe cuando alguien edita.
+    unsub=F.onSnapshot(ref,s=>{if(s.metadata.hasPendingWrites)return;ST=Object.assign(clone(CONFIRMADO),pick(s.exists()?s.data():{}));render()},()=>gate(null,true))})}
+boot();
