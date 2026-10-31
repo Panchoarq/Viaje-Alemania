@@ -208,6 +208,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
     <button role="tab" id="tab-rail" aria-selected="false" data-tab="rail">4 · Pasajes y Eurail</button>
     <button role="tab" id="tab-buy" aria-selected="false" data-tab="buy">5 · Trámites previos</button>
     <button role="tab" id="tab-att" aria-selected="false" data-tab="att">6 · Atracciones</button>
+    <button role="tab" id="tab-gas" aria-selected="false" data-tab="gas">7 · Gastos</button>
   </nav>
 
   <!-- CONFIGURAR -->
@@ -371,6 +372,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
       <a href="https://regional.bahn.de/tickets/Deutschlandticket" target="_blank" rel="noopener">info Deutschlandticket</a></div>
   </section>
   <section class="panel" id="p-att" hidden><div id="att"></div></section>
+  <section class="panel" id="p-gas" hidden><div id="gas"></div></section>
 </div>
 
 <div id="syncChip" class="sync-chip" hidden></div>
@@ -1778,10 +1780,17 @@ function renderSummary(plan){
    $("bar").innerHTML=parts.map(p=>`<div class="tkt" title="${p[0]}: ${fmt(p[1])} por persona"><span class="ti" aria-hidden="true">${ICO[p[0]]||"•"}</span><b class="num">${fmt(p[1])}</b><span class="tn">${p[0].replace(" urbano","")}</span><span class="tp num">${sum.total?Math.round(p[1]/sum.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[1]/M*100).toFixed(1)}%;background:${p[2]}"></span></span></div>`).join("");
    $("legend").innerHTML="";}
 }
+// Pestaña Gastos: presupuesto que estima el programa, por ciudad y por persona (igual que en París)
+function renderGastos(plan){const host=$("gas");if(!host)return;const C={};
+  plan.forEach(d=>{const c=dayCost(d),r=C[d.city]=C[d.city]||{n:CN[d.city],days:0,leg:0,hot:0,meal:0,act:0,loc:0,total:0};r.days++;["leg","hot","meal","act","loc","total"].forEach(x=>r[x]+=c[x])});
+  const rows=cfg.order.filter(c=>C[c]).map(c=>C[c]);
+  host.innerHTML=`<div class="card"><span class="eyebrow">Por ciudad · por persona</span><div class="tbl-wrap"><table><thead><tr><th>Ciudad</th><th class="r">Días</th><th class="r">Pasajes</th><th class="r">Alojamiento</th><th class="r">Comidas</th><th class="r">Entradas</th><th class="r">Transporte</th><th class="r">Total</th></tr></thead><tbody>
+   ${rows.map(r=>`<tr><td>${r.n}</td><td class="r num">${r.days}</td><td class="r num">${fmt(r.leg)}</td><td class="r num">${fmt(r.hot)}</td><td class="r num">${fmt(r.meal)}</td><td class="r num">${fmt(r.act)}</td><td class="r num">${fmt(r.loc)}</td><td class="r num"><b>${fmt(r.total)}</b></td></tr>`).join("")}</tbody></table></div>
+   <p class="note">Este es el presupuesto que estima el programa. El gasto real de cada uno se registra en <a href="/gastos?trip=alemania">💶 Mis gastos</a>.</p></div>`}
 let PLAN=[];
 function renderAll(rebuild){refreshNightDates();
   if(rebuild){PLAN=buildPlan();try{store.setItem("ruta_cfg",JSON.stringify(cfg))}catch(e){}}
-  renderRoute(PLAN);renderDays(PLAN);renderHotels(PLAN);renderHotTabs(PLAN);renderRail(PLAN);renderSummary(PLAN);
+  renderRoute(PLAN);renderDays(PLAN);renderHotels(PLAN);renderHotTabs(PLAN);renderRail(PLAN);renderSummary(PLAN);renderGastos(PLAN);
 }
 
 
@@ -1810,7 +1819,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#calBtn"))openCal()})
 /* ---------- Eventos ---------- */
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));
-  ["cfg","prog","hot","rail","buy","att"].forEach(t=>$("p-"+t).hidden=t!==b.dataset.tab);if(b.dataset.tab==="att")renderAtt();
+  ["cfg","prog","hot","rail","buy","att","gas"].forEach(t=>$("p-"+t).hidden=t!==b.dataset.tab);if(b.dataset.tab==="att")renderAtt();
 });
 ["change","input"].forEach(ev=>$("start").addEventListener(ev,e=>{const v=e.target.value;if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&v!==cfg.start){cfg.start=v;renderCfg();renderAll(true)}}));
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset.dep==null||!t.value)return;cfg.dep[t.dataset.dep]=toH(t.value);renderCfg();renderAll(true)});
