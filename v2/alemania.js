@@ -2,18 +2,20 @@
 // Los valores confirmados (CONFIRMADO) son el punto de partida; todo se puede editar y se puede volver a ellos.
 import {TRIP} from "./trips/alemania.js";
 import {CONFIRMADO} from "./trips/alemania.confirmado.js";
-import {HOTELS,ACTS,LOCAL} from "./trips/alemania.data.js";
+import {HOTELS,ACTS,LOCAL,ATTR,CTX,MEDIA,WHY,PHOTO,ZONES} from "./trips/alemania.data.js";
 import {pretty,add,D,fmtH,money,tramosDe,diasDe,organizar,stayTotal} from "./city.js";
+import {mapaDia} from "./mapa.js";
 
 const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const LS=TRIP.ls+"_estado",N=TRIP.people,CN=c=>TRIP.cities[c].n;
 const clone=o=>JSON.parse(JSON.stringify(o));
-let ST=clone(CONFIRMADO),tab="cfg",city=ST.cfg.order[0];
+let ST=clone(CONFIRMADO),tab="cfg",city=ST.cfg.order[0],attCity=city,mapOpen=new Set(),focusFicha=null;
 try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s)ST=Object.assign(ST,s);tab=localStorage.getItem(TRIP.ls+"_tab")||tab}catch(e){}
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify(ST))}catch(e){}};
 const go=t=>{tab=t;try{localStorage.setItem(TRIP.ls+"_tab",t)}catch(e){}render()};
 
+// El contenido de ATTR/CTX/MEDIA es texto propio con <b>/<i> ya incluido: se inserta sin escapar.
 // ---- datos derivados ----
 const HOTEL_BY=Object.fromEntries(Object.values(HOTELS).flat().map(h=>[h.id,h]));
 const hotelOf=c=>HOTEL_BY[ST.hotel[c]];
@@ -48,7 +50,7 @@ function costos(){
 }
 
 // ---- vistas ----
-const tabsDef=[["cfg","1 · Configurar"],["prog","2 · Programa"],["hot","3 · Alojamiento"],["tre","4 · Pasajes"],["cos","5 · Costos"]];
+const tabsDef=[["cfg","1 · Configurar"],["prog","2 · Programa"],["att","3 · Atracciones"],["hot","4 · Alojamiento"],["tre","5 · Pasajes"],["cos","6 · Costos"]];
 
 function header(){const T=tramos(),a=T[0].ini,b=T[T.length-1].fin;
   return `<header><span class="eyebrow">${N} viajeros · 16 años · ${esc(pretty(a))} – ${esc(pretty(b))} ${D(b).getFullYear()}</span><h1>${esc(TRIP.title)}</h1>
@@ -75,7 +77,8 @@ function dayHTML(d,tr,ix,T){
   return `<article class="day" style="--c:${TRIP.colors[tr.k]}"><div class="dtabrow"><span class="dftab"><b>${esc(pretty(d.d))}</b><span class="fc">${esc(CN(tr.k))}</span></span></div>
   ${d.first&&ix?legCard(T[ix-1].k,tr.k):""}
   ${d.first&&!ix?`<p class="muted">Llegada a ${esc(CN(tr.k))}.</p>`:""}
-  ${d.seq.length?`<ol class="seq">${d.seq.map(a=>`<li><span class="num">${fmtH(a.st)}</span> <b>${esc(a.n)}</b> <span class="muted">~${a.full?"día completo":a.h+" h"}${a.p?` · ${money(a.p,1)} p/p`:" · gratis"}</span>${a.note?`<br><small class="muted">${esc(a.note)}</small>`:""}</li>`).join("")}</ol>`:`<p class="muted">${d.last?"Día de salida.":"Sin actividades este día."}</p>`}
+  ${d.seq.length?`<ol class="seq">${d.seq.map(a=>`<li><span class="num">${fmtH(a.st)}</span> ${ATTR[a.key]?`<a href="#" class="lnkb" data-ficha="${a.key}"><b>${esc(a.n)}</b></a>`:`<b>${esc(a.n)}</b>`} <span class="muted">~${a.full?"día completo":a.h+" h"}${a.p?` · ${money(a.p,1)} p/p`:" · gratis"}</span>${a.note?`<br><small class="muted">${esc(a.note)}</small>`:""}${(WHY[tr.k]||[])[a.i]?`<br><small>${esc(WHY[tr.k][a.i])}</small>`:""}</li>`).join("")}</ol>`:`<p class="muted">${d.last?"Día de salida.":"Sin actividades este día."}</p>`}
+  ${d.seq.some(a=>a.ll)?`<div><button type="button" class="btn alt sm" data-map="${d.d}|${tr.k}">${mapOpen.has(d.d+"|"+tr.k)?"Ocultar plano":"🗺 Plano del día"}</button></div>${mapOpen.has(d.d+"|"+tr.k)?`<div class="lmap big" data-lday="${d.d}|${tr.k}"></div>`:""}`:""}
   ${h?`<p class="muted">${d.last?"":`Noche en ${esc(h.name)}`}</p>`:""}</article>`}
 
 function pProg(){const T=tramos();if(!T.some(t=>t.k===city))city=T[0].k;
@@ -87,6 +90,30 @@ function pProg(){const T=tramos();if(!T.some(t=>t.k===city))city=T[0].k;
   ${P.sobran.length?`<p class="note bad">No caben en los días disponibles: ${P.sobran.map(a=>esc(a.n)).join(" · ")}. Quita alguna o agrega noches.</p>`:""}
   <details class="why"><summary>Elegir actividades de ${esc(CN(tr.k))} (${pick.filter(([a,i])=>sel(tr.k,i)).length} de ${pick.length})</summary>
   <ul class="picks">${pick.map(([a,i])=>`<li><label><input type="checkbox" data-act="${tr.k}:${i}" ${sel(tr.k,i)?"checked":""}> ${esc(a.n)} <span class="muted">· ${a.full?"día completo":a.h+" h"}${a.p?` · ${money(a.p,1)}`:" · gratis"}</span></label></li>`).join("")}</ul></details></section>`}
+
+const tlSVG=tl=>{const W=720,H=96,pad=40,step=(W-2*pad)/(tl.length-1);
+  let g=`<svg class="tlsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Línea de tiempo"><line x1="${pad}" y1="40" x2="${W-pad}" y2="40" stroke="currentColor" stroke-width="2"/>`;
+  tl.forEach((e,i)=>{const x=pad+i*step;g+=`<circle cx="${x}" cy="40" r="6" fill="var(--stamp)"/><text x="${x}" y="24" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor" font-family="Courier Prime,monospace">${esc(e[0])}</text><text x="${x}" y="66" text-anchor="middle" font-size="12.5" fill="currentColor">${esc(e[1])}</text>`});
+  return g+"</svg>"};
+function fichaHTML(c,i){const a=ACTS[c][i],x=ATTR[c+":"+i];if(!x)return"";const on=sel(c,i);
+  return `<article class="ficha" id="f-${c}-${i}"><div class="ftab">EXP. ${c}-${String(i+1).padStart(2,"0")} · ${esc(CN(c)).toUpperCase()}</div>
+   <header><h3>${esc(a.n.replace(/\s*\(.*?\)\s*$/,""))}</h3>${x.y?`<span class="fy">${esc(x.y)}</span>`:""}${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${on?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
+   <p class="flead">${x.s}</p>
+   ${x.h&&x.h.length?`<div class="fhist"><span class="flab">Historia</span>${x.h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${x.v?`<div><span class="flab">Qué van a ver</span><p>${x.v}</p></div>`:""}
+   ${x.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${x.d}</p></div>`:""}
+   ${x.f&&x.f.length?`<div class="fphotos">${x.f.map(f=>`<a class="polaroid" href="${esc(f[1])}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${PHOTO[f[0]]?`<img class="ph" src="/${esc(PHOTO[f[0]][0])}" alt="${esc(f[0])}" loading="lazy">`:`<span class="ph">📷</span>`}<span class="cap">${esc(f[0])}</span><span class="go">más fotos →</span></a>`).join("")}</div><p class="credit">Fotos: Wikimedia Commons · ${x.f.filter(f=>PHOTO[f[0]]).map(f=>`<a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(PHOTO[f[0]][1].replace(/ /g,"_"))}" target="_blank" rel="noopener">${esc(PHOTO[f[0]][2])}</a>`).join(" · ")}</p>`:""}
+   ${x.l&&x.l.length?`<div class="flinks">${x.l.map(l=>`<a href="${esc(l[1])}" target="_blank" rel="noopener">${esc(l[0])} ↗</a>`).join("")}${a.ll?`<a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a>`:""}</div>`:""}</article>`}
+
+function pAtt(){const T=tramos();if(!T.some(t=>t.k===attCity))attCity=T[0].k;const c=attCity,X=CTX[c];
+  const ids=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]);
+  const full=ids.filter(i=>(ATTR[c+":"+i].h||[]).length),rest=ids.filter(i=>!(ATTR[c+":"+i].h||[]).length);
+  full.sort((x,y)=>(sel(c,y)-sel(c,x))||((ACTS[c][y].top?1:0)-(ACTS[c][x].top?1:0)));
+  return `<section class="panel"><div class="attbar" role="group" aria-label="Ciudad">${T.map(t=>`<button type="button" class="btn ${t.k===c?"":"alt"}" data-attc="${t.k}" aria-pressed="${t.k===c}">${esc(CN(t.k))}</button>`).join("")}</div>
+  <section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${esc(X.t)}</h2>${X.tl?tlSVG(X.tl):""}${X.p.map(p=>`<p>${p}</p>`).join("")}</section>
+  <div class="fichas">${full.map(i=>fichaHTML(c,i)).join("")}</div>
+  ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(i=>`<li><b>${esc(ACTS[c][i].n)}</b>: ${ATTR[c+":"+i].s}${ATTR[c+":"+i].d?" "+ATTR[c+":"+i].d:""}</li>`).join("")}</ul></div>`:""}
+  ${(MEDIA[c]||[]).length?`<section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas y libros · ${esc(CN(c))}</h2><div class="mgrid">${MEDIA[c].map(m=>`<div class="mitem"><b>${esc(m[0])}</b>${m[3]?` <span class="tag">${esc(m[3])}</span>`:""}<small>${esc(m[1])}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas; revisarlas antes de ver.</p></section>`:""}</section>`}
 
 function pHot(){const T=tramos();
   return `<section class="panel">${T.map(tr=>{const c=tr.k,cur=hotelOf(c),opts=HOTELS[c];
@@ -118,14 +145,22 @@ function pCos(){const C=costos(),T=tramos();const row=(n,v)=>`<tr><td>${n}</td><
   <p class="note">Faltan comidas fuera del hotel y vuelos. Las comidas se agregan en la siguiente etapa.</p></section>`}
 
 function render(){
-  const body={cfg:pCfg,prog:pProg,hot:pHot,tre:pTre,cos:pCos}[tab]();
+  const body={cfg:pCfg,prog:pProg,att:pAtt,hot:pHot,tre:pTre,cos:pCos}[tab]();
   app.innerHTML=header()+`<nav class="tabs" role="tablist">${tabsDef.map(([k,t])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${k===tab}">${t}</button>`).join("")}</nav>`+body;
-  bind();
+  bind();initMaps();
+  if(focusFicha){const el=document.getElementById("f-"+focusFicha.replace(":","-"));focusFicha=null;if(el){el.scrollIntoView({block:"start"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}}
 }
+function initMaps(){app.querySelectorAll(".lmap[data-lday]").forEach(el=>{if(el._m)return;
+  const [d,c]=el.dataset.lday.split("|"),T=tramos(),ix=T.findIndex(t=>t.k===c),tr=T[ix];
+  const day=planDe(tr,ix===T.length-1).plan.find(x=>x.d===d);if(!day)return;const h=hotelOf(c);
+  try{mapaDia(el,{base:h&&h.ll,puntos:day.seq.filter(a=>a.ll).map(a=>({ll:a.ll,n:a.n,top:a.top})),zonas:ZONES[c]||[],big:true})}catch(e){el.textContent="No se pudo cargar el plano."}})}
 
 function bind(){
   const Q=(s,f)=>app.querySelectorAll(s).forEach(f);
   Q("[data-tab]",b=>b.onclick=()=>go(b.dataset.tab));
+  Q("[data-map]",b=>b.onclick=()=>{const k=b.dataset.map;mapOpen.has(k)?mapOpen.delete(k):mapOpen.add(k);render()});
+  Q("[data-ficha]",a=>a.onclick=e=>{e.preventDefault();const k=a.dataset.ficha;attCity=k.split(":")[0];focusFicha=k;go("att")});
+  Q("[data-attc]",b=>b.onclick=()=>{attCity=b.dataset.attc;render()});
   Q("[data-city]",b=>b.onclick=()=>{city=b.dataset.city;render()});
   Q("[data-start]",i=>i.onchange=()=>{if(i.value){ST.cfg.start=i.value;save();render()}});
   Q("[data-noches]",i=>i.onchange=()=>{ST.cfg.nights[i.dataset.noches]=Math.max(1,Math.min(10,+i.value||1));save();render()});
