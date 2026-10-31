@@ -1019,7 +1019,7 @@ const DAYH=9;
 function kmBetween(a,b){const R=6371,t=x=>x*Math.PI/180;const dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 function proposeFill(c){const days=PLAN.filter(d=>d.segs.some(s=>s.city===c&&!s.whole));
   const free=new Map();days.forEach(d=>{let f=0;d.segs.filter(s=>s.city===c&&!s.whole).forEach(s=>{const da=s.acts.filter(a=>!a.night);const last=da.length?Math.max(...da.map(a=>a.st+(a.full?8:a.h))):s.st;f+=Math.max(0,(s.en0??s.en)-last-(s.lunchAt!=null&&last<s.lunchAt?1:0))});free.set(d,f)});
-  const unpl=(PLAN.feas&&PLAN.feas[c]?PLAN.feas[c].unpl:[]).map(a=>a.i);const pool=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>(!isSel(c,a.i)||unpl.includes(a.i))&&a.tr!=="fuera"&&!a.full);
+  const unpl=(PLAN.feas&&PLAN.feas[c]?PLAN.feas[c].unpl:[]).map(a=>a.i);const pool=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>!a.hidden&&(!isSel(c,a.i)||unpl.includes(a.i))&&a.tr!=="fuera"&&!a.full);
   const pairs=[];pool.forEach(a=>days.forEach(d=>{if(a.closed&&a.closed.includes(d.date.getDay()))return;
     const pts=d.segs.filter(s=>s.city===c).flatMap(s=>s.acts.filter(x=>x.tr!=="fuera").map(x=>({ll:x.ll,n:x.n})));const ref=pts.length?pts:[{ll:hotelOf(c).ll,n:"el hotel"}];
     let best=ref[0],bk=1e9;ref.forEach(p=>{const k=kmBetween(p.ll,a.ll);if(k<bk){bk=k;best=p}});
@@ -1079,20 +1079,20 @@ const CATMAP={"H:0":"ent","H:1":"pas","H:2":"ent","H:3":"igl","H:4":"mon","H:5":
  "B:0":"mus","B:1":"pas","B:2":"mus","B:3":"ent","B:4":"tie","B:5":"mon","B:6":"mus","B:7":"mus","B:8":"mon","B:9":"mon","B:10":"mon","B:11":"mon","B:12":"mon","B:13":"mon","B:14":"mus","B:15":"igl","B:16":"mon","B:17":"exc","B:18":"exc",
  "P:0":"mon","P:1":"mus","P:2":"mon","P:3":"mon","P:4":"ent","P:5":"mon","P:6":"mon","P:7":"pas","P:8":"mon","P:9":"mon","P:10":"pas","P:11":"mon","P:12":"mon",
  "M:0":"mon","M:1":"mon","M:2":"pas","M:3":"mus","M:4":"pas","M:5":"exc","M:6":"pas","M:7":"ent","M:8":"mus","M:9":"mon","M:10":"mon","M:11":"mon","M:12":"mus","M:13":"mus","M:14":"exc"};
-let custom={acts:[],cats:[],food:[]};try{custom=Object.assign(custom,JSON.parse(store.getItem("ruta_custom")||"null")||{})}catch(e){}
+let custom={acts:[],cats:[],food:[],free:{}};try{custom=Object.assign(custom,JSON.parse(store.getItem("ruta_custom")||"null")||{})}catch(e){}
 function saveCustom(){try{store.setItem("ruta_custom",JSON.stringify(custom))}catch(e){}}
 const allCats=()=>[...CATS0,...custom.cats];
 const catKey=(c,i)=>{const a=ACTS[c][i];return a.t||CATMAP[c+":"+i]||"pas"};
 const catLbl=k=>(allCats().find(x=>x[0]===k)||[k,"Personalizada"])[1];
-function mkCustom(x){return {n:x.n,p:x.p||0,h:x.h||1,pr:0,tr:"metro",ll:x.ll||hotelOf(x.c).ll,u:x.u||"",note:x.s||"",t:x.t||"per",custom:1,cuid:x.id,in:x.in?1:0,close:x.close||undefined,addr:x.addr||""}}
-function applyCustom(){custom.acts.forEach(x=>{if(ACTS[x.c])ACTS[x.c].push(mkCustom(x))})}
+function mkCustom(x){return {n:x.n,p:x.p||0,h:x.h||1,pr:0,tr:"metro",ll:x.ll||hotelOf(x.c).ll,u:x.u||"",note:x.s||"",t:x.t||"per",custom:1,hidden:x.del?1:0,cuid:x.id,in:x.in?1:0,close:x.close||undefined,addr:x.addr||""}}
+function applyCustom(){custom.acts.forEach(x=>{if(ACTS[x.c]){ACTS[x.c].push(mkCustom(x));x.k=x.c+":"+(ACTS[x.c].length-1)}})}
 applyCustom();
 function toast(html){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.innerHTML=html;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3200)}
 const slug=t=>t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24)||"cat";
 function ensureCat(label){label=(label||"").trim();if(!label)return"per";const f=allCats().find(x=>x[1].toLowerCase()===label.toLowerCase());if(f)return f[0];const k="c_"+slug(label);custom.cats.push([k,label]);return k}
 // agrega una actividad propia a una ciudad; devuelve su clave "C:i"
 function addCustomAct(o){const id="cu"+Date.now().toString(36);const x={id,c:o.c,n:o.n,p:+o.p||0,h:+o.h||1,t:o.t||"per",ll:o.ll||null,u:o.u||"",s:o.s||"",in:o.in?1:0,close:o.close||0,addr:o.addr||""};
-  custom.acts.push(x);ACTS[o.c].push(mkCustom(x));saveCustom();const k=aKeyG(o.c,ACTS[o.c].length-1);actSel[k]=!!o.add;saveActs();if(o.day){dayPin[k]=o.day;saveDayPin();actSel[k]=true;saveActs()}return k}
+  custom.acts.push(x);ACTS[o.c].push(mkCustom(x));const k=aKeyG(o.c,ACTS[o.c].length-1);x.k=k;saveCustom();actSel[k]=!!o.add;saveActs();if(o.day){dayPin[k]=o.day;saveDayPin();actSel[k]=true;saveActs()}return k}
 async function geocode(q,c){try{const h=hotelOf(c).ll;const vb=`${(h[1]-.2).toFixed(3)},${(h[0]+.15).toFixed(3)},${(h[1]+.2).toFixed(3)},${(h[0]-.15).toFixed(3)}`;
   const j=await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=es&addressdetails=1&extratags=1&q=${encodeURIComponent(q)}&viewbox=${vb}&bounded=1`)).json();
   return j.map(o=>({n:o.name||o.display_name.split(",")[0],addr:o.display_name.split(",").slice(1,4).join(",").trim(),ll:[+(+o.lat).toFixed(5),+(+o.lon).toFixed(5)],typ:o.type||"",cat:o.category||"",oh:(o.extratags||{}).opening_hours||"",web:(o.extratags||{}).website||"",wk:(o.extratags||{}).wikipedia||""}))}catch(e){return null}}
@@ -1101,11 +1101,11 @@ const guessCat=r=>/museum|gallery/.test(r.typ)?"mus":/church|cathedral|place_of_
 const esc2=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ----- cajón por ciudad: actividades por categoría ----- */
-function poolCats(plan,c){const groups=new Map();ACTS[c].forEach((a,i)=>{const k=catKey(c,i);if(!groups.has(k))groups.set(k,[]);groups.get(k).push({...a,i})});
+function poolCats(plan,c){const groups=new Map();ACTS[c].forEach((a,i)=>{if(a.hidden)return;const k=catKey(c,i);if(!groups.has(k))groups.set(k,[]);groups.get(k).push({...a,i})});
   const order=allCats().map(x=>x[0]);const keys=[...groups.keys()].sort((a,b)=>order.indexOf(a)-order.indexOf(b));
   return `<span class="eyebrow" style="margin-top:6px">Agregar actividades por categoría</span>`+keys.map(k=>{const L=groups.get(k),ns=L.filter(a=>isSel(c,a.i)).length;
    return `<details class="pool poolc" data-k="pool-${c}-${k}"><summary>${esc2(catLbl(k))} <span class="poolcnt2">(${ns?ns+" de ":""}${L.length})</span></summary>${L.map(a=>{const K=aKeyG(c,a.i),on=isSel(c,a.i);
-     return `<div class="poolrow${on?" on":""}" data-pk="${K}"><label class="chk ${a.tr==="fuera"?"fuera":""}"><input type="checkbox" data-act="${K}" ${on?"checked":""}><span class="t">${a.n}${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}${a.top?'<span class="top">★ famosa</span>':""}${a.teen?'<span class="teen">jóvenes</span>':""}${a.custom?'<span class="tag">agregada</span>':""}<small>${durTxt(a)} · ${a.p?fmt(a.p):"gratis"} · ${actLinks({...a,city:c})}</small></span></label>${daySel(plan,c,K,dayPin[K]||"","poolday")}</div>`}).join("")}</details>`}).join("")}
+     return `<div class="poolrow${on?" on":""}" data-pk="${K}"><label class="chk ${a.tr==="fuera"?"fuera":""}"><input type="checkbox" data-act="${K}" ${on?"checked":""}><span class="t">${a.n}${trTag(a)}${a.pass?'<span class="tag pass">de paso</span>':""}${a.top?'<span class="top">★ famosa</span>':""}${a.teen?'<span class="teen">jóvenes</span>':""}${a.custom?`<span class="tag">agregada</span> <button type="button" class="lnkb" data-delcu="${K}">quitar</button>`:""}<small>${durTxt(a)} · ${a.p?fmt(a.p):"gratis"} · ${actLinks({...a,city:c})}</small></span></label>${daySel(plan,c,K,dayPin[K]||"","poolday")}</div>`}).join("")}</details>`}).join("")}
 
 /* ----- hoja «Agregar actividad a este día» ----- */
 let AD=null;
@@ -1125,7 +1125,7 @@ function custForm(o){return `<form class="fform" data-custform="${o.mode}">
 function readForm(f,c){const g=n=>(f.elements[n]&&f.elements[n].value||"").trim();let t=g("t");if(t==="__new")t=ensureCat(g("newcat"));const cl=g("close");
   return {c,n:g("n"),t,h:+g("h")||1,p:+g("p")||0,close:cl?(+cl.split(":")[0]+(+cl.split(":")[1])/60):0,in:f.elements.in&&f.elements.in.checked,addr:g("addr"),s:g("s"),u:g("u"),add:f.elements.add?f.elements.add.checked:true}}
 function addSheetHTML(){if(!AD)return"";const d=AD.day,c=d.city,dk=iso(d.date),dow=d.date.getDay();
-  const items=ACTS[c].map((a,i)=>({...a,i})).filter(a=>!isSel(c,a.i));const cats=allCats().filter(([k])=>items.some(a=>catKey(c,a.i)===k));
+  const items=ACTS[c].map((a,i)=>({...a,i})).filter(a=>!a.hidden&&!isSel(c,a.i));const cats=allCats().filter(([k])=>items.some(a=>catKey(c,a.i)===k));
   if(AD.cat&&AD.cat!=="__new"&&!cats.some(x=>x[0]===AD.cat))AD.cat=null;if(!AD.cat)AD.cat=cats.length?cats[0][0]:"__new";
   const list=AD.cat==="__new"?custForm({mode:"day",c}):items.filter(a=>catKey(c,a.i)===AD.cat).map(a=>{const cl=a.closed&&a.closed.includes(dow);
     return `<div class="addrow"><span><b>${a.n}</b>${a.top?' <span class="top">★</span>':""}<small>${durTxt(a)} · ${a.p?fmt(a.p):"gratis"}${a.in?" · techada":""}${cl?" · cerrado ese día":""}</small></span><button type="button" class="btn sm" data-addgo="${aKeyG(c,a.i)}" ${cl?'disabled title="Cerrado ese día"':""}>Agregar</button></div>`}).join("")||`<p class="muted">Ya están todas en el programa.</p>`;
@@ -1176,8 +1176,8 @@ function drawFind(){let o=document.getElementById("findov");if(!FD){if(o)o.remov
         const ok=w&&r.n.toLowerCase().split(/\W+/).some(x=>x.length>3&&w.t.toLowerCase().includes(x));if(ok)FD.pick={...FD.pick,w,s:w.x.split(/(?<=\.)\s/).slice(0,3).join(" ")};else FD.pick={...FD.pick,w:null};FD.pick.load=false;drawFind()})();return}};
   const sheet=o.querySelector(".calsheet");if(sheet)sheet.onclick=e=>e.stopPropagation&&0}
 document.addEventListener("click",e=>{const fb=e.target.closest("[data-find]");if(fb){FD={city:attCity||cfg.order[0],mode:"find",q:""};drawFind();setTimeout(()=>{const i=document.querySelector("[data-fsearch] input");if(i)i.focus()},50)}});
-function customCard(c){const L=custom.acts.filter(x=>x.c===c);if(!L.length)return"";
-  return `<div class="card cust"><span class="eyebrow">Agregadas por ustedes</span><ul class="brief">${L.map(x=>`<li><b>${esc2(x.n)}</b> · ${esc2(catLbl(x.t))}${x.addr?` <small class="muted">· ${esc2(x.addr)}</small>`:""}${x.s?`<br><small>${esc2(x.s)}</small>`:""}${x.ll?` · <a href="https://www.google.com/maps/search/?api=1&query=${x.ll.join(",")}" target="_blank" rel="noopener">mapa</a>`:""}${x.u?` · <a href="${esc2(x.u)}" target="_blank" rel="noopener">sitio</a>`:""}</li>`).join("")}</ul></div>`}
+function customCard(c){const L=custom.acts.filter(x=>x.c===c&&!x.del);if(!L.length)return"";
+  return `<div class="card cust"><span class="eyebrow">Agregadas por ustedes</span><ul class="brief">${L.map(x=>`<li><b>${esc2(x.n)}</b> · ${esc2(catLbl(x.t))} · <button type="button" class="lnkb" data-delcu="${x.k}">quitar</button>${x.addr?` <small class="muted">· ${esc2(x.addr)}</small>`:""}${x.s?`<br><small>${esc2(x.s)}</small>`:""}${x.ll?` · <a href="https://www.google.com/maps/search/?api=1&query=${x.ll.join(",")}" target="_blank" rel="noopener">mapa</a>`:""}${x.u?` · <a href="${esc2(x.u)}" target="_blank" rel="noopener">sitio</a>`:""}</li>`).join("")}</ul></div>`}
 const aKeyG=(c,i)=>c+":"+i;
 function isSel(c,i){const k=aKeyG(c,i);if(!(k in actSel))actSel[k]=!!(ACTS[c][i].pr||((c==="H"||c==="B")&&ACTS[c][i].top&&!ACTS[c][i].full&&ACTS[c][i].h<=1.5&&!/Fischmarkt/.test(ACTS[c][i].n)));return actSel[k]}
 try{Object.assign(actSel,JSON.parse(store.getItem("ruta_acts")||"{}"))}catch(e){}
@@ -1510,7 +1510,7 @@ function openFicha(key){const [c,i]=key.split(":");attCity=c;renderAtt();const b
 
 function buildPlan(){
   const ord=cfg.order, days=[];let di=0;const slots=[];
-  const mk=(d,city,st,en,full)=>{if(en-st>=0.5)slots.push({d,city,st,en,cap:en-st,full,anchor:hotelOf(city).ll})};
+  const mk=(d,city,st,en,full)=>{if(en-st>=0.5&&!custom.free[iso(d.date)])slots.push({d,city,st,en,cap:en-st,full,anchor:hotelOf(city).ll})};
   ord.forEach((c,ci)=>{
     const from=ci===0?null:ord[ci-1];
     for(let n=0;n<cfg.nights[c];n++){
@@ -1538,7 +1538,7 @@ function buildPlan(){
   const feas={};
   ord.forEach(c=>{
     const sel=ACTS[c].map((a,i)=>({...a,i,city:c})).filter(a=>isSel(c,a.i));
-    if(sel.some(a=>a.night))days.filter(d=>d.night===c).forEach(d=>slots.push({d,city:c,st:EVE,en:EVE+3,cap:3,full:0,eve:1,lunch:0,net:3,items:[],load:0,anchor:hotelOf(c).ll}));
+    if(sel.some(a=>a.night))days.filter(d=>d.night===c&&!custom.free[iso(d.date)]).forEach(d=>slots.push({d,city:c,st:EVE,en:EVE+3,cap:3,full:0,eve:1,lunch:0,net:3,items:[],load:0,anchor:hotelOf(c).ll}));
     const my=slots.filter(sl=>sl.city===c);const done=new Set();const fits=(a,sl)=>!!a.night===!!sl.eve;
     const open=(a,sl)=>fits(a,sl)&&!(a.closed&&a.closed.includes(sl.d.date.getDay()));
     sel.filter(a=>a.full).sort((a,b)=>score(b)-score(a)).forEach(a=>{const sl=(pinOf(a)&&my.find(x=>x.full&&!x.items.length&&onDay(x,a)&&open(a,x)))||my.find(x=>x.full&&!x.items.length&&open(a,x));if(sl){sl.items.push(a);sl.load=sl.net;sl.whole=1;done.add(a.i)}});
@@ -1765,6 +1765,20 @@ document.addEventListener("click",e=>{const fc=e.target.closest("[data-foodc]");
   const fd=e.target.closest("[data-fooddel]");if(fd){custom.food=custom.food.filter(x=>x.id!==fd.dataset.fooddel);saveCustom();renderFood();toast("Lugar quitado de Comidas")}});
 document.addEventListener("submit",e=>{const f=e.target.closest("[data-foodform]");if(!f)return;e.preventDefault();const g=n=>(f.elements[n].value||"").trim();if(!g("n"))return;
   custom.food.push({id:"fd"+Date.now().toString(36),c:foodCity,n:g("n"),ft:g("ft"),pr:g("pr"),addr:g("addr"),s:g("s")});saveCustom();renderFood();toast(`✔ <b>${esc2(g("n"))}</b> agregado a Comidas`)});
+
+/* ===== Borrar: actividad agregada, programación de un día y reformatear una ciudad (con doble confirmación) ===== */
+function twoStep(btn,ms){if(btn.dataset.arm==="1")return true;btn.dataset.arm="1";btn._t0=btn.innerHTML;btn.textContent="¿Seguro? Toca de nuevo para confirmar";btn.classList.add("arm");setTimeout(()=>{if(btn.dataset.arm==="1"){btn.dataset.arm="";btn.innerHTML=btn._t0;btn.classList.remove("arm")}},ms||4500);return false}
+function clearKey(k){actSel[k]=false;delete dayPin[k];delete lockSel[k]}
+function saveAll(){saveActs();saveDayPin();saveLock();saveCustom()}
+document.addEventListener("click",e=>{
+  const dc=e.target.closest("[data-clrday]");if(dc){if(!twoStep(dc))return;const d=PLAN.find(x=>x.id===dc.dataset.clrday);if(!d)return;
+    d.segs.forEach(sg=>sg.acts.forEach(a=>clearKey(aKeyG(a.city,a.i))));custom.free[iso(d.date)]=true;saveAll();renderAll(true);toast(`Día vaciado: ${pretty(d.date)}. Las actividades quedaron disponibles en el cajón de la ciudad.`);return}
+  const uf=e.target.closest("[data-unfree]");if(uf){const d=PLAN.find(x=>x.id===uf.dataset.unfree);if(d){delete custom.free[iso(d.date)];saveCustom();renderAll(true);toast("Día disponible otra vez para programar actividades")}return}
+  const cc=e.target.closest("[data-clrcity]");if(cc){if(!twoStep(cc))return;const c=cc.dataset.clrcity;
+    ACTS[c].forEach((a,i)=>clearKey(aKeyG(c,i)));cityDays(PLAN,c).forEach(d=>{delete custom.free[iso(d.date)]});saveAll();renderAll(true);toast(`${CN[c]} reformateada: sin actividades. Vuelve a elegirlas en el cajón o con «Llenar espacios libres».`);return}
+  const dl=e.target.closest("[data-delcu]");if(dl){if(!twoStep(dl))return;const k=dl.dataset.delcu,[c,i]=k.split(":"),x=custom.acts.find(z=>z.k===k);if(!x)return;
+    x.del=true;ACTS[c][+i].hidden=1;clearKey(k);saveAll();renderAll(true);if($("tab-att").getAttribute("aria-selected")==="true")renderAtt();toast(`<b>${esc2(x.n)}</b> eliminada`)}
+});
 function renderFeas(plan){
   const F=plan.feas;let h="";
   cfg.order.forEach(c=>{const f=F[c];const pct=Math.min(100,f.need/f.avail*100);const over=f.unpl.length>0;
@@ -1779,9 +1793,10 @@ function renderFeas(plan){
       ${lockedOut.some(a=>!a.full&&a.h+0.6>f.maxSlot)?` <br><b>Ojo:</b> en ${CN[c]} no queda un bloque libre para ${Math.max(...lockedOut.map(a=>a.h)).toFixed(1)} h más el traslado (el bloque libre más largo es de ${f.maxSlot.toFixed(1)} h${f.fullDays?"; hay un día ocupado por una excursión de día completo":""}). Para que entre, saca esa excursión o agrega 1 noche.`:""}<div class="pickout">${cand.map(a=>`<div class="po"><button type="button" class="lk" data-lock="${K(a)}" aria-pressed="false" title="Fijar">📌</button><span>${a.n.replace(/\s*\(.*$/,"")} <small class="muted">${durTxt(a)}</small></span><button type="button" class="btn alt sm" data-rm="${K(a)}">Sacar (${a.full?"libera 1 día completo":"−"+a.h+" h"})</button></div>`).join("")||'<span class="muted">No hay más actividades sin fijar para sacar.</span>'}</div>
       <span class="recbtns"><button type="button" class="btn" data-drop="${c}">Recomendación automática: dejar fuera las que no caben${lockedOut.length?" (sin tocar las fijas)":""}</button><button type="button" class="btn alt" data-addn="${c}">Agregar 1 noche en ${CN[c]}</button></span></div>`}
     if(over)h+=`<span class="eyebrow" style="margin-top:6px">No caben ahora</span>`+f.unpl.map(a=>`<label class="chk ${a.tr==="fuera"?"fuera":""}" style="--c:var(--bad)"><input type="checkbox" data-act="${aKeyG(c,a.i)}" checked><span class="t">${lockSel[aKeyG(c,a.i)]?"📌 ":""}${a.n}${trTag(a)}<small>${durTxt(a)}${a.closed?" · revisa días de apertura":""}</small></span></label>`).join("");
-    const off=ACTS[c].map((a,i)=>({...a,i})).filter(a=>!isSel(c,a.i));
+    const off=ACTS[c].map((a,i)=>({...a,i})).filter(a=>!a.hidden&&!isSel(c,a.i));
     if(off.filter(a=>a.tr!=="fuera").length||f.unpl.some(a=>a.tr!=="fuera"))h+=`<div class="fillbox"><button type="button" class="btn fillbtn" data-fill="${c}">✨ Llenar espacios libres · ver dónde encajan las pendientes</button><div class="fillres" id="fill-${c}"></div></div>`;
     h+=poolCats(plan,c);
+    h+=`<button type="button" class="btn alt sm clrcity" data-clrcity="${c}">Reformatear ${CN[c]}: quitar todas las actividades</button>`;
     h+=`</div>`});
   const legend=`<div class="legendtr" style="grid-column:1/-1"><span class="eyebrow">Leyenda</span><span style="font-size:13px">📌 fija (no se saca automáticamente) · ✕ quita del programa · volver a agregar en “Agregar otras actividades”</span><span class="tr pie">a pie</span><span class="tr metro">metro/tranvía</span><span class="tr fuera">⟶ fuera de la ciudad</span><span class="top">★ atracción más famosa/demandada</span><span class="teen">🎮 especialmente atractiva para jóvenes de 16</span></div>`;
   {const _ok=new Set([...document.querySelectorAll("#feas details[open]")].map(x=>x.dataset.k));$("feas").innerHTML=legend+h+`<div id="suggbox" style="display:contents">${suggHTML()}</div>`;document.querySelectorAll("#feas details[data-k]").forEach(x=>{if(_ok.has(x.dataset.k))x.open=true})}
@@ -2002,7 +2017,7 @@ function renderDays(plan){
     if(d.night)h+=`<div class="line"><span>⅕ alojamiento (5 personas)</span><span class="p">${fmt(c.hot)}</span></div>`;
     h+=trRows(d);
     h+=`<div class="mapwrap">${d.segs.map((sg,si)=>{const t=mapThumb(d,sg,si);return t?`<div class="${d.from?(sg.city===d.from?"part-from":"part-to"):""}">${t}</div>`:""}).join("")}</div>`;
-    h+=`</div></div><button type="button" class="btn alt addact" data-addday="${d.id}">+ Agregar actividad a este día</button><button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
+    h+=`</div></div><button type="button" class="btn alt addact" data-addday="${d.id}">+ Agregar actividad a este día</button>${custom.free[iso(d.date)]?`<button type="button" class="btn sm" data-unfree="${d.id}">Día vacío · volver a programarlo</button>`:`<button type="button" class="btn alt sm" data-clrday="${d.id}">Vaciar este día</button>`}<button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
     const el=document.createElement("article");el.className="day "+d.city+(d.from?" from-"+d.from:"");el.dataset.day=d.id;el.innerHTML=h;host.appendChild(el);
   });
   renderDayTabs(plan);renderWx();setTimeout(initDayMaps,80);
@@ -2936,6 +2951,10 @@ details.lsugg>summary::before{content:"▸";font-size:14px;transition:transform 
 .note .rl,.legend .rl,p .rl{display:inline;font-size:inherit}
 .tkt b.num .rl{font-size:11px;font-family:var(--f-mono,monospace)}
 #gLogin{cursor:pointer;background:transparent}
+
+.btn.arm{background:var(--bad,#b3261e)!important;color:#fff!important;border-color:var(--bad,#b3261e)!important}
+.clrcity{margin-top:8px;align-self:flex-start}
+.day>.btn.sm{margin-top:6px;align-self:flex-start}
 </style>
 <script>(function(){const c=document.getElementById("cover");let shown=false;try{shown=sessionStorage.getItem("ruta_cover")==="1"}catch(e){}
   const hide=()=>{c.classList.add("out");setTimeout(()=>c.hidden=true,750)};
