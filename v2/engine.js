@@ -1,5 +1,5 @@
 import {TRIP} from "./trips/paris.js";
-import {ESC,PA,LON,PA_F,CTX_PA,MEDIA_PA,SHOWS,SHOW_X,EXT,ESC_WHY,ESC_H,ESC_WK,FOOD_PA,PLACES_PA,FOOD_ESC,LUNCH_V,BARRIOS,FOOD_G,GUIDE,TIPS,CHECK,TRAM,PA_T,BASES,ZONES_PA,FRMAP,SEINE,LO_WK,ESC_LL,PA_MEAL,LON_MEAL,PA_MEAL_LBL,GBP,G} from "./trips/paris.data.js";
+import {ESC,PA,LON,PA_F,CTX_PA,CTX_LO,MEDIA_LO,MEDIA_PA,SHOWS,SHOW_X,EXT,ESC_WHY,ESC_H,ESC_WK,FOOD_PA,PLACES_PA,FOOD_ESC,LUNCH_V,BARRIOS,FOOD_G,GUIDE,TIPS,CHECK,TRAM,PA_T,BASES,ZONES_PA,FRMAP,SEINE,LO_WK,ESC_LL,PA_MEAL,LON_MEAL,PA_MEAL_LBL,GBP,G} from "./trips/paris.data.js";
 // ===== Datos: escapadas desde París (tiempos de tren directos típicos; verificar horarios al comprar) =====
 const FB={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
 const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has("demo");
@@ -377,11 +377,11 @@ function escCard(){if(!escPick)return `<p class="muted" style="font-size:14px;ma
    <dl class="edl"><dt>🚄 Viaje</dt><dd>${x.tr}</dd><dt>🛤 Cómo</dt><dd>${e.how}</dd><dt>💶 Costo</dt><dd>${e.cost}</dd><dt>🛏 Noches</dt><dd>${x.k==="dia"?"Excursión de un día":x.nt==="0–1"?"De un día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")+" sugeridas"}</dd></dl>
    ${sel.length?`<p class="okl">✓ Elegida: ${sel.map(z=>pretty(z.ini)+(z.fin!==z.ini?" → "+pretty(z.fin):"")).join(" · ")}</p>`:""}
    <div class="act"><button class="btn sm" data-efic="${x.id}">📖 Ver ficha</button><button class="btn alt sm" data-open="${x.id}" data-goto="1">+ Agregar fechas</button></div></div>`}
-function fichaEsc(){if(!escFicha)return"";return `<div class="fov" data-fclose="1"><div class="fsheet fwrap" role="dialog" aria-label="Ficha"><button type="button" class="btn alt sm fx" data-fclose="1" aria-label="Cerrar">✕</button>${escFichaHTML(escFicha)}</div></div>`}
+function fichaEsc(){if(!escFicha)return"";return `<div class="fov" data-efclose="1"><div class="fsheet fwrap" role="dialog" aria-label="Ficha"><button type="button" class="btn alt sm fx" data-efclose="1" aria-label="Cerrar">✕</button>${escFichaHTML(escFicha)}</div></div>`}
 function bindEsc(){document.querySelectorAll("[data-esc]").forEach(g=>{const f=()=>{escPick=g.dataset.esc;render();const c=$(".ecard");if(c)c.scrollIntoView({block:"nearest",behavior:"smooth"})};g.onclick=f;g.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}}});
   document.querySelectorAll("[data-epick]").forEach(b=>b.onclick=()=>{escPick=null;render()});
   document.querySelectorAll("[data-efic]").forEach(b=>b.onclick=()=>{escFicha=b.dataset.efic;render()});
-  document.querySelectorAll("[data-fclose]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("fx")){escFicha=null;render()}});
+  document.querySelectorAll("[data-efclose]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("fx")){escFicha=null;render()}});
   document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setTimeout(()=>{const f=document.querySelector(`form[data-plan="${b.dataset.open}"]`);if(f)f.scrollIntoView({block:"center",behavior:"smooth"})},50)))}
 
 // ===================== Interfaz con la plantilla del Viaje a Alemania =====================
@@ -713,22 +713,31 @@ function loFicha(a,i){const sel=selOf(a),w=LO_WK[a.id]||a.wk,lo=isLO(a.id),cu=/^
    <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p)+(lo?" (≈ £"+Math.round(a.p/GBP)+")":""):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${late?` · 🌙 ${late}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
    ${w?`<div class="fphotos"><a class="polaroid" href="${GIq(a.n+" London")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${a.img?`<img class="ph" src="${a.img}" alt="${esc(a.n)}" loading="lazy">`:`<img class="ph" data-wk="${w}" alt="${esc(a.n)}" loading="lazy">`}<span class="cap">${esc(a.n.split(/ \(|:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${a.wkl==="en"?"https://en.wikipedia.org/wiki/"+encodeURIComponent(w.replace(/ /g,"_")):WKq(w)}" target="_blank" rel="noopener">${w}</a></p>`:""}
    <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a><button type="button" class="btn ${sel?"alt ":""}sm" data-pasel-btn="${a.id}">${sel?"✕ Quitar del programa":"+ Agregar al programa"}</button>${cu?`<button type="button" class="lnkb" data-fdel="att|${a.id}">quitar de la lista</button>`:""}</div></article>`}
+let attCat="todas";
+function attFilters(items){const cnt=k=>items.filter(a=>typOf(a)===k).length;const cats=TYP.filter(t=>cnt(t[0])>0&&!["esp","com","cen","via"].includes(t[0]));
+  if(attCat!=="todas"&&!cats.some(c=>c[0]===attCat))attCat="todas";
+  const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"]];
+  return `<div class="attfil"><span class="eyebrow">Categoría</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todas (${items.length})</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} (${cnt(k)})</button>`).join("")}</div>
+   <span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div>`}
+const attPass=(a,sel)=>(attCat==="todas"||typOf(a)===attCat)&&(attFilt==="todas"||(attFilt==="prog"&&sel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
+const ctxCard=(X,tl)=>`<section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2>${tl(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</section>`;
+const mediaCard=(M,ciudad)=>`<section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas, series y libros · ${ciudad}</h2><div class="mgrid">${M.map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas.</p></section>`;
 function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA";
-  if(attCity==="LO"){const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
-    const L=LON.filter(a=>typOf(a)!=="esp").filter(a=>attFilt==="todas"||(attFilt==="prog"&&loSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
+  if(attCity==="LO"){const items=LON.filter(a=>typOf(a)!=="esp");
+    const L=items.filter(a=>attPass(a,loSel));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>
-     <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}${manBtn("att","LO")}</div>${manPanel("att","LO")}
-     <div class="fichas">${L.map(a=>loFicha(a,LON.indexOf(a))).join("")}</div>`}
+     ${ctxCard(CTX_LO,tlSVG)}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
+     <div class="fichas">${L.map(a=>loFicha(a,LON.indexOf(a))).join("")}</div>${mediaCard(MEDIA_LO,"Londres")}`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA")+`<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`;
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
-  const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","🏛 Techadas"]];
-  const L=PA.filter(a=>PA_F[a.id]).filter(a=>attFilt==="todas"||(attFilt==="prog"&&paSel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
-  L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp");
-  return h+`<section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${CTX_PA.t}</h2>${tlSVG(CTX_PA.tl)}${CTX_PA.p.map(p=>`<p>${p}</p>`).join("")}</section>
-   <div class="filters" style="margin:6px 0">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}${manBtn("att","PA")}</div>${manPanel("att","PA")}
-   <div class="fichas">${CU.map(a=>loFicha(a,PA.indexOf(a))).join("")}${L.map(a=>paFicha(a,PA.indexOf(a))).join("")}</div>
-   ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
-   <section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas, series y libros · París</h2><div class="mgrid">${MEDIA_PA.map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas.</p></section>`}
+  const items=PA.filter(a=>typOf(a)!=="esp");
+  const L=PA.filter(a=>PA_F[a.id]).filter(a=>attPass(a,paSel));
+  L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id)).filter(a=>attPass(a,paSel));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp").filter(a=>attPass(a,paSel));
+  return h+`${ctxCard(CTX_PA,tlSVG)}
+    ${attFilters(items)}<p class="muted attn">${L.length+CU.length+rest.length} de ${items.length} atracciones</p>
+    <div class="fichas">${CU.map(a=>loFicha(a,PA.indexOf(a))).join("")}${L.map(a=>paFicha(a,PA.indexOf(a))).join("")}</div>
+    ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
+    ${mediaCard(MEDIA_PA,"París")}`}
 
 // ---------- 6 · Espectáculos ----------
 let showCity="PA";
@@ -1221,10 +1230,11 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-hdel]",x=>x.onclick=()=>{const [k,id]=x.dataset.hdel.split("|");if(x.dataset.arm!=="1"){x.dataset.arm="1";x.textContent="¿Eliminar? toca de nuevo";return}ST.hot[k]=get(k).filter(q=>q.id!==id);if(ST.hot[k].length&&!ST.hot[k].some(q=>q.sel))ST.hot[k][0].sel=true;save();render()});
   // trámites, atracciones, espectáculos
   Q("[data-chk]",x=>x.onchange=()=>{ST.chk=ST.chk||{};ST.chk[x.dataset.chk]=x.checked;save();render()});
-  Q("[data-attc]",x=>x.onclick=()=>{attCity=x.dataset.attc;attFilt="todas";render()});
+  Q("[data-attc]",x=>x.onclick=()=>{attCity=x.dataset.attc;attFilt="todas";attCat="todas";render()});
   Q("[data-showc]",x=>x.onclick=()=>{showCity=x.dataset.showc;render()});
   Q("[data-pasel-btn]",x=>x.onclick=()=>{const id=x.dataset.paselBtn;ST.paSel=ST.paSel||{};const on=!selOf(actById(id));ST.paSel[id]=on;if(!on&&ST.paPin)delete ST.paPin[id];save();render();toast(selMsg(id))});
   Q("[data-attf]",x=>x.onclick=()=>{attFilt=x.dataset.attf;render()});
+  Q("[data-attcat]",x=>x.onclick=()=>{attCat=x.dataset.attcat;render()});
   Q("[data-fsel]",x=>x.onclick=()=>{const a=PA.find(q=>q.id===x.dataset.fsel);ST.paSel=ST.paSel||{};ST.paSel[a.id]=!paSel(a);save();render()});
   Q("[data-goesc]",x=>x.onclick=e=>{e.preventDefault();escPick=x.dataset.goesc;go("esc")})}
 
