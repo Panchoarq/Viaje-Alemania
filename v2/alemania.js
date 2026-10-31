@@ -1,0 +1,141 @@
+// Página del viaje a Alemania sobre el módulo genérico (city.js). No toca Firebase: guarda en localStorage.
+// Los valores confirmados (CONFIRMADO) son el punto de partida; todo se puede editar y se puede volver a ellos.
+import {TRIP} from "./trips/alemania.js";
+import {CONFIRMADO} from "./trips/alemania.confirmado.js";
+import {HOTELS,ACTS,LOCAL} from "./trips/alemania.data.js";
+import {pretty,add,D,fmtH,money,tramosDe,diasDe,organizar,stayTotal} from "./city.js";
+
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LS=TRIP.ls+"_estado",N=TRIP.people,CN=c=>TRIP.cities[c].n;
+const clone=o=>JSON.parse(JSON.stringify(o));
+let ST=clone(CONFIRMADO),tab="cfg",city=ST.cfg.order[0];
+try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s)ST=Object.assign(ST,s);tab=localStorage.getItem(TRIP.ls+"_tab")||tab}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(ST))}catch(e){}};
+const go=t=>{tab=t;try{localStorage.setItem(TRIP.ls+"_tab",t)}catch(e){}render()};
+
+// ---- datos derivados ----
+const HOTEL_BY=Object.fromEntries(Object.values(HOTELS).flat().map(h=>[h.id,h]));
+const hotelOf=c=>HOTEL_BY[ST.hotel[c]];
+const precio=(tabla,id,def)=>ST.prices[tabla]&&ST.prices[tabla][id]!=null?ST.prices[tabla][id]:def;
+const roomP=h=>precio("roomPrice",h.id,h.room),bfP=h=>precio("bfPrice",h.id,h.bf||0);
+const isConf=k=>!!(ST.prices.verified||{})[k];
+const defSel=(c,i)=>{const a=ACTS[c][i];return !!(a.pr||((c==="H"||c==="B")&&a.top&&!a.full&&a.h<=1.5&&!/Fischmarkt/.test(a.n)))};
+const sel=(c,i)=>{const k=c+":"+i;return k in ST.acts?!!ST.acts[k]:defSel(c,i)};
+const tramos=()=>tramosDe(ST.cfg);
+const legDe=(a,b)=>ST.trenes[a+">"+b]||null;
+const legEst=(a,b)=>{const L=ST.prices.legPrice;return L[a+"-"+b]??L[b+"-"+a]??0};
+const legPP=(a,b)=>{const l=legDe(a,b);return l&&l.price!=null?l.price:legEst(a,b)};
+
+function planDe(tr,ult){
+  const acts=ACTS[tr.k].map((a,i)=>({...a,key:tr.k+":"+i,i})).filter(a=>sel(tr.k,a.i)).map(a=>{const p=ST.dayPin[a.key];return {...a,pin:p&&p>=tr.ini&&p<=tr.fin?p:null}});
+  const h=hotelOf(tr.k);
+  return organizar(diasDe(tr,ult),acts,{base:h&&h.ll});
+}
+
+function costos(){
+  const T=tramos(),o={hot:0,des:0,alm:0,act:0,tre:0,loc:0,por:[]};
+  T.forEach((tr,ix)=>{
+    const h=hotelOf(tr.k),n=tr.noches;
+    const hot=h?stayTotal(roomP(h),ST.roomMode[h.id]||"n",n):0,des=h?bfP(h)*n*N:0;
+    const alm=h&&h.lunch!=null?(precio("lunchPrice",h.id,h.lunch))*n*N:0;
+    const P=planDe(tr,ix===T.length-1);const act=P.plan.reduce((s,d)=>s+d.acts.reduce((t,a)=>t+(a.p||0),0),0)*N;
+    const loc=((LOCAL[tr.k]||{}).v||0)*P.plan.filter(d=>d.acts.length).length;
+    const tre=ix?legPP(T[ix-1].k,tr.k)*N:0;
+    o.por.push({k:tr.k,hot,des,alm,act,loc,tre});
+    o.hot+=hot;o.des+=des;o.alm+=alm;o.act+=act;o.loc+=loc;o.tre+=tre});
+  o.total=o.hot+o.des+o.alm+o.act+o.tre+o.loc;return o;
+}
+
+// ---- vistas ----
+const tabsDef=[["cfg","1 · Configurar"],["prog","2 · Programa"],["hot","3 · Alojamiento"],["tre","4 · Pasajes"],["cos","5 · Costos"]];
+
+function header(){const T=tramos(),a=T[0].ini,b=T[T.length-1].fin;
+  return `<header><span class="eyebrow">${N} viajeros · 16 años · ${esc(pretty(a))} – ${esc(pretty(b))} ${D(b).getFullYear()}</span><h1>${esc(TRIP.title)}</h1>
+  <div class="route">${T.map(t=>`<span class="stop ${t.k}">${TRIP.cities[t.k].p} ${esc(CN(t.k))} · ${t.noches} n</span>`).join('<span class="arrow">→</span>')}</div></header>`}
+
+function pCfg(){const T=tramos();
+  return `<section class="panel"><div class="note">Los alojamientos, días y trenes vienen confirmados; puedes editarlos y volver a los confirmados cuando quieras.</div>
+  <label class="field"><span>Inicio del viaje</span><input type="date" data-start value="${ST.cfg.start}"></label>
+  <div class="tbl-wrap"><table class="ftbl"><thead><tr><th>#</th><th>Ciudad</th><th>Noches</th><th>Llega</th><th>Sale</th><th>Orden</th></tr></thead><tbody>
+  ${T.map((t,i)=>`<tr><td>${i+1}</td><td><b>${TRIP.cities[t.k].p} ${esc(CN(t.k))}</b></td>
+   <td><input type="number" min="1" max="10" data-noches="${t.k}" value="${t.noches}" style="width:4em"></td><td>${esc(pretty(t.ini))}</td><td>${esc(pretty(t.fin))}</td>
+   <td><button type="button" class="btn alt sm" data-mv="${t.k}|-1" ${i?"":"disabled"} aria-label="Subir">↑</button> <button type="button" class="btn alt sm" data-mv="${t.k}|1" ${i<T.length-1?"":"disabled"} aria-label="Bajar">↓</button></td></tr>`).join("")}
+  </tbody></table></div>
+  <div><button type="button" class="btn alt" data-reset="1">Volver a lo confirmado</button></div></section>`}
+
+function legCard(a,b){const l=legDe(a,b);
+  return `<div class="legcard"><div><span class="eyebrow">Día de viaje · ${esc(CN(a))} → ${esc(CN(b))}</span></div>
+  ${l?`<p><b>${esc(l.train)}</b> · ${esc(l.dep)} → ${esc(l.arr)} · ${esc(l.from)} → ${esc(l.to)}${l.stops?` · ${esc(l.stops)}`:""}</p>
+   <p class="muted">${money(l.price,1)} por persona · ${money(l.price*N,1)} los ${N}</p>`
+   :`<p class="muted">Tren por definir · estimado ${money(legEst(a,b),1)} por persona</p>`}</div>`}
+
+function dayHTML(d,tr,ix,T){
+  const h=hotelOf(tr.k);
+  return `<article class="day" style="--c:${TRIP.colors[tr.k]}"><div class="dtabrow"><span class="dftab"><b>${esc(pretty(d.d))}</b><span class="fc">${esc(CN(tr.k))}</span></span></div>
+  ${d.first&&ix?legCard(T[ix-1].k,tr.k):""}
+  ${d.first&&!ix?`<p class="muted">Llegada a ${esc(CN(tr.k))}.</p>`:""}
+  ${d.seq.length?`<ol class="seq">${d.seq.map(a=>`<li><span class="num">${fmtH(a.st)}</span> <b>${esc(a.n)}</b> <span class="muted">~${a.full?"día completo":a.h+" h"}${a.p?` · ${money(a.p,1)} p/p`:" · gratis"}</span>${a.note?`<br><small class="muted">${esc(a.note)}</small>`:""}</li>`).join("")}</ol>`:`<p class="muted">${d.last?"Día de salida.":"Sin actividades este día."}</p>`}
+  ${h?`<p class="muted">${d.last?"":`Noche en ${esc(h.name)}`}</p>`:""}</article>`}
+
+function pProg(){const T=tramos();if(!T.some(t=>t.k===city))city=T[0].k;
+  const ix=T.findIndex(t=>t.k===city),tr=T[ix],P=planDe(tr,ix===T.length-1);
+  const pick=ACTS[tr.k].map((a,i)=>[a,i]);
+  return `<section class="panel"><div class="tabs" role="tablist" aria-label="Ciudad">${T.map(t=>`<button type="button" role="tab" data-city="${t.k}" aria-selected="${t.k===city}">${TRIP.cities[t.k].p} ${esc(CN(t.k))}</button>`).join("")}</div>
+  <p class="note">${esc(CN(tr.k))}: ${esc(pretty(tr.ini))} – ${esc(pretty(tr.fin))} · ${tr.noches} noches.${(LOCAL[tr.k]||{}).n?` ${esc(LOCAL[tr.k].n)}.`:""}</p>
+  <div class="days">${P.plan.map(d=>dayHTML(d,tr,ix,T)).join("")}</div>
+  ${P.sobran.length?`<p class="note bad">No caben en los días disponibles: ${P.sobran.map(a=>esc(a.n)).join(" · ")}. Quita alguna o agrega noches.</p>`:""}
+  <details class="why"><summary>Elegir actividades de ${esc(CN(tr.k))} (${pick.filter(([a,i])=>sel(tr.k,i)).length} de ${pick.length})</summary>
+  <ul class="picks">${pick.map(([a,i])=>`<li><label><input type="checkbox" data-act="${tr.k}:${i}" ${sel(tr.k,i)?"checked":""}> ${esc(a.n)} <span class="muted">· ${a.full?"día completo":a.h+" h"}${a.p?` · ${money(a.p,1)}`:" · gratis"}</span></label></li>`).join("")}</ul></details></section>`}
+
+function pHot(){const T=tramos();
+  return `<section class="panel">${T.map(tr=>{const c=tr.k,cur=hotelOf(c),opts=HOTELS[c];
+    return `<div class="card" style="--c:${TRIP.colors[c]}"><h3>${TRIP.cities[c].p} ${esc(CN(c))} · ${tr.noches} noches</h3>
+    <div class="hopts">${opts.map(h=>{const on=h.id===ST.hotel[c],mode=ST.roomMode[h.id]||"n",tot=stayTotal(roomP(h),mode,tr.noches);
+      return `<label class="hopt${on?" on":""}"><input type="radio" name="h-${c}" data-hotel="${c}|${h.id}" ${on?"checked":""}> <b>${esc(h.name)}</b>
+       ${on&&isConf("room:"+h.id)?'<span class="stamp">confirmado</span>':""}<br><small class="muted">${esc(h.addr||"")} ${h.dist?"· "+esc(h.dist):""}</small><br>
+       <small>Habitación ${money(roomP(h))} ${mode==="t"?"la estadía":"por noche"} → <b>${money(tot)}</b> para ${N} (${money(tot/N,1)} p/p) · desayuno ${money(bfP(h),1)} p/p${h.minors?` · <i>${esc(h.minors)}</i>`:""}</small></label>`}).join("")}</div>
+    ${cur?`<div class="edit"><label>Precio habitación <input type="number" step="0.5" data-room="${cur.id}" value="${roomP(cur)}" style="width:6em"></label>
+     <select data-rmode="${cur.id}"><option value="n"${(ST.roomMode[cur.id]||"n")==="n"?" selected":""}>por noche</option><option value="t"${ST.roomMode[cur.id]==="t"?" selected":""}>total estadía</option></select>
+     <label>Desayuno p/p <input type="number" step="0.25" data-bf="${cur.id}" value="${bfP(cur)}" style="width:5em"></label></div>`:""}</div>`}).join("")}</section>`}
+
+function pTre(){const T=tramos();
+  return `<section class="panel"><p class="note">Precios por persona. Los trenes confirmados no se recalculan; cámbialos solo si cambió la reserva.</p>
+  ${T.slice(1).map((t,i)=>{const a=T[i].k,b=t.k,key=a+">"+b,l=ST.trenes[key];
+    return `<div class="card"><h3>${esc(CN(a))} → ${esc(CN(b))} · ${esc(pretty(t.ini))}</h3>
+    ${l?`<div class="edit"><label>Tren <input data-leg="${key}|train" value="${esc(l.train)}"></label> <label>Sale <input data-leg="${key}|dep" value="${esc(l.dep)}" style="width:5em"></label> <label>Llega <input data-leg="${key}|arr" value="${esc(l.arr)}" style="width:5em"></label>
+     <label>Precio p/p <input type="number" step="0.01" data-leg="${key}|price" value="${l.price}" style="width:6em"></label></div>
+     <p class="muted">${esc(l.from)} → ${esc(l.to)}${l.stops?" · "+esc(l.stops):""} · ${money(l.price*N,1)} los ${N}${isConf("leg:"+a+"-"+b)||isConf("leg:"+b+"-"+a)?' · <span class="stamp">verificado</span>':""}</p>`
+     :`<p class="muted">Sin tren confirmado para este tramo (orden distinto al confirmado). Estimado ${money(legEst(a,b),1)} p/p.</p>`}</div>`}).join("")}</section>`}
+
+function pCos(){const C=costos(),T=tramos();const row=(n,v)=>`<tr><td>${n}</td><td class="num">${money(v)}</td><td class="num">${money(v/N)}</td></tr>`;
+  return `<section class="panel"><div class="summary"><div class="tile main"><span class="eyebrow">Total del viaje (sin vuelos)</span><span class="big">${money(C.total)}</span></div>
+  <div class="tile"><span class="eyebrow">Por persona</span><span class="big">${money(C.total/N)}</span></div></div>
+  <div class="tbl-wrap"><table class="ftbl"><thead><tr><th>Concepto</th><th>Total ${N}</th><th>Por persona</th></tr></thead><tbody>
+  ${row("Alojamiento",C.hot)}${row("Desayunos",C.des)}${row("Almuerzos en el hotel",C.alm)}${row("Actividades",C.act)}${row("Trenes entre ciudades",C.tre)}${row("Transporte local",C.loc)}</tbody></table></div>
+  <div class="tbl-wrap"><table class="ftbl"><thead><tr><th>Ciudad</th><th>Alojamiento</th><th>Actividades</th><th>Tren de llegada</th></tr></thead><tbody>
+  ${C.por.map(p=>`<tr><td>${esc(CN(p.k))}</td><td class="num">${money(p.hot)}</td><td class="num">${money(p.act)}</td><td class="num">${money(p.tre)}</td></tr>`).join("")}</tbody></table></div>
+  <p class="note">Faltan comidas fuera del hotel y vuelos. Las comidas se agregan en la siguiente etapa.</p></section>`}
+
+function render(){
+  const body={cfg:pCfg,prog:pProg,hot:pHot,tre:pTre,cos:pCos}[tab]();
+  app.innerHTML=header()+`<nav class="tabs" role="tablist">${tabsDef.map(([k,t])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${k===tab}">${t}</button>`).join("")}</nav>`+body;
+  bind();
+}
+
+function bind(){
+  const Q=(s,f)=>app.querySelectorAll(s).forEach(f);
+  Q("[data-tab]",b=>b.onclick=()=>go(b.dataset.tab));
+  Q("[data-city]",b=>b.onclick=()=>{city=b.dataset.city;render()});
+  Q("[data-start]",i=>i.onchange=()=>{if(i.value){ST.cfg.start=i.value;save();render()}});
+  Q("[data-noches]",i=>i.onchange=()=>{ST.cfg.nights[i.dataset.noches]=Math.max(1,Math.min(10,+i.value||1));save();render()});
+  Q("[data-mv]",b=>b.onclick=()=>{const [c,d]=b.dataset.mv.split("|"),o=ST.cfg.order,i=o.indexOf(c),j=i+ +d;if(j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];save();render()});
+  Q("[data-reset]",b=>b.onclick=()=>{if(confirm("¿Volver a los valores confirmados? Se pierden tus cambios.")){ST=clone(CONFIRMADO);save();render()}});
+  Q("[data-act]",i=>i.onchange=()=>{ST.acts[i.dataset.act]=i.checked;save();const t=app.querySelector("details.why");const open=t&&t.open;render();if(open)app.querySelector("details.why").open=true});
+  Q("[data-hotel]",i=>i.onchange=()=>{const [c,id]=i.dataset.hotel.split("|");ST.hotel[c]=id;save();render()});
+  Q("[data-room]",i=>i.onchange=()=>{ST.prices.roomPrice[i.dataset.room]=+i.value||0;save();render()});
+  Q("[data-bf]",i=>i.onchange=()=>{ST.prices.bfPrice[i.dataset.bf]=+i.value||0;save();render()});
+  Q("[data-rmode]",i=>i.onchange=()=>{ST.roomMode[i.dataset.rmode]=i.value;save();render()});
+  Q("[data-leg]",i=>i.onchange=()=>{const [k,f]=i.dataset.leg.split("|");ST.trenes[k][f]=f==="price"?+i.value||0:i.value;save();render()});
+}
+render();
