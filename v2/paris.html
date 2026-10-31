@@ -999,6 +999,19 @@ span.tc-d{cursor:default}
 .ritseg{width:max-content;max-width:100%}.ritseg button{min-width:0}
 .jcard.pas{border-left-color:#2e4f8f}
 @media (max-width:600px){.calsheet.tcal{padding:14px 12px}.tcal .ms-head{margin-left:40px}}
+
+/* Iconos de línea (reemplazan emojis) y botón Buscar y agregar con la estética del cuaderno */
+.ic{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;flex:none}
+.btn.findbtn{align-self:flex-start;width:auto;background:var(--card);color:var(--stamp,#a8352b);border:1.5px solid var(--stamp,#a8352b);border-radius:999px;font:700 13px var(--f-mono,monospace);letter-spacing:.02em;padding:8px 16px;display:inline-flex;align-items:center;gap:8px;min-height:40px;cursor:pointer}
+.btn.findbtn:hover,.btn.findbtn:focus-visible{background:var(--stamp,#a8352b);color:var(--card)}
+.gastosbtn{display:inline-flex;align-items:center;gap:6px}
+.fov2 .seg{margin:4px 0 10px}
+
+/* Gasto real (rojo) junto al presupuesto */
+.rl{display:block;color:var(--bad,#b3261e);font-weight:700;font-size:.78em;line-height:1.25;letter-spacing:0;white-space:nowrap}
+.tile.main .rl{color:#ffb4a8}
+.note .rl,.legend .rl,p .rl{display:inline;font-size:inherit}
+.tkt b.num .rl{font-size:11px;font-family:var(--f-mono,monospace)}
 </style>
 </head>
 <body>
