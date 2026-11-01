@@ -168,7 +168,9 @@ async function boot(){
   F=FS;const fa=A.initializeApp(FBC);const auth=U.getAuth(fa);
   try{db=FS.initializeFirestore(fa,{localCache:FS.persistentLocalCache({tabManager:FS.persistentMultipleTabManager()})})}catch(e){db=FS.getFirestore(fa)}
   window._au={U,auth};
-  U.getRedirectResult(auth).catch(e=>{window._autherr=e&&e.code});
+  if(U.isSignInWithEmailLink(auth,location.href)){let e2="";try{e2=localStorage.getItem("g_email")||""}catch(e){}if(!e2)e2=prompt("Confirma el correo al que llegó el link")||"";
+    try{await U.signInWithEmailLink(auth,e2,location.href);history.replaceState(null,"",location.pathname+"?trip="+TK)}catch(e){window._autherr=e&&e.code}}
+  U.getRedirectResult(auth).then(r=>{let f=false;try{f=sessionStorage.getItem("g_redir")==="1";sessionStorage.removeItem("g_redir")}catch(e){}if(f&&(!r||!r.user)){window._autherr="redirect-sin-sesion";if(!user)gate()}}).catch(e=>{window._autherr=e&&e.code});
   U.onAuthStateChanged(auth,u=>{window._authu=u?(u.isAnonymous?"anónima":u.email):"ninguna";unsubs.forEach(f=>f());unsubs=[];if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
 function listen(){const den=e=>{window._autherr=e&&e.code;gate(true)};
   unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"users",em()),s=>{P=s.exists()?s.data():{};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];render()},den));
@@ -177,10 +179,18 @@ function listen(){const den=e=>{window._autherr=e&&e.code;gate(true)};
   unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"meta","presupuesto"),s=>{BUD=s.exists()?s.data():{days:[]};render()},()=>{}))}
 function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">${T.nom}</span><h1 class="h1">Mis gastos</h1>
   ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada persona ve solo sus gastos.</p>`}
-  <button class="go" id="g" style="max-width:320px">Entrar con Google</button><a href="${T.back}">← Volver al viaje</a><small class="sub" id="dbg">Sesión: ${window._authu||"—"}${window._autherr?" · "+window._autherr:""}</small></div>`;
-  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);const pr=new U.GoogleAuthProvider();pr.setCustomParameters({prompt:"select_account"});try{const rs=await U.signInWithPopup(auth,pr);if(rs&&rs.user&&!rs.user.isAnonymous){unsubs.forEach(f=>f());unsubs=[];user=rs.user;listen()}}catch(e){const c=e&&e.code||"";if(/popup-blocked|cancelled-popup|operation-not-supported/.test(c)){try{await U.signInWithRedirect(auth,pr);return}catch(e2){}}
+  ${/FBAN|FBAV|Instagram|WhatsApp|Line\/|Messenger/i.test(navigator.userAgent)?`<p class="alert">Estás en el navegador interno de otra app (WhatsApp, Instagram…). Google suele bloquear el ingreso ahí: abre este enlace en Chrome o Safari.</p>`:""}
+  ${window._autherr==="redirect-sin-sesion"?`<p class="alert">Tu navegador no completó el ingreso con Google (pasa en Safari y en algunos celulares). Usa el link por correo de más abajo.</p>`:""}
+  <button class="go" id="g" style="max-width:320px">Entrar con Google</button>
+  <span class="sub" style="margin-top:6px">o con un link a tu correo (sirve en cualquier navegador)</span>
+  <form id="mf" style="display:flex;gap:8px;flex-wrap:wrap;max-width:320px;justify-content:center"><input type="email" id="em" required placeholder="tu@correo.com" autocomplete="email" style="flex:1 1 180px;font:16px system-ui;padding:9px 10px;border:1.5px solid #2a2219;border-radius:8px"><button class="btn" type="submit">Enviarme el link</button></form><p class="sub" id="mm" style="max-width:320px"></p>
+  <a href="${T.back}">← Volver al viaje</a><small class="sub" id="dbg">Sesión: ${window._authu||"—"}${window._autherr?" · "+window._autherr:""}</small></div>`;
+  $("#g").onclick=async()=>{const {U,auth}=window._au;if(denied)await U.signOut(auth);const pr=new U.GoogleAuthProvider();pr.setCustomParameters({prompt:"select_account"});try{const rs=await U.signInWithPopup(auth,pr);if(rs&&rs.user&&!rs.user.isAnonymous){unsubs.forEach(f=>f());unsubs=[];user=rs.user;listen()}}catch(e){const c=e&&e.code||"";if(/popup-blocked|cancelled-popup|operation-not-supported/.test(c)){try{try{sessionStorage.setItem("g_redir","1")}catch(e3){}await U.signInWithRedirect(auth,pr);return}catch(e2){}}
     const m=/unauthorized-domain/.test(c)?"Dominio no autorizado en Firebase ("+location.hostname+")":/popup-closed/.test(c)?"Cerraste la ventana de Google":/operation-not-allowed/.test(c)?"Google no está habilitado en Firebase":"No se pudo entrar: "+c;
-    const w=document.createElement("p");w.className="alert";w.textContent=m;app.querySelector(".gate").appendChild(w)}}}
+    const w=document.createElement("p");w.className="alert";w.textContent=m;app.querySelector(".gate").appendChild(w)}};
+  const mf=$("#mf");if(mf)mf.onsubmit=async ev=>{ev.preventDefault();const {U,auth}=window._au,mail=$("#em").value.trim(),mm=$("#mm");mm.textContent="Enviando…";
+    try{await U.sendSignInLinkToEmail(auth,mail,{url:location.origin+location.pathname+"?trip="+TK,handleCodeInApp:true});try{localStorage.setItem("g_email",mail)}catch(e){}mm.textContent="Listo: revisa tu correo y abre el link desde este mismo navegador."}
+    catch(e){mm.textContent=e.code==="auth/operation-not-allowed"?"El acceso por link no está habilitado en Firebase (se activa en Authentication → Sign-in method → Email link).":"No se pudo enviar ("+(e.code||"error")+")."}}}
 
 // ---------- cálculos ----------
 function mine(){// gastos personales: propios + mitad de los compartidos
