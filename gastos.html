@@ -88,6 +88,8 @@ nav.tb svg{width:22px;height:22px}
 .toast.on{opacity:1}
 .tbl{width:100%;border-collapse:collapse;font-size:14px}.tbl td{padding:5px 2px;border-bottom:1px dotted var(--line)}.tbl td:last-child{text-align:right;font:700 13px var(--mono);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.backlnk{align-self:flex-start;display:inline-block;font:700 13px var(--mono,monospace);color:var(--ink,#2a2219);text-decoration:none;border:1.5px solid var(--ink,#2a2219);border-radius:999px;padding:6px 14px;margin:0 0 4px}
+.backlnk:hover{background:var(--ink,#2a2219);color:var(--paper,#fffdf6)}
 </style>
 </head>
 <body>
@@ -292,7 +294,7 @@ function startGeo(){if(!form.loc||!navigator.geolocation||geoWatch!=null)return;
 function stopGeo(){if(geoWatch!=null){navigator.geolocation.clearWatch(geoWatch);geoWatch=null}}
 function render(){if(!user)return;if(LMAP){LMAP.remove();LMAP=null}
   const y=scrollY;const ae=document.activeElement&&document.activeElement.id;
-  app.innerHTML=(tab==="add"?vAdd():tab==="res"?vRes():tab==="map"?vMap():tab==="jun"?vJun():vSet())+nav();
+  app.innerHTML=`<a class="backlnk" href="${T.back}">← Volver al viaje</a>`+(tab==="add"?vAdd():tab==="res"?vRes():tab==="map"?vMap():tab==="jun"?vJun():vSet())+nav();
   if(tab==="map")setTimeout(drawMap,0);if(tab==="add")startGeo();else stopGeo();
   bind();if(ae&&$("#"+ae)){const el=$("#"+ae);el.focus();if(el.setSelectionRange&&el.value)try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}scrollTo(0,y)}
 function sheet(html,onBind){const d=document.createElement("div");d.className="sheet";d.innerHTML=`<div role="dialog">${html}</div>`;document.body.appendChild(d);d.onclick=e=>{if(e.target===d)d.remove()};onBind&&onBind(d);return d}
