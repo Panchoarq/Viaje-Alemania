@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maqueta funcional · cabecera compacta para el celular</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+:root{--bg:#efe4cc;--card:#f8f0dc;--ink:#2a2420;--muted:#6f6352;--line:#cdbb98;--stamp:#a8352b;--LO:#1d6f7a;--PA:#2e4f8f;--BR:#9a6a12;
+  --f-display:"Playfair Display",Georgia,serif;--f-body:"Source Serif 4",Georgia,serif;--f-mono:"Courier Prime","Courier New",monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#d9cdb2;font-family:var(--f-body);color:var(--ink);padding:14px}
+.top{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px}
+.top h1{font:700 14px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;margin:0}
+.sw{display:flex;align-items:center;gap:8px;font:700 12px var(--f-mono);background:#f3ead4;border:1.5px solid var(--ink);border-radius:999px;padding:4px 6px 4px 12px}
+.sw .seg{margin:0}
+.row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:6px}
+.col>b{font:700 13px var(--f-mono)}.col>small{max-width:375px;color:#4a4033;font-size:12.5px;line-height:1.35}
+.ph{width:375px;height:740px;background:var(--bg);border:1px solid #8d7f62;border-radius:22px;overflow:hidden;position:relative;box-shadow:0 8px 26px rgba(0,0,0,.25);
+  background-image:linear-gradient(transparent 27px,rgba(110,140,200,.12) 28px),linear-gradient(90deg,transparent 27px,rgba(110,140,200,.1) 28px);background-size:28px 28px}
+.scroll{height:100%;overflow:auto;scroll-behavior:smooth}
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.seg{display:flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg button{font:700 11px var(--f-mono);border:0;background:transparent;color:var(--ink);padding:5px 9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+/* cabecera */
+.hd{padding:8px 12px 6px;display:flex;flex-direction:column;gap:5px}
+.r1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.usr{display:flex;align-items:center;gap:6px;font:700 12px var(--f-mono)}
+.usr .nm{max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);display:grid;place-items:center;padding:0;cursor:pointer}
+.hd h1{font:800 21px/1.05 var(--f-display);margin:0}
+.sub{font:12px var(--f-mono);color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hb{display:flex;align-items:center;gap:4px;border:1.5px solid var(--stamp);color:var(--stamp);background:var(--card);border-radius:999px;font:700 11px var(--f-mono);padding:3px 9px;cursor:pointer}.hb .ic{width:13px;height:13px}
+/* menú fijo */
+.stk{position:sticky;top:0;z-index:6;background:var(--bg)}
+.menu{border-bottom:2.5px solid var(--ink);padding:5px 8px 0}
+.mA{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding-bottom:5px}
+.mA button{display:flex;flex-direction:column;align-items:center;gap:1px;border:1.5px solid var(--line);border-radius:7px;background:var(--card);color:var(--muted);font:700 9.5px var(--f-mono);padding:4px 1px 3px;cursor:pointer}
+.mA .ic{width:13px;height:13px}
+.mA button[aria-selected="true"],.mB button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mB{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:5px}
+.mB button{flex:none;display:flex;align-items:center;gap:5px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--muted);font:700 11.5px var(--f-mono);padding:6px 11px;cursor:pointer;white-space:nowrap}
+.mB .ic{width:14px;height:14px}
+.fade{position:relative}.fade:after{content:"";position:absolute;right:0;top:0;bottom:5px;width:26px;background:linear-gradient(90deg,transparent,var(--bg));pointer-events:none}
+/* fechas de la ciudad (fijas bajo el menú) */
+.chips{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:5px 8px;background:var(--bg);border-bottom:1px solid var(--line)}
+.chips button{flex:none;min-width:44px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);font:700 11px var(--f-mono);padding:3px 6px;color:var(--ink);cursor:pointer;line-height:1.15}
+.chips button small{display:block;font:10px var(--f-mono);color:var(--muted)}
+.chips button[aria-pressed="true"]{background:var(--c);color:#fff;border-color:var(--c)}.chips button[aria-pressed="true"] small{color:#fff}
+.body{padding:10px 10px 40px;display:flex;flex-direction:column;gap:10px}
+/* resumen por ciudad */
+details.res{background:var(--card);border:1.5px dashed var(--ink);border-radius:8px;padding:5px 12px}
+details.res summary{cursor:pointer;font:700 13px var(--f-mono);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:30px}
+details.res summary::-webkit-details-marker{display:none}
+details.res summary .mu{font:400 12px var(--f-body);color:var(--muted)}
+details.res summary:after{content:"▸";font-size:14px}details.res[open] summary:after{content:"▾"}
+.fc{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:8px 0;font-size:13.5px;border-top:4px solid var(--c)}
+.fc small{color:var(--muted)}.bar{height:8px;border-radius:4px;background:#e2d6b8;overflow:hidden;margin:4px 0}.bar i{display:block;height:100%;background:#3d6b3a}
+.fc .st{font:700 12px var(--f-mono);color:#3d6b3a}.fc .bt{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.btn{font:700 11px var(--f-mono);border:1.5px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink);padding:5px 8px;cursor:pointer}
+.btn.dk{background:var(--ink);color:var(--bg)}.btn.rd{border-color:var(--stamp);color:var(--stamp)}
+.pillrow{display:flex;gap:5px;flex-wrap:wrap}.pill{font:700 11px var(--f-mono);border:1.5px solid var(--c);color:var(--c);background:var(--card);border-radius:999px;padding:3px 9px}
+.link{font:700 12px var(--f-mono);color:var(--stamp);background:none;border:0;text-decoration:underline;cursor:pointer;padding:2px 0;text-align:left}
+/* ciudades y días */
+.cities{display:flex;align-items:flex-end}
+.cities button{flex:1;text-align:left;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:#e8dcc0;padding:5px 8px;font:700 12px var(--f-mono);color:var(--ink);cursor:pointer;border-top:3px solid var(--c)}
+.cities button small{display:block;font:10.5px var(--f-mono);color:var(--muted)}
+.cities button[aria-selected="true"]{background:var(--card)}
+.cities .cal{flex:none;width:38px;border-top:3px solid var(--ink);display:grid;place-items:center}
+.days{background:var(--card);border:1px solid var(--line);margin-top:-10px;padding:8px 10px 6px;display:flex;flex-direction:column;gap:14px}
+.day{border-bottom:2px dotted var(--line);padding-bottom:10px;scroll-margin-top:var(--sk,120px)}
+.dtab{display:inline-block;background:var(--ink);color:var(--bg);font:700 12px var(--f-mono);padding:3px 13px 3px 9px;letter-spacing:.06em}
+.day h3{font:700 16px var(--f-display);margin:4px 0 2px}.day p{margin:3px 0;font-size:13.5px}.day .n{color:var(--muted);font-size:12px}
+.note{font-size:12px;color:var(--muted)}
+.ficha{background:color-mix(in srgb,#d8b979 22%,var(--card));border:1px solid #b8a06a;padding:9px 11px;font-size:13.5px}.ficha h4{margin:0 0 3px;font:700 15px var(--f-display)}
+.filters{display:flex;gap:5px;flex-wrap:wrap}.chip{font:700 11px var(--f-mono);border:1.5px solid var(--ink);border-radius:999px;background:var(--card);padding:4px 9px;cursor:pointer}.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.eb{font:700 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.empty{background:var(--card);border:1.5px dashed var(--line);border-radius:8px;padding:18px;text-align:center;font:13px var(--f-mono);color:var(--muted)}
+.pop{position:absolute;left:10px;right:10px;top:96px;background:var(--card);border:1.5px solid var(--ink);border-radius:10px;padding:10px 12px;font-size:13px;box-shadow:0 8px 20px rgba(0,0,0,.3);z-index:20}
+</style>
+</head>
+<body>
+<div class="top"><h1>Maqueta funcional · cabecera compacta (celular)</h1>
+ <label class="sw">¿Dónde va el «resumen por ciudad»?<span class="seg" id="place"><button data-pl="prog" aria-pressed="true">En Programa</button><button data-pl="att" aria-pressed="false">En Atracciones</button></span></label></div>
+<div class="row" id="root"></div>
+<script>
+const I={cfg:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+ prog:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',att:'<path d="M3 21h18M5 21V10M19 21V10M9 21v-8M15 21v-8M12 3l9 6H3z"/>',
+ esc:'<rect x="6" y="3" width="12" height="13" rx="3"/><path d="M6 10h12M9 20l1.5-4M15 20l-1.5-4"/>',sho:'<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+ hot:'<path d="M3 19V6M3 15h18v4M21 15v-2.5a3 3 0 0 0-3-3h-7V15"/><circle cx="7" cy="11.5" r="1.6"/>',buy:'<path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
+ foo:'<path d="M7 3v7M5 3v4a2 2 0 0 0 4 0V3M7 10v11M17 3c-2 1.5-3 4-3 7h3v11"/>',gas:'<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H17v3"/><rect x="3" y="8.5" width="18" height="11" rx="2"/><circle cx="16.5" cy="14" r="1.1"/>',
+ tra:'<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/>',out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',back:'<path d="M15 18l-6-6 6-6"/>',
+ q:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>'};
+const ic=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+const T=[["cfg","Config.","Configurar"],["prog","Programa","Programa"],["att","Atracc.","Atracciones"],["esc","Escapadas","Escapadas"],["sho","Shows","Espectáculos"],["hot","Aloj.","Alojamiento"],["buy","Trámites","Trámites previos"],["foo","Comidas","Comidas"],["gas","Gastos","Gastos"],["tra","Transp.","Transporte"]];
+const CITY={LO:{n:"Londres",ini:11,fin:15,mes:"dic",c:"var(--LO)",h:"✓ Con Alli · sin alojamiento pagado",pct:100},PA:{n:"París",ini:16,fin:27,mes:"dic",c:"var(--PA)",h:"✓ Todo cabe · 24,4 / 47 h",pct:52},BR:{n:"Bruselas",ini:20,fin:21,mes:"dic",c:"var(--BR)",h:"✓ Programa sugerido",pct:100}};
+const DW=["dom","lun","mar","mié","jue","vie","sáb"];const dow=d=>DW[new Date(2026,11,d).getDay()];
+const TIT={11:"Llegada a Londres",16:"Llegada a París"};
+const ACT=["British Museum","Paseo por el Támesis","Notre-Dame y la Île de la Cité","Louvre: 3 salas","Marais y Place des Vosges","Torre Eiffel al atardecer","Museo de Orsay","Montmartre y Sacré-Cœur"];
+const S={place:"prog"};
+function phone(v){return {v,tab:"prog",city:"PA",day:16,res:false,help:false}}
+const P={A:phone("A"),B:phone("B")};
+const head=p=>`<div class="hd"><div class="r1"><div class="seg"><button aria-pressed="false">Retro</button><button aria-pressed="false">Moderno</button><button aria-pressed="true">Cuaderno</button></div>
+ <div class="usr"><span class="nm">Francisco</span><button class="ib" title="Salir">${ic("out")}</button><button class="ib" title="Volver a Viajes">${ic("back")}</button></div></div>
+ <h1>Londres · París · Bruselas</h1><div class="sub"><span>23 nov 2026 – 12 ene 2027 · 2 viajeras</span><button class="hb" data-help>${ic("q")} Ayuda</button></div></div>`;
+const menu=p=>p.v==="A"?`<div class="menu"><div class="mA">${T.map(t=>`<button data-tab="${t[0]}" aria-selected="${p.tab===t[0]}">${ic(t[0])}<span>${t[1]}</span></button>`).join("")}</div></div>`
+ :`<div class="menu fade"><div class="mB">${T.map(t=>`<button data-tab="${t[0]}" aria-selected="${p.tab===t[0]}">${ic(t[0])}${t[2]}</button>`).join("")}</div></div>`;
+const cards=()=>Object.entries(CITY).map(([k,c])=>`<div class="fc" style="--c:${c.c}"><b>${c.n}</b> <small>${c.ini}–${c.fin} ${c.mes} · ${c.fin-c.ini+1} días</small><div class="bar"><i style="width:${c.pct}%"></i></div><span class="st">${c.h}</span>
+  <div class="bt"><button class="btn dk">✨ Llenar espacios libres</button><button class="btn">Agregar por categoría ▸</button><button class="btn rd">Reformatear ${c.n}</button></div></div>`).join("");
+const strip=()=>`<div class="pillrow">${Object.entries(CITY).map(([k,c])=>`<span class="pill" style="--c:${c.c}">${c.n} ✓</span>`).join("")}</div><button class="link" data-goatt>Administrar actividades por ciudad en Atracciones →</button>`;
+const dayCards=(p)=>{const c=CITY[p.city];let h="";for(let d=c.ini;d<=c.fin;d++){const a=ACT[(d*3)%ACT.length],b=ACT[(d*3+1)%ACT.length];
+  h+=`<article class="day" data-d="${d}"><span class="dtab">${dow(d).toUpperCase()} ${d} DIC · ${c.n}</span><h3>${TIT[d]||"Día completo en "+c.n}</h3><span class="n">Noche en alojamiento en ${c.n}</span><p>1 · 10:00 ${a}</p><p>2 · 15:30 ${b}</p><button class="btn" style="margin-top:4px">+ Agregar actividad a este día</button> <button class="btn rd" style="margin-top:4px">Vaciar este día</button></article>`}return h};
+const progBody=p=>{const c=CITY[p.city];
+  const top=S.place==="prog"?`<details class="res" ${p.res?"open":""} data-res><summary><span>Resumen por ciudad<span class="mu"> · 3 ciudades</span></span></summary>${cards()}</details>`:strip();
+  return `<div class="body">${top}<div><div class="cities"><button class="cal" title="Calendario">${ic("prog")}</button>${Object.entries(CITY).map(([k,x])=>`<button data-city="${k}" style="--c:${x.c}" aria-selected="${p.city===k}">${x.n}<small>${x.ini}–${x.fin} dic</small></button>`).join("")}</div><div class="days">${dayCards(p)}</div></div></div>`};
+const attBody=p=>`<div class="body">${S.place==="att"?`<details class="res" ${p.res?"open":""} data-res><summary><span>Plan por ciudad<span class="mu"> · horas, categorías y reformatear</span></span></summary>${cards()}</details>`:`<p class="note">El resumen por ciudad está en Programa (cámbialo con el interruptor de arriba).</p>`}
+  <span class="eb">Categoría</span><div class="filters"><button class="chip" aria-pressed="true">Todas (47)</button><button class="chip" aria-pressed="false">Museos (11)</button><button class="chip" aria-pressed="false">Monumentos (8)</button><button class="chip" aria-pressed="false">Iglesias (3)</button></div>
+  <div class="ficha"><h4>Louvre</h4>Fortaleza de 1190 · museo desde 1793. <b>★ Imperdible</b> · en el programa.</div><div class="ficha"><h4>Museo de Orsay</h4>Antigua estación convertida en museo del impresionismo.</div></div>`;
+const other=(p)=>`<div class="body"><div class="empty">${T.find(t=>t[0]===p.tab)[2]}<br>(sin cambios en esta maqueta)</div></div>`;
+function render(k){const p=P[k],root=document.querySelector(`[data-ph="${k}"] .scroll`);const keep=root?root.scrollTop:0;const c=CITY[p.city];
+  const chips=p.tab==="prog"?`<div class="chips" data-chips>${Array.from({length:c.fin-c.ini+1},(_,i)=>{const d=c.ini+i;return `<button data-chip="${d}" style="--c:${c.c}" aria-pressed="${p.day===d}">${d}<small>${dow(d)}</small></button>`}).join("")}</div>`:"";
+  const el=document.querySelector(`[data-ph="${k}"]`);
+  el.innerHTML=`<div class="scroll">${head(p)}<div class="stk">${menu(p)}${chips}</div>${p.tab==="prog"?progBody(p):p.tab==="att"?attBody(p):other(p)}</div>${p.help?`<div class="pop"><b>Cómo usar esta sección · ${T.find(t=>t[0]===p.tab)[2]}</b><br>Ayuda distinta para cada pestaña.</div>`:""}`;
+  const sc=el.querySelector(".scroll");sc.scrollTop=keep;const stk=el.querySelector(".stk");sc.style.setProperty("--sk",(stk.offsetHeight+6)+"px")}
+function mount(){document.getElementById("root").innerHTML=[["A","Opción A · íconos chicos (5 × 2)","Menú fijo de 2 filas con íconos de 13 px. Bajo el menú queda fija la barra de fechas de la ciudad: tócala para saltar a ese día."],["B","Opción B · una fila con scroll","Una sola fila fija con nombres completos; hay que deslizar. También con la barra de fechas fija."]].map(([k,t,x])=>`<div class="col"><b>${t}</b><small>${x}</small><div class="ph" data-ph="${k}"></div></div>`).join("");Object.keys(P).forEach(render)}
+document.addEventListener("click",e=>{const ph=e.target.closest("[data-ph]");
+  const pl=e.target.closest("[data-pl]");if(pl){S.place=pl.dataset.pl;document.querySelectorAll("[data-pl]").forEach(b=>b.setAttribute("aria-pressed",b===pl));Object.keys(P).forEach(k=>{P[k].res=false;render(k)});return}
+  if(!ph)return;const k=ph.dataset.ph,p=P[k];
+  const t=e.target.closest("[data-tab]");if(t){p.tab=t.dataset.tab;p.help=false;render(k);ph.querySelector(".scroll").scrollTop=0;return}
+  const ci=e.target.closest("[data-city]");if(ci){p.city=ci.dataset.city;p.day=CITY[p.city].ini;render(k);return}
+  const ch=e.target.closest("[data-chip]");if(ch){p.day=+ch.dataset.chip;const sc=ph.querySelector(".scroll"),d=sc.querySelector(`.day[data-d="${p.day}"]`);if(d)d.scrollIntoView({block:"start",behavior:"smooth"});
+    ph.querySelectorAll("[data-chip]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.chip===p.day));return}
+  if(e.target.closest("[data-goatt]")){p.tab="att";render(k);ph.querySelector(".scroll").scrollTop=0;return}
+  if(e.target.closest("[data-help]")){p.help=!p.help;render(k);return}
+  if(e.target.closest("summary")&&e.target.closest("[data-res]")){setTimeout(()=>{p.res=e.target.closest("details").open},0)}});
+mount();
+</script>
+</body>
+</html>
