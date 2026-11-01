@@ -1185,8 +1185,8 @@ function bindMan(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
 
 function render(){if(ST.wiz&&!ST.wiz[K.parDir])ST.wiz[K.parDir]=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz[K.parIni]&&tab!=="cfg")tab="cfg";
   const y=scrollY;
-  app.innerHTML=header(A)+(tab==="cfg"||tab==="gas"?summary(A):"")+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
+  app.innerHTML=header(A)+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
+   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?summary(A)+pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
   scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();bindRit();bindSolo();setTimeout(()=>initMaps(A),0);
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
