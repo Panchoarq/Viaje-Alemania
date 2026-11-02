@@ -249,6 +249,27 @@ button,input,select,textarea{font-family:inherit}
 .dper small{font:12px var(--f-mono);text-transform:none;letter-spacing:0;color:var(--muted);margin-left:auto}
 .dper[data-p="n"]{background:color-mix(in srgb,#2b3a67 14%,var(--card));border-left-color:#2b3a67}
 @media (max-width:900px){.totop{display:none!important}}
+.gtotal{background:#2a2620;color:#fffdf5;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.gtotal .eyebrow{color:#fffdf5;opacity:.75}
+.gtn{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}
+.gtn b{display:block;font:700 21px/1.1 var(--f-mono);white-space:nowrap}.gtn small{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.05em}
+.gtn .gb{color:#fffdf5}.gtn .gr{color:#ff7a68}
+.gtm{font-size:13px;opacity:.95}.gtm b.gr{color:#ff7a68}.gtoday{font-size:13px;border-top:1px dashed #6d6455;padding-top:6px}.gtoday .rd{color:#ff7a68}
+.gbar{height:8px;border-radius:4px;background:color-mix(in srgb,currentColor 18%,transparent);overflow:hidden}
+.gbar i{display:block;height:100%;background:var(--ink);border-radius:4px}.gtotal .gbar i{background:#ff7a68}
+.gbar.over i{background:#b3261e}
+.gcities{display:flex;flex-direction:column;gap:8px}
+.gcity{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:5px}
+.gch{display:flex;align-items:baseline;gap:8px}.gch .gn{margin-left:auto;font:14px var(--f-mono);white-space:nowrap}
+.rd{color:#b3261e;font-weight:700}
+.gs{font-size:12.5px}.gs.ok{color:var(--ok,#2e7d32)}.gs.bad{color:#b3261e;font-weight:700}
+details.gdays{padding-top:10px;padding-bottom:10px}details.gdays>summary{cursor:pointer;list-style:none}details.gdays>summary::-webkit-details-marker{display:none}
+details.gdays>summary::after{content:"▸";float:right}details.gdays[open]>summary::after{content:"▾"}
+.gdl{display:flex;flex-direction:column;margin-top:8px}
+.gday,.gcat{display:grid;grid-template-columns:1fr auto 74px 74px;gap:8px;align-items:baseline;padding:4px 0;border-top:1px dotted var(--line);font-size:13.5px}
+.gcat{grid-template-columns:1fr 74px 74px}.gcat.head{font-size:11px;color:var(--muted);text-transform:uppercase}
+.gday span.num,.gcat span.num{text-align:right}.gday.today{background:color-mix(in srgb,#ffe66d 45%,transparent);font-weight:700}.gday.over span.rd{text-decoration:underline}
+#p-gas .summary,#p-gas section[aria-label="Desglose"]{display:none!important}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -2191,13 +2212,33 @@ function renderSummary(plan){
    $("bar").innerHTML=parts.map(p=>`<div class="tkt" title="${p[0]}: ${fmt(p[1])} por persona"><span class="ti" aria-hidden="true">${ICO[p[0]]||"•"}</span><b class="num">${fmt(p[1])}</b><span class="tn">${p[0].replace(" urbano","")}</span><span class="tp num">${sum.total?Math.round(p[1]/sum.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[1]/M*100).toFixed(1)}%;background:${p[2]}"></span></span></div>`).join("");
    $("legend").innerHTML="";}
 }
-// Pestaña Gastos: presupuesto que estima el programa, por ciudad y por persona (igual que en París)
-function renderGastos(plan){const host=$("gas");if(!host)return;const C={};
-  plan.forEach(d=>{const c=dayCost(d),r=C[d.city]=C[d.city]||{n:CN[d.city],days:0,leg:0,hot:0,meal:0,act:0,loc:0,total:0};r.days++;["leg","hot","meal","act","loc","total"].forEach(x=>r[x]+=c[x])});
-  const rows=cfg.order.filter(c=>C[c]).map(c=>C[c]);
-  host.innerHTML=`<div class="card"><span class="eyebrow">Por ciudad · por persona</span><div class="tbl-wrap"><table><thead><tr><th>Ciudad</th><th class="r">Días</th><th class="r">Pasajes</th><th class="r">Alojamiento</th><th class="r">Comidas</th><th class="r">Entradas</th><th class="r">Transporte</th><th class="r">Total</th></tr></thead><tbody>
-   ${rows.map(r=>`<tr><td>${r.n}</td><td class="r num">${r.days}</td><td class="r num">${fmt(r.leg)}</td><td class="r num">${fmt(r.hot)}${cellReal(r.n,"hot")}</td><td class="r num">${fmt(r.meal)}${cellReal(r.n,"meal")}</td><td class="r num">${fmt(r.act)}${cellReal(r.n,"act")}</td><td class="r num">${fmt(r.loc)}${cellReal(r.n,"loc")}</td><td class="r num"><b>${fmt(r.total)}</b>${cellReal(r.n)}</td></tr>`).join("")}</tbody></table></div>
-   <p class="note">Este es el presupuesto que estima el programa. <span class="rl">En rojo, lo que ya gastaron de verdad</span> (se registra en <a href="/gastos?trip=alemania">Mis gastos</a>; el transporte real incluye los pasajes). Para verlo, entra con Google desde el botón de arriba.</p></div>`}
+// Pestaña Gastos: presupuesto del programa frente a lo gastado de verdad (en rojo)
+const gbar=(bud,real)=>{const p=bud>0?Math.min(100,real/bud*100):(real>0?100:0);return `<div class="gbar${real>bud+0.005?" over":""}" aria-hidden="true"><i style="width:${p.toFixed(1)}%"></i></div>`};
+const gst=(bud,real)=>!hasReal(()=>true)&&real<=0?`<small class="gs">sin gastos todavía</small>`:real>bud+0.005?`<small class="gs bad">✕ ${fmt(real-bud)} sobre el presupuesto</small>`:`<small class="gs ok">✓ dentro del presupuesto · quedan ${fmt(bud-real)}</small>`;
+function renderGastos(plan){const host=$("gas");if(!host)return;
+  if(!plan.length){host.innerHTML=`<div class="card"><p>Completa las fechas en <b>Configurar</b> para ver el presupuesto.</p></div>`;return}
+  const CV={H:"var(--ham)",B:"var(--ber)",P:"var(--pra)",M:"var(--mun)"};
+  const cost=plan.map(d=>({d,c:dayCost(d),iso:iso(d.date)}));
+  const G=[];cost.forEach(x=>{let g=G.find(y=>y.k===x.d.city);if(!g){g={k:x.d.city,n:CN[x.d.city],c:CV[x.d.city]||"var(--ink)",days:0,bud:0};G.push(g)}g.days++;g.bud+=x.c.total});
+  G.forEach(g=>g.real=realSum(x=>x.city===g.n));
+  const TB=G.reduce((t,g)=>t+g.bud,0),TR=realSum(()=>true),lost=TR-G.reduce((t,g)=>t+g.real,0);
+  const today=iso(new Date()),first=cost[0].iso,last=cost[cost.length-1].iso,n=cost.length;
+  const nL=cost.filter(x=>x.iso>=today).length,avg=TB/n,rest=TB-TR,perDay=nL?rest/nL:0,over=TR>TB+0.005;
+  let when;if(today<first){const f=Math.round((new Date(first+"T00:00:00")-new Date(today+"T00:00:00"))/864e5);when=`Faltan <b>${f}</b> día${f===1?"":"s"} para viajar · el viaje tiene ${n} días`}else if(today>last)when=`El viaje terminó (${n} días)`;else when=`Quedan <b>${nL}</b> día${nL===1?"":"s"} de ${n}`;
+  const hoy=cost.find(x=>x.iso===today);
+  const tl=hoy?`<div class="gtoday">Hoy (${pretty(hoy.d.date)} · ${CN[hoy.d.city]}): estimado <b>${fmt(hoy.c.total)}</b> · gastado <b class="rd">${fmt(realSum(g=>g.d===today))}</b></div>`:"";
+  const cats=[["Pasajes y transporte",x=>x.c.loc+x.c.leg,"loc"],["Alojamiento",x=>x.c.hot,"hot"],["Comidas",x=>x.c.meal,"meal"],["Entradas",x=>x.c.act,"act"]].map(([nm,f,k])=>{const b=cost.reduce((t,x)=>t+f(x),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${nm}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
+  host.innerHTML=`<section class="gtotal" aria-label="Total del viaje">
+    <span class="eyebrow">Total del viaje · por persona</span>
+    <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>presupuesto</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>
+    ${gbar(TB,TR)}
+    <div class="gtm"><b class="${over?"gr":""}">${over?"Te pasaste por "+fmt(TR-TB):"Te quedan "+fmt(rest)}</b> · ${when}${nL&&today<=last&&!over?` · puedes gastar unos <b>${fmt(perDay)}</b> por día (el presupuesto prevé ${fmt(avg)})`:""}</div>${tl}
+    <div class="gtm" style="opacity:.75">Grupo (${PEOPLE}): presupuesto ${fmt(TB*PEOPLE)}</div>
+  </section>
+  <section class="gcities" aria-label="Por ciudad">${G.map(g=>`<div class="gcity" style="--c:${g.c}"><div class="gch"><b>${g.n}</b><span class="muted">${g.days} día${g.days>1?"s":""}</span><span class="gn"><b>${fmt(g.bud)}</b><span class="rd"> / ${fmt(g.real)}</span></span></div>${gbar(g.bud,g.real)}${gst(g.bud,g.real)}</div>`).join("")}${Math.abs(lost)>0.005?`<p class="muted" style="font-size:12.5px;margin:2px 0">Hay ${fmt(lost)} gastados sin ciudad asignada: están en el total, pero no en las barras de arriba.</p>`:""}</section>
+  <details class="card gdays"><summary><span class="eyebrow">Día a día · estimado y gastado</span></summary><div class="gdl">${cost.map(x=>{const r=realSum(g=>g.d===x.iso),b=x.c.total,t=x.iso===today;return `<div class="gday${t?" today":""}${r>b+0.005?" over":""}" ${t?'aria-current="date"':""}><span>${pretty(x.d.date)}</span><small class="muted">${CN[x.d.city]}</small><span class="num">${fmt(b)}</span><span class="num rd">${r?fmt(r):"—"}</span></div>`}).join("")}</div></details>
+  <details class="card gdays"><summary><span class="eyebrow">Por categoría · estimado y gastado</span></summary><div class="gdl"><div class="gcat head"><span></span><span>estimado</span><span>gastado</span></div>${cats}</div></details>
+  <p class="note">El presupuesto sale del programa (pasajes, alojamiento, comidas, entradas y transporte de cada día). <span class="rd">En rojo</span>, lo que registraron en <a href="/gastos?trip=alemania">Mis gastos</a> (el transporte real incluye los pasajes). Para verlo, entra con Google desde el botón de arriba.</p>`}
 let PLAN=[];
 function renderAll(rebuild){refreshNightDates();
   if(rebuild){PLAN=buildPlan();try{store.setItem("ruta_cfg",JSON.stringify(cfg))}catch(e){}}
