@@ -1300,6 +1300,7 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
 .day-total .big .sl{opacity:.6;font-weight:400}.day-total .big .rd{color:#b3261e}
 .day-total .las{flex:1 1 100%;text-align:right;font-size:12px}
 @media (max-width:900px){html #days > .day .tkt .tn{display:none!important}}
+.shopin{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}.shopin input{width:120px;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1386,7 +1387,7 @@ addEventListener("resize",()=>stagger());try{document.fonts.ready.then(()=>stagg
 function cabH(){if(!CAB)return;const n=document.querySelector(".tabs");if(n&&document.documentElement.classList.contains("navb")){const s=n.querySelector("[aria-selected=true]");if(s)n.scrollLeft=s.offsetLeft-(n.clientWidth-s.offsetWidth)/2}if(n)document.documentElement.style.setProperty("--cabH",(document.documentElement.classList.contains("navb")?0:n.offsetHeight)+"px")}
 
 // ---- gasto real registrado en «Mis gastos» (se muestra en rojo junto al presupuesto del programa) ----
-const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot",Souvenirs:"shop",Compras:"shop"};
+const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot",Souvenirs:"shop",Compras:"shop",Regalos:"shop"};
 const RKEY={Alojamiento:"hot",Comidas:"meal",Entradas:"act",Transporte:"loc",Compras:"shop"};
 let REAL=[],realUn=[],rsT=null;
 const realSum=f=>REAL.filter(f).reduce((t,g)=>t+g.eur,0),hasReal=f=>REAL.some(f);
@@ -1399,7 +1400,7 @@ function twoStep(btn,ms){if(btn.dataset.arm==="1")return true;btn.dataset.arm="1
 function listenReal(){realUn.forEach(f=>f());realUn=[];REAL=[];if(DEMO||!F||!ref||!user)return;
   const db=ref.firestore,em=String(user.email||"").toLowerCase();let own=[],jun=[];const upd=()=>setReal([...own,...jun]);
   // gastos propios (completos) y compartidos (la parte de cada una); retiros de efectivo y categorías fuera del presupuesto no cuentan
-  const conv=(g,div)=>{const k=CATGRP[g.cat];return k&&!g.retiro&&g.eur>0?{d:g.d,city:g.city||"",k,eur:g.eur/div}:null};
+  const conv=(g,div)=>{const k=g.grp==="shop"?"shop":CATGRP[g.cat];return k&&!g.retiro&&g.eur>0?{d:g.d,city:g.city||"",k,eur:g.eur/div}:null};
   realUn.push(F.onSnapshot(F.collection(db,ref.path+"/users/"+em+"/gastos"),s=>{own=s.docs.map(x=>conv(x.data(),1)).filter(Boolean);upd()},()=>{}));
   realUn.push(F.onSnapshot(F.collection(db,ref.path+"/juntas"),s=>{jun=s.docs.map(x=>conv(x.data(),PEOPLE)).filter(Boolean);upd()},()=>{}))}
 
@@ -3077,8 +3078,9 @@ function gasBoard(A){const days=A.days;if(!days.length)return `<div class="card"
   const cname=d=>d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n);
   const col=n=>n==="Londres"?LO_C:n==="París"?PA_C:((A.C.find(c=>short(c.n)===n)||{}).c||"#6b5d43");
   const G=[];days.forEach(d=>{const n=cname(d);let g=G.find(x=>x.n===n);if(!g){g={n,c:col(n),days:0,bud:0,list:[]};G.push(g)}g.days++;g.bud+=d.cost.total;g.list.push(d)});
-  G.forEach(g=>g.real=realSum(x=>x.city===g.n));
-  const TB=G.reduce((t,g)=>t+g.bud,0),TR=realSum(()=>true),lost=TR-G.reduce((t,g)=>t+g.real,0);
+  G.forEach(g=>g.real=realSum(x=>x.city===g.n&&x.k!=="shop"));
+  const SB=+(ST.wiz.shop_ppto||0),SR=realSum(x=>x.k==="shop");
+  const TB=G.reduce((t,g)=>t+g.bud,0)+SB,TR=realSum(()=>true),lost=TR-G.reduce((t,g)=>t+g.real,0)-SR;
   const today=iso(new Date()),first=days[0].d,last=days[days.length-1].d;
   const left=days.filter(d=>d.d>=today),nL=left.length,avg=TB/days.length;
   const rest=TB-TR,perDay=nL?rest/nL:0;
@@ -3086,14 +3088,14 @@ function gasBoard(A){const days=A.days;if(!days.length)return `<div class="card"
   const over=TR>TB+0.005;
   const hoy=days.find(d=>d.d===today);
   const tl=hoy?`<div class="gtoday">Hoy (${pretty(hoy.d)} · ${cname(hoy)}): estimado <b>${fmt(hoy.cost.total)}</b> · gastado <b class="rd">${fmt(realSum(g=>g.d===hoy.d))}</b></div>`:"";
-  const cats=[["Alojamiento","hot"],["Comidas","meal"],["Entradas","act"],["Transporte","loc"],["Compras","shop"]].map(([n,k])=>{const b=days.reduce((t,d)=>t+(d.cost[k]||0),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${n}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
+  const cats=[["Alojamiento","hot"],["Comidas","meal"],["Entradas","act"],["Transporte","loc"],["Compras","shop"]].map(([n,k])=>{const b=k==="shop"?SB:days.reduce((t,d)=>t+(d.cost[k]||0),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${n}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
   return `<section class="gtotal" aria-label="Total del viaje">
     <span class="eyebrow">Total del viaje · por persona</span>
     <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>presupuesto</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>
     ${gbar(TB,TR)}
     <div class="gtm"><b class="${over?"gr":""}">${over?"Te pasaste por "+fmt(TR-TB):"Te quedan "+fmt(rest)}</b> · ${when}${nL&&today<=last&&!over?` · puedes gastar unos <b>${fmt(perDay)}</b> por día (el presupuesto prevé ${fmt(avg)})`:""}</div>${tl}
   </section>
-  <section class="gcities" aria-label="Por ciudad">${G.map(g=>`<div class="gcity" style="--c:${g.c}"><div class="gch"><b>${g.n}</b><span class="muted">${g.days} día${g.days>1?"s":""}</span><span class="gn"><b>${fmt(g.bud)}</b><span class="rd"> / ${fmt(g.real)}</span></span></div>${gbar(g.bud,g.real)}${gst(g.bud,g.real)}</div>`).join("")}${Math.abs(lost)>0.005?`<p class="muted" style="font-size:12.5px;margin:2px 0">Hay ${fmt(lost)} gastados sin ciudad asignada: están en el total, pero no en las barras de arriba.</p>`:""}</section>
+  <section class="gcities" aria-label="Por ciudad">${G.map(g=>`<div class="gcity" style="--c:${g.c}"><div class="gch"><b>${g.n}</b><span class="muted">${g.days} día${g.days>1?"s":""}</span><span class="gn"><b>${fmt(g.bud)}</b><span class="rd"> / ${fmt(g.real)}</span></span></div>${gbar(g.bud,g.real)}${gst(g.bud,g.real)}</div>`).join("")}<div class="gcity" style="--c:#c2477f"><div class="gch"><b>Compras</b><span class="muted">regalos y otros</span><span class="gn"><b>${fmt(SB)}</b><span class="rd"> / ${fmt(SR)}</span></span></div>${gbar(SB,SR)}${SB?gst(SB,SR):`<small class="gs">Define cuánto quieren gastar en compras (abajo) para compararlo con lo real.</small>`}<label class="shopin">Presupuesto de compras por persona (€)<input type="number" inputmode="decimal" min="0" step="5" value="${SB||""}" placeholder="0" data-shopbud></label></div>${Math.abs(lost)>0.005?`<p class="muted" style="font-size:12.5px;margin:2px 0">Hay ${fmt(lost)} gastados sin ciudad asignada: están en el total, pero no en las barras de arriba.</p>`:""}</section>
   <details class="card gdays"><summary><span class="eyebrow">Día a día · estimado y gastado</span></summary><div class="gdl">${days.map(d=>{const r=realSum(g=>g.d===d.d),b=d.cost.total,t=d.d===today;return `<div class="gday${t?" today":""}${r>b+0.005?" over":""}" ${t?'aria-current="date"':""}><span>${pretty(d.d)}</span><small class="muted">${cname(d)}</small><span class="num">${fmt(b)}</span><span class="num rd">${r?fmt(r):"—"}</span></div>`}).join("")}</div></details>
   <details class="card gdays"><summary><span class="eyebrow">Por categoría · estimado y gastado</span></summary><div class="gdl"><div class="gcat head"><span></span><span>estimado</span><span>gastado</span></div>${cats}</div></details>
   <p class="note">El presupuesto sale del programa (comidas, entradas, transporte y alojamiento de cada día). <span class="rd">En rojo</span>, lo que registraron en <a href="/gastos">Mis gastos</a>.</p>`}
@@ -3114,7 +3116,7 @@ function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpe
 // ---------- render ----------
 let _budLast="";
 function pushBudget(A){if(DEMO||!F||!ref||!A.days.length)return;const days=A.days.map(d=>({d:d.d,city:d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n),meal:+d.cost.meal.toFixed(2),act:+d.cost.act.toFixed(2),loc:+d.cost.loc.toFixed(2),hot:+d.cost.hot.toFixed(2)}));
-  const j=JSON.stringify(days);if(j===_budLast)return;_budLast=j;clearTimeout(pushBudget.t);pushBudget.t=setTimeout(()=>{F.setDoc(F.doc(ref,"meta","presupuesto"),{days,at:Date.now(),by:user.email}).catch(()=>{})},1500)}
+  const j=JSON.stringify(days)+"|"+(ST.wiz.shop_ppto||0);if(j===_budLast)return;_budLast=j;clearTimeout(pushBudget.t);pushBudget.t=setTimeout(()=>{F.setDoc(F.doc(ref,"meta","presupuesto"),{days,shop:+(ST.wiz.shop_ppto||0),at:Date.now(),by:user.email}).catch(()=>{})},1500)}
 // ===== Manual de uso: ayuda en cada sección =====
 const GUIDE={
 cfg:{t:"Configurar: crear el viaje",i:"Aquí se arma la base del viaje. Sin las fechas no se puede generar el programa.",s:[
@@ -3419,6 +3421,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("details[data-escord]",d=>d.ontoggle=()=>{escOrdOpen=d.open});
   Q("[data-fkind]",b=>b.onclick=()=>{foodKind=b.dataset.fkind;render()});
   Q("[data-fadd]",b=>b.onclick=()=>addPlaceAtt(b));
+  Q("[data-shopbud]",i=>i.onchange=()=>{ST.wiz.shop_ppto=Math.max(0,+i.value||0);save();render()});
   Q("[data-orgk]",b=>b.onclick=()=>{orgOpen=orgOpen===b.dataset.orgk?null:b.dataset.orgk;render()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};

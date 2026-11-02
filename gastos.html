@@ -114,11 +114,11 @@ const num=v=>(+v||0).toLocaleString("es-CL",{minimumFractionDigits:0,maximumFrac
 const toast=t=>{const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)};
 
 // ---------- categorías ----------
-const CATS=[["Desayuno","#c9930f","com"],["Almuerzo","#d9622b","com"],["Cena","#8e2440","com"],["Cafecito","#7a5230","com"],["Supermercado","#2e7d4f","com"],["Entradas","#2e5aac","ent"],["Transporte","#5b6770","tra"],["Alojamiento","#4b3f9a","alo"],["Souvenirs","#7b4ba0","fue"],["Compras","#c2477f","fue"],["Regalos","#148a8a","fue"],["Otros","#8a8270","fue"]];
+const CATS=[["Desayuno","#c9930f","com"],["Almuerzo","#d9622b","com"],["Cena","#8e2440","com"],["Cafecito","#7a5230","com"],["Supermercado","#2e7d4f","com"],["Entradas","#2e5aac","ent"],["Transporte","#5b6770","tra"],["Alojamiento","#4b3f9a","alo"],["Souvenirs","#7b4ba0","shop"],["Compras","#c2477f","shop"],["Regalos","#148a8a","shop"],["Otros","#8a8270","fue"]];
 const XCOL=["#b5651d","#3d7a99","#9a3d6b","#6b8e23","#8b6914","#556b8d"];
-const GRP={com:"Comidas",ent:"Entradas",tra:"Transporte",alo:"Alojamiento",fue:"Fuera del presupuesto del viaje"};
+const GRP={com:"Comidas",ent:"Entradas",tra:"Transporte",alo:"Alojamiento",shop:"Compras",fue:"Fuera del presupuesto del viaje"};
 const PAYS=["Crédito","Débito","Efectivo","Global66"];
-function cats(){const X=(P.cats||[]).map((n,i)=>[n,XCOL[i%XCOL.length],"fue"]);return [...CATS,...X]}
+function cats(){const X=(P.cats||[]).map((n,i)=>[n,XCOL[i%XCOL.length],(P.catsShop||[]).includes(n)?"shop":"fue"]);return [...CATS,...X]}
 const catOf=n=>cats().find(c=>c[0]===n)||["Otros","#8a8270","fue"];
 // sugerencia por palabras y hora
 const KW=[[/caf[eé]|coffee|latte|capuccino|t[eé] |chocolate|angelina|pret|starbucks|costa/i,"Cafecito"],[/croissant|boulanger|panader|desayun|breakfast|gail/i,"Desayuno"],[/almuerz|lunch|bouillon|bistr|brasserie|cr[eê]pe|meal deal|s[aá]ndwich|falafel/i,"Almuerzo"],[/cena|dinner|pub|restaurant/i,"Cena"],[/monoprix|franprix|carrefour|super|tesco|sainsbury|lidl|aldi|waitrose|m&s|boots/i,"Supermercado"],[/museo|museum|entrada|ticket|louvre|orsay|torre|tour|catacumb|show|concierto|ópera|opera/i,"Entradas"],[/metro|uber|taxi|bus|tren|train|navigo|rer|eurostar|oyster|bolt/i,"Transporte"],[/hotel|airbnb|hostal|alojam/i,"Alojamiento"],[/souvenir|recuerdo|postal|im[aá]n/i,"Souvenirs"],[/regalo|gift/i,"Regalos"],[/ropa|zara|h&m|uniqlo|farmacia|pharmacie|compra/i,"Compras"]];
@@ -204,6 +204,9 @@ function cash(){const c={EUR:+(P.cashEUR||0),[T.c2.code]:+(P[T.c2.ck]||0)};
 function budDay(d){const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?{com:x.meal||0,ent:x.act||0,tra:x.loc||0,alo:x.hot||0}:null}
 function sumBud(days){const s={com:0,ent:0,tra:0,alo:0};days.forEach(x=>{s.com+=x.meal||0;s.ent+=x.act||0;s.tra+=x.loc||0;s.alo+=x.hot||0});return s}
 const tot=o=>Object.values(o).reduce((t,v)=>t+v,0);
+const shopBud=()=>P.shopBud!=null&&P.shopBud!==""?+P.shopBud:+((BUD&&BUD.shop)||0);
+function bdHTML(){const B=sumBud((BUD&&BUD.days)||[]),SB=shopBud();if(!tot(B)&&!SB&&!(BUD&&BUD.days&&BUD.days.length))return "";
+  return `<div class="box" id="bdbox" style="gap:2px"><span class="eb">Desglose del presupuesto</span><table class="tbl">${[["Alojamiento",B.alo],["Comidas",B.com],["Entradas",B.ent],["Transporte",B.tra]].map(([n,v])=>`<tr><td>${n}</td><td>${fe(v)}</td></tr>`).join("")}<tr><td>Compras<br><small class="sub">regalos, souvenirs, ropa… (subcategorías al registrar)</small></td><td><input id="s-shop" inputmode="decimal" value="${SB||""}" placeholder="0" style="width:84px;text-align:right;font:700 15px var(--mono);border:0;border-bottom:1.5px solid currentColor;background:transparent"></td></tr><tr><td><b>Total del programa</b></td><td><b id="bdtot">${fe(tot(B)+SB)}</b></td></tr></table></div>`}
 
 // ---------- vistas ----------
 const IC={add:'<path d="M12 5v14M5 12h14"/>',res:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',map:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',jun:'<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 20c1-4 4-5 6-5s5 1 6 5M12 17c1-1.5 2.5-2 4-2 2 0 5 1 6 5"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'};
@@ -219,6 +222,7 @@ function vAdd(){const today=todayISO(),city=cityOn(today);const cur=form.cur||cu
    <label class="eb" for="com" style="margin-top:4px">Comercio o detalle</label><input id="com" class="line" value="${esc(form.com)}" placeholder="Ej.: Café de Flore" autocomplete="off">
    <span class="sub" id="conv">${a?(cur!=="EUR"?`= ${fe(e)} · `:"")+clp(e):"Toca el micrófono o escribe el monto"}</span></div>
   <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Categoría${form.cat?"":" · sugerida"}</span><div class="chips">${cats().map(c=>`<button class="chip" data-cat="${esc(c[0])}" aria-pressed="${cat===c[0]}"><i style="background:${c[1]}"></i>${esc(c[0])}</button>`).join("")}<button class="chip add" id="addcat">+ Nueva</button></div></div>
+  ${catOf(cat)[2]==="shop"?`<div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Compras · ¿qué fue? (opcional)</span><div class="chips">${cats().filter(c=>c[2]==="shop").map(c=>`<button class="chip" data-cat="${esc(c[0])}" aria-pressed="${cat===c[0]}"><i style="background:${c[1]}"></i>${esc(c[0])}</button>`).join("")}<button class="chip add" id="addsub">+ Subcategoría</button></div></div>`:""}
   <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Pagado con</span><div class="seg">${pays.map(p=>`<button data-pay="${p}" aria-pressed="${pay===p}">${p}</button>`).join("")}</div></div>
   <div class="box" style="padding:4px 12px;gap:0"><label class="tg"><input type="checkbox" id="loc" ${form.loc?"checked":""}><span>Guardar ubicación</span><small class="sub" id="locT">${form.loc?(form.ll?`±${Math.round(form.acc||0)} m`:"buscando…"):"sin ubicación"}</small></label>
    <label class="tg"><input type="checkbox" id="shr" ${form.shared?"checked":""}><span>Gasto compartido (${T.who})</span><small class="sub">${form.shared&&a?num(a/T.n)+" "+sy(cur)+" c/u":form.shared?"partes iguales":"solo mío"}</small></label></div>
@@ -230,8 +234,8 @@ let rv="hoy";
 function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C=cash();const days=(BUD&&BUD.days)||[];
   const scope=rv==="hoy"?M.filter(g=>g.d===today):rv==="ciudad"?M.filter(g=>g.city===city):M;
   const bdays=rv==="hoy"?days.filter(x=>x.d===today):rv==="ciudad"?days.filter(x=>x.city===city):days;
-  const B=sumBud(bdays);const spent=scope.reduce((t,g)=>t+g.mineEur,0);const bt=tot(B);
-  const real={com:0,ent:0,tra:0,alo:0};const out={};scope.forEach(g=>{const k=catOf(g.cat)[2];if(k==="fue")out[g.cat]=(out[g.cat]||0)+g.mineEur;else real[k]+=g.mineEur});
+  const B=sumBud(bdays);const spent=scope.reduce((t,g)=>t+g.mineEur,0);const bt=tot(B)+(rv==="viaje"?shopBud():0);
+  const real={com:0,ent:0,tra:0,alo:0,shop:0};const out={};const SB=shopBud(),Bk=k=>k==="shop"?(rv==="viaje"?SB:0):B[k];const subs={};scope.forEach(g=>{if(catOf(g.cat)[2]==="shop")subs[g.cat]=(subs[g.cat]||0)+g.mineEur});scope.forEach(g=>{const k=catOf(g.cat)[2];if(k==="fue")out[g.cat]=(out[g.cat]||0)+g.mineEur;else real[k]+=g.mineEur});
   const allSpent=M.reduce((t,g)=>t+g.mineEur,0),pres=+(P.pres||0);
   // días que quedan en la ciudad
   const cdays=days.filter(x=>x.city===city),left=cdays.filter(x=>x.d>=today);const cityBud=tot(sumBud(cdays));const before=M.filter(g=>g.city===city&&g.d<today).reduce((t,g)=>t+g.mineEur,0);
@@ -245,7 +249,7 @@ function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C
    <div class="kpi"><span class="eb">Te queda</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
   ${left.length?`<div class="alert"><span class="eb" style="color:var(--red)">Para los días que quedan</span><br>Quedan <b>${left.length} día${left.length>1?"s":""} en ${esc(city)}</b>: puedes gastar <b>${fe(Math.max(0,perDay))}/día</b> para cerrar en el presupuesto (el programa estima ${fe(progDay)}/día).</div>`:""}
   <div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Por categoría · real vs presupuesto</span>
-   ${["com","ent","tra","alo"].filter(k=>B[k]||real[k]).map(k=>bar(GRP[k],real[k],B[k],k==="com"?"#d9622b":k==="ent"?"#2e5aac":k==="tra"?"#5b6770":"#4b3f9a")).join("")||'<div class="empty">Sin gastos en este período.</div>'}
+   ${["com","ent","tra","alo","shop"].filter(k=>Bk(k)||real[k]).map(k=>bar(GRP[k],real[k],Bk(k),k==="com"?"#d9622b":k==="ent"?"#2e5aac":k==="tra"?"#5b6770":k==="shop"?"#c2477f":"#4b3f9a")+(k==="shop"&&Object.keys(subs).length?`<small class="sub" style="margin:-4px 0 4px">${Object.entries(subs).map(([n,v])=>esc(n)+" "+fe(v)).join(" · ")}</small>`:"")).join("")||'<div class="empty">Sin gastos en este período.</div>'}
    ${Object.keys(out).length?`<span class="eb" style="margin-top:4px">Fuera del presupuesto del viaje</span>`+Object.entries(out).map(([n,v])=>bar(n,v,0,catOf(n)[1])).join(""):""}</div>
   <div><span class="eb">Gastos · ${esc(lbl[rv])}</span><div class="gl">${scope.map(gRow).join("")||'<div class="empty">Todavía no hay gastos.</div>'}</div></div>`}
 function bar(n,real,pre,c){const over=pre&&real>pre;const pct=pre?Math.min(100,real/pre*100):(real?100:0);
@@ -279,10 +283,11 @@ function vSet(){const pays=P.medios||PAYS;
   <div class="box"><label class="fld">Mi nombre (para los gastos compartidos)<input id="s-nom" value="${esc(P.nombre||"")}"></label>
    <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="${T.pres}"></label>
    <span class="sub">${P.pres?clp(+P.pres):""}${BUD&&BUD.days&&BUD.days.length?` · el programa estima ${fe(tot(sumBud(BUD.days)))} en comidas, entradas, transporte y alojamiento`:""}</span></div>
+  ${bdHTML()}
   <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div></div>
   <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${PAYS.map(p=>`<label class="tg"><input type="checkbox" data-med="${p}" ${pays.includes(p)?"checked":""}><span>${p}</span></label>`).join("")}</div>
   <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">1 ${T.c2.sym} en €<input id="s-rg" inputmode="decimal" value="${esc(P[T.c2.rk]||T.c2.def)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
-  <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
+  <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)}${(P.catsShop||[]).includes(c)?" · compras":""} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
   <button class="go" id="s-save">Guardar</button>
   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit" href="${T.back}">← ${T.nom}</a>${DEMO?"":`<button class="btn" id="out">Salir</button>`}</div>`}
 
@@ -314,10 +319,11 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-pay]",b=>b.onclick=()=>{form.pay=b.dataset.pay;render()});
   const loc=$("#loc");if(loc)loc.onchange=()=>{form.loc=loc.checked;if(!form.loc){stopGeo();form.ll=null}render()};
   const shr=$("#shr");if(shr)shr.onchange=()=>{form.shared=shr.checked;render()};
-  const ac=$("#addcat");if(ac)ac.onclick=()=>sheet(`<label class="fld">Nueva categoría<input id="nc" placeholder="Ej.: Farmacia"></label><button class="go" id="okc">Agregar</button>`,d=>{const i=d.querySelector("#nc");i.focus();d.querySelector("#okc").onclick=async()=>{const n=i.value.trim();if(!n)return;d.remove();form.cat=n;if(!cats().some(c=>c[0]===n))await saveProf({cats:[...(P.cats||[]),n]});else render()}});
+  const ac=$("#addcat");if(ac)ac.onclick=()=>sheet(`<label class="fld">Nueva categoría<input id="nc" placeholder="Ej.: Farmacia"></label><label class="tg"><input type="checkbox" id="ncs"><span>Es una subcategoría de Compras (cuenta en el presupuesto de compras)</span></label><button class="go" id="okc">Agregar</button>`,d=>{const i=d.querySelector("#nc");i.focus();d.querySelector("#okc").onclick=async()=>{const n=i.value.trim();if(!n)return;const sh=d.querySelector("#ncs").checked;d.remove();form.cat=n;if(!cats().some(c=>c[0]===n))await saveProf({cats:[...(P.cats||[]),n],catsShop:sh?[...(P.catsShop||[]),n]:(P.catsShop||[])});else render()}});
+  const asb=$("#addsub");if(asb)asb.onclick=()=>sheet(`<label class="fld">Subcategoría de Compras<input id="nc" placeholder="Ej.: Ropa, cosas de escritorio"></label><button class="go" id="okc">Agregar</button>`,d=>{const i=d.querySelector("#nc");i.focus();d.querySelector("#okc").onclick=async()=>{const n=i.value.trim();if(!n)return;d.remove();form.cat=n;if(!cats().some(c=>c[0]===n))await saveProf({cats:[...(P.cats||[]),n],catsShop:[...(P.catsShop||[]),n]});else render()}});
   const sv=$("#save");if(sv)sv.onclick=async()=>{const today=todayISO(),city=cityOn(today);const cur=form.cur||curOfCity(city);const a=parseFloat(String(form.amt).replace(",","."))||0;if(!(a>0))return;
     const pays=PAYS.filter(p=>!P.medios||P.medios.includes(p));
-    const g={ts:Date.now(),d:today,amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:form.cat||suggest(form.com),pay:form.pay||(pays.includes("Global66")?"Global66":pays[0]),com:form.com.trim(),city,ll:form.loc?form.ll:null,shared:form.shared};
+    const g={ts:Date.now(),d:today,amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:form.cat||suggest(form.com),pay:form.pay||(pays.includes("Global66")?"Global66":pays[0]),com:form.com.trim(),city,ll:form.loc?form.ll:null,shared:form.shared};if(catOf(g.cat)[2]==="shop")g.grp="shop";
     sv.disabled=true;try{await addGasto(g);toast("✓ Guardado"+(navigator.onLine?"":" (se sincroniza con señal)"))}catch(e){toast("No se pudo guardar");sv.disabled=false;return}
     form={...form,amt:"",com:"",cat:null,shared:false};render()};
   const rt=$("#retiro");if(rt)rt.onclick=()=>sheet(`<span class="eb">Retiro en cajero</span><div class="k2"><label class="fld">Monto<input id="rm" inputmode="decimal"></label><label class="fld">Moneda<select id="rc"><option value="EUR">€</option><option value="${T.c2.code}" ${curOfCity(cityOn(todayISO()))===T.c2.code?"selected":""}>${T.c2.sym}</option></select></label></div><label class="fld">Desde<select id="rp">${PAYS.filter(p=>p!=="Efectivo").map(p=>`<option>${p}</option>`).join("")}</select></label><span class="sub">Suma al efectivo; no cuenta como gasto. Elegir siempre cobrar en la moneda local.</span><button class="go" id="rok">Registrar retiro</button>`,
@@ -333,10 +339,12 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-rv]",b=>b.onclick=()=>{rv=b.dataset.rv;render()});
   Q("[data-mf]",b=>b.onclick=()=>{mapF=b.dataset.mf;render()});
   // ajustes
+  const shi=$("#s-shop");if(shi)shi.oninput=()=>{const v=parseFloat(shi.value.replace(",","."))||0;$("#bdtot").textContent=fe(tot(sumBud((BUD&&BUD.days)||[]))+v)};
   const ss=$("#s-save");if(ss)ss.onclick=async()=>{const n=v=>parseFloat(String(v).replace(/\./g,"").replace(",","."))||0;const f=v=>parseFloat(String(v).replace(",","."))||0;
-    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),cashEUR:f($("#s-ce").value),[T.c2.ck]:f($("#s-cg").value),rateCLP:n($("#s-rc").value)||1100,[T.c2.rk]:f($("#s-rg").value)||T.c2.def,
+    const sh=$("#s-shop");
+    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),...(sh?{shopBud:n(sh.value)}:{}),cashEUR:f($("#s-ce").value),[T.c2.ck]:f($("#s-cg").value),rateCLP:n($("#s-rc").value)||1100,[T.c2.rk]:f($("#s-rg").value)||T.c2.def,
       medios:[...document.querySelectorAll("[data-med]")].filter(x=>x.checked).map(x=>x.dataset.med)});toast("✓ Guardado")};
-  Q("[data-delcat]",b=>b.onclick=()=>saveProf({cats:(P.cats||[]).filter(c=>c!==b.dataset.delcat)}));
+  Q("[data-delcat]",b=>b.onclick=()=>saveProf({cats:(P.cats||[]).filter(c=>c!==b.dataset.delcat),catsShop:(P.catsShop||[]).filter(c=>c!==b.dataset.delcat)}));
   const out=$("#out");if(out)out.onclick=()=>window._au.U.signOut(window._au.auth)}
 // primera vez: ir a Ajustes si no hay presupuesto
 let first=true;const _r=render;
