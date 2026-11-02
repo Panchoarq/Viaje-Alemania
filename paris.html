@@ -1229,6 +1229,24 @@ details.arq[open]>summary em::after{content:" ▾"}
 .gl{margin:8px 0 2px;padding-top:6px;border-top:1px dashed var(--line);font-size:13.5px}
 .gl p{margin:2px 0 4px}.gl ul{margin:0;padding-left:18px}.gl li{margin:2px 0}
 .alice{font-size:13px;margin:4px 0}.alice>summary{cursor:pointer;list-style:none}.alice>summary::-webkit-details-marker{display:none}.alice p{margin:4px 0 0}.alicecard>summary{cursor:pointer;list-style:none}.alicecard>summary::-webkit-details-marker{display:none}
+.attlist{margin:2px 0;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--card) 70%,var(--bg))}
+.attlist>summary{cursor:pointer;list-style:none;padding:7px 10px;font:700 13px var(--f-mono)}
+.attlist>summary::-webkit-details-marker{display:none}
+.attlist>summary::after{content:"▸";float:right}.attlist[open]>summary::after{content:"▾"}
+.attlist ol{list-style:none;margin:0;padding:0 8px 6px;max-height:46vh;overflow-y:auto}
+.attlist li{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px dotted var(--line)}
+.attlist .aln{flex:1;min-width:0;text-align:left;background:none;border:0;padding:2px 0;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;text-decoration:underline dotted}
+.attlist small{white-space:nowrap;color:var(--muted)}
+.attlist input[type=checkbox]{width:18px;height:18px}
+#p-att details.ctxd:not([open]){padding:0!important;min-height:0}
+#p-att details.ctxd::before,#p-att details.ctxd::after{display:none!important}
+#p-att details.ctxd>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:8px 72px 8px 12px}
+#p-att details.ctxd>summary h2{font-size:15px;margin:0}
+#p-att details.ctxd>summary .eyebrow{font-size:10px}
+#p-att details.ctxd>summary::after{top:9px}
+#p-att details.alicecard:not([open]){padding:0!important;min-height:0}
+#p-att details.alicecard::before,#p-att details.alicecard::after{display:none!important}
+#p-att details.alicecard>summary{padding:9px 12px}
 </style>
 </head>
 <body>
@@ -2598,8 +2616,9 @@ const ALICE_IDEAS=[
  ["Lugares para visitar","La casa de Van Gogh en Brixton, el Arab Hall de Leighton House, la librería Waterstones de Piccadilly, el taller Hand & Lock, la iglesia de St Anne en Limehouse, la estatua de Washington, la prisión de Marshalsea, la Ragged School y el museo de la Caballería ya están agregados abajo como atracciones, con su ficha, horarios y precio aproximado.",alS("London"),"buscar más en su canal"]
 ];
 const aliceCard=()=>`<details class="card alicecard"><summary><span class="eyebrow">Historia de Londres con Alice Loxton</span></summary><p class="muted" style="font-size:13px;margin:6px 0">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p><ul class="brief">${ALICE_IDEAS.map(([t,x,u,l])=>`<li><b>${t}</b>: ${x} <a href="${u}" target="_blank" rel="noopener">▶ ${l}</a></li>`).join("")}</ul><p class="note"><a href="https://www.youtube.com/@history_alice/videos" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p></details>`;
-let ctxOpen=false;const openFic=new Set();
+let ctxOpen=false,attListOpen=false;const openFic=new Set();
 const ctxCard=(X,tl)=>`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tl(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
+const attList=arr=>arr.length?`<details class="attlist" data-attlist${attListOpen?" open":""}><summary>☰ Lista de ${arr.length} (tocar para ir)</summary><ol>${arr.map(a=>{const nm=esc(String(a.n).replace(/\s*\(.*?\)\s*$/,""));return `<li><label class="alchk" title="Agregar al programa"><input type="checkbox" data-pasel="${a.id}" ${selOf(a)?"checked":""}></label><button type="button" class="aln" data-fjump="fpa-${a.id}">${nm}</button><small>${a.p?fmt(a.p):"gratis"}</small></li>`}).join("")}</ol></details>`:"";
 const railNav=n=>`<div class="railnav"><button type="button" data-rail="-1" aria-label="Ficha anterior">‹</button><span class="rp">1 de ${n}</span><span class="railbar"><i style="width:${n?100/n:0}%"></i></span><button type="button" data-rail="1" aria-label="Ficha siguiente">›</button></div>`;
 const railed=h=>h.replace(/<\/article>/g,'<span class="fcue"><i class="c1">Ver ficha completa ▾</i><i class="c2">Tocar para cerrar ▴</i></span></article>');
 function feasMsg(A,k){const lo=k==="LO",un=lo?(A.RL||{unpl:[]}).unpl.length:A.R.unpl.length,nm=lo?"Londres":"París";return {un,txt:un?`✕ ${nm}: no caben ${un} actividad${un>1?"es":""}`:`✓ ${nm}: todo cabe`}}
@@ -2611,7 +2630,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
     const L=items.filter(a=>attPass(a,loSel));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`
      ${ctxCard(CTX_LO,tlSVG)}${aliceCard()}${feasBox(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
-     ${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
+     ${attList(L)}${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA");
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const items=PA.filter(a=>typOf(a)!=="esp");
@@ -2619,7 +2638,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
   L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id)).filter(a=>attPass(a,paSel));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp").filter(a=>attPass(a,paSel));
   return h+`${ctxCard(CTX_PA,tlSVG)}${feasBox(A,"PA")}
     ${attFilters(items)}<p class="muted attn">${L.length+CU.length+rest.length} de ${items.length} atracciones</p>
-    ${railNav(CU.length+L.length)}<div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
+    ${attList(CU.concat(L))}${railNav(CU.length+L.length)}<div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
     ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
     ${mediaCard(MEDIA_PA,"París")}<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`}
 
@@ -3293,6 +3312,9 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("details.ctxd",d=>d.ontoggle=()=>{ctxOpen=d.open});
   Q("details[data-ls]",x=>x.ontoggle=()=>{x.open?lsOpen.add(x.dataset.ls):lsOpen.delete(x.dataset.ls)});
   Q("[data-legend]",b=>b.onclick=()=>{legOpen=!legOpen;render()});
+  Q("details[data-attlist]",d=>d.ontoggle=()=>{attListOpen=d.open});
+  Q("[data-fjump]",b=>b.onclick=()=>{const f=document.getElementById(b.dataset.fjump);if(!f)return;const rail=f.closest(".fichas.att");f.classList.add("open");openFic.add(f.id);const lst=b.closest("details");if(lst){lst.open=false;attListOpen=false}
+    if(rail&&getComputedStyle(rail).display==="flex"){rail.scrollBy({left:f.getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"});scrollTo({top:rail.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})}else f.scrollIntoView({behavior:"smooth",block:"start"});f.classList.add("flash");setTimeout(()=>f.classList.remove("flash"),1600)});
   Q("[data-orgk]",b=>b.onclick=()=>{orgOpen=orgOpen===b.dataset.orgk?null:b.dataset.orgk;render()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
