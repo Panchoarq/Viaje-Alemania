@@ -665,7 +665,7 @@ function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fe
 let orgOpen=null,legOpen=false;
 function orgBar(A){const opts=progCity==="LO"?[{k:"lo",ic:"🧭",t:"Londres",h:loOrgCard(A),ed:ST.loOrg}]:progCity==="PA"?[{k:"jun",ic:"👭",t:"Con Alli",h:jCard(A),ed:ST.jun&&ST.jun.mode},{k:"solo",ic:"🧭",t:"Sin Alli",h:soloCard(A),ed:ST.soloOrg}]:[];
   const ok=opts.filter(o=>o.h);if(!ok.length)return"";const show=ok.filter(o=>o.ed||orgOpen===o.k);
-  return `<div class="orgbar"><span class="eyebrow">Organizar</span>${ok.map(o=>`<button type="button" class="orgb" data-orgk="${o.k}" aria-pressed="${show.includes(o)}" title="Organizar: ${o.t}"><span>${o.ic}</span>${o.t}</button>`).join("")}</div>${show.length?`<div class="orgpanel">${show.map(o=>o.h).join("")}</div>`:""}`}
+  return `<div class="orgbar"><span class="eyebrow">Organizar</span>${ok.map(o=>`<button type="button" class="orgb" data-orgk="${o.k}" aria-pressed="${show.includes(o)}" title="Organizar: ${o.t}"><span>${o.ic}</span>${o.t}</button>`).join("")}<button type="button" class="orgb clr" data-clrcity="${progCity==="LO"?"LO":"PA"}" title="Quitar todas las actividades de ${progCity==="LO"?"Londres":"París"}"><span>⌫</span>Vaciar</button></div>${show.length?`<div class="orgpanel">${show.map(o=>o.h).join("")}</div>`:""}`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
@@ -736,20 +736,21 @@ const railNav=n=>`<div class="railnav"><button type="button" data-rail="-1" aria
 const railed=h=>h.replace(/<\/article>/g,'<span class="fcue"><i class="c1">Ver ficha completa ▾</i><i class="c2">Tocar para cerrar ▴</i></span></article>');
 function feasMsg(A,k){const lo=k==="LO",un=lo?(A.RL||{unpl:[]}).unpl.length:A.R.unpl.length,nm=lo?"Londres":"París";return {un,txt:un?`✕ ${nm}: no caben ${un} actividad${un>1?"es":""}`:`✓ ${nm}: todo cabe`}}
 function feasStat(A,k){const m=feasMsg(A,k);return `<a href="#" class="feasstat ${m.un?"bad":"ok"}" data-gofeas="${k}">${m.txt} · ver resumen en Atracciones →</a>`}
+function feasWarn(A,k){const m=feasMsg(A,k);return m.un?`<a href="#" class="feasstat bad" data-gotab="prog">${m.txt} · ver en Programa →</a>`:""}
 function feasBox(A,k){const m=feasMsg(A,k);return `<div id="feasmini" class="feasmini ${m.un?"bad":"ok"}" role="button" tabindex="0"><span>${m.txt} · resumen</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span></div><div id="feas" class="feas">${fcards(A,k)}</div>`}
 const mediaCard=(M,ciudad)=>`<section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas, series y libros · ${ciudad}</h2><div class="mgrid">${M.map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas.</p></section>`;
 function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA";
   if(attCity==="LO"){const items=LON.filter(a=>typOf(a)!=="esp");
     const L=items.filter(a=>attPass(a,loSel));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`
-     ${ctxCard(CTX_LO,tlSVG)}${feasBox(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
+     ${ctxCard(CTX_LO,tlSVG)}${feasWarn(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
      ${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA");
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const items=PA.filter(a=>typOf(a)!=="esp");
   const L=PA.filter(a=>PA_F[a.id]).filter(a=>attPass(a,paSel));
   L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id)).filter(a=>attPass(a,paSel));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp").filter(a=>attPass(a,paSel));
-  return h+`${ctxCard(CTX_PA,tlSVG)}${feasBox(A,"PA")}
+  return h+`${ctxCard(CTX_PA,tlSVG)}${feasWarn(A,"PA")}
     ${attFilters(items)}<p class="muted attn">${L.length+CU.length+rest.length} de ${items.length} atracciones</p>
     ${railNav(CU.length+L.length)}<div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
     ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
