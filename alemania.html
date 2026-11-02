@@ -345,6 +345,18 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
 .day-total .las{flex:1 1 100%;text-align:right;font-size:12px}
 @media (max-width:900px){html #days > .day .tkt .tn{display:none!important}}
 html #days > .day .dstrip{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+
+/* presupuesto/real a la izquierda y plano con clip a la derecha */
+.dsum{display:flex;gap:10px;align-items:flex-start;grid-column:1/-1}
+.dsum .day-total{flex:1 1 0;min-width:0;flex-direction:column!important;align-items:flex-start!important;gap:2px 0}
+.dsum .day-total .eyebrow{flex:none}.dsum .day-total .big{margin-left:0;text-align:left}.dsum .day-total .las{flex:none;text-align:left}
+.dsum .mapwrap{flex:0 0 46%;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.dsum .mapwrap:empty{display:none}
+.dsum .mapclip{width:100%;max-width:200px;padding:5px 5px 3px;margin:8px 4px 0 0;transform:rotate(1.5deg)}
+.dsum .mapclip .lmap{height:96px}.dsum .mapclip svg:not(.clip svg){display:block;width:100%!important;height:84px!important}.dsum .mapclip .mc-cap{font-size:10px}.dsum .mapclip{max-width:170px}
+.dsum .mapclip .clip{left:auto!important;right:14px}
+#days > .day > .dsum{order:1}
+.addact,.clrday,[data-unfree],[data-clrday]{margin-top:8px}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -2224,9 +2236,10 @@ function renderDays(plan){
       tl=`<span class="part-from">${tl}</span><span class="part-to">Llegada desde ${CN[d.from]} · <b>${hm(d.arr)}</b> ${ai?ai.stName:""} → ${ai?ai.h.name:"hotel"} · check-in ~<b>${ai?hm(ai.atHotel):""}</b>`+(d.arrStart<18&&DAYEND-d.arrStart>=0.5?` · <b>${CN[d.city]}: actividades ${hm(d.arrStart)}–${hm(DAYEND)}</b>`:" · noche libre: cena cerca del hotel")+`</span>`;}
     else if(d.arrival)tl=`Llegada a ${CN[d.city]} · check-in desde ${hm(CHECKIN)}`;
     else if(d.final)tl=`Check-out ${CN[d.city]} 10:00 · dejar maletas en recepción · fin del viaje`;
+    const mw=d.segs.map((sg,si)=>{const t=mapThumb(d,sg,si);return t?`<div class="${d.from?(sg.city===d.from?"part-from":"part-to"):""}">${t}</div>`:""}).join("");
     let h=`<div class="dtabrow"><span class="dftab"><b>${pretty(d.date)}</b><span class="fc">${CN[d.city]}</span>${wxMini(d.city,iso(d.date))}</span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${title}</h3>
       <span class="muted" style="font-size:13px">${d.night?"Noche en "+hotelOf(d.night).name:"Sin noche de hotel"}</span>${(()=>{const S=sunOf(d.date,hotelOf(d.city).ll);return `<span class="sunline">🌇 Se pone el sol ${hm(S.set)} · 🌙 oscuro desde ${hm(S.dusk)}</span>`})()}</div>
-      ${costStrip(c,d)}<div class="day-total"><span class="eyebrow">Presupuesto / real</span><span class="big">${fmt(c.total)}<span class="sl"> / </span><span class="rd">${fmt(realSum(g=>g.d===iso(d.date)))}</span></span><span class="muted num las">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk blk-com"><h4>Comidas</h4>`;
+      ${costStrip(c,d)}<div class="dsum"><div class="day-total"><span class="eyebrow">Presupuesto / real</span><span class="big">${fmt(c.total)}<span class="sl"> / </span><span class="rd">${fmt(realSum(g=>g.d===iso(d.date)))}</span></span><span class="muted num las">grupo ${fmt(c.total*PEOPLE)}</span></div>${mw?`<div class="mapwrap">${mw}</div>`:""}</div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk blk-com"><h4>Comidas</h4>`;
     ["d","a","m","c"].forEach(k=>{const mi=mealPick(d,k);
       h+=`<label class="chk"><input type="checkbox" data-meal="${d.id}|${k}" ${mealOn(d,k)?"checked":""}><span class="t">${MEAL_LBL[k]}${mi[3]?' <span class="tag hotel" title="Se compra en el hotel">🏨 hotel</span>':""}<small>${mi[1]}${mi[2]?` · <a href="${mi[2]}" target="_blank" rel="noopener">fuente</a>`:""}</small></span><span class="p">${fmt(mi[0])}</span></label>${mealSel(d,k)}`});
     h+=`</div><div class="blk blk-att"><h4>Atracciones</h4>`;
@@ -2268,13 +2281,12 @@ function renderDays(plan){
       const tu=(u,c,cls)=>`<span class="tused ${cls}">⏱ ${c<0.05?"Sin tiempo libre para atracciones (traslado)":`Tiempo usado ${u.toFixed(1)} de ${c.toFixed(1)} h disponibles`}</span>`;
       if(d.from){const F=segU(d.segs.filter(s=>s.city===d.from)),T=segU(d.segs.filter(s=>s.city===d.city));h+=tu(F[0],F[1],"part-from")+tu(T[0],T[1],"part-to")}
       else h+=tu(d.used,d.cap,"")}
-    h+=`</div><div class="blk blk-tr"><h4>Traslados, alojamiento y plano</h4>`;
+    h+=`<button type="button" class="btn alt addact" data-addday="${d.id}">+ Agregar actividad a este día</button>${custom.free[iso(d.date)]?`<button type="button" class="btn sm" data-unfree="${d.id}">Día vacío · volver a programarlo</button>`:`<button type="button" class="btn alt sm" data-clrday="${d.id}">Vaciar este día</button>`}</div><div class="blk blk-tr"><h4>Traslados y alojamiento</h4>`;
     if(L)h+=`<div class="leg"><div class="line"><span><a href="${L.url}" target="_blank" rel="noopener">${CN[d.from]} → ${CN[d.city]}</a></span><span class="p">${fmt(c.leg)}</span></div><span class="muted" style="font-size:12px">${d.vl?`<b>${d.vl.train}</b> · ${d.vl.from} ${d.vl.dep} → ${d.vl.to} ${d.vl.arr} · <span class="v">✓ verificado</span>`:`${L.mode} · sale ${hm(d.dep)} → llega ${hm(d.arr)} (sugerido)`}</span></div>`;
     h+=`<div class="line"><span>${LOCAL[d.city].n}</span><span class="p">${fmt(c.loc)} p/p</span></div>`;
     if(d.night)h+=`<div class="line"><span>⅕ alojamiento (5 personas)</span><span class="p">${fmt(c.hot)}</span></div>`;
     h+=trRows(d);
-    h+=`<div class="mapwrap">${d.segs.map((sg,si)=>{const t=mapThumb(d,sg,si);return t?`<div class="${d.from?(sg.city===d.from?"part-from":"part-to"):""}">${t}</div>`:""}).join("")}</div>`;
-    h+=`</div></div><button type="button" class="btn alt addact" data-addday="${d.id}">+ Agregar actividad a este día</button>${custom.free[iso(d.date)]?`<button type="button" class="btn sm" data-unfree="${d.id}">Día vacío · volver a programarlo</button>`:`<button type="button" class="btn alt sm" data-clrday="${d.id}">Vaciar este día</button>`}<button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
+    h+=`</div></div><button type="button" class="totop bot" data-totop>↑ Volver arriba</button>`;
     const el=document.createElement("article");el.className="day "+d.city+(d.from?" from-"+d.from:"");el.dataset.day=d.id;el.innerHTML=h;host.appendChild(el);
   });
   renderDayTabs(plan);renderWx();setTimeout(initDayMaps,80);
