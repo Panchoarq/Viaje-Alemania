@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=Caveat:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>[hidden]{display:none!important}
 
 /* Layout: cuaderno de viaje antiguo — papel, boletos perforados, sellos; resumen arriba, pestañas: Configurar · Programa · Alojamiento · Pasajes */
@@ -1193,9 +1193,10 @@ html:root[data-paper="1"] #days > .day.sel::after{display:block!important;top:11
 html:root[data-paper="1"] #p-prog #days{margin-top:-6px}
 .ei{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;line-height:0}
 .ei svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-:root[data-paper="1"]{--f-body:var(--f-mono);--f-display:var(--f-mono);--fs:15px}
+:root[data-paper="1"]{--f-body:var(--f-mono);--f-display:"Caveat","Courier Prime",cursive;--fs:15px}
 button,input,select,textarea{font-family:inherit}
-:root[data-paper="1"] :is(h1,h2,h3,.day-head h3,.ficha h3){font-weight:700;letter-spacing:0}
+:root[data-paper="1"] :is(h2,h3,.day-head h3,.ficha h3){font-weight:700;letter-spacing:0;font-size-adjust:.5}
+:root[data-paper="1"] .day-head h3{font-size:30px;line-height:1.05}
 </style>
 </head>
 <body>
