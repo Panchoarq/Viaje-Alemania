@@ -336,12 +336,12 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
     <button role="tab" id="tab-cfg" aria-selected="true" data-tab="cfg">1 · Configurar</button>
     <button role="tab" id="tab-prog" aria-selected="false" data-tab="prog">2 · Programa</button>
     <button role="tab" id="tab-att" aria-selected="false" data-tab="att">3 · Atracciones</button>
-    <button role="tab" id="tab-hot" aria-selected="false" data-tab="hot">4 · Alojamiento</button>
-    <button role="tab" id="tab-rail" aria-selected="false" data-tab="rail">5 · Pasajes y Eurail</button>
-    <button role="tab" id="tab-buy" aria-selected="false" data-tab="buy">6 · Trámites previos</button>
-    <button role="tab" id="tab-food" aria-selected="false" data-tab="food">7 · Comidas</button>
-    <button role="tab" id="tab-gas" aria-selected="false" data-tab="gas">8 · Gastos</button>
-    <button role="tab" id="tab-tra" aria-selected="false" data-tab="tra">9 · Transporte</button>
+    <button role="tab" id="tab-food" aria-selected="false" data-tab="food">4 · Comidas</button>
+    <button role="tab" id="tab-gas" aria-selected="false" data-tab="gas">5 · Gastos</button>
+    <button role="tab" id="tab-tra" aria-selected="false" data-tab="tra">6 · Transporte</button>
+    <button role="tab" id="tab-hot" aria-selected="false" data-tab="hot">7 · Alojamiento</button>
+    <button role="tab" id="tab-rail" aria-selected="false" data-tab="rail">8 · Pasajes y Eurail</button>
+    <button role="tab" id="tab-buy" aria-selected="false" data-tab="buy">9 · Trámites previos</button>
   </nav>
 
   <!-- CONFIGURAR -->
@@ -409,7 +409,7 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
         <li><label><input type="checkbox" data-buy="pass"> <b>Pasaporte vigente</b> <span class="tag">OBLIGATORIO</span></label>
           <p>El carnet chileno no sirve para entrar a Europa. El pasaporte debe vencer al menos 3 meses después de la salida del espacio Schengen. Chile no requiere visa para estadías de hasta 90 días.</p></li>
         <li><label><input type="checkbox" data-buy="hotelaut"> <b>Autorizaciones de los hoteles firmadas</b> <span class="tag">OBLIGATORIO</span></label>
-          <p>Un formulario por hotel (MEININGER, Generator o el modelo checo), con copia del documento del apoderado. Enviarlas por correo antes de llegar. Los links están en la pestaña 3 · Alojamiento.</p></li>
+          <p>Un formulario por hotel (MEININGER, Generator o el modelo checo), con copia del documento del apoderado. Enviarlas por correo antes de llegar. Los links están en la pestaña 7 · Alojamiento.</p></li>
         <li><label><input type="checkbox" data-buy="etias"> <b>ETIAS (autorización de viaje UE)</b> <span class="tag">REVISAR</span></label>
           <p>Empieza a operar en el último trimestre de 2026, con un período de transición. Gratis para menores de 18. Revisar en enero 2027 si ya es obligatorio.</p>
           <span class="cost">0 € (menores)</span> · <a href="https://travel-europe.europa.eu/etias_en" target="_blank" rel="noopener">sitio oficial UE</a></li>
@@ -759,7 +759,7 @@ const H=[
 ["inicio","Cómo funciona",`
 <p>Esta página es el plan compartido del viaje. <b>Todo lo que cambias se guarda solo y lo ven todos</b>: no hay botón de guardar. Abajo a la derecha, el aviso <b>«☁ Guardado para todos»</b> confirma que quedó grabado.</p>
 <p>Si otra persona cambia algo mientras tienes la página abierta, arriba aparece <b>«Alguien guardó cambios en el plan · Actualizar»</b>. Tócalo para ver la versión nueva.</p>
-<p>El plan se recorre por las pestañas de arriba, en orden: <b>1 · Configurar</b> → <b>2 · Programa</b> → <b>3 · Alojamiento</b> → <b>4 · Pasajes</b> → <b>5 · Trámites previos</b> → <b>6 · Atracciones</b> → <b>7 · Transporte</b> → <b>8 · Comidas</b> → <b>9 · Gastos</b>. Los totales de arriba (total del grupo, por persona, promedio diario y las 5 categorías de gasto) se recalculan con cada cambio.</p>
+<p>El plan se recorre por las pestañas de arriba, en orden: <b>1 · Configurar</b> → <b>2 · Programa</b> → <b>7 · Alojamiento</b> → <b>4 · Pasajes</b> → <b>9 · Trámites previos</b> → <b>3 · Atracciones</b> → <b>6 · Transporte</b> → <b>4 · Comidas</b> → <b>5 · Gastos</b>. Los totales de arriba (total del grupo, por persona, promedio diario y las 5 categorías de gasto) se recalculan con cada cambio.</p>
 `],
 ["cfg","1 · Configurar",`
 <ul>
@@ -798,7 +798,7 @@ const H=[
 <p>Arriba de las pestañas, el recuadro de cada ciudad indica si todo cabe. Ahí están las actividades no incluidas: márcalas para agregarlas, o usa <b>✨ Llenar espacios libres</b>, que propone en qué día encaja cada una (y si hay que sacar otra). Si no caben, puedes dejar fuera las menos importantes o agregar una noche.</p>
 <h4>Comidas, traslados y plano</h4>
 <p>Cada comida tiene un selector (hotel, comida rápida, etc.) que cambia el costo del día. Los traslados indican qué línea tomar y dónde bajarse. El plano se amplía al tocarlo, y los números llevan a la ficha de cada atracción. <b>Ver recorrido en Google Maps</b> abre la ruta del día desde el hotel.</p>`],
-["hot","3 · Alojamiento",`
+["hot","7 · Alojamiento",`
 <ul>
 <li>Una pestaña por ciudad. Debajo están las alternativas de hotel; <b>marca el círculo</b> del que se elige (queda <b>✔ Elegido</b>) y todo el plan se recalcula con ese hotel: costos, traslados y rutas.</li>
 <li><b>Tarifa alojamiento 5 pers.:</b> el precio de la habitación para los 5, por noche o por la estadía completa (selector al lado). <b>Este valor se ingresa a mano</b> después de revisarlo en el sitio del hotel o en Booking.</li>
@@ -807,7 +807,7 @@ const H=[
 <li><b>Ver disponibilidad en fechas:</b> abre Booking con las fechas y los huéspedes ya cargados.</li>
 <li><b>Costo por persona:</b> desglose de cuánto paga cada joven en esa ciudad.</li>
 </ul>`],
-["rail","4 · Pasajes y Eurail",`
+["rail","8 · Pasajes y Eurail",`
 <ul>
 <li>Un boleto por cada tramo entre ciudades, con fecha, salida, llegada, número de tren o bus y estaciones (en rojo).</li>
 <li><b>Cómo llegar a la estación:</b> a qué hora salir del hotel, con cuánta anticipación llegar y qué transporte tomar. Si la salida es después del check-out, avisa que hay que pedir guardar las maletas.</li>
@@ -824,9 +824,9 @@ const H=[
 <li>Los precios cambian con el tiempo y según la fecha de compra: conviene volver a verificarlos antes de pagar.</li>
 <li>Los horarios de cierre de museos y atracciones son los de invierno publicados; conviene confirmarlos en enero.</li>
 </ul>`],
-["buy","5 · Trámites previos",`
+["buy","9 · Trámites previos",`
 <p>Lista de lo que hay que hacer antes del viaje: documentos, autorización notarial de los padres, seguro, tarjetas, reservas con cupo (museos, Reichstag, Miniatur Wunderland) y los boletos de transporte en cada ciudad. Al marcar un ítem queda tachado <b>para todos</b>, así se sabe qué falta.</p>`],
-["att","6 · Atracciones",`
+["att","3 · Atracciones",`
 <p>El contexto histórico de cada ciudad y una ficha por atracción: qué es, su historia, qué ver y consejos, con enlaces y fotos. Sirve para preparar a los jóvenes antes de ir. Las que ya están en el programa llevan el sello <b>EN EL PROGRAMA</b>; para agregar o quitar atracciones se usa la pestaña Programa.</p>`],
 ["seg","Seguridad",`
 <p>Ninguna de estas ciudades es peligrosa en general, pero hay <b>zonas puntuales</b> donde hay que tener más cuidado, sobre todo de noche. En los planos se ven como <b>círculos rojos achurados</b>, y cada día avisa con <b>⚠ Zona de precaución</b> si el recorrido o el hotel quedan cerca.</p>
@@ -876,7 +876,7 @@ cfg:{t:"Configurar: armar la ruta",i:"Aquí se define cuándo empieza el viaje, 
  ["Fecha de inicio","Es el día de llegada a la primera ciudad. Las demás fechas se calculan solas."],
  ["Orden y noches","Cambien el orden con los selectores de ciudad y las noches de cada una (de 1 a 6). El programa, el alojamiento y los trenes se recalculan."],
  ["Mapa y trenes","La ruta se dibuja en el mapa. Entre ciudades aparece el tren con su hora de salida y llegada; «verificado» significa que el horario y el precio ya están confirmados."],
- ["Costos","El total del grupo, el costo por persona, el promedio diario y el desglose por categoría están en la pestaña 8 · Gastos."]]},
+ ["Costos","El total del grupo, el costo por persona, el promedio diario y el desglose por categoría están en la pestaña 5 · Gastos."]]},
 prog:{t:"Programa: armar cada día",i:"El programa reparte las atracciones elegidas en los días de cada ciudad. Se puede ajustar a mano.",s:[
  ["Cajón por ciudad","Cada ciudad muestra cuántas horas ocupa el programa y si todo cabe. «Llenar espacios libres» propone dónde encajan las pendientes."],
  ["Agregar o quitar","«Agregar otras actividades» lista lo que falta y permite elegir el día. La ✕ de cada actividad la saca del programa."],
@@ -896,7 +896,7 @@ rail:{t:"Pasajes: trenes entre ciudades",i:"Un boleto por cada traslado entre ci
 buy:{t:"Trámites previos",i:"Lista de cosas que hay que tramitar o comprar antes de viajar y consejos de transporte y entradas por ciudad.",s:[
  ["Marcar lo hecho","Marquen cada casilla cuando esté listo. Se guarda para todos."],
  ["Lo urgente","Lo que tiene plazo (como la BahnCard gratis hasta el 12 de diciembre de 2026) aparece marcado en rojo."],
- ["Por ciudad","Abajo hay recomendaciones de entradas para cada ciudad. El transporte público está en la pestaña 7 · Transporte."]]},
+ ["Por ciudad","Abajo hay recomendaciones de entradas para cada ciudad. El transporte público está en la pestaña 6 · Transporte."]]},
 att:{t:"Atracciones: fichas",i:"Fichas con la historia y los datos de cada atracción, ordenadas por ciudad.",s:[
  ["Elegir ciudad","Usen los botones de arriba para cambiar de ciudad."],
  ["Contexto histórico","Cada ciudad empieza con una línea de tiempo y un resumen para llegar sabiendo."],
@@ -1605,7 +1605,7 @@ const FOODOPT={
     c:[["Augustiner / Hofbräuhaus: plato bávaro",16,"Schweinsbraten o Haxe; ambiente bávaro."],["Döner o pizza",8,""],["Leberkäse + papas",8,""]]}
 };
 
-/* ===== Pestaña 6 · Atracciones (fichas de archivo) ===== */
+/* ===== Pestaña 3 · Atracciones (fichas de archivo) ===== */
 let attCity="B";
 const PHOTO={"Aeropuerto Knuffingen": ["img/H-0-0.jpg", "2025-Miniatur-Wunderland Hamburg-8 Knuffingen Airport.jpg", "CC BY-SA 4.0"], "Detalle de la maqueta": ["img/H-0-1.jpg", "Miniatur Wunderland Hamburg, Deutschland (10522674915).jpg", "CC BY 2.0"], "Jardín japonés": ["img/H-1-1.jpg", "Japanischer Garten Planten un Blomen Frühjahr (3).jpg", "CC BY-SA 4.0"], "Portacontenedores": ["img/H-2-0.jpg", "Hamburg Hafen Containerterminal.jpg", "CC BY-SA 4.0"], "El Michel": ["img/H-3-0.jpg", "Reflection of St. Michaelis Church, Hamburg, Deutschland IMG 4822 edit.jpg", "CC0"], "Túnel y ascensores": ["img/H-4-0.jpg", "Zentraler Blick durch den Alten Elbtunnel.jpg", "CC BY-SA 4.0"], "Elbphilharmonie": ["img/H-5-0.jpg", "Hamburg, Hafen, Elbphilharmonie -- 2016 -- 3129.jpg", "CC BY-SA 4.0"], "The Tube": ["img/H-5-1.jpg", "Hamburg - Hafencity Elbphilharmonie - 2019 05 13 - Tube 2b.jpg", "CC BY-SA 4.0"], "Wasserschloss": ["img/H-6-0.jpg", "Hamburg, Speicherstadt, Wasserschloss -- 2016 -- 3265-71.jpg", "CC BY-SA 4.0"], "Chilehaus, la «proa»": ["img/H-6-1.jpg", "Hamburg, Kontorhausviertel, Chilehaus -- 2016 -- 3402.jpg", "CC BY-SA 4.0"], "Rathaus": ["img/H-7-0.jpg", "Hamburg, Rathaus -- 2016 -- 4175.jpg", "CC BY-SA 4.0"], "Hamburgo bombardeado (RAF, 1942–45)": ["img/H-8-0.jpg", "Hamburg, Royal Air Force Bomber Command, 1942-1945 C3677.jpg", "Dominio público"], "St. Nikolai hoy": ["img/H-8-1.jpg", "Hamburg, St. Nikolai -- 2023 -- 6634.jpg", "CC BY-SA 4.0"], "Prinz-Albrecht-Straße 8 (1933)": ["img/B-0-0.jpg", "Bundesarchiv Bild 183-R97512, Berlin, Geheimes Staatspolizeiamt.jpg", "CC BY-SA 3.0 de"], "El sitio hoy": ["img/B-0-1.jpg", "Topographie des Terrors Berliner Mauer Berlin Germany - panoramio.jpg", "CC BY 3.0"], "Puente Aéreo 1948": ["img/B-1-0.jpg", "C-54 landing at Tempelhof 1948.jpg", "Dominio público"], "Rosinenbomber": ["img/B-1-1.jpg", "Gail Halvorsen ca. 1983.jpg", "GPLv3"], "Tempelhofer Feld hoy": ["img/B-1-2.jpg", "Berlin Tempelhofer Feld UAV 05-2017.jpg", "FAL"], "Laberinto láser": ["img/B-2-0.jpg", "Deutsches Spionagemuseum.jpg", "CC BY-SA 4.0"], "Gamestate": ["img/B-3-0.jpg", "The Playce, Berlin-1803.jpg", "CC BY-SA 4.0"], "Olimpiadas 1936": ["img/B-5-0.jpg", "Olympiastadion Berlin Innenansicht.jpg", "CC BY-SA 4.0"], "Nefertiti": ["img/B-7-0.jpg", "Nofretete Neues Museum.jpg", "CC BY-SA 3.0"], "Cicatrices de guerra": ["img/B-7-1.jpg", "Neues Museum 06b Treppenhalle.jpg", "CC BY-SA 3.0"], "La puerta y el Muro, 1961": ["img/B-8-1.jpg", "Bundesarchiv Bild 183-85458-0002, Berlin, Mauerbau, Kampfgruppen am Brandenburger Tor.jpg", "CC BY-SA 3.0 de"], "Picando el Muro junto al Reichstag, 1989–90": ["img/B-8-2.jpg", "Mauer nahe Reichstag.jpg", "CC BY-SA 3.0"], "Memorial": ["img/B-8-3.jpg", "Denkmal für die ermordeten Juden Europas .jpg", "CC BY-SA 2.5"], "Bandera sobre el Reichstag, 1945": ["img/B-9-0.jpg", "Raising a flag over the Reichstag - Restoration.jpg", "Dominio público"], "Cúpula de Foster": ["img/B-9-2.jpg", "190930 Schuppenartige Verglasung der Kuppel auf dem Reichstagsgebäude.jpg", "CC BY-SA 4.0"], "El beso Brézhnev–Honecker": ["img/B-10-0.jpg", "East Side Gallery - Dmitri Vrubel - Le baiser (Berlin).jpg", "CC BY-SA 4.0"], "Salto de Conrad Schumann": ["img/B-11-0.jpg", "CIA, Conrad Schumanns Sprung in die Freiheit, August 1961 (cropped) 1.jpg", "Dominio público"], "Bernauer Straße 1961": ["img/B-11-1.jpg", "Berlin, Bernauer Straße, Foto 1961 2014-07.jpg", "CC BY-SA 4.0"], "Tanques, octubre 1961": ["img/B-12-0.jpg", "Checkpoint charlie 1961.jpg", "Dominio público"], "El cartel": ["img/B-12-1.jpg", "Berlin-Kreuzberg, you are leaving the American sector bij Checkpont Charlie Dm IMG 5732 2024-09-07 10.56.jpg", "CC BY 4.0"], "La cruz en la esfera": ["img/B-13-0.jpg", "2 Türme mit Kugel - Fernsehturm & St. Marien in Berlin.jpg", "CC BY-SA 4.0"], "Trabant": ["img/B-14-0.jpg", "Trabant P 601 S, Bj. 1986 (Foto Sp 2016-06-05).JPG", "CC BY-SA 2.0 de"], "Plattenbau": ["img/B-14-1.jpg", "Aussicht Skywalk Marzahn Plattenbau Fassendekoration Jan-Petersen-Straße Berlin-Marzahn 01.jpg", "CC0"], "Berliner Dom": ["img/B-15-0.jpg", "Berliner Dom, Nacht, 160316, ako.jpg", "CC BY-SA 3.0 de"], "Vista desde el puente": ["img/P-0-0.jpg", "Prague Charles Bridge 2021 11.jpg", "CC BY-SA 4.0"], "Callejón del Oro": ["img/P-0-1.jpg", "Callejón del oro, Praga, República Checa, 2022-07-02, DD 139.jpg", "CC BY-SA 4.0"], "Antiguo cementerio judío": ["img/P-1-0.jpg", "Praha Old Jewish Cemetery Panorama 01.jpg", "CC BY-SA 4.0"], "Puente al amanecer": ["img/P-5-0.jpg", "Prague charles bridge morning.jpg", "CC BY 3.0"], "El reloj": ["img/P-6-0.jpg", "Czech-2013-Prague-Astronomical clock face.jpg", "CC BY-SA 4.0"], "Sala Teológica": ["img/P-9-0.jpg", "Strahov knihovna Teolog 2.jpg", "CC BY-SA 4.0"], "Sala Filosófica": ["img/P-9-1.jpg", "Strahov knihovna Filosof 1.jpg", "CC BY-SA 4.0"], "Glockenspiel": ["img/M-0-0.jpg", "2019-11-16, Glockenspiel, Neues Münchner Rathaus, IMG 7463 edit Christoph Braun.jpg", "CC0"], "La huella": ["img/M-1-0.jpg", "Teufelstritt Cathedral Munich.jpg", "CC0"], "BMW Welt": ["img/M-3-0.jpg", "BMW Welt Night.jpg", "CC BY-SA 2.5"], "Techo olímpico": ["img/M-4-0.jpg", "Zeltdach Olympiastadion München.JPG", "CC BY-SA 4.0"], "Neuschwanstein en invierno": ["img/M-5-0.jpg", "Neuschwanstein Castle Snow (93462571).jpeg", "CC BY 3.0"], "Salón del Trono": ["img/M-5-1.jpg", "Neuschwanstein – Thronsaal.jpg", "Dominio público"], "Surf en el Eisbach": ["img/M-6-0.jpg", "Eisbachwelle mit Surfern im Winter bei Schnee.jpg", "CC BY-SA 4.0"], "Sala de aviación": ["img/M-8-0.jpg", "Deutsches Museum München, Moderne Luftfahrt (3).jpg", "CC BY-SA 4.0"], "La «proa» del Chilehaus": ["img/H-10-0.jpg", "20230317 Chilehaus 02.jpg", "CC BY 4.0"], "Fachada de ladrillo clinker": ["img/H-10-1.jpg", "Chilehaus (Hamburg-Altstadt).Fassade Meßberg.Kriegsschäden.29133.ajb.jpg", "CC BY-SA 3.0 de"]};
 function tlSVG(tl){const W=720,H=96,pad=40,step=(W-2*pad)/(tl.length-1);
