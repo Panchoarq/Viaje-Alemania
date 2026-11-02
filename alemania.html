@@ -214,6 +214,30 @@ label.vchk input{accent-color:var(--ok);margin:0}
   header .gastosbtn .ic{width:18px;height:18px}
   .btn.findbtn{white-space:normal;max-width:100%;text-align:left;line-height:1.25}
 }
+
+/* ===== Celular: chips de días, un solo día visible, hoja anillada fija ===== */
+.dchipw{display:none}
+@media (max-width:900px){
+  #p-prog #daytabs{position:static}
+  .dchipw{display:block;position:sticky;top:0;z-index:6;background:var(--bg);border-bottom:1.5px solid var(--ink)}
+  .dchipw .dchips{display:flex;order:0;flex:none;gap:6px;overflow-x:auto;padding:6px 2px 8px;scrollbar-width:none;background:none;border:0;margin:0}
+  .dchipw .dchip{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;height:52px;padding:0;border:1.5px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font-family:var(--f-mono,"Courier Prime",monospace);line-height:1.05}
+  .dchipw .dchip i{font-style:normal;font-size:10px;text-transform:uppercase;letter-spacing:.04em;opacity:.8}
+  .dchipw .dchip b{font-size:20px}
+  .dchipw .dchip small{font-size:8.5px;text-transform:uppercase;letter-spacing:.02em;opacity:.8}
+  .dchipw .dchip[aria-pressed="true"]{background:var(--cc,var(--ink));color:var(--card);box-shadow:2px 2px 0 var(--ink)}
+  html #days > .day:not(.sel){display:none!important}
+}
+html:root[data-paper="1"] .dchipw{padding-bottom:40px;border-bottom:0;background:linear-gradient(var(--bg) calc(100% - 40px),var(--card) calc(100% - 40px));box-shadow:0 3px 4px -2px rgba(60,45,20,.28)}
+html:root[data-paper="1"] .dchipw .dchips{padding-bottom:12px}
+html:root[data-paper="1"] .dchipw::after{content:"";position:absolute;left:30px;right:30px;bottom:13px;height:12px;pointer-events:none;background:radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 0/28px 12px}
+html:root[data-paper="1"] .dchipw::before{content:"";position:absolute;left:30px;right:30px;top:calc(100% - 58px);height:62px;pointer-events:none;z-index:3;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='86'%3E%3Cdefs%3E%3ClinearGradient id='m' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23555c63'/%3E%3Cstop offset='.3' stop-color='%23eef1f4'/%3E%3Cstop offset='.55' stop-color='%23aab2b9'/%3E%3Cstop offset='1' stop-color='%234a5057'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M12 10 C 3 22, 3 63, 12 75' fill='none' stroke='url(%23m)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M16 10 C 25 22, 25 63, 16 75' fill='none' stroke='url(%23m)' stroke-width='3' stroke-linecap='round' opacity='.75'/%3E%3C/svg%3E") space no-repeat 0 0/28px 62px;filter:drop-shadow(1px 2px 1.2px rgba(0,0,0,.35))}
+@media (max-width:900px){
+  html:root[data-paper="1"] #days > .day.sel::before,html:root[data-paper="1"] #days > .day.sel::after{display:none!important}
+  html:root[data-paper="1"] #days > .day.sel{padding-top:16px!important;border-top:0!important}
+  html:root[data-paper="1"] #p-prog #days{margin-top:0}
+}
+@media (min-width:901px){.dchipw{display:none!important}}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -274,7 +298,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
   </section>
 
   <!-- PROGRAMA -->
-  <section class="panel" id="p-prog" hidden><button type="button" class="calbtn" id="calBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> Calendario del viaje</button><div id="feas" class="feas"></div><div id="feasmini" class="feasmini" role="button" tabindex="0"></div><div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"></div><div id="wxbox"></div><div class="days" id="days"></div></section>
+  <section class="panel" id="p-prog" hidden><button type="button" class="calbtn" id="calBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> Calendario del viaje</button><div id="feas" class="feas"></div><div id="feasmini" class="feasmini" role="button" tabindex="0"></div><div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"></div><div id="wxbox"></div><div class="dchipw" id="dchipw"></div><div class="days" id="days"></div></section>
 
   <!-- ALOJAMIENTO -->
   <section class="panel" id="p-hot" hidden><div class="daytabs" id="hottabs" role="tablist" aria-label="Ciudad"></div><div id="hotels" style="display:flex;flex-direction:column;gap:22px"></div></section>
@@ -1833,14 +1857,14 @@ function renderDayTabs(plan){const t=$("daytabs");if(!t)return;if(!cfg.order.inc
   t.innerHTML=cfg.order.map(c=>{const ds=plan.filter(d=>d.city===c||d.from===c);const a=ds[0],b=ds[ds.length-1];
     return `<button type="button" role="tab" class="dtab ${c}" data-dtab="${c}" aria-selected="${c===progCity}"><b>${CN[c]}</b><small>${a?pretty(a.date):""}${b&&b!==a?" – "+pretty(b.date):""} · ${ds.length} ${ds.length>1?"días":"día"}</small></button>`}).join("");
   {const ds=plan.filter(d=>d.city===progCity||d.from===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
-    t.innerHTML+=`<div class="dchips">${ds.map((d,i)=>`<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}">${pretty(d.date).replace(/ [a-zé]+$/,"")}${d.from===progCity?` <small>→ ${CN[d.city]}</small>`:d.from?` <small>llegada</small>`:i===0?` <small>llegada</small>`:d.final?` <small>fin</small>`:""}</button>`).join("")}</div>`;
+    const CCV={M:"--mun",P:"--pra",B:"--ber",H:"--ham"};const dw=$("dchipw");if(dw){dw.style.setProperty("--cc",`var(${CCV[progCity]||"--ink"})`);dw.innerHTML=`<div class="dchips">${ds.map((d,i)=>{const q=pretty(d.date).split(" "),tg=d.from===progCity?"→ "+CN[d.city].slice(0,3):d.from?"llegada":i===0?"llegada":d.final?"fin":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div>`};
     const f=plan.feas&&plan.feas[progCity];const fm=$("feasmini");if(fm&&f){const n=f.unpl.length;fm.className="feasmini "+(n?"bad":"ok");fm.innerHTML=`<span>${n?`✕ ${CN[progCity]}: no caben ${n} actividad${n>1?"es":""}`:`✓ ${CN[progCity]}: todo cabe`}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span>`}}
-  let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.hidden=!(el.classList.contains(progCity)||el.classList.contains("from-"+progCity));const isFrom=el.classList.contains("from-"+progCity);el.classList.toggle("view-from",isFrom);el.classList.toggle("view-to",!isFrom&&[...el.classList].some(c=>c.startsWith("from-")));el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1});
+  let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.hidden=!(el.classList.contains(progCity)||el.classList.contains("from-"+progCity));const isFrom=el.classList.contains("from-"+progCity);el.classList.toggle("view-from",isFrom);el.classList.toggle("view-to",!isFrom&&[...el.classList].some(c=>c.startsWith("from-")));el.classList.toggle("first-vis",!el.hidden&&!fv);el.classList.toggle("sel",!el.hidden&&el.dataset.day===progDay[progCity]);if(!el.hidden)fv=1});
   document.querySelectorAll(".actrow2[data-k]").forEach(r=>r.classList.toggle("open",openActs.has(r.closest(".day").dataset.day+"|"+r.dataset.k)));
   document.querySelectorAll("#days > .day").forEach(d=>{const c=d.querySelector(".blk-com"),t=d.querySelector(".blk-tr");if(c)c.classList.toggle("open",openActs.has(d.dataset.day+"|com"));if(t)t.classList.toggle("open",openActs.has(d.dataset.day+"|tr"))})}
-MOB.addEventListener("change",()=>{try{renderDayTabs(PLAN)}catch(e){}});
+MOB.addEventListener("change",()=>{try{renderDayTabs(PLAN)}catch(e){}});matchMedia("(max-width:900px)").addEventListener("change",()=>{try{renderDayTabs(PLAN)}catch(e){}});
 // Al hacer scroll, la pastilla del día que se está viendo queda marcada
-let _spyLock=0,_spyT=null;window.addEventListener("scroll",()=>{if(_spyT)return;_spyT=setTimeout(()=>{_spyT=null;if(Date.now()-_spyLock<900)return;const tb=$("daytabs"),p=$("p-prog");if(!tb||!p||p.hidden)return;const lim=tb.getBoundingClientRect().bottom+40;let cur=null;
+let _spyLock=0,_spyT=null;window.addEventListener("scroll",()=>{if(_spyT)return;_spyT=setTimeout(()=>{_spyT=null;if(Date.now()-_spyLock<900||matchMedia("(max-width:900px)").matches)return;const tb=$("daytabs"),p=$("p-prog");if(!tb||!p||p.hidden)return;const lim=tb.getBoundingClientRect().bottom+40;let cur=null;
   document.querySelectorAll("#days > .day:not([hidden])").forEach(d=>{if(d.getBoundingClientRect().top<=lim)cur=d.dataset.day});if(!cur)return;
   if(progDay[progCity]!==cur){progDay[progCity]=cur;try{localStorage.setItem("ruta_progday",JSON.stringify(progDay))}catch(_){}}
   document.querySelectorAll("[data-dchip]").forEach(x=>{const on=x.dataset.dchip===cur;x.setAttribute("aria-pressed",on);if(on&&isMob())x.scrollIntoView({block:"nearest",inline:"nearest"})})},120)},{passive:true});
@@ -2231,7 +2255,7 @@ document.addEventListener("click",e=>{
     const i=o.indexOf(ak),j=i+(+dir);if(i<0||j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];dayOrd[okey]=o;saveDayOrd();renderAll(true);return}
   const mr=e.target.closest("[data-mvreset]");if(mr){delete dayOrd[mr.dataset.mvreset];saveDayOrd();renderAll(true);return}
   const lk=e.target.closest("[data-lock]");if(lk){const k=lk.dataset.lock;if(lockSel[k])delete lockSel[k];else lockSel[k]=true;saveLock();renderAll(true);return}
-  const dc=e.target.closest("[data-dchip]");if(dc){progDay[progCity]=dc.dataset.dchip;try{localStorage.setItem("ruta_progday",JSON.stringify(progDay))}catch(_){}document.querySelectorAll("[data-dchip]").forEach(x=>x.setAttribute("aria-pressed",x===dc));try{const dv=[...document.querySelectorAll("#days > .day:not([hidden])")].find(x=>x.dataset.day===dc.dataset.dchip),tb=$("daytabs");_spyLock=Date.now();window.scrollTo({top:dv.getBoundingClientRect().top+scrollY-tb.offsetHeight-4,behavior:"smooth"})}catch(_){}return}
+  const dc=e.target.closest("[data-dchip]");if(dc){progDay[progCity]=dc.dataset.dchip;try{localStorage.setItem("ruta_progday",JSON.stringify(progDay))}catch(_){}document.querySelectorAll("[data-dchip]").forEach(x=>x.setAttribute("aria-pressed",x===dc));document.querySelectorAll("#days > .day").forEach(q=>q.classList.toggle("sel",!q.hidden&&q.dataset.day===dc.dataset.dchip));try{const dv=[...document.querySelectorAll("#days > .day:not([hidden])")].find(x=>x.dataset.day===dc.dataset.dchip);_spyLock=Date.now();if(matchMedia("(max-width:900px)").matches){const w=$("dchipw");window.scrollTo({top:Math.max(0,($("daytabs").getBoundingClientRect().bottom+scrollY)-8),behavior:"smooth"})}else{const tb=$("daytabs");window.scrollTo({top:dv.getBoundingClientRect().top+scrollY-tb.offsetHeight-4,behavior:"smooth"})}}catch(_){}return}
   if(e.target.closest("#feasmini")){document.body.classList.toggle("feas-open");renderDayTabs(PLAN);return}
   {const h4=e.target.closest(".blk-com > h4, .blk-tr > h4");if(h4){const b=h4.parentNode;b.classList.toggle("open");const k=b.closest(".day").dataset.day+"|"+(b.classList.contains("blk-com")?"com":"tr");if(b.classList.contains("open"))openActs.add(k);else openActs.delete(k);return}
     const mv=e.target.closest(".blk-att .mv.tr");if(mv&&!e.target.closest("a")){mv.classList.toggle("full");return}
