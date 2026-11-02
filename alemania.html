@@ -313,6 +313,12 @@ details.arq>summary em{font-style:normal;margin-left:auto;white-space:nowrap;fon
 #p-att .guide,#p-food .guide{margin:0}
 #att .findbtn{margin:0;align-self:flex-start}
 #att .attbar,#food .attbar{display:none}
+/* espiral: agujeros arriba y abajo, anillos entre ambos, corte del scroll justo bajo el espiral */
+html:root[data-paper="1"] .dchipw{padding-bottom:52px;background:linear-gradient(var(--card) 0 calc(100% - 52px),var(--bg) calc(100% - 52px) calc(100% - 30px),var(--card) calc(100% - 30px))}
+html:root[data-paper="1"] .dchipw .dchips,html:root[data-paper="1"] .dchips{padding-bottom:20px}
+html:root[data-paper="1"] .dchipw::after{bottom:12px;height:60px;background:radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 0/28px 12px,radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 100%/28px 12px}
+html:root[data-paper="1"] .dchipw::before{top:calc(100% - 73px)}
+html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
