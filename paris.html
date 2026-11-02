@@ -1424,7 +1424,7 @@ const PA=[
  {id:"pa_bpig",t:"cen",n:"Bouillon Pigalle",ll:[48.8823,2.3376],h:1.25,p:20,in:1,eve:1,z:"Pigalle",s:"Comedor francés tradicional, enorme y bullicioso, con precios muy bajos.",v:"Cocina francesa clásica (huevo mayo, bourguignon, profiteroles) en ambiente de brasserie.",d:"Sin reserva: hay fila a la hora punta pero avanza rápido.",u:"https://bouillonlesite.com/"},
 ];
 
-const PAR_DEF="4 rue Bachaumont, 75002 París";
+const PAR_DEF="4 rue Bachaumont, 75002 París",LON_DEF="50 Crispin Street, London E1 6HQ";
 function baseLL(){const W=ST.wiz||{};if(ST.parLL&&ST.parLLq===(W.par_dir||PAR_DEF))return ST.parLL;if(/bachaumont/i.test(W.par_dir||PAR_DEF))return [48.8659,2.3463];return BASES[ST.base]||BASES["Otro / centro"]}
 async function geoPar(){const q=(ST.wiz||{}).par_dir;if(!q||/bachaumont/i.test(q))return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/paris|parís/i.test(q)?"":", Paris")));const j=await r.json();if(j[0]){ST.parLL=[+j[0].lat,+j[0].lon];ST.parLLq=q;save();render()}}catch(e){}}
 const BASES={"Montorgueil / Sentier (2.º)":[48.8659,2.3463],"Le Marais":[48.8590,2.3600],"Saint-Germain":[48.8540,2.3336],"Barrio Latino":[48.8490,2.3470],"Montmartre":[48.8860,2.3400],"Ópera / Grands Boulevards":[48.8710,2.3330],"Torre Eiffel / 7.º":[48.8560,2.3000],"Bastille":[48.8530,2.3690],"Canal Saint-Martin":[48.8710,2.3650],"Montparnasse":[48.8420,2.3240],"Batignolles":[48.8840,2.3200],"Belleville":[48.8720,2.3770],"Campos Elíseos":[48.8700,2.3070],"15.º (Grenelle)":[48.8430,2.2950],"Otro / centro":[48.8566,2.3522]};
@@ -1556,7 +1556,7 @@ function buildPA(){const j=ST.jun||{};const days=parisDays().map(x=>({...x,jun:j
   return schedule(days,PA.filter(paSel),baseLL(),{jun:true,rit:x=>x.jun?ritOf("PAJ"):ritOf("PAS"),junRit:ritOf("PAJ"),restRit:ritOf("PAS")})}
 const loSel=a=>!!(ST.paSel&&ST.paSel[a.id]);
 function lonDays(){const W=ST.wiz;if(!W.ida_llega||!W.eur_fecha||W.ida_llega>=W.eur_fecha)return[];const out=[];for(let d=W.ida_llega;d<W.eur_fecha;d=add(d,1))out.push({d,first:d===W.ida_llega});return out}
-function lonBase(){const W=ST.wiz||{};if(ST.lonLL&&W.lon_dir&&ST.lonLLq===W.lon_dir)return ST.lonLL;return LONDON}
+function lonBase(){const W=ST.wiz||{};if(ST.lonLL&&W.lon_dir&&ST.lonLLq===W.lon_dir)return ST.lonLL;if(/crispin/i.test(W.lon_dir||""))return [51.5189,-0.0773];return LONDON}
 function buildLO(){return schedule(lonDays(),LON.filter(loSel),lonBase(),{rit:()=>ritOf("LO"),restRit:ritOf("LO")})}
 const actById=id=>PA.find(a=>a.id===id)||LON.find(a=>a.id===id);
 const isLO=id=>String(id).startsWith("lo_");
@@ -1636,7 +1636,7 @@ function wxCard(A,k){const ds=A.days.filter(d=>d.city===k&&d.kind!=="final");if(
   return `<div class="wxcard"><div class="wxh"><span class="eyebrow">Pronóstico · ${k==="LO"?"Londres":"París"}</span><small class="muted">Open-Meteo · se actualiza al abrir</small></div>
    <div class="wxrow">${vis.map(d=>{const w=wxOf(k,d.d);return `<button type="button" class="wxd${rainy(w)?" wet":""}" data-calgo="${d.id}" title="${pretty(d.d)}: ${Math.round(w.mn)}–${Math.round(w.mx)} °C, lluvia ${w.pp}% (${w.mm} mm)"><small>${pretty(d.d).replace(/ [a-zé]+$/,"")}</small><span class="wi">${WXI(w.c)}</span><b>${Math.round(w.mx)}°</b><small>${Math.round(w.mn)}° · ${w.pp}%</small></button>`}).join("")}</div>
    ${sug.length?`<ul class="wxsug">${sug.join("")}</ul>`:`<small class="muted">${vis.some(d=>rainy(wxOf(k,d.d)))?"Días con lluvia: el programa de esos días ya es techado o está libre.":"Sin lluvia importante en el pronóstico."}</small>`}</div>`}
-async function geoLon(){const q=(ST.wiz||{}).lon_dir;if(!q)return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/london|londres/i.test(q)?"":", London")));const j=await r.json();if(j[0]){ST.lonLL=[+j[0].lat,+j[0].lon];ST.lonLLq=q;save();render()}}catch(e){}}
+async function geoLon(){const q=(ST.wiz||{}).lon_dir;if(!q||/crispin/i.test(q))return;try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+(/london|londres/i.test(q)?"":", London")));const j=await r.json();if(j[0]){ST.lonLL=[+j[0].lat,+j[0].lon];ST.lonLLq=q;save();render()}}catch(e){}}
 
 function routeUrl(p){const base=p.base||baseLL();const pts=p.seq.filter(a=>!a.noloc).map(a=>a.ll.join(","));if(!pts.length)return"";
   return `https://www.google.com/maps/dir/?api=1&origin=${base.join(",")}&destination=${pts[pts.length-1]}${pts.length>1?`&waypoints=${encodeURIComponent(pts.slice(0,-1).join("|"))}`:""}&travelmode=transit`}
@@ -2155,7 +2155,7 @@ function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);cons
 function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:d.c;
   const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN0=sunOf(D(d.d),ll),SUN=d.city==="LO"?Object.fromEntries(Object.entries(SUN0).map(([k,v])=>[k,typeof v==="number"?v-1:v])):SUN0;
   const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"||d.city==="LO"?null:"par";
-  const night=nightK?`Noche en ${esc(hotSelName(nightK)||(nightK==="par"?"departamento ("+esc(W.par_dir||PAR_DEF)+")":"alojamiento en "+short(d.c.n)+" (por definir)"))}`:d.city==="LO"?`Noche donde Alli${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
+  const night=nightK?`Noche en ${esc(hotSelName(nightK)||(nightK==="par"?"departamento ("+esc(W.par_dir||PAR_DEF)+")":"alojamiento en "+short(d.c.n)+" (por definir)"))}`:d.city==="LO"?`Noche en el departamento de Alli${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
   const X=d.c?EXT[d.c.id]||{}:{},fx=d.from?ESC.find(x=>x.id===d.from.id):null;
   const tl={first:`🚄 Eurostar ${W.eur_hora?"sale "+esc(W.eur_hora)+" de":"desde"} Londres St Pancras → <b>París Gare du Nord</b> · metro al alojamiento (${esc(ST.base||"centro")}) · <b>París: actividades desde las 14:30</b>`,
     ret:fx?`🚄 Tren ${fx.n} → París (${fx.tr}) por la mañana · <b>París: actividades desde las 14:30</b>`:"",
@@ -2193,7 +2193,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
   else if(c.nm)h+=`<div class="line"><span>${c.nm} ${c.nm===1?"viaje":"viajes"} en ${d.city==="LO"?"metro (Tube)":"metro/RER"} × ${fmt(METRO)} · <a href="#" data-gotab="tra">opciones</a></span><span class="p">${fmt(c.nm*METRO)}</span></div>`;
   if(d.kind==="first"&&c.navigo==null)h+=`<div class="line"><span>Metro Gare du Nord → alojamiento</span><span class="p">${fmt(METRO)}</span></div>`;
   if(d.kind==="final"&&c.navigo==null)h+=`<div class="line"><span>RER B al aeropuerto (boleto aeropuerto)</span><span class="p">${fmt(14)}</span></div>`;
-  if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento donde Alli</span><span class="p">—</span></div>`;
+  if(d.city==="LO")h+=`<div class="line"><span>Metro y bus sin contacto · tope diario zonas 1–2 (~£9, aprox.)</span><span class="p">${fmt(LON_TR)}</span></div><div class="line"><span>Alojamiento: departamento de Alli${W.lon_dir?" ("+esc(W.lon_dir)+")":""} · sin costo</span><span class="p">—</span></div>`;
   if(nightK)h+=`<div class="line"><span>½ alojamiento (2 personas)</span><span class="p">${c.hot?fmt(c.hot):"sin tarifa"}</span></div>`;
   if(c.legs)h+=c.legs.map(l=>`<div class="line sub"><span>${l.metro?"🚇":"🚶"} ${l.fn} → ${l.tn} <small class="muted">${l.d.toFixed(1).replace(".",",")} km · ~${l.min} min · <a href="${trUrl(l.from,l.to,l.metro)}" target="_blank" rel="noopener">ruta</a></small></span></div>`).join("");
   if(d.pa&&d.pa.seq.length)h+=(window.L||window.maplibregl)?`<div class="mapclip lclip" role="button" tabindex="0" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span><div class="lmap" data-lday="${d.id}"></div><span class="mc-cap">Plano del día · ampliar</span><span class="mc-cr">© OpenFreeMap · OSM</span></div>`:`<button type="button" class="mapclip" data-dmap="${d.id}" aria-label="Ampliar plano del recorrido"><span class="clip" aria-hidden="true"></span>${dayMap(d.pa,c.legs).split("</svg>")[0]}</svg><span class="mc-cap">Plano del día · ampliar</span></button>`;
@@ -2212,7 +2212,7 @@ function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fe
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
   if(!S.some(s=>s.k===hotTab))hotTab=S[0].k;const col=s=>s.k==="par"?PA_C:((ESC.find(x=>s.k.startsWith("esc-"+x.id+"-"))||{}).c||"#666");
-  return `<div class="daytabs" id="hottabs" role="tablist" aria-label="Ciudad">${S.map(s=>`<button type="button" role="tab" class="dtab" style="--c:${col(s)}" data-htab="${s.k}" aria-selected="${s.k===hotTab}"><b>${short(s.n)}</b><small>${s.nn} ${s.nn===1?"noche":"noches"} · ${esc(hotSelName(s.k)||"sin elegir")}</small></button>`).join("")}</div>
+  return `<div class="opt on" style="margin-bottom:10px"><div class="opt-top"><span class="name">🏠 Londres · departamento de Alli · ${esc(ST.wiz.lon_dir||LON_DEF)}</span><span class="pill sel">Sin costo</span></div></div><div class="daytabs" id="hottabs" role="tablist" aria-label="Ciudad">${S.map(s=>`<button type="button" role="tab" class="dtab" style="--c:${col(s)}" data-htab="${s.k}" aria-selected="${s.k===hotTab}"><b>${short(s.n)}</b><small>${s.nn} ${s.nn===1?"noche":"noches"} · ${esc(hotSelName(s.k)||"sin elegir")}</small></button>`).join("")}</div>
   <div id="hotels" style="display:flex;flex-direction:column;gap:22px">${S.filter(s=>s.k===hotTab).map(s=>{const L=hotList(s.k);
    return `<div class="city" style="--c:${col(s)}"><h3>${s.n} · ${s.nn} ${s.nn===1?"noche":"noches"} · ${pretty(s.ini)} → ${pretty(s.fin)}</h3>
    ${s.k==="par"&&!hotSelName("par")?`<div class="opt on"><div class="opt-top"><span class="name">🏠 Departamento · ${esc(ST.wiz.par_dir||PAR_DEF)}</span><span class="pill sel">Alojamiento propio</span></div><p class="note" style="margin:6px 0 0">Sin costo de alojamiento. Es el punto de partida de todos los recorridos; la dirección se cambia en <a href="#" data-gotab="cfg">Configurar</a>. Si agregan un hotel y lo eligen, reemplaza al departamento.</p></div>`:""}
@@ -2955,7 +2955,7 @@ function bindMan(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-man]",b=>b.onclick=()=>{MAN=MAN===b.dataset.man?null:b.dataset.man;render();const f=document.querySelector("[data-manform] [name=n]");if(f)f.focus()});
   Q("[data-manform]",f=>f.onsubmit=e=>{e.preventDefault();saveMan(f)})}
 
-function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
+function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(ST.wiz&&!ST.wiz.lon_dir)ST.wiz.lon_dir=LON_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CAB?CABIC[k]+"<span>"+CABSH[k]+"</span>":t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?summary(A)+pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
