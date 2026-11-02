@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>[hidden]{display:none!important}
 
 /* Layout: cuaderno de viaje antiguo — papel, boletos perforados, sellos; resumen arriba, pestañas: Configurar · Programa · Alojamiento · Pasajes */
@@ -833,7 +833,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .poolrow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}.poolday{max-width:100%}.addsel.new{border:1.5px solid var(--ber,#2e4f8f);border-radius:6px;font:700 12.5px var(--f-mono,monospace);padding:5px 8px;color:var(--ber,#2e4f8f);background:var(--card)}
 .lm-a.top{border-color:#e2b33c;border-width:2.5px}.lm-a.big{width:30px;height:30px;font-size:14px;line-height:25px}
 .lm-h{font-family:"Courier Prime",monospace!important;font-size:13px!important}
-.leaflet-tooltip.lm-lab{background:transparent;border:0;box-shadow:none;padding:0;font:700 13px "Source Serif 4",Georgia,serif;color:#2a2420;text-shadow:0 0 3px #f3ecdc,0 0 3px #f3ecdc,0 0 3px #f3ecdc}.leaflet-tooltip.lm-lab::before{display:none}
+.leaflet-tooltip.lm-lab{background:transparent;border:0;box-shadow:none;padding:0;font:700 13px var(--f-body);color:#2a2420;text-shadow:0 0 3px #f3ecdc,0 0 3px #f3ecdc,0 0 3px #f3ecdc}.leaflet-tooltip.lm-lab::before{display:none}
 .mapov .lmap.big{height:min(62vh,560px);border:1px solid var(--line)}
 .ms-leg .k.tr{border-top:4px dashed #24477a}
 .tdet{border-top:1px dashed var(--line);padding:6px 0}.tdet summary{cursor:pointer;font-weight:700;list-style:none}.tdet summary::-webkit-details-marker{display:none}.tdet summary::before{content:"▸ ";color:var(--stamp,#a8352b)}.tdet[open] summary::before{content:"▾ "}.tdet p{margin:6px 0 2px 18px;font-size:14px}
@@ -847,7 +847,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .cmap .cm-l.esc{stroke-width:2.2}.cmap .cm-l.day{stroke-dasharray:2 2;stroke-width:1.6}.cmap text[hidden]{display:none}
 .cmap .cm-num circle{fill:#2a2219}.cmap .cm-num text{font:700 9px system-ui,sans-serif;fill:#fffdf6}
 .cmap .cm-pt circle{fill:var(--c);stroke:#fffdf6;stroke-width:2}
-.cmap .cm-pt text,.cmap .cm-sa{font:700 11px "Source Serif 4",Georgia,serif;fill:#2a2219;paint-order:stroke;stroke:#fffdf6;stroke-width:3px;stroke-linejoin:round}
+.cmap .cm-pt text,.cmap .cm-sa{font:700 11px var(--f-body);fill:#2a2219;paint-order:stroke;stroke:#fffdf6;stroke-width:3px;stroke-linejoin:round}
 .cmap .cm-pt.big text{font-size:12.5px}
 .cmap .cm-sa{font:700 10.5px "Courier Prime",monospace;fill:#5b6770}
 .cmap .cm-alt{cursor:pointer}.cmap .cm-alt circle{fill:#fffdf6;stroke:var(--c);stroke-width:1.6;opacity:.85}
@@ -865,7 +865,7 @@ dl.facts .hin,dl.facts select{width:100%;min-width:0;font:inherit;font-size:14px
 .dtabrow{grid-column:1/-1;display:flex;align-items:flex-end;gap:8px;margin:-4px 0 2px;border-bottom:2.5px solid var(--ink);padding-bottom:0}
 .dftab{display:inline-flex;align-items:baseline;gap:10px;background:var(--ink);color:var(--card);padding:7px 30px 6px 14px;border-radius:8px 0 0 0;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 100%,0 100%);margin-bottom:-1px;min-width:0}
 .dftab b{font:700 16px/1.2 "Courier Prime",monospace;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
-.dftab .fc{font:700 14px/1.2 "Source Serif 4",Georgia,serif;color:color-mix(in srgb,var(--c) 35%,var(--card));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dftab .fc{font:700 14px/1.2 var(--f-body);color:color-mix(in srgb,var(--c) 35%,var(--card));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .daycal{width:36px;height:36px;display:grid;place-items:center;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;flex:none;margin-bottom:4px}
 .daycal:hover,.daycal:focus-visible{background:var(--ink);color:var(--card)}
 .totop{margin-left:auto;margin-bottom:4px;font:700 12px "Courier Prime",monospace;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);padding:8px 10px;min-height:36px;cursor:pointer;flex:none}
@@ -923,7 +923,7 @@ span.tc-d{cursor:default}
 .wxm{font:700 13px var(--f-mono);color:var(--card);opacity:.9;white-space:nowrap}
 .tc-c.jun::after{content:"👭";position:absolute;left:2px;bottom:0;font-size:10px}
 .mlmk{display:flex;align-items:center;gap:6px;pointer-events:none}
-.mllab{font:700 13px "Source Serif 4",Georgia,serif;color:#2a2420;white-space:nowrap;text-shadow:0 0 3px #f4ead2,0 0 3px #f4ead2,0 0 3px #f4ead2,0 0 3px #f4ead2}
+.mllab{font:700 13px var(--f-body);color:#2a2420;white-space:nowrap;text-shadow:0 0 3px #f4ead2,0 0 3px #f4ead2,0 0 3px #f4ead2,0 0 3px #f4ead2}
 .lmap.ml{background:#f4ead2}
 .mc-cr{position:absolute;right:10px;bottom:6px;font:9px var(--f-mono);color:var(--muted);opacity:.8}
 .mapclip{position:relative}
@@ -1193,6 +1193,9 @@ html:root[data-paper="1"] #days > .day.sel::after{display:block!important;top:11
 html:root[data-paper="1"] #p-prog #days{margin-top:-6px}
 .ei{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;line-height:0}
 .ei svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+:root[data-paper="1"]{--f-body:var(--f-mono);--f-display:var(--f-mono);--fs:15px}
+button,input,select,textarea{font-family:inherit}
+:root[data-paper="1"] :is(h1,h2,h3,.day-head h3,.ficha h3){font-weight:700;letter-spacing:0}
 </style>
 </head>
 <body>
