@@ -1174,6 +1174,11 @@ html.cab .guide:not([open]){display:none}
 .dchip[aria-pressed="true"]{background:var(--cc,var(--ink));color:var(--card);box-shadow:2px 2px 0 var(--ink)}
 html #days > .day:not(.sel){display:none!important}
 @media (min-width:901px){.dchips{top:0}}
+html:root[data-paper="1"] .dchips{padding-bottom:22px;border-bottom:0}
+html:root[data-paper="1"] #days > .day.sel{padding-top:40px!important}
+html:root[data-paper="1"] #days > .day.sel::before{display:block!important;top:-34px!important;height:62px!important;background-size:28px 62px!important}
+html:root[data-paper="1"] #days > .day.sel::after{display:block!important;top:11px!important}
+html:root[data-paper="1"] #p-prog #days{margin-top:-6px}
 </style>
 </head>
 <body>
@@ -2206,8 +2211,7 @@ function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fe
   const nun=A.R.unpl.length;
   return `${progCity==="LO"||progCity==="PA"?"":`<div class="feas">${fcards(A,progCity)}</div>`}
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}</div>
-   <div class="dchips" style="--cc:${(A.C.find(c=>c.k===progCity)||{}).c||"var(--ink)"}">${ds.map(d=>{const q=pretty(d.d).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.kind==="final"?"fin":d.kind==="ret"?"vuelta":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div>
-   ${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${d.city===progCity&&d.id===progDay[progCity]?" sel":""}"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
+   ${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details><div class="dchips" style="--cc:${(A.C.find(c=>c.k===progCity)||{}).c||"var(--ink)"}">${ds.map(d=>{const q=pretty(d.d).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.kind==="final"?"fin":d.kind==="ret"?"vuelta":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${d.city===progCity&&d.id===progDay[progCity]?" sel":""}"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
