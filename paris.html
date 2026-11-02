@@ -1228,6 +1228,7 @@ details.arq>summary em::after{content:" ▸"}
 details.arq[open]>summary em::after{content:" ▾"}
 .gl{margin:8px 0 2px;padding-top:6px;border-top:1px dashed var(--line);font-size:13.5px}
 .gl p{margin:2px 0 4px}.gl ul{margin:0;padding-left:18px}.gl li{margin:2px 0}
+.alice{font-size:13px;margin:4px 0}.alicecard>summary{cursor:pointer;list-style:none}.alicecard>summary::-webkit-details-marker{display:none}
 </style>
 </head>
 <body>
@@ -2530,6 +2531,7 @@ function loFicha(a,i){const sel=selOf(a),w=LO_WK[a.id]||a.wk,lo=isLO(a.id),cu=/^
    <div class="fnote"><span class="flab">Dato / consejo</span><p>${a.d}</p></div>
    <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p)+(lo?" (≈ £"+Math.round(a.p/GBP)+")":""):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${late?` · 🌙 ${late}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
    ${w?`<div class="fphotos"><a class="polaroid" href="${GIq(a.n+" London")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${a.img?`<img class="ph" src="${a.img}" alt="${esc(a.n)}" loading="lazy">`:`<img class="ph" data-wk="${w}" alt="${esc(a.n)}" loading="lazy">`}<span class="cap">${esc(a.n.split(/ \(|:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${a.wkl==="en"?"https://en.wikipedia.org/wiki/"+encodeURIComponent(w.replace(/ /g,"_")):WKq(w)}" target="_blank" rel="noopener">${w}</a></p>`:""}
+   ${aliceLinks(a.id)}
    <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a>${sel?`<button type="button" class="btn alt sm" data-pasel-btn="${a.id}">✕ Quitar del programa</button>`:""}${daySelPA(a.id,"")}${cu?`<button type="button" class="lnkb" data-fdel="att|${a.id}">quitar de la lista</button>`:""}</div></article>`}
 let attCat="todas";
 function attFilters(items){const cnt=k=>items.filter(a=>typOf(a)===k).length;const cats=TYP.filter(t=>cnt(t[0])>0&&!["esp","com","cen","via"].includes(t[0]));
@@ -2538,6 +2540,28 @@ function attFilters(items){const cnt=k=>items.filter(a=>typOf(a)===k).length;con
   return `<div class="attfil"><div class="afrow"><span class="eyebrow">Categoría</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todas (${items.length})</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} (${cnt(k)})</button>`).join("")}</div></div>
    <div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div></div>`}
 const attPass=(a,sel)=>(attCat==="todas"||typOf(a)===attCat)&&(attFilt==="todas"||(attFilt==="prog"&&sel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
+// ---- Historia de Londres con Alice Loxton (videos cortos de su canal de YouTube) ----
+const AL="https://www.youtube.com/";
+const alS=q=>AL+"@history_alice/search?query="+encodeURIComponent(q),alV=id=>AL+"watch?v="+id;
+const ALICE_V={
+ lo_tower:[["La Torre Blanca",alS("White Tower")],["La Bloody Tower",alV("ZFP8LiAH0gM")],["Dónde se ejecutaba en Tower Green",alV("udoHfhO65DU")],["Diseño de la Torre",alS("Tower of London design")]],
+ lo_tb:[["Un dato de Tower Bridge",alV("yN2wu2HQzqw")]],
+ lo_wa:[["La puerta más antigua de Gran Bretaña",alS("Britain's oldest door")],["La Silla de Coronación",alS("Coronation Chair")],["El pavimento Cosmati",alS("Cosmati Pavement")],["La tumba de Isabel I",alS("tomb of Elizabeth I")]],
+ lo_wm:[["Big Ben",alS("Big Ben")],["La Cámara de los Comunes",alS("House of Commons chamber")]],
+ lo_guard:[["El cambio de guardia",alS("Changing of the Guard")],["Tras bambalinas de la Caballería",alV("sRIO4Qod_Q0")]],
+ lo_nhm:[["El Museo de Historia Natural",alS("The Natural History Museum")],["Los jardines nuevos",alS("new gardens Natural History Museum")]]
+};
+const aliceLinks=id=>{const L=ALICE_V[id];return L?`<p class="alice">▶ <b>Alice Loxton</b> (historiadora, videos cortos): ${L.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(" · ")}</p>`:""};
+const ALICE_IDEAS=[
+ ["Barandas de acero de la guerra","En algunas calles de Londres todavía quedan barandas que, según cuenta Alice, se podían sacar de su base y usar como camilla para llevar heridos durante los bombardeos. Mira las barandas de las calles residenciales: algunas están allí desde entonces.",alV("c33rKeSxPEc"),"video: WWII Railings"],
+ ["Postes de calle que fueron cañones","En varias calles, los postes que protegen las esquinas fueron cañones antiguos enterrados boca abajo. Fíjate en la base de los postes al caminar.",alV("TcpqMGNOSKY"),"video: bollards napoleónicos"],
+ ["The London Library (St James's Square)","Una biblioteca privada fundada en 1841, con estanterías de varios pisos separadas por suelos de rejilla de hierro. Es de socios, así que la entrada es limitada: conviene revisar si ofrecen visitas o eventos antes de ir.",alV("RI7o_Dm8pNI"),"video: The London Library"],
+ ["Restos de la prisión de Marshalsea (Southwark)","Un muro que queda de la cárcel de deudores donde estuvo preso el padre de Dickens. Está en la calle, se ve gratis y queda cerca de Borough Market.",alV("ysmIkhFJDIQ"),"video: Marshalsea"],
+ ["Ragged School Museum (Mile End)","Una escuela para niños muy pobres del siglo XIX, con una sala de clases victoriana. Abre pocos días a la semana: revisar horarios.",alV("cQIZ163ZaK0"),"video: Ragged School"],
+ ["Household Cavalry Museum (Horse Guards)","Tesoros de Waterloo y la vida de la caballería que escolta al rey, junto al cambio de guardia.",alV("A5hZZ2GakbI"),"video: Waterloo y la Caballería"],
+ ["Detalles de Londres para mirar","Casa de Van Gogh en Brixton, el salón Arab Hall de Leighton House, la librería Waterstones de Piccadilly, el taller Hand & Lock, la iglesia de St Anne en Limehouse y la estatua de Washington en Trafalgar Square.",alS("London"),"buscar en su canal"]
+];
+const aliceCard=()=>`<details class="card alicecard"><summary><span class="eyebrow">Historia de Londres con Alice Loxton</span></summary><p class="muted" style="font-size:13px;margin:6px 0">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p><ul class="brief">${ALICE_IDEAS.map(([t,x,u,l])=>`<li><b>${t}</b>: ${x} <a href="${u}" target="_blank" rel="noopener">▶ ${l}</a></li>`).join("")}</ul><p class="note"><a href="https://www.youtube.com/@history_alice/videos" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p></details>`;
 let ctxOpen=false;const openFic=new Set();
 const ctxCard=(X,tl)=>`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tl(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
 const railNav=n=>`<div class="railnav"><button type="button" data-rail="-1" aria-label="Ficha anterior">‹</button><span class="rp">1 de ${n}</span><span class="railbar"><i style="width:${n?100/n:0}%"></i></span><button type="button" data-rail="1" aria-label="Ficha siguiente">›</button></div>`;
@@ -2550,7 +2574,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
   if(attCity==="LO"){const items=LON.filter(a=>typOf(a)!=="esp");
     const L=items.filter(a=>attPass(a,loSel));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`
-     ${ctxCard(CTX_LO,tlSVG)}${feasBox(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
+     ${ctxCard(CTX_LO,tlSVG)}${aliceCard()}${feasBox(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
      ${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA");
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
