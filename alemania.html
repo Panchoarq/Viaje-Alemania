@@ -37,7 +37,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=Caveat:wght@600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: cuaderno de viaje antiguo — papel, boletos perforados, sellos; resumen arriba, pestañas: Configurar · Programa · Alojamiento · Pasajes */
 :root{
@@ -212,7 +212,7 @@ label.vchk input{accent-color:var(--ok);margin:0}
   body{padding-bottom:62px}
   #syncChip{bottom:70px!important}#xferBtn{bottom:114px!important}#hlpBtn{bottom:70px!important}
   header .gastosbtn .ic{width:18px;height:18px}
-  .btn.findbtn{white-space:normal;max-width:100%;text-align:left;line-height:1.25}
+  .btn.findbtn{white-space:normal!important;max-width:100%;text-align:left;line-height:1.25}
 }
 
 /* ===== Celular: chips de días, un solo día visible, hoja anillada fija ===== */
@@ -238,6 +238,17 @@ html:root[data-paper="1"] .dchipw::before{content:"";position:absolute;left:30px
   html:root[data-paper="1"] #p-prog #days{margin-top:0}
 }
 @media (min-width:901px){.dchipw{display:none!important}}
+
+.ei{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;line-height:0}
+.ei svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+button,input,select,textarea{font-family:inherit}
+:root[data-paper="1"]{--f-body:var(--f-mono);--f-display:"Caveat","Courier Prime",cursive;--fs:15px}
+:root[data-paper="1"] :is(h2,h3,.day-head h3,.ficha h3){font-weight:700;letter-spacing:0;font-size-adjust:.5}
+:root[data-paper="1"] .day-head h3{font-size:30px;line-height:1.05}
+.dper{display:flex;align-items:baseline;gap:8px;margin:12px 0 4px;padding:3px 10px;border-radius:6px;background:color-mix(in srgb,var(--c,var(--ink)) 12%,var(--card));border-left:5px solid var(--c,var(--ink));font:700 13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.dper small{font:12px var(--f-mono);text-transform:none;letter-spacing:0;color:var(--muted);margin-left:auto}
+.dper[data-p="n"]{background:color-mix(in srgb,#2b3a67 14%,var(--card));border-left-color:#2b3a67}
+@media (max-width:900px){.totop{display:none!important}}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -2031,10 +2042,11 @@ function renderDays(plan){
       if(d.from&&sg.city===d.city&&!arrDone){h+=arrRow(d);arrDone=true}
       if(d.segs.length>1&&sg.acts.length)h+=`<span class="eyebrow seg">${CN[sg.city]} · ${hm(sg.st)}–${hm(sg.en)}</span>`;
       const lunchRow=()=>{const ls=lunchSpots(sg.city,lunchPos(sg),3);return `<div class="lunch">${IC.comida} <b>${hm(sg.lunchAt)}</b> Almuerzo con calma (~1 h)</div>${ls.length?lunchSuggHTML(sg.city,ls,d.id):""}`};
-      let lp=false;
+      let lp=false,cp=null;const PH={m:"🌅 Mañana",t:"☀ Tarde",n:"🌙 Noche"},per=a=>a.night||a.st>=19?"n":a.st>(sg.lunchAt!=null?sg.lunchAt:13)?"t":"m";
       sg.acts.forEach(a=>{const tag=a.p===0?'<span class="tag free">gratis</span>':(a.est?'<span class="tag">est.</span>':"");
         const where=a.city!==d.city?` <span class="tag">${CN[a.city]}, mañana</span>`:"";
         if(sg.lunchAt!=null&&!lp&&a.st>sg.lunchAt){h+=lunchRow();lp=true}
+        {const pr=per(a);if(pr!==cp){cp=pr;h+=`<div class="dper" data-p="${pr}"><span>${PH[pr]}</span><small>desde ${hm(a.st)}</small></div>`}}
         if(a.mv>0.05){const far=a.from&&kmBetween(a.from,a.ll)>1.2&&a.tr!=="fuera";const mins=Math.max(5,Math.round(a.mv*60/5)*5);const T=far?transitFor(a.city,a.from,a.ll):null;
           h+=far?(T?`<span class="mv tr ${T.mode}">↓ ${T.ico} <b>${T.name}</b>${a.num===1?" desde el hotel":""}: caminar ${walkMin(T.da)} min a «${T.from[2]}» → bajar en «${T.to[2]}» → caminar ${walkMin(T.db)} min · ~${mins} min en total · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver horario</a></span>`:`<span class="mv tr">↓ ~${mins} min en transporte público${a.num===1?" desde el hotel":""} · <a href="${transitUrl(a.from,a.ll)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`):`<span class="mv">↓ a pie ~${mins} min</span>`}
       h+=`<div class="actrow2 ${a.tr==="fuera"?"fuera":""}" data-k="${aKeyG(a.city,a.i)}">
@@ -3010,6 +3022,57 @@ details.lsugg>summary::before{content:"▸";font-size:14px;transition:transform 
   const hide=()=>{c.classList.add("out");setTimeout(()=>c.hidden=true,750)};
   const show=()=>{c.hidden=false;c.classList.remove("out");clearTimeout(c._t);c._t=setTimeout(hide,2800)};
   c.addEventListener("click",hide);document.getElementById("logoBtn").addEventListener("click",show);
-  if(shown)c.hidden=true;else{try{sessionStorage.setItem("ruta_cover","1")}catch(e){}c._t=setTimeout(hide,2800)}})();</script>
+  if(shown)c.hidden=true;else{try{sessionStorage.setItem("ruta_cover","1")}catch(e){}c._t=setTimeout(hide,2800)}})();
+// ---- Íconos de línea (reemplazan emojis antiguos en el texto de la página) ----
+(()=>{
+  const sun='<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>';
+  const cloud='<path d="M7.5 18a4 4 0 1 1 .7-7.9A5.5 5.5 0 0 1 18.6 11 3.5 3.5 0 0 1 18 18z"/>';
+  const rain='<path d="M7.5 15a4 4 0 1 1 .7-7.9A5.5 5.5 0 0 1 18.6 8 3.5 3.5 0 0 1 18 15"/><path d="M9 18l-1 3M13 18l-1 3M17 18l-1 3"/>';
+  const train='<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/>';
+  const M={
+   "👭":'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14c3 .3 5 2.4 5 5.5"/>',
+   "🧭":'<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/>',
+   "🌇":'<path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 5v3M5.2 9.2l1.6 1.6M18.8 9.2l-1.6 1.6M9 21.5h6"/>',
+   "🌅":'<path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 5v3M5.2 9.2l1.6 1.6M18.8 9.2l-1.6 1.6M9.5 5.5L12 3l2.5 2.5"/>',
+   "☀":sun,"🌤":sun,"🌙":'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+   "🍽":'<path d="M7 3v7M5 3v4a2 2 0 0 0 4 0V3M7 10v11M17 3c-2 1.5-3 4-3 7h3v11"/>',
+   "📅":'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+   "📍":'<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+   "🕐":'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+   "⏱":'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2.5h6"/>',
+   "🗺":'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',
+   "🏛":'<path d="M3 21h18M5 21V10M19 21V10M9 21v-8M15 21v-8M12 3l9 6H3z"/>',
+   "🔒":'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+   "🚄":train,"🚆":train,"🚇":train,"🛤":train,
+   "⚠":'<path d="M12 3.5l10 17.5H2z"/><path d="M12 10v5M12 18h.01"/>',
+   "✈":'<path d="M21 3L3 10.5l7 3 3 7z"/>',
+   "📖":'<path d="M3 5a2 2 0 0 1 2-2h6v16H5a2 2 0 0 0-2 2zM21 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2z"/>',
+   "✏":'<path d="M4 20l1-4L17 4l3 3L8 19z"/>',"✍":'<path d="M4 20l1-4L17 4l3 3L8 19z"/>',
+   "🏠":'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+   "🎫":'<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+   "🎟":'<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+   "🛏":'<path d="M3 19V6M3 15h18v4M21 15v-2.5a3 3 0 0 0-3-3h-7V15"/><circle cx="7" cy="11.5" r="1.6"/>',
+   "🚶":'<circle cx="13" cy="4.5" r="1.8"/><path d="M12 9l-2 5 3 2v5M12 9l3 3h3M10 14l-3 3"/>',
+   "💶":'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5a4.5 4.5 0 1 0 0 7M7 11h7M7 13.5h7"/>',
+   "🗑":'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+   "☂":'<path d="M3 12a9 9 0 0 1 18 0zM12 12v6a2 2 0 0 0 4 0"/>',
+   "🌦":rain,"🌧":rain,"🌨":rain,"⛈":rain,"☁":cloud,"🌫":cloud,
+   "💡":'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11c.6.5 1 1.2 1 2h4c0-.8.4-1.5 1-2a6 6 0 0 0-3-11z"/>',
+   "📷":'<path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',"📸":'<path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',
+   "☕":'<path d="M5 8h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM17 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/>'
+  };
+  const keys=Object.keys(M).sort((a,b)=>b.length-a.length);
+  const RE=new RegExp("("+keys.join("|")+")\\uFE0F?","g"),T=new RegExp("("+keys.join("|")+")");
+  const SK="svg,option,select,textarea,script,style,title,[data-noicon]";
+  function run(root){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),L=[];
+    for(let n=w.nextNode();n;n=w.nextNode()){if(T.test(n.nodeValue)&&n.parentElement&&!n.parentElement.closest(SK))L.push(n)}
+    L.forEach(n=>{const f=document.createDocumentFragment();let i=0;const s=n.nodeValue;s.replace(RE,(m,k,o)=>{if(o>i)f.append(s.slice(i,o));const e=document.createElement("span");e.className="ei";e.setAttribute("aria-hidden","true");e.innerHTML='<svg viewBox="0 0 24 24">'+M[k]+'</svg>';f.append(e);i=o+m.length;return m});if(i<s.length)f.append(s.slice(i));n.replaceWith(f)});
+  }
+  let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;run(document.body)})};
+  new MutationObserver(go).observe(document.body,{childList:true,subtree:true,characterData:true});
+  go();
+})();
+</script>
 </body>
 </html>
