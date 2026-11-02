@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>[hidden]{display:none!important}
 
 /* Layout: cuaderno de viaje antiguo — papel, boletos perforados, sellos; resumen arriba, pestañas: Configurar · Programa · Alojamiento · Pasajes */
@@ -20,7 +20,7 @@
   --bg:#efe4cc; --card:#f8f0dc; --ink:#2a2420; --muted:#6f6352; --line:#cdbb98;
   --mun:#24477a; --pra:#9b2f24; --ber:#9a6a12; --ham:#2e6b62; --sea:#c9d7d2; --land:#f4ead2; --land2:#e6d9bb; --border:#a8956f; --ok:#3d6b3a; --est:#9a6a12; --bad:#9b2f24;
   --chip:#e7d9b9; --out:#7a3b69; --stamp:#9b2f24;
-  --f-display:"Playfair Display", Georgia, serif;
+  --f-display:var(--f-body);
   --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
   --fs:17.5px;
   --f-mono:"Courier Prime", "Courier New", Courier, monospace;
@@ -141,9 +141,9 @@ label.vchk input{accent-color:var(--ok);margin:0}
   --bg:#f3f4f1; --card:#ffffff; --ink:#1d2430; --muted:#5f6876; --line:#d9ddd6;
   --mun:#1f5fa8; --pra:#b23a32; --ber:#a87800; --ham:#0b7a75; --sea:#dbe7ef; --land:#f7f6f1; --land2:#ece9df; --border:#b9b4a5; --ok:#2f7a4f; --est:#8a5a00; --bad:#b23a32;
   --chip:#eef0ec; --out:#7a3b69; --stamp:#b23a32;
-  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-display:var(--f-body);
   --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; --fs:15.5px}
+  --f-mono:"Courier Prime", "Courier New", Courier, monospace; --fs:15.5px}
 @media (prefers-color-scheme: dark){:root[data-sty="mod"]:not([data-theme="light"]){
   --bg:#14171c; --card:#1d2129; --ink:#e8eaee; --muted:#9aa3b0; --line:#2f3540;
   --mun:#6fa3e6; --pra:#e47a70; --ber:#e8bb3c; --ham:#4fc7bf; --sea:#18222c; --land:#262b34; --land2:#20242c; --border:#4a5160; --ok:#5fbf86; --est:#e8bb3c; --bad:#e47a70; --chip:#262b34; --out:#d39ac4; --stamp:#e47a70}}
@@ -214,7 +214,7 @@ label.chk.fuera{background:repeating-linear-gradient(-45deg,color-mix(in srgb,va
   filter:drop-shadow(0 4px 6px rgba(0,0,0,.18))}
 .tk-main{padding:16px 14px 14px 22px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .tk-band{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--tk-acc);color:var(--tk-on);padding:8px 12px;outline:1px solid var(--tk-on);outline-offset:-4px}
-.tk-band b{font-family:"Playfair Display",Georgia,serif;font-size:clamp(20px,3.4vw,28px);letter-spacing:.04em;text-transform:uppercase}
+.tk-band b{font-family:var(--f-body);font-size:clamp(20px,3.4vw,28px);letter-spacing:.04em;text-transform:uppercase}
 .tk-op{font-family:"Courier Prime",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .tk-body{display:grid;grid-template-columns:190px minmax(0,1fr) 92px;gap:12px;align-items:center}
 .tk-art .tk-img{width:100%;height:auto;display:block}
@@ -225,14 +225,14 @@ dl.tk-f .wide{grid-column:1/-1}
 dl.tk-f dt{font-family:"Courier Prime",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.8}
 dl.tk-f dd{margin:0;font-family:"Courier Prime",monospace;font-size:15px;letter-spacing:.04em}
 .tk-price{width:92px;height:92px;border-radius:50%;background:var(--tk-acc);color:var(--tk-on);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;outline:2px solid var(--tk-on);outline-offset:-6px}
-.tk-price b{font-family:"Playfair Display",Georgia,serif;font-size:21px;line-height:1}
+.tk-price b{font-family:var(--f-body);font-size:21px;line-height:1}
 .tk-price small{font-family:"Courier Prime",monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase}
 .tk-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px dashed color-mix(in srgb,var(--tk-ink) 50%,transparent);padding-top:8px;font-size:14px}
 .tk-foot a{color:var(--tk-ink);font-weight:700}
 .tk-foot input{background:#fffaf0;color:#2a2420;border:1px solid var(--tk-acc)}
 .ticket label.vchk{border-color:var(--tk-acc);color:var(--tk-ink)}
 .tk-stub{background:var(--tk-acc);color:var(--tk-on);border-left:2px dashed var(--tk-on);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:16px 4px;writing-mode:vertical-rl;transform:rotate(180deg)}
-.tk-v{font-family:"Playfair Display",Georgia,serif;font-size:19px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--tk-on);padding:8px 4px}
+.tk-v{font-family:var(--f-body);font-size:19px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--tk-on);padding:8px 4px}
 .tk-no{font-family:"Courier Prime",monospace;font-size:12px}
 /* B · grabado con doble filete rojo */
 .legs[data-tk="B"] .ticket{--tk-bg:#f1e6cf;--tk-ink:#2b2622;--tk-acc:#2b2622;--tk-on:#f1e6cf;box-shadow:inset 0 0 0 10px var(--tk-bg),inset 0 0 0 12px #a8352b}
@@ -245,7 +245,7 @@ dl.tk-f dd{margin:0;font-family:"Courier Prime",monospace;font-size:15px;letter-
 /* C · estación, talón rojo de control */
 .legs[data-tk="C"] .ticket{--tk-bg:#f6cfae;--tk-ink:#3a2418;--tk-acc:#3a2418;--tk-on:#f6cfae}
 .legs[data-tk="C"] .tk-band{background:transparent;color:var(--tk-ink);outline:none;border-top:1px solid var(--tk-ink);border-bottom:1px solid var(--tk-ink)}
-.legs[data-tk="C"] .tk-band b{font-family:"Playfair Display",Georgia,serif;letter-spacing:.14em}
+.legs[data-tk="C"] .tk-band b{font-family:var(--f-body);letter-spacing:.14em}
 .legs[data-tk="C"] .tk-price{background:transparent;color:var(--tk-ink);outline:none;border:1px solid var(--tk-ink);border-radius:2px;height:auto;padding:10px 4px}
 .legs[data-tk="C"] .tk-stub{background:#d9574a;color:#fff3e8;border-left:2px dashed #3a2418}
 .legs[data-tk="C"] .tk-v{font-family:"Courier Prime",monospace;letter-spacing:.2em;border:none}
@@ -256,7 +256,7 @@ label.opt{position:relative}
 label.opt .links-row{padding-right:118px}
 .stamp16{position:absolute;right:10px;bottom:8px;width:80px;padding:4px 3px;text-align:center;color:#b0261c;border:3px double #b0261c;border-radius:8px;transform:rotate(-12deg);font-family:"Courier Prime",monospace;text-transform:uppercase;line-height:1.05;opacity:.88;pointer-events:none;
   background:radial-gradient(circle,transparent 60%,rgba(176,38,28,.06) 100%);mix-blend-mode:multiply}
-.stamp16 b{display:block;font-family:"Playfair Display",Georgia,serif;font-size:15px;letter-spacing:.02em}
+.stamp16 b{display:block;font-family:var(--f-body);font-size:15px;letter-spacing:.02em}
 .stamp16 span{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;border-top:1px solid currentColor;border-bottom:1px solid currentColor;margin:3px 0;padding:1px 0}
 .stamp16 small{display:block;font-size:7px;letter-spacing:.06em}
 .stamp16.pend{color:var(--muted);border-style:dashed;transform:rotate(-6deg);opacity:.7}
@@ -1076,7 +1076,7 @@ span.tc-d{cursor:default}
   filter:drop-shadow(0 4px 6px rgba(0,0,0,.18))}
 .tk-main{padding:16px 14px 14px 22px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .tk-band{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--tk-acc);color:var(--tk-on);padding:8px 12px;outline:1px solid var(--tk-on);outline-offset:-4px}
-.tk-band b{font-family:"Playfair Display",Georgia,serif;font-size:clamp(20px,3.4vw,28px);letter-spacing:.04em;text-transform:uppercase}
+.tk-band b{font-family:var(--f-body);font-size:clamp(20px,3.4vw,28px);letter-spacing:.04em;text-transform:uppercase}
 .tk-op{font-family:"Courier Prime",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .tk-body{display:grid;grid-template-columns:190px minmax(0,1fr) 92px;gap:12px;align-items:center}
 .tk-art .tk-img{width:100%;height:auto;display:block}
@@ -1087,14 +1087,14 @@ dl.tk-f .wide{grid-column:1/-1}
 dl.tk-f dt{font-family:"Courier Prime",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.8}
 dl.tk-f dd{margin:0;font-family:"Courier Prime",monospace;font-size:15px;letter-spacing:.04em}
 .tk-price{width:92px;height:92px;border-radius:50%;background:var(--tk-acc);color:var(--tk-on);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;outline:2px solid var(--tk-on);outline-offset:-6px}
-.tk-price b{font-family:"Playfair Display",Georgia,serif;font-size:21px;line-height:1}
+.tk-price b{font-family:var(--f-body);font-size:21px;line-height:1}
 .tk-price small{font-family:"Courier Prime",monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase}
 .tk-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px dashed color-mix(in srgb,var(--tk-ink) 50%,transparent);padding-top:8px;font-size:14px}
 .tk-foot a{color:var(--tk-ink);font-weight:700}
 .tk-foot input{background:#fffaf0;color:#2a2420;border:1px solid var(--tk-acc)}
 .ticket label.vchk{border-color:var(--tk-acc);color:var(--tk-ink)}
 .tk-stub{background:var(--tk-acc);color:var(--tk-on);border-left:2px dashed var(--tk-on);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:16px 4px;writing-mode:vertical-rl;transform:rotate(180deg)}
-.tk-v{font-family:"Playfair Display",Georgia,serif;font-size:19px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--tk-on);padding:8px 4px}
+.tk-v{font-family:var(--f-body);font-size:19px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--tk-on);padding:8px 4px}
 .tk-no{font-family:"Courier Prime",monospace;font-size:12px}
 /* B · grabado con doble filete rojo */
 .legs[data-tk="B"] .ticket{--tk-bg:#f1e6cf;--tk-ink:#2b2622;--tk-acc:#2b2622;--tk-on:#f1e6cf;box-shadow:inset 0 0 0 10px var(--tk-bg),inset 0 0 0 12px #a8352b}
@@ -1107,7 +1107,7 @@ dl.tk-f dd{margin:0;font-family:"Courier Prime",monospace;font-size:15px;letter-
 /* C · estación, talón rojo de control */
 .legs[data-tk="C"] .ticket{--tk-bg:#f6cfae;--tk-ink:#3a2418;--tk-acc:#3a2418;--tk-on:#f6cfae}
 .legs[data-tk="C"] .tk-band{background:transparent;color:var(--tk-ink);outline:none;border-top:1px solid var(--tk-ink);border-bottom:1px solid var(--tk-ink)}
-.legs[data-tk="C"] .tk-band b{font-family:"Playfair Display",Georgia,serif;letter-spacing:.14em}
+.legs[data-tk="C"] .tk-band b{font-family:var(--f-body);letter-spacing:.14em}
 .legs[data-tk="C"] .tk-price{background:transparent;color:var(--tk-ink);outline:none;border:1px solid var(--tk-ink);border-radius:2px;height:auto;padding:10px 4px}
 .legs[data-tk="C"] .tk-stub{background:#d9574a;color:#fff3e8;border-left:2px dashed #3a2418}
 .legs[data-tk="C"] .tk-v{font-family:"Courier Prime",monospace;letter-spacing:.2em;border:none}
@@ -1134,6 +1134,28 @@ html.cab .wrap{padding-top:10px;gap:10px}
  html.cab.tabs2 .tabs button{border:1.5px solid var(--ink)!important;border-right-width:0!important;border-bottom:2.5px solid var(--ink)!important;border-radius:10px 10px 0 0!important;background:color-mix(in srgb,var(--card) 55%,var(--bg))!important;color:var(--muted)!important;padding:6px 1px 5px!important;position:relative;transform:none!important;box-shadow:inset 0 -5px 6px -5px rgba(0,0,0,.25)}
  html.cab.tabs2 .tabs button:nth-child(5n){border-right-width:1.5px!important}
  html.cab.tabs2 .tabs button[aria-selected="true"]{background:#ffe66d!important;color:#2a2620!important;font-weight:700;border-bottom-color:#ffe66d!important;box-shadow:1.5px 0 0 var(--ink);z-index:2;padding-top:8px!important}
+}
+
+/* ===== Cabecera de una fila (~56 px), guía como «?», tarjetas de organización condensadas ===== */
+html.cab header.cabh{border-bottom:0!important;padding:0;gap:0}
+.cabh .cr1{gap:8px}
+.cabh .cttl{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.cabh .cttl h1{font-size:15px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.cabh .cttl small{font:10.5px var(--f-mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cabh .seg button{padding:4px 8px}
+.cabh .cusr{gap:5px}.cib{width:28px;height:28px}
+html.cab .wrap{padding-top:6px;gap:8px}
+html.cab .guide:not([open]){display:none}
+@media (max-width:700px){
+  .jcard:not(.open){padding:6px 10px;margin:0 0 6px;gap:6px 8px;flex-wrap:nowrap;font-size:13px;line-height:1.3}
+  .jcard:not(.open)>span:first-child{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .jcard:not(.open) .btn{flex:none;padding:5px 10px;font-size:12px;min-height:0}
+  .jcard:not(.open) .jact{flex:none}
+  html.cab.navb .tabs{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:30;display:flex;overflow-x:auto;gap:2px;padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));border-bottom:0;border-top:2.5px solid var(--ink);background:var(--bg);scrollbar-width:none}
+  html.cab.navb .tabs button{flex:0 0 19%;border-radius:8px!important;background:transparent!important;color:var(--ink)!important;transform:none!important;border:0!important}
+  html.cab.navb .tabs button[aria-selected="true"]{background:#ffe66d!important;font-weight:700;box-shadow:inset 0 0 0 1.5px var(--ink)}
+  html.cab.navb body{padding-bottom:62px}
+  html.cab.navb .daytabs{top:0}
 }
 </style>
 </head>
@@ -1195,6 +1217,7 @@ const IC={lupa:ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>'),
 /* ===== Cabecera compacta (celular): activa por defecto · se apaga con ?cab=0 (y se vuelve a prender con ?cab=1) ===== */
 const CAB=(()=>{try{const q=new URLSearchParams(location.search).get("cab");if(q==="1"||q==="0")localStorage.setItem("paris_cab",q);return localStorage.getItem("paris_cab")!=="0"}catch(e){return true}})();
 document.documentElement.classList.toggle("cab",CAB);
+try{const q=new URLSearchParams(location.search).get("nav");if(q==="b"||q==="t")localStorage.setItem("paris_nav",q);document.documentElement.classList.toggle("navb",localStorage.getItem("paris_nav")==="b")}catch(e){}
 try{const q=new URLSearchParams(location.search).get("tabs");if(q==="1"||q==="0")localStorage.setItem("paris_tabs",q);document.documentElement.classList.toggle("tabs2",localStorage.getItem("paris_tabs")==="1")}catch(e){}
 const CABIC={cfg:ic('<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'),prog:ic('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
  att:ic('<path d="M3 21h18M5 21V10M19 21V10M9 21v-8M15 21v-8M12 3l9 6H3z"/>'),esc:ic('<rect x="6" y="3" width="12" height="13" rx="3"/><path d="M6 10h12M9 20l1.5-4M15 20l-1.5-4"/>'),
@@ -1205,10 +1228,10 @@ const CABIC={cfg:ic('<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 1
 const CABSH={cfg:"Config.",prog:"Programa",att:"Atracc.",esc:"Escapadas",show:"Shows",hot:"Aloj.",buy:"Trámites",food:"Comidas",gas:"Gastos",tra:"Transp."};
 function headerCab(A){const W=ST.wiz,uniq=[...new Set(A.C.map(c=>short(c.n)))],a=W.ida_llega||W.ida_fecha||W.eur_fecha,b=W.vue_fecha;
   return `<header class="cabh"><div class="cr1"><div class="seg" role="group">${[["retro","Retro","1"],["mod","Moderno","2"],["papel","Cuaderno","3"]].map(([k,t,i])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}" title="${t}" aria-label="${t}">${i}</button>`).join("")}</div>
-   <div class="cusr"><span class="nm">${esc((user.displayName||user.email||"").split(" ")[0])}</span><a class="cib" href="/gastos" title="Mis gastos">${CABIC.gas}</a>${DEMO?"":`<button type="button" class="cib" id="so" title="Salir">${CABIC.out}</button>`}<button type="button" class="cib" id="logoBtn" title="Volver a Viajes">${CABIC.back}</button></div></div>
-   <h1>${uniq.join(" · ")}</h1><div class="csub"><span>${a&&b?`${pretty(a)} – ${pretty(b)} ${b.slice(0,4)} · `:""}2 viajeras</span><button type="button" class="chb" data-cabhelp>${CABIC.q} Ayuda</button></div></header>`}
-document.addEventListener("click",e=>{if(e.target.closest("[data-cabhelp]")){const g=document.querySelector(".guide");if(g){g.open=true;g.scrollIntoView({block:"center",behavior:"smooth"})}}});
-function cabH(){if(!CAB)return;const n=document.querySelector(".tabs");if(n)document.documentElement.style.setProperty("--cabH",n.offsetHeight+"px")}
+   <div class="cttl"><h1>${uniq.join(" · ")}</h1><small>${a&&b?`${pretty(a)} – ${pretty(b)} · `:""}2 viajeras</small></div>
+   <div class="cusr"><a class="cib" href="/gastos" title="Mis gastos">${CABIC.gas}</a><button type="button" class="cib" data-cabhelp title="Ayuda de esta sección" aria-label="Ayuda">${CABIC.q}</button>${DEMO?"":`<button type="button" class="cib" id="so" title="Salir">${CABIC.out}</button>`}<button type="button" class="cib" id="logoBtn" title="Volver a Viajes">${CABIC.back}</button></div></div></header>`}
+document.addEventListener("click",e=>{if(e.target.closest("[data-cabhelp]")){const g=document.querySelector(".guide");if(g){g.open=!g.open;if(g.open)g.scrollIntoView({block:"center",behavior:"smooth"})}}});
+function cabH(){if(!CAB)return;const n=document.querySelector(".tabs");if(n&&document.documentElement.classList.contains("navb")){const s=n.querySelector("[aria-selected=true]");if(s)n.scrollLeft=s.offsetLeft-(n.clientWidth-s.offsetWidth)/2}if(n)document.documentElement.style.setProperty("--cabH",n.offsetHeight+"px")}
 
 // ---- gasto real registrado en «Mis gastos» (se muestra en rojo junto al presupuesto del programa) ----
 const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot"};
@@ -2162,10 +2185,10 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
 function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fechas de llegada a París y del vuelo de regreso en <b>1 · Configurar</b>.</p></div>`;
   if(!A.C.some(c=>c.k===progCity))progCity="PA";const ds=A.days.filter(d=>d.city===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
   const nun=A.R.unpl.length;
-  return `${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}${progCity==="LO"||progCity==="PA"?"":`<div class="feas">${fcards(A,progCity)}</div>`}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details>
+  return `${progCity==="LO"||progCity==="PA"?"":`<div class="feas">${fcards(A,progCity)}</div>`}
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}
     <div class="dchips">${ds.map((d,i)=>`<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}">${pretty(d.d).replace(/ [a-zé]+$/,"")}${d.kind==="first"||d.kind==="go"?" <small>llegada</small>":d.kind==="final"?" <small>fin</small>":d.kind==="ret"?" <small>vuelta</small>":""}</button>`).join("")}</div></div>
-   ${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
+   ${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
