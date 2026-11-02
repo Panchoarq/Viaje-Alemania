@@ -1291,6 +1291,7 @@ html:root[data-paper="1"] .dchipw .dchips,html:root[data-paper="1"] .dchips{padd
 html:root[data-paper="1"] .dchipw::after{bottom:12px;height:60px;background:radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 0/28px 12px,radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 100%/28px 12px}
 html:root[data-paper="1"] .dchipw::before{top:calc(100% - 73px)}
 html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
+.aideas{display:flex;flex-direction:column;margin-top:4px}.aitem{border-top:1px dotted var(--line)}.aitem>summary{cursor:pointer;list-style:none;padding:7px 0;display:flex;gap:6px}.aitem>summary::-webkit-details-marker{display:none}.aitem>summary::after{content:"▸";margin-left:auto}.aitem[open]>summary::after{content:"▾"}.aitem p{margin:0 0 8px;font-size:14px}
 </style>
 </head>
 <body>
@@ -2664,7 +2665,7 @@ const ALICE_IDEAS=[
  ["Household Cavalry Museum (Horse Guards)","Tesoros de Waterloo y la vida de la caballería que escolta al rey, junto al cambio de guardia.",alV("A5hZZ2GakbI"),"video: Waterloo y la Caballería"],
  ["Lugares para visitar","La casa de Van Gogh en Brixton, el Arab Hall de Leighton House, la librería Waterstones de Piccadilly, el taller Hand & Lock, la iglesia de St Anne en Limehouse, la estatua de Washington, la prisión de Marshalsea, la Ragged School y el museo de la Caballería ya están agregados abajo como atracciones, con su ficha, horarios y precio aproximado.",alS("London"),"buscar más en su canal"]
 ];
-const aliceCard=()=>`<details class="card alicecard"><summary><span class="eyebrow">Historia de Londres con Alice Loxton</span></summary><p class="muted" style="font-size:13px;margin:6px 0">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p><ul class="brief">${ALICE_IDEAS.map(([t,x,u,l])=>`<li><b>${t}</b>: ${x} <a href="${u}" target="_blank" rel="noopener">▶ ${l}</a></li>`).join("")}</ul><p class="note"><a href="https://www.youtube.com/@history_alice/videos" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p></details>`;
+const aliceCard=()=>`<details class="card alicecard"><summary><span class="eyebrow">Historia de Londres con Alice Loxton</span></summary><p class="muted" style="font-size:13px;margin:6px 0">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p><div class="aideas">${ALICE_IDEAS.map(([t,x,u,l])=>`<details class="aitem"><summary><b>${t}</b></summary><p>${x} <a href="${u}" target="_blank" rel="noopener">▶ ${l}</a></p></details>`).join("")}</div><p class="note"><a href="https://www.youtube.com/@history_alice/videos" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p></details>`;
 let ctxOpen=false,attListOpen=false;const openFic=new Set();
 const ctxCard=(X,tl)=>`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tl(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
 const attList=arr=>arr.length?`<details class="attlist" data-attlist${attListOpen?" open":""}><summary>☰ Lista de ${arr.length} (tocar para ir)</summary><ol>${arr.map(a=>{const nm=esc(String(a.n).replace(/\s*\(.*?\)\s*$/,""));return `<li><label class="alchk" title="Agregar al programa"><input type="checkbox" data-pasel="${a.id}" ${selOf(a)?"checked":""}></label><button type="button" class="aln" data-fjump="fpa-${a.id}">${nm}</button><small>${a.p?fmt(a.p):"gratis"}</small></li>`}).join("")}</ol></details>`:"";
@@ -2680,7 +2681,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
     const L=items.filter(a=>attPass(a,loSel));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`
      ${ctxCard(CTX_LO,tlSVG)}${aliceCard()}${feasWarn(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
-     ${attList(L)}${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
+     ${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA");
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const items=PA.filter(a=>typOf(a)!=="esp");
@@ -2688,7 +2689,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
   L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id)).filter(a=>attPass(a,paSel));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp").filter(a=>attPass(a,paSel));
   return h+`${ctxCard(CTX_PA,tlSVG)}${feasWarn(A,"PA")}
     ${attFilters(items)}<p class="muted attn">${L.length+CU.length+rest.length} de ${items.length} atracciones</p>
-    ${attList(CU.concat(L))}${railNav(CU.length+L.length)}<div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
+    ${railNav(CU.length+L.length)}<div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
     ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
     ${mediaCard(MEDIA_PA,"París")}<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`}
 

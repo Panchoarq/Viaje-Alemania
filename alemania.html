@@ -1705,6 +1705,7 @@ function fichaHTML(c,i){const a=ACTS[c][i],x=ATTR[c+":"+i];if(!x)return"";const 
    ${x.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${x.d}</p></div>`:""}
    ${x.f&&x.f.length?`<div class="fphotos">${x.f.map(f=>`<a class="polaroid" href="${f[1]}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${PHOTO[f[0]]?`<img class="ph" src="${PHOTO[f[0]][0]}" alt="${f[0]}" loading="lazy">`:`<span class="ph">📷</span>`}<span class="cap">${f[0]}</span><span class="go">más fotos →</span></a>`).join("")}</div><p class="credit">Fotos: Wikimedia Commons · ${x.f.filter(f=>PHOTO[f[0]]).map(f=>`<a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(PHOTO[f[0]][1].replace(/ /g,"_"))}" target="_blank" rel="noopener">${PHOTO[f[0]][2]}</a>`).join(" · ")}</p>`:""}
    ${x.l&&x.l.length?`<div class="flinks">${x.l.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join("")}<a href="${mapUrl({...a,city:c})}" target="_blank" rel="noopener">Mapa ↗</a></div>`:""}
+   <label class="chk fprog"><input type="checkbox" data-act="${aKeyG(c,i)}" ${sel?"checked":""}><span class="t">En el programa</span></label>
   </article>`}
 function renderAtt(){const host=$("att");if(!host)return;const c=attCity,X=CTX[c];
   let h=`<div class="daytabs" id="atttabs" role="tablist" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" role="tab" class="dtab ${k}" data-attc="${k}" aria-selected="${k===c}"><b>${CN[k]}</b><small>${ACTS[k].filter(a=>!a.hidden).length} atracciones</small></button>`).join("")}</div>`;
@@ -1713,7 +1714,7 @@ function renderAtt(){const host=$("att");if(!host)return;const c=attCity,X=CTX[c
   const idx=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&(ATTR[c+":"+i].h||[]).length);
   const rest=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&!(ATTR[c+":"+i].h||[]).length);
   idx.sort((x,y)=>(isSel(c,y)-isSel(c,x))||((ACTS[c][y].top?1:0)-(ACTS[c][x].top?1:0)));
-  h+=attList(c,idx)+railNav(idx.length)+`<div class="fichas att">${railed(idx.map(i=>fichaHTML(c,i)).join(""))}</div>`;
+  h+=railNav(idx.length)+`<div class="fichas att">${railed(idx.map(i=>fichaHTML(c,i)).join(""))}</div>`;
   if(rest.length)h+=`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(i=>`<li><b>${ACTS[c][i].n}</b>: ${ATTR[c+":"+i].s}${ATTR[c+":"+i].d?" "+ATTR[c+":"+i].d:""}</li>`).join("")}</ul></div>`;
   h+=customCard(c);
   h+=`<section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas y libros · ${CN[c]}</h2><div class="mgrid">${MEDIA[c].map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas; revisarlas antes de ver.</p></section>`;
