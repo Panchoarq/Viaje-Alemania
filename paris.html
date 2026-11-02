@@ -1197,6 +1197,14 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-6px}
 button,input,select,textarea{font-family:inherit}
 :root[data-paper="1"] :is(h2,h3,.day-head h3,.ficha h3){font-weight:700;letter-spacing:0;font-size-adjust:.5}
 :root[data-paper="1"] .day-head h3{font-size:30px;line-height:1.05}
+.daytabs.stag{display:grid!important;gap:0!important;padding-top:24px}
+.daytabs.stag .dtab{flex:none;min-width:0;text-align:center;padding:7px 2px 6px!important;margin:0}
+.daytabs.stag .dtab b{font-size:11.5px;letter-spacing:.02em;white-space:normal;line-height:1.15}
+.daytabs.stag .dtab small{display:none}
+#p-prog #daytabs.stag .dtab::before,#p-prog #daytabs.stag .dtab::after,#p-hot #hottabs.stag .dtab::before,#p-hot #hottabs.stag .dtab::after{display:none!important}
+.daytabs.stag .dtab[style*="grid-row: 2"]{margin-top:-7px;z-index:2;opacity:1}
+.daytabs.stag .dtab[style*="grid-row: 1"]{z-index:1;opacity:.9}
+.daytabs.stag .dtab[aria-selected="true"]{z-index:3;opacity:1}
 </style>
 </head>
 <body>
@@ -1271,6 +1279,15 @@ function headerCab(A){const W=ST.wiz,uniq=[...new Set(A.C.map(c=>short(c.n)))],a
    <div class="cttl"><h1>${uniq.join(" · ")}</h1><small>${a&&b?`${pretty(a)} – ${pretty(b)} · `:""}2 viajeras</small></div>
    <div class="cusr"><a class="cib" href="/gastos" title="Mis gastos">${CABIC.gas}</a><button type="button" class="cib" data-cabhelp title="Ayuda de esta sección" aria-label="Ayuda">${CABIC.q}</button>${DEMO?"":`<button type="button" class="cib" id="so" title="Salir">${CABIC.out}</button>`}<button type="button" class="cib" id="logoBtn" title="Volver a Viajes">${CABIC.back}</button></div></div></header>`}
 document.addEventListener("click",e=>{if(e.target.closest("[data-cabhelp]")){const g=document.querySelector(".guide");if(g){g.open=!g.open;if(g.open)g.scrollIntoView({block:"center",behavior:"smooth"})}}});
+function stagger(){document.querySelectorAll(".daytabs").forEach(c=>{
+  c.classList.remove("stag");c.style.gridTemplateColumns="";const t=[...c.querySelectorAll(":scope > .dtab")];t.forEach(x=>{x.style.gridColumn="";x.style.gridRow=""});
+  if(t.length<3)return;
+  const bad=c.scrollWidth>c.clientWidth+1||t.some(x=>{const b=x.querySelector("b");return b&&b.scrollWidth>b.clientWidth+1});
+  if(!bad)return;
+  const n=t.length,top=Math.ceil(n/2),cols=n%2?2*top:n+1,act=t.findIndex(x=>x.getAttribute("aria-selected")==="true"),aTop=act>=0&&act<top;
+  c.classList.add("stag");c.style.gridTemplateColumns=`repeat(${cols},minmax(0,1fr))`;
+  t.forEach((x,i)=>{const g=i<top;const j=g?i:i-top;x.style.gridColumn=g?`${2*j+1} / span 2`:`${2*j+2} / span 2`;x.style.gridRow=(g===aTop)?"2":"1"})})}
+addEventListener("resize",()=>stagger());try{document.fonts.ready.then(()=>stagger())}catch(e){}
 function cabH(){if(!CAB)return;const n=document.querySelector(".tabs");if(n&&document.documentElement.classList.contains("navb")){const s=n.querySelector("[aria-selected=true]");if(s)n.scrollLeft=s.offsetLeft-(n.clientWidth-s.offsetWidth)/2}if(n)document.documentElement.style.setProperty("--cabH",(document.documentElement.classList.contains("navb")?0:n.offsetHeight)+"px")}
 
 // ---- gasto real registrado en «Mis gastos» (se muestra en rojo junto al presupuesto del programa) ----
@@ -2986,7 +3003,7 @@ function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(ST.wiz&&!
   app.innerHTML=header(A)+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CAB?CABIC[k]+"<span>"+CABSH[k]+"</span>":t}</button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?summary(A)+pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
-  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();bindRit();bindSolo();setTimeout(()=>initMaps(A),0);cabH();
+  scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();bindRit();bindSolo();setTimeout(()=>initMaps(A),0);cabH();stagger();
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
   hydratePhotos()}
 function go(t){tab=t;try{localStorage.setItem("paris_tab",t)}catch(e){}render()}
