@@ -367,7 +367,7 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 .blk-att{min-width:0;max-width:100%}
 .blk-att .mv.tr.full{white-space:normal}
 /* ===== Modo celular (pantallas de hasta 700 px) ===== */
-.dchips,.feasmini{display:none}
+.feasmini{display:none}
 details.ctxd{padding:0}details.ctxd>summary{cursor:pointer;list-style:none;padding:14px 84px 14px 16px;position:relative}details.ctxd>summary::-webkit-details-marker{display:none}details.ctxd>summary::after{content:"leer ▾";position:absolute;right:14px;top:14px;font:700 12px "Courier Prime",ui-monospace,monospace;color:var(--muted)}details.ctxd[open]>summary::after{content:"cerrar ▴"}details.ctxd>summary h2{margin:2px 0 0;font-size:18px}details.ctxd>.ctxb{padding:0 16px 16px}
 .feasstat{display:block;margin:4px 0 8px;padding:8px 10px;border:1px dashed currentColor;border-radius:6px;font-size:14px;text-decoration:none;background:var(--card)}.feasstat.ok{color:var(--ok,#2e7d32)}.feasstat.bad{color:#a8352b}
 details.legd{margin:0 0 8px}details.legd summary{cursor:pointer;font-size:13px;color:var(--muted)}
@@ -1129,7 +1129,7 @@ dl.tk-f dd{margin:0;font-family:"Courier Prime",monospace;font-size:15px;letter-
 .cabh .csub{display:flex;justify-content:space-between;align-items:center;gap:8px;font:12px var(--f-mono,monospace);color:var(--muted)}
 .chb{display:flex;align-items:center;gap:4px;border:1.5px solid var(--stamp);color:var(--stamp);background:var(--card);border-radius:999px;font:700 11px var(--f-mono,monospace);padding:3px 9px;cursor:pointer;white-space:nowrap}.chb .ic{width:13px;height:13px}
 html.cab .wrap{padding-top:10px;gap:10px}
-@media (max-width:700px){
+@media (max-width:900px){
  html.cab .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;overflow:visible;position:sticky;top:0;z-index:8;background:var(--bg);border-bottom:2.5px solid var(--ink);padding:5px 2px}
  html.cab .tabs button{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:9.5px!important;letter-spacing:0!important;text-transform:none!important;padding:4px 1px 3px!important;min-height:0!important;line-height:1.15}
  html.cab .tabs button .ic{width:13px;height:13px}
@@ -1165,6 +1165,15 @@ html.cab .guide:not([open]){display:none}
 .dper small{font:12px var(--f-mono);text-transform:none;letter-spacing:0;color:var(--muted);margin-left:auto}
 .dper[data-p="n"]{background:color-mix(in srgb,#2b3a67 14%,var(--card));border-left-color:#2b3a67}
 .dfoot{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-top:8px;border-top:1.5px dashed var(--line);grid-column:1/-1}
+#p-prog #daytabs{position:static}
+.dchips{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 8px;scrollbar-width:none;position:sticky;top:var(--cabH,0px);z-index:6;background:var(--bg);border-bottom:1.5px solid var(--ink);margin:0 -2px}
+.dchip{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;height:52px;padding:0;border:1.5px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font-family:var(--f-mono);line-height:1.05}
+.dchip i{font-style:normal;font-size:10px;text-transform:uppercase;letter-spacing:.04em;opacity:.8}
+.dchip b{font-size:20px}
+.dchip small{font-size:8.5px;text-transform:uppercase;letter-spacing:.02em;opacity:.8}
+.dchip[aria-pressed="true"]{background:var(--cc,var(--ink));color:var(--card);box-shadow:2px 2px 0 var(--ink)}
+#days > .day:not(.sel){display:none}
+@media (min-width:901px){.dchips{top:0}}
 </style>
 </head>
 <body>
