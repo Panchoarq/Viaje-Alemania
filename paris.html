@@ -1247,6 +1247,14 @@ details.arq[open]>summary em::after{content:" ▾"}
 #p-att details.alicecard:not([open]){padding:0!important;min-height:0}
 #p-att details.alicecard::before,#p-att details.alicecard::after{display:none!important}
 #p-att details.alicecard>summary{padding:9px 12px}
+details.escord>summary,details.escfich>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+details.escord>summary::-webkit-details-marker,details.escfich>summary::-webkit-details-marker{display:none}
+details.escord>summary::after,details.escfich>summary::after{content:"▸";margin-left:auto}
+details.escord[open]>summary::after,details.escfich[open]>summary::after{content:"▾"}
+.escpills{display:flex;flex-wrap:wrap;gap:4px;flex:1 1 100%}
+.epill{border:1.5px solid var(--c,var(--ink));border-radius:999px;padding:1px 9px;font:700 11.5px var(--f-mono);background:var(--card);white-space:nowrap}
+details.escord,details.escfich{padding-top:10px;padding-bottom:10px}
+.escordb{display:flex;flex-direction:column;gap:10px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -1990,7 +1998,7 @@ function frMap(){const M=FRMAP;const pr=ll=>[(ll[1]-M.W)*M.kx*M.sc,(M.N-ll[0])*M
   day.forEach(x=>{const q=zsc(EXT[x.id].ll);s+=`<path class="fm-l day${chosen.has(x.id)?" on":""}" d="M${pc[0].toFixed(1)},${pc[1].toFixed(1)}L${q[0].toFixed(1)},${q[1].toFixed(1)}" style="--c:${x.c}"/><g class="fm-pt day${chosen.has(x.id)?" on":""}${escPick===x.id?" pick":""}" data-esc="${x.id}" role="button" tabindex="0" aria-label="${x.n}" style="--c:${x.c}"><circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="5.5"/>${(()=>{const L=pc[0]-q[0]>4&&pc[0]-q[0]<35;return `<text x="${(q[0]+(L?-8:8)).toFixed(1)}" y="${(q[1]+3.5).toFixed(1)}" text-anchor="${L?"end":"start"}">${x.n}</text>`})()}</g>`});
   s+=`</g></svg>`;
   return `<div class="fmwrap">${s}<div class="fm-leg"><span><i class="lg far"></i>2–3 h · con 1–3 noches</span><span><i class="lg amb"></i>1–2 h · día o 1 noche</span><span><i class="lg day"></i>Excursión de un día</span><span><b>●</b> elegida</span></div></div>`}
-let escPick=null,escFicha=null;
+let escPick=null,escFicha=null,escCtry="todos",escOrdOpen=false;
 // Por qué ir: resumen de cada escapada
 const ESC_WHY={
 bru:"Dos ciudades de cuento en un solo viaje. En Bruselas, la <b>Grand-Place</b> es una plaza del siglo XVII rodeada de casas gremiales con fachadas doradas y un ayuntamiento gótico: muchos la llaman la más bonita de Europa, y en diciembre se llena de luces y mercado navideño. A pocos pasos está el <b>Manneken Pis</b>, la famosa estatuilla de bronce de 61 cm que se viste con trajes distintos, y por el centro se siguen murales gigantes de <b>Tintín</b> y otros cómics belgas. El <b>Atomium</b> es una molécula de acero de 102 m con mirador. Y <b>Brujas</b>, a una hora en tren, es una ciudad medieval de canales y puentes con el <b>Belfort</b>, un campanario de 83 m sobre la plaza Markt. Imperdible: chocolate, gofres y papas fritas belgas.",
@@ -2201,20 +2209,25 @@ function bindCal(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
 
 // ---------- 4 · Escapadas ----------
 function pEsc(A){const W=ST.wiz;const lim=W.eur_fecha&&W.vue_fecha;
-  const list=ESC.filter(x=>filt==="todas"||(filt==="noche"&&x.k!=="dia")||(filt==="dia"&&x.k!=="noche")||(filt==="fuera"&&x.p!=="🇫🇷"));
+  let list=ESC.filter(x=>filt==="todas"||(filt==="noche"&&x.k!=="dia")||(filt==="dia"&&x.k!=="noche")||(filt==="fuera"&&x.p!=="🇫🇷"));
+  const CN={"🇫🇷":"Francia","🇧🇪":"Bélgica","🇳🇱":"Países Bajos","🇩🇪":"Alemania","🇨🇭":"Suiza","🇬🇧":"Reino Unido","🇱🇺":"Luxemburgo","🇮🇹":"Italia","🇪🇸":"España"},cs=[...new Set(ESC.map(x=>x.p))];
+  if(escCtry!=="todos"&&!cs.includes(escCtry))escCtry="todos";
+  if(escCtry!=="todos")list=list.filter(x=>x.p===escCtry);
+  const pk=escPick?ESC.find(x=>x.id===escPick):null;if(pk)list=[pk];
+  const mine=[...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini));
   const ne=ST.esc.reduce((t,e)=>t+Math.max(0,nights(e.ini,e.fin)),0),nt=lim?nights(W.eur_fecha,W.vue_fecha):0;
   const ch=[...new Set(ST.esc.map(e=>e.id))];
-  return `  <div class="routegrid">
-   <div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0"><span class="eyebrow">Escapadas · orden de visita</span>
+  return `<div class="card" style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="eyebrow">Mapa de escapadas · máx. ~3 h en tren</span>${frMap()}${escCard()}</div>
+  <details class="card escord" data-escord${escOrdOpen?" open":""}><summary><span class="eyebrow">Orden de visita</span><span class="escpills">${mine.length?mine.map(e=>{const x=ESC.find(z=>z.id===e.id);return `<span class="epill" style="--c:${x.c}">${x.p} ${short(x.n)} · ${pretty(e.ini)}</span>`}).join(""):'<span class="muted" style="font-size:12.5px">sin escapadas todavía</span>'}</span></summary><div class="escordb">
     ${ST.esc.length?`<div class="mine">${[...ST.esc].sort((a,b)=>a.ini.localeCompare(b.ini)).map(e=>{const x=ESC.find(z=>z.id===e.id);const n=nights(e.ini,e.fin);return `<div class="it" style="--c:${x.c}"><span>${x.p}</span><span><b>${x.n}</b><br><span class="dt">${pretty(e.ini)}${n?` → ${pretty(e.fin)} · ${n} noche${n>1?"s":""}`:" · ida y vuelta"}</span></span><button type="button" class="btn alt sm" data-del="${e.ini}|${e.id}" aria-label="Quitar ${x.n}">✕</button></div>`}).join("")}</div>`:`<div class="empty">Todavía no eligen escapadas: tóquenlas en el mapa o en las ideas.</div>`}
     <span class="muted" style="font-size:13px">${lim?`${nt} noches en Francia · ${nt-ne} en París · ${ne} en escapadas`:"Completa las fechas de llegada y regreso."}</span>
-    ${calendar()}</div>
-   <div class="card" style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="eyebrow">Mapa de escapadas · máx. ~3 h en tren</span>${frMap()}${escCard()}</div></div>
+    ${calendar()}</div></details>
   ${customList("esc")}<div class="card"><span class="eyebrow">Ideas de escapadas</span> ${findBtn("esc","")}
-   <div class="filters" style="margin:8px 0 10px">${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}${manBtn("esc","")}</div>${manPanel("esc","")}
+   <div class="filters" style="margin:8px 0 4px"><button type="button" class="chip" data-ec="todos" aria-pressed="${escCtry==="todos"&&!pk}">Todos los países</button>${cs.map(c=>`<button type="button" class="chip" data-ec="${c}" aria-pressed="${escCtry===c&&!pk}">${c} ${CN[c]||""} (${ESC.filter(x=>x.p===c).length})</button>`).join("")}</div>
+   <div class="filters" style="margin:0 0 10px">${pk?`<button type="button" class="chip" data-epick aria-pressed="true">📍 Solo ${short(pk.n)} (mapa) ✕</button>`:""}${[["todas","Todas"],["noche","Con noche"],["dia","De un día"],["fuera","Fuera de Francia"]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filt===k}">${t}</button>`).join("")}${manBtn("esc","")}</div>${manPanel("esc","")}
    <div class="ideas">${list.map(x=>{const sel=ST.esc.some(e=>e.id===x.id);return `<div class="idea${sel?" sel":""}" style="--c:${x.c}"><div class="itop"><span>${x.p}</span><b>${x.n}</b>${sel?'<span class="tag">✓ elegida</span>':""}</div><small>🚄 ${x.tr} · ${x.k==="dia"?"de un día":x.nt==="0–1"?"día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")}</small><p>${x.t}</p>
      ${open===x.id?planForm(x,lim):`<div class="act"><button type="button" class="btn sm" data-open="${x.id}">${sel?"+ Otra fecha":"+ Agregar"}</button><button type="button" class="btn alt sm" data-efic="${x.id}">📖 Ficha</button></div>`}</div>`}).join("")}</div></div>
-  ${ch.length?`<span class="eyebrow" style="margin-top:6px">Fichas de las escapadas elegidas</span><div class="fichas">${ch.map(id=>escFichaHTML(id)).join("")}</div>`:""}`}
+  ${ch.length?`<details class="card escfich"><summary><span class="eyebrow">Fichas completas de las escapadas elegidas (${ch.length})</span></summary><div class="fichas">${ch.map(id=>escFichaHTML(id)).join("")}</div></details>`:""}`}
 
 // ---------- 2 · Programa ----------
 function fcards(A,only){const R=A.R;const W_=k=>!only||only===k;const pd=A.days.filter(d=>d.city==="PA"&&d.pa);
@@ -3316,6 +3329,8 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("details[data-attlist]",d=>d.ontoggle=()=>{attListOpen=d.open});
   Q("[data-fjump]",b=>b.onclick=()=>{const f=document.getElementById(b.dataset.fjump);if(!f)return;const rail=f.closest(".fichas.att");f.classList.add("open");openFic.add(f.id);const lst=b.closest("details");if(lst){lst.open=false;attListOpen=false}
     if(rail&&getComputedStyle(rail).display==="flex"){rail.scrollBy({left:f.getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"});scrollTo({top:rail.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})}else f.scrollIntoView({behavior:"smooth",block:"start"});f.classList.add("flash");setTimeout(()=>f.classList.remove("flash"),1600)});
+  Q("[data-ec]",b=>b.onclick=()=>{escCtry=b.dataset.ec;escPick=null;render()});
+  Q("details[data-escord]",d=>d.ontoggle=()=>{escOrdOpen=d.open});
   Q("[data-orgk]",b=>b.onclick=()=>{orgOpen=orgOpen===b.dataset.orgk?null:b.dataset.orgk;render()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
