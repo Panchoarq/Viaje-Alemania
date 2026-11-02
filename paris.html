@@ -1255,6 +1255,36 @@ details.escord[open]>summary::after,details.escfich[open]>summary::after{content
 .epill{border:1.5px solid var(--c,var(--ink));border-radius:999px;padding:1px 9px;font:700 11.5px var(--f-mono);background:var(--card);white-space:nowrap}
 details.escord,details.escfich{padding-top:10px;padding-bottom:10px}
 .escordb{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+
+.gtotal{background:#2a2620;color:#fffdf5;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.gtotal .eyebrow{color:#fffdf5;opacity:.75}
+.gtn{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}
+.gtn b{display:block;font:700 21px/1.1 var(--f-mono);white-space:nowrap}.gtn small{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.05em}
+.gtn .gb{color:#fffdf5}.gtn .gr{color:#ff7a68}
+.gtm{font-size:13px;opacity:.95}.gtm b.gr{color:#ff7a68}.gtoday{font-size:13px;border-top:1px dashed #6d6455;padding-top:6px}.gtoday .rd{color:#ff7a68}
+.gbar{height:8px;border-radius:4px;background:color-mix(in srgb,currentColor 18%,transparent);overflow:hidden}
+.gbar i{display:block;height:100%;background:var(--ink);border-radius:4px}.gtotal .gbar i{background:#ff7a68}
+.gbar.over i{background:#b3261e}
+.gcities{display:flex;flex-direction:column;gap:8px}
+.gcity{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:5px}
+.gch{display:flex;align-items:baseline;gap:8px}.gch .gn{margin-left:auto;font:14px var(--f-mono);white-space:nowrap}
+.rd{color:#b3261e;font-weight:700}
+.gs{font-size:12.5px}.gs.ok{color:var(--ok,#2e7d32)}.gs.bad{color:#b3261e;font-weight:700}
+details.gdays{padding-top:10px;padding-bottom:10px}details.gdays>summary{cursor:pointer;list-style:none}details.gdays>summary::-webkit-details-marker{display:none}
+details.gdays>summary::after{content:"▸";float:right}details.gdays[open]>summary::after{content:"▾"}
+.gdl{display:flex;flex-direction:column;margin-top:8px}
+.gday,.gcat{display:grid;grid-template-columns:1fr auto 74px 74px;gap:8px;align-items:baseline;padding:4px 0;border-top:1px dotted var(--line);font-size:13.5px}
+.gcat{grid-template-columns:1fr 74px 74px}.gcat.head{font-size:11px;color:var(--muted);text-transform:uppercase}
+.gday span.num,.gcat span.num{text-align:right}.gday.today{background:color-mix(in srgb,#ffe66d 45%,transparent);font-weight:700}.gday.over span.rd{text-decoration:underline}
+
+/* hoja fija bajo los chips: el espiral y los agujeros quedan fijos y el contenido se corta debajo */
+html:root[data-paper="1"] .dchipw{padding-bottom:40px;border-bottom:0;background:linear-gradient(var(--bg) calc(100% - 40px),var(--card) calc(100% - 40px));box-shadow:0 3px 4px -2px rgba(60,45,20,.28)}
+html:root[data-paper="1"] .dchips{padding-bottom:12px}
+html:root[data-paper="1"] .dchipw::after{bottom:13px}
+html:root[data-paper="1"] .dchipw::before{top:calc(100% - 58px)}
+html:root[data-paper="1"] #days > .day.sel::after{display:none!important}
+html:root[data-paper="1"] #days > .day.sel{padding-top:16px!important;border-top:0!important}
+html:root[data-paper="1"] #p-prog #days{margin-top:0}
 </style>
 </head>
 <body>
@@ -3024,6 +3054,35 @@ function pGas(A){const C={};A.days.forEach(d=>{const k=d.city==="LO"?"Londres":d
    ${rows.map(r=>`<tr><td>${r.n}</td><td class="r num">${r.days}</td><td class="r num">${fmt(r.hot)}${cellReal(r.n,"hot")}</td><td class="r num">${fmt(r.meal)}${cellReal(r.n,"meal")}</td><td class="r num">${fmt(r.act)}${cellReal(r.n,"act")}</td><td class="r num">${fmt(r.loc)}${cellReal(r.n,"loc")}</td><td class="r num"><b>${fmt(r.total)}</b>${cellReal(r.n)}</td></tr>`).join("")}</tbody></table></div>
    <p class="note">Este es el presupuesto que estima el programa; <span class="rl">en rojo, lo que ya gastaron de verdad</span> (se registra en <a href="/gastos">Mis gastos</a>).</p></div>`}
 
+
+// ---------- 9 · Gastos: presupuesto del programa frente a lo gastado de verdad ----------
+const gbar=(bud,real)=>{const p=bud>0?Math.min(100,real/bud*100):(real>0?100:0);return `<div class="gbar${real>bud+0.005?" over":""}" aria-hidden="true"><i style="width:${p.toFixed(1)}%"></i></div>`};
+const gst=(bud,real)=>!hasReal(()=>true)&&real<=0?`<small class="gs">sin gastos todavía</small>`:real>bud+0.005?`<small class="gs bad">✕ ${fmt(real-bud)} sobre el presupuesto</small>`:`<small class="gs ok">✓ dentro del presupuesto · quedan ${fmt(bud-real)}</small>`;
+function gasBoard(A){const days=A.days;if(!days.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b> para ver el presupuesto.</p></div>`;
+  const cname=d=>d.city==="LO"?"Londres":d.city==="PA"?"París":short(d.c.n);
+  const col=n=>n==="Londres"?LO_C:n==="París"?PA_C:((A.C.find(c=>short(c.n)===n)||{}).c||"#6b5d43");
+  const G=[];days.forEach(d=>{const n=cname(d);let g=G.find(x=>x.n===n);if(!g){g={n,c:col(n),days:0,bud:0,list:[]};G.push(g)}g.days++;g.bud+=d.cost.total;g.list.push(d)});
+  G.forEach(g=>g.real=realSum(x=>x.city===g.n));
+  const TB=G.reduce((t,g)=>t+g.bud,0),TR=realSum(()=>true),lost=TR-G.reduce((t,g)=>t+g.real,0);
+  const today=iso(new Date()),first=days[0].d,last=days[days.length-1].d;
+  const left=days.filter(d=>d.d>=today),nL=left.length,avg=TB/days.length;
+  const rest=TB-TR,perDay=nL?rest/nL:0;
+  let when;if(today<first){const f=Math.round((D(first)-D(today))/864e5);when=`Faltan <b>${f}</b> día${f===1?"":"s"} para viajar · el viaje tiene ${days.length} días`}else if(today>last)when=`El viaje terminó (${days.length} días)`;else when=`Quedan <b>${nL}</b> día${nL===1?"":"s"} de ${days.length}`;
+  const over=TR>TB+0.005;
+  const hoy=days.find(d=>d.d===today);
+  const tl=hoy?`<div class="gtoday">Hoy (${pretty(hoy.d)} · ${cname(hoy)}): estimado <b>${fmt(hoy.cost.total)}</b> · gastado <b class="rd">${fmt(realSum(g=>g.d===hoy.d))}</b></div>`:"";
+  const cats=[["Alojamiento","hot"],["Comidas","meal"],["Entradas","act"],["Transporte","loc"]].map(([n,k])=>{const b=days.reduce((t,d)=>t+d.cost[k],0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${n}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
+  return `<section class="gtotal" aria-label="Total del viaje">
+    <span class="eyebrow">Total del viaje · por persona</span>
+    <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>presupuesto</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>
+    ${gbar(TB,TR)}
+    <div class="gtm"><b class="${over?"gr":""}">${over?"Te pasaste por "+fmt(TR-TB):"Te quedan "+fmt(rest)}</b> · ${when}${nL&&today<=last&&!over?` · puedes gastar unos <b>${fmt(perDay)}</b> por día (el presupuesto prevé ${fmt(avg)})`:""}</div>${tl}
+  </section>
+  <section class="gcities" aria-label="Por ciudad">${G.map(g=>`<div class="gcity" style="--c:${g.c}"><div class="gch"><b>${g.n}</b><span class="muted">${g.days} día${g.days>1?"s":""}</span><span class="gn"><b>${fmt(g.bud)}</b><span class="rd"> / ${fmt(g.real)}</span></span></div>${gbar(g.bud,g.real)}${gst(g.bud,g.real)}</div>`).join("")}${Math.abs(lost)>0.005?`<p class="muted" style="font-size:12.5px;margin:2px 0">Hay ${fmt(lost)} gastados sin ciudad asignada: están en el total, pero no en las barras de arriba.</p>`:""}</section>
+  <details class="card gdays"><summary><span class="eyebrow">Día a día · estimado y gastado</span></summary><div class="gdl">${days.map(d=>{const r=realSum(g=>g.d===d.d),b=d.cost.total,t=d.d===today;return `<div class="gday${t?" today":""}${r>b+0.005?" over":""}" ${t?'aria-current="date"':""}><span>${pretty(d.d)}</span><small class="muted">${cname(d)}</small><span class="num">${fmt(b)}</span><span class="num rd">${r?fmt(r):"—"}</span></div>`}).join("")}</div></details>
+  <details class="card gdays"><summary><span class="eyebrow">Por categoría · estimado y gastado</span></summary><div class="gdl"><div class="gcat head"><span></span><span>estimado</span><span>gastado</span></div>${cats}</div></details>
+  <p class="note">El presupuesto sale del programa (comidas, entradas, transporte y alojamiento de cada día). <span class="rd">En rojo</span>, lo que registraron en <a href="/gastos">Mis gastos</a>.</p>`}
+
 // ---------- plano ampliado ----------
 function mapOverlay(A){if(!mapOpen)return"";const d=A.days.find(x=>x.id===mapOpen);const P=d&&planOf(d);if(!P)return"";const legs=legsOf(d);const isE=!!P.esc;
   const box=(l)=>l.metro?`<br><span class="lg-tr subway">${isE?"🚆 Tren o transporte público":"Ⓜ Metro / RER"} · ~${l.min} min (${l.d.toFixed(1).replace(".",",")} km) · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver línea y estaciones</a></span>`:"";
@@ -3298,7 +3357,7 @@ function bindMan(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
 function render(){if(ST.wiz&&!ST.wiz.par_dir)ST.wiz.par_dir=PAR_DEF;if(ST.wiz&&!ST.wiz.lon_dir)ST.wiz.lon_dir=LON_DEF;if(!ST.base)ST.base="Montorgueil / Sentier (2.º)";if(!user)return;applyCustom();const A=buildAll();window.LAST_A=A;ACTDAY={};A.days.forEach(d=>d.pa&&d.pa.seq.forEach(a=>{if(a.id)ACTDAY[a.id]=d.d}));const dk=el=>el.dataset.k||((el.querySelector("summary")||{}).textContent||"").replace(/\(.*?\)/g,"").trim();const openK=new Set([...document.querySelectorAll("#app details[open]")].map(dk));pushBudget(A);if(!ST.wiz.eur_fecha&&tab!=="cfg")tab="cfg";
   const y=scrollY;
   app.innerHTML=header(A)+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CAB?CABIC[k]+"<span>"+CABSH[k]+"</span>":t}</button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?summary(A)+pGas(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
+   <section class="panel" id="p-${tab}">${guideHTML(tab)}${tab==="cfg"?pCfg(A):tab==="prog"?pProg(A):tab==="hot"?pHot():tab==="buy"?pBuy():tab==="att"?pAtt(A):tab==="esc"?pEsc(A):tab==="food"?pFood(A):tab==="gas"?gasBoard(A):tab==="tra"?pTra(A):pShow()}</section>${fichaEsc()}${mapOverlay(A)}${addSheet()}${tripCal(A)}${guideAllHTML()}${findSheet()}`;
   document.querySelectorAll("#app details").forEach(el=>{if(openK.has(dk(el)))el.open=true});
   scrollTo(0,y);bindAll(A);bindCal();bindJun();bindBlk();bindGuide();bindFind();bindFood2();bindLunch();bindMan();bindRit();bindSolo();setTimeout(()=>initMaps(A),0);cabH();stagger();
   if(tab==="prog"){let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.classList.toggle("first-vis",!el.hidden&&!fv);if(!el.hidden)fv=1})}
