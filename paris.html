@@ -1191,6 +1191,8 @@ html:root[data-paper="1"] #days > .day.sel::before{display:none!important}
 html:root[data-paper="1"] .dchipw::before{content:"";position:absolute;left:30px;right:30px;top:calc(100% - 28px);height:62px;pointer-events:none;z-index:3;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='86'%3E%3Cdefs%3E%3ClinearGradient id='m' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23555c63'/%3E%3Cstop offset='.3' stop-color='%23eef1f4'/%3E%3Cstop offset='.55' stop-color='%23aab2b9'/%3E%3Cstop offset='1' stop-color='%234a5057'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M12 10 C 3 22, 3 63, 12 75' fill='none' stroke='url(%23m)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M16 10 C 25 22, 25 63, 16 75' fill='none' stroke='url(%23m)' stroke-width='3' stroke-linecap='round' opacity='.75'/%3E%3C/svg%3E") space no-repeat 0 0/28px 62px;filter:drop-shadow(1px 2px 1.2px rgba(0,0,0,.35))}
 html:root[data-paper="1"] #days > .day.sel::after{display:block!important;top:11px!important}
 html:root[data-paper="1"] #p-prog #days{margin-top:-6px}
+.ei{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;line-height:0}
+.ei svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -3060,6 +3062,57 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-attcat]",x=>x.onclick=()=>{attCat=x.dataset.attcat;render()});
   Q("[data-fsel]",x=>x.onclick=()=>{const a=PA.find(q=>q.id===x.dataset.fsel);ST.paSel=ST.paSel||{};ST.paSel[a.id]=!paSel(a);save();render()});
   Q("[data-goesc]",x=>x.onclick=e=>{e.preventDefault();escPick=x.dataset.goesc;go("esc")})}
+
+
+// ---- Íconos de línea (reemplazan emojis antiguos en el texto de la página) ----
+(()=>{
+  const sun='<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>';
+  const cloud='<path d="M7.5 18a4 4 0 1 1 .7-7.9A5.5 5.5 0 0 1 18.6 11 3.5 3.5 0 0 1 18 18z"/>';
+  const rain='<path d="M7.5 15a4 4 0 1 1 .7-7.9A5.5 5.5 0 0 1 18.6 8 3.5 3.5 0 0 1 18 15"/><path d="M9 18l-1 3M13 18l-1 3M17 18l-1 3"/>';
+  const train='<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/>';
+  const M={
+   "👭":'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14c3 .3 5 2.4 5 5.5"/>',
+   "🧭":'<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/>',
+   "🌇":'<path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 5v3M5.2 9.2l1.6 1.6M18.8 9.2l-1.6 1.6M9 21.5h6"/>',
+   "🌅":'<path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 5v3M5.2 9.2l1.6 1.6M18.8 9.2l-1.6 1.6M9.5 5.5L12 3l2.5 2.5"/>',
+   "☀":sun,"🌤":sun,"🌙":'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+   "🍽":'<path d="M7 3v7M5 3v4a2 2 0 0 0 4 0V3M7 10v11M17 3c-2 1.5-3 4-3 7h3v11"/>',
+   "📅":'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+   "📍":'<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+   "🕐":'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+   "⏱":'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2.5h6"/>',
+   "🗺":'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',
+   "🏛":'<path d="M3 21h18M5 21V10M19 21V10M9 21v-8M15 21v-8M12 3l9 6H3z"/>',
+   "🔒":'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+   "🚄":train,"🚆":train,"🚇":train,"🛤":train,
+   "⚠":'<path d="M12 3.5l10 17.5H2z"/><path d="M12 10v5M12 18h.01"/>',
+   "✈":'<path d="M21 3L3 10.5l7 3 3 7z"/>',
+   "📖":'<path d="M3 5a2 2 0 0 1 2-2h6v16H5a2 2 0 0 0-2 2zM21 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2z"/>',
+   "✏":'<path d="M4 20l1-4L17 4l3 3L8 19z"/>',"✍":'<path d="M4 20l1-4L17 4l3 3L8 19z"/>',
+   "🏠":'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+   "🎫":'<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+   "🎟":'<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+   "🛏":'<path d="M3 19V6M3 15h18v4M21 15v-2.5a3 3 0 0 0-3-3h-7V15"/><circle cx="7" cy="11.5" r="1.6"/>',
+   "🚶":'<circle cx="13" cy="4.5" r="1.8"/><path d="M12 9l-2 5 3 2v5M12 9l3 3h3M10 14l-3 3"/>',
+   "💶":'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5a4.5 4.5 0 1 0 0 7M7 11h7M7 13.5h7"/>',
+   "☂":'<path d="M3 12a9 9 0 0 1 18 0zM12 12v6a2 2 0 0 0 4 0"/>',
+   "🌦":rain,"🌧":rain,"🌨":rain,"⛈":rain,"☁":cloud,"🌫":cloud,
+   "💡":'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11c.6.5 1 1.2 1 2h4c0-.8.4-1.5 1-2a6 6 0 0 0-3-11z"/>',
+   "📷":'<path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',"📸":'<path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',
+   "☕":'<path d="M5 8h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM17 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/>'
+  };
+  const keys=Object.keys(M).sort((a,b)=>b.length-a.length);
+  const RE=new RegExp("("+keys.join("|")+")\\uFE0F?","g"),T=new RegExp("("+keys.join("|")+")");
+  const SK="svg,option,select,textarea,script,style,title,[data-noicon]";
+  function run(root){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),L=[];
+    for(let n=w.nextNode();n;n=w.nextNode()){if(T.test(n.nodeValue)&&n.parentElement&&!n.parentElement.closest(SK))L.push(n)}
+    L.forEach(n=>{const f=document.createDocumentFragment();let i=0;const s=n.nodeValue;s.replace(RE,(m,k,o)=>{if(o>i)f.append(s.slice(i,o));const e=document.createElement("span");e.className="ei";e.setAttribute("aria-hidden","true");e.innerHTML='<svg viewBox="0 0 24 24">'+M[k]+'</svg>';f.append(e);i=o+m.length;return m});if(i<s.length)f.append(s.slice(i));n.replaceWith(f)});
+  }
+  let q=0;const go=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;run(document.body)})};
+  new MutationObserver(go).observe(document.body,{childList:true,subtree:true,characterData:true});
+  go();
+})();
 
 boot();
 </script>
