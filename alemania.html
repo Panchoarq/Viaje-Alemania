@@ -307,6 +307,12 @@ details.arq>summary em{font-style:normal;margin-left:auto;white-space:nowrap;fon
   .feasmini.ok{display:none!important}
   .tbl-wrap table{min-width:0!important}.tbl-wrap td,.tbl-wrap th{overflow-wrap:anywhere}
 }
+
+#p-att #atttabs,#p-food #foodtabs{position:static;margin:0;padding-top:24px}
+#p-att,#p-food{gap:8px}#att,#food{display:flex;flex-direction:column;gap:8px}
+#p-att .guide,#p-food .guide{margin:0}
+#att .findbtn{margin:0;align-self:flex-start}
+#att .attbar,#food .attbar{display:none}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -1695,7 +1701,7 @@ function fichaHTML(c,i){const a=ACTS[c][i],x=ATTR[c+":"+i];if(!x)return"";const 
    ${x.l&&x.l.length?`<div class="flinks">${x.l.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]} ↗</a>`).join("")}<a href="${mapUrl({...a,city:c})}" target="_blank" rel="noopener">Mapa ↗</a></div>`:""}
   </article>`}
 function renderAtt(){const host=$("att");if(!host)return;const c=attCity,X=CTX[c];
-  let h=`<div class="attbar" role="group" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" class="btn ${k===c?"":"alt"}" data-attc="${k}" aria-pressed="${k===c}">${CN[k]}</button>`).join("")}</div>`;
+  let h=`<div class="daytabs" id="atttabs" role="tablist" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" role="tab" class="dtab ${k}" data-attc="${k}" aria-selected="${k===c}"><b>${CN[k]}</b><small>${ACTS[k].filter(a=>!a.hidden).length} atracciones</small></button>`).join("")}</div>`;
   h+=`<button type="button" class="btn sm findbtn" data-find="1">${IC.lupa} Buscar y agregar atracción o destino personal</button>`;
   h+=`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tlSVG(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
   const idx=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&(ATTR[c+":"+i].h||[]).length);
@@ -1950,7 +1956,7 @@ let foodCity=null;
 const mapq=(n,c)=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(n+" "+CN[c]);
 function renderFood(){const host=$("food");if(!host)return;const c=cfg.order.includes(foodCity)?foodCity:cfg.order[0];foodCity=c;
   const mine=custom.food.filter(x=>x.c===c);
-  let h=`<div class="attbar" role="group" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" class="btn ${k===c?"":"alt"}" data-foodc="${k}" aria-pressed="${k===c}">${CN[k]}</button>`).join("")}</div>
+  let h=`<div class="daytabs" id="foodtabs" role="tablist" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" role="tab" class="dtab ${k}" data-foodc="${k}" aria-selected="${k===c}"><b>${CN[k]}</b><small>${FOOD_G[k].reduce((t,[,L])=>t+L.length,0)} lugares</small></button>`).join("")}</div>
    <p class="note">Precios aproximados por persona (2026–2027), sin verificar: confírmalos en el lugar. Para jóvenes de 16 años: comida rápida o local, sin restaurantes caros.</p>`;
   FOOD_G[c].forEach(([t,L])=>{h+=`<div class="card"><span class="eyebrow">${esc2(CN[c])} · ${t}</span><div class="tbl-wrap"><table><thead><tr><th>Lugar</th><th class="r">Precio aprox.</th></tr></thead><tbody>${L.map(r=>`<tr><td><b>${r[0]}</b><br><small class="muted">${r[1]}</small> <a href="${mapq(r[0],c)}" target="_blank" rel="noopener">mapa</a></td><td class="r num">${r[2]}<br>${addAttBtn(c,r[0],r[1],r[2])}</td></tr>`).join("")}</tbody></table></div></div>`});
   if(mine.length)h+=`<div class="card cust"><span class="eyebrow">Agregados por ustedes · ${esc2(CN[c])}</span><div class="tbl-wrap"><table><tbody>${mine.map(x=>`<tr><td><b>${esc2(x.n)}</b>${x.ft?` <small class="muted">· ${esc2(x.ft)}</small>`:""}${x.s?`<br><small class="muted">${esc2(x.s)}</small>`:""} <a href="${mapq(x.addr||x.n,c)}" target="_blank" rel="noopener">mapa</a>${x.addr?` <small class="muted">· ${esc2(x.addr)}</small>`:""}</td><td class="r num">${esc2(x.pr||"")}<br><button type="button" class="lnkb" data-fooddel="${x.id}">quitar</button></td></tr>`).join("")}</tbody></table></div></div>`;
@@ -2645,7 +2651,7 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
 .dtab.M{--c:var(--mun)}.dtab.P{--c:var(--pra)}.dtab.B{--c:var(--ber)}.dtab.H{--c:var(--ham)}
 
 /* Pestañas de ciudad tipo carpeta con clip */
-#p-prog #daytabs,#p-hot #hottabs{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;padding:14px 0 0;margin:0;border-bottom:0}
+#p-prog #daytabs,#p-hot #hottabs,#p-att #atttabs,#p-food #foodtabs{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;padding:14px 0 0;margin:0;border-bottom:0}
 #hotels > .city[hidden]{display:none!important}
 .teen{font-size:13px;white-space:nowrap}.legendtr .teen,.poolrow .teen{font-size:12.5px;color:#4b3f9a;font-weight:700}
 /* ===== Zonas de precaución ===== */
@@ -2696,6 +2702,18 @@ select[data-rmode]{font-size:13px;padding:5px 6px}
   #p-hot #hottabs .dtab small{display:none}
   #p-hot #hottabs .dtab[aria-selected="true"]{padding-top:9px}
   #p-hot #hottabs .dtab[aria-selected="true"]::after{right:6px;top:-25px;height:31px;width:11px}#p-hot #hottabs .dtab[aria-selected="true"]::before{right:9px;top:-19px;height:20px}
+  #p-att #atttabs{gap:3px;padding-top:24px;flex-wrap:nowrap}
+  #p-att #atttabs .dtab{flex:1 1 0;min-width:0;padding:7px 4px 6px;text-align:center}
+  #p-att #atttabs .dtab b{font-size:11.5px;letter-spacing:.02em}
+  #p-att #atttabs .dtab small{display:none}
+  #p-att #atttabs .dtab[aria-selected="true"]{padding-top:9px}
+  #p-att #atttabs .dtab[aria-selected="true"]::after{right:6px;top:-25px;height:31px;width:11px}#p-att #atttabs .dtab[aria-selected="true"]::before{right:9px;top:-19px;height:20px}
+  #p-food #foodtabs{gap:3px;padding-top:24px;flex-wrap:nowrap}
+  #p-food #foodtabs .dtab{flex:1 1 0;min-width:0;padding:7px 4px 6px;text-align:center}
+  #p-food #foodtabs .dtab b{font-size:11.5px;letter-spacing:.02em}
+  #p-food #foodtabs .dtab small{display:none}
+  #p-food #foodtabs .dtab[aria-selected="true"]{padding-top:9px}
+  #p-food #foodtabs .dtab[aria-selected="true"]::after{right:6px;top:-25px;height:31px;width:11px}#p-food #foodtabs .dtab[aria-selected="true"]::before{right:9px;top:-19px;height:20px}
   #p-hot #hotels > .city{padding:14px 12px 20px}
   #p-prog #daytabs .dtab{flex:1 1 0;min-width:0;padding:7px 4px 6px;text-align:center}
   #p-prog #daytabs .dtab b{font-size:11.5px;letter-spacing:.02em}
