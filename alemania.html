@@ -270,6 +270,39 @@ details.gdays>summary::after{content:"▸";float:right}details.gdays[open]>summa
 .gcat{grid-template-columns:1fr 74px 74px}.gcat.head{font-size:11px;color:var(--muted);text-transform:uppercase}
 .gday span.num,.gcat span.num{text-align:right}.gday.today{background:color-mix(in srgb,#ffe66d 45%,transparent);font-weight:700}.gday.over span.rd{text-decoration:underline}
 #p-gas .summary,#p-gas section[aria-label="Desglose"]{display:none!important}
+
+details.ctxd{padding:0}details.ctxd>summary{cursor:pointer;list-style:none;padding:14px 84px 14px 16px;position:relative}details.ctxd>summary::-webkit-details-marker{display:none}details.ctxd>summary::after{content:"leer ▾";position:absolute;right:14px;top:14px;font:700 12px "Courier Prime",ui-monospace,monospace;color:var(--muted)}details.ctxd[open]>summary::after{content:"cerrar ▴"}details.ctxd>summary h2{margin:2px 0 0;font-size:18px}details.ctxd>.ctxb{padding:0 16px 16px}
+#att details.ctxd:not([open]){padding:0!important;min-height:0}#att details.ctxd::before,#att details.ctxd::after{display:none!important}
+#att details.ctxd>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:8px 72px 8px 12px}#att details.ctxd>summary h2{font-size:15px;margin:0}#att details.ctxd>summary .eyebrow{font-size:10px}#att details.ctxd>summary::after{top:9px}
+.railnav{display:none}.fwhy{margin:2px 0}.ficha .fcue{display:none}
+.attlist{margin:2px 0;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--card) 70%,var(--bg))}
+.attlist>summary{cursor:pointer;list-style:none;padding:7px 10px;font:700 13px var(--f-mono)}.attlist>summary::-webkit-details-marker{display:none}
+.attlist>summary::after{content:"▸";float:right}.attlist[open]>summary::after{content:"▾"}
+.attlist ol{list-style:none;margin:0;padding:0 8px 6px;max-height:46vh;overflow-y:auto}
+.attlist li{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px dotted var(--line)}
+.attlist .aln{flex:1;min-width:0;text-align:left;background:none;border:0;padding:2px 0;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;text-decoration:underline dotted}
+.attlist small{white-space:nowrap;color:var(--muted)}.attlist input[type=checkbox]{width:18px;height:18px}
+details.arq{display:block}details.arq>summary{cursor:pointer;list-style:none;display:flex;gap:6px;align-items:flex-start}details.arq>summary::-webkit-details-marker{display:none}
+details.arq>summary em{font-style:normal;margin-left:auto;white-space:nowrap;font-size:12px;color:var(--muted)}details.arq>summary em::after{content:" ▸"}details.arq[open]>summary em::after{content:" ▾"}
+.arq{display:flex;gap:6px;align-items:flex-start;font-size:13px;background:color-mix(in srgb,var(--ink) 6%,transparent);border-radius:6px;padding:6px 8px;margin:4px 0}
+.gl{margin:8px 0 2px;padding-top:6px;border-top:1px dashed var(--line);font-size:13.5px}.gl p{margin:2px 0 4px}.gl ul{margin:0;padding-left:18px}.gl li{margin:2px 0}
+@media (max-width:900px){
+  .railnav{display:flex;align-items:center;gap:8px;margin:2px 0 -8px}
+  .railnav button{flex:none;width:40px;height:34px;border:1.5px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink);font:700 20px/1 var(--f-mono,monospace);cursor:pointer;padding:0}.railnav button:disabled{opacity:.3;cursor:default}
+  .railnav .rp{flex:none;min-width:74px;text-align:center;font:700 13px var(--f-mono,monospace)}
+  .railnav .railbar{flex:1;height:6px;border-radius:3px;background:color-mix(in srgb,var(--ink) 16%,transparent);overflow:hidden}.railnav .railbar i{display:block;height:100%;background:var(--stamp,#a8352b);transition:width .15s}
+  .fichas.att{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:20px 2px 12px;align-items:flex-start;-webkit-overflow-scrolling:touch}
+  .fichas.att .ficha{flex:0 0 76%;scroll-snap-align:start;cursor:pointer;padding:26px 14px 14px}
+  .fichas.att .ficha:not(.open)>*:not(.ftab):not(header):not(.flead):not(.fwhy):not(.fmeta):not(.fcue){display:none}
+  .fichas.att .ficha:not(.open) .flead{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .fichas.att .ficha:not(.open) .fwhy p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .fichas.att .ficha:not(.open) h3{font-size:19px}
+  .fichas.att .ficha .fcue{display:block;margin-top:2px;font:700 12px "Courier Prime",ui-monospace,monospace;color:var(--stamp,#a8352b)}
+  .fichas.att .ficha .fcue .c2,.fichas.att .ficha.open .fcue .c1{display:none}.fichas.att .ficha.open .fcue .c2{display:inline}
+  .fichas.att .ficha.open{flex-basis:92%}
+  .feasmini.ok{display:none!important}
+  .tbl-wrap table{min-width:0!important}.tbl-wrap td,.tbl-wrap th{overflow-wrap:anywhere}
+}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -1563,11 +1596,94 @@ function tlSVG(tl){const W=720,H=96,pad=40,step=(W-2*pad)/(tl.length-1);
   let g=`<svg class="tlsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Línea de tiempo"><line x1="${pad}" y1="40" x2="${W-pad}" y2="40" stroke="currentColor" stroke-width="2"/>`;
   tl.forEach((e,i)=>{const x=pad+i*step;g+=`<circle cx="${x}" cy="40" r="6" fill="var(--stamp)"/><text x="${x}" y="24" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor" font-family="Courier Prime,monospace">${e[0]}</text><text x="${x}" y="66" text-anchor="middle" font-size="12.5" fill="currentColor">${e[1]}</text>`});
   return g+"</svg>"}
+// ---- Glosario de estilos: qué es y cómo reconocerlo (edificio, escultura, pintura) ----
+const GL={
+ romanico:{t:"Románico",e:"siglos XI–XII",q:"El primer gran estilo de la Europa medieval. Se siente sólido y protector, casi como una fortaleza de Dios.",ed:"muros muy gruesos, arcos redondos, ventanas pequeñas y interiores oscuros, torres macizas.",es:"figuras sencillas y rígidas en capiteles y portales, que cuentan historias bíblicas para quienes no sabían leer.",pi:"pinturas planas en los muros de las iglesias, con colores fuertes y figuras de contorno marcado."},
+ gotico:{t:"Gótico",e:"siglos XII–XVI",q:"Busca llegar al cielo y llenar las iglesias de luz. Fue el estilo de las grandes catedrales.",ed:"arcos en punta, bóvedas altísimas con nervios, grandes vitrales y contrafuertes volantes por fuera que sostienen los muros. Todo apunta hacia arriba.",es:"figuras alargadas en los portales de las catedrales, con gestos serenos y muchos detalles.",pi:"los vitrales son la gran pintura de la época, y los libros se decoraban con miniaturas de colores y oro."},
+ renacimiento:{t:"Renacimiento",e:"siglos XV–XVI",q:"«Renacer» de la Antigüedad griega y romana. Se confía en la razón, la proporción y el ser humano como centro.",ed:"simetría, arcos redondos, cúpulas, columnas clásicas y proporciones calculadas. Todo se ve equilibrado y calmo.",es:"cuerpos humanos realistas y en equilibrio, como el David de Miguel Ángel.",pi:"perspectiva (se ve profundidad), figuras realistas y paisajes. Leonardo, Rafael, Botticelli."},
+ barroco:{t:"Barroco",e:"siglos XVII–XVIII",q:"Un estilo hecho para emocionar y asombrar. La Iglesia y los reyes lo usaron para mostrar poder, y por eso es teatral y lleno de decoración.",ed:"curvas, columnas retorcidas, dorados, techos pintados que parecen abrirse al cielo y mucha decoración. Todo parece moverse.",es:"figuras en pleno movimiento, con gestos dramáticos y telas que parecen volar, como en las obras de Bernini.",pi:"fuertes contrastes de luz y sombra, escenas llenas de acción y emoción (Caravaggio, Rembrandt, Rubens)."},
+ rococo:{t:"Rococó",e:"siglo XVIII",q:"Un barroco más liviano, delicado y elegante, pensado para salones y mansiones más que para iglesias.",ed:"colores pastel, curvas suaves, espejos, molduras en forma de concha y flores, techos claros.",es:"figuritas de porcelana y esculturas pequeñas con poses graciosas.",pi:"escenas de amor, fiestas y juegos al aire libre con colores suaves (Watteau, Boucher)."},
+ neoclasico:{t:"Neoclásico",e:"fines del siglo XVIII y siglo XIX",q:"Vuelve a la Grecia y la Roma antiguas, como reacción al exceso del barroco. Valora el orden y la sobriedad.",ed:"fachadas simétricas con columnas rectas y un frontón triangular arriba, como un templo griego. Poco adorno.",es:"mármol blanco y liso, figuras serenas que imitan estatuas griegas.",pi:"líneas claras, escenas ordenadas y colores fríos, muchas veces con temas de la antigua Roma (David)."},
+ clasicismo:{t:"Clasicismo francés",e:"siglos XVII–XVIII",q:"La versión francesa del orden clásico: razón, simetría y proporción. Es más sobrio que el barroco italiano.",ed:"fachadas simétricas con columnas planas, techos de pizarra y patios ordenados.",es:"figuras equilibradas y serenas.",pi:"escenas ordenadas y nobles, con composición muy cuidada (Poussin)."},
+ neogotico:{t:"Neogótico",e:"siglo XIX",q:"Una moda del siglo XIX que imita la Edad Media. Parece antiguo, pero es mucho más nuevo.",ed:"torres, arcos en punta, pináculos y mucha ornamentación, pero la piedra se ve muy limpia y regular. A veces esconde estructuras de acero.",es:"figuras de santos y reyes en muros y puentes, con el mismo estilo medieval.",pi:"los prerrafaelitas pintaron escenas de leyendas medievales con colores muy vivos."},
+ beaux:{t:"Beaux-Arts",e:"siglo XIX–1914",q:"Es el estilo de la Escuela de Bellas Artes de París: mezcla lo clásico con lo grandioso. Quiere dar sensación de importancia.",ed:"edificios monumentales y simétricos, con columnas, grandes escalinatas, esculturas y mucha decoración.",es:"estatuas alegóricas sobre las fachadas, de tamaño grande.",pi:"pintura académica, con temas históricos y mitológicos muy cuidados."},
+ artnouveau:{t:"Art Nouveau",e:"1890–1914",q:"El arte que se inspira en la naturaleza: tallos, flores, insectos y líneas curvas, para borrar la frontera entre arte y objeto cotidiano.",ed:"líneas curvas como tallos, hierro forjado, vidrios de colores y adornos con flores. Ejemplo: las entradas del metro de París.",es:"figuras de mujeres con pelo ondulante y flores.",pi:"afiches con figuras elegantes, colores planos y marcos decorados (Mucha)."},
+ eclectico:{t:"Ecléctico",e:"siglo XIX",q:"Mezcla estilos del pasado en un mismo edificio, como un catálogo de la historia del arte.",ed:"cúpulas, torres y mosaicos combinados: bizantino, románico, gótico, todo junto.",es:"figuras de varias épocas en un mismo lugar.",pi:"obras que mezclan temas históricos y exóticos."},
+ normando:{t:"Normando",e:"siglo XI",q:"El estilo de los conquistadores normandos en Inglaterra: arquitectura hecha para dominar y defenderse.",ed:"castillos de piedra con muros de hasta 4 m, torre cuadrada, ventanas pequeñas y arcos redondos.",es:"esculturas sencillas en los portales de las iglesias.",pi:"casi no queda pintura, pero sí tapices bordados, como el de Bayeux."},
+ entramado:{t:"Entramado de madera (Fachwerk)",e:"Edad Media – siglo XVII",q:"Un modo de construir casas: se arma una estructura de vigas y se rellena con yeso o ladrillo.",ed:"se ven las vigas oscuras formando dibujos sobre muros claros, con pisos que sobresalen hacia la calle.",es:"tallas de madera en las esquinas de las vigas.",pi:"los colores de las fachadas, pastel, y flores en las ventanas."},
+ jardin:{t:"Jardín a la francesa",e:"siglo XVII",q:"Naturaleza puesta en orden: un jardín que muestra el poder del rey sobre el paisaje. El maestro fue André Le Nôtre.",ed:"ejes rectos, parterres geométricos, estanques, árboles recortados y fuentes colocadas para mirar el palacio desde lejos.",es:"estatuas mitológicas sobre pedestales a lo largo de los caminos.",pi:"se ven desde arriba como dibujos: el jardín es casi una pintura geométrica."},
+ hierro:{t:"Hierro y vidrio (siglo XIX)",e:"siglo XIX",q:"La revolución industrial trajo materiales nuevos. Con hierro y vidrio se pudieron cubrir espacios enormes y dejar la estructura a la vista.",ed:"estaciones, mercados, invernaderos y galerías con techos de vidrio sostenidos por esqueletos de hierro.",es:"casi no hay esculturas: lo bonito es la propia estructura.",pi:"los impresionistas pintaron estas estaciones llenas de vapor."},
+ moderno:{t:"Moderno y contemporáneo",e:"siglos XX–XXI",q:"Sin adornos del pasado: el edificio quiere ser útil y a la vez una escultura. Usa vidrio, acero y hormigón.",ed:"líneas simples o formas atrevidas, grandes ventanales, materiales a la vista y siluetas reconocibles desde lejos.",es:"formas abstractas, más ideas que figuras.",pi:"el arte pasa de representar la realidad a experimentar con color y forma (cubismo, pop, abstracto)."},
+ bizantino:{t:"Bizantino",e:"siglos VI–XV",q:"El arte del Imperio romano de Oriente, con capital en Constantinopla. Brilla y se siente religioso y misterioso.",ed:"cúpulas grandes sobre muros anchos, arcos redondos y mosaicos dorados dentro.",es:"figuras rígidas de santos con caras serias.",pi:"mosaicos y los iconos con fondo dorado, figuras frontales y ojos grandes."}
+};
+const GLK=[[/neogotic/,"neogotico"],[/gotic/,"gotico"],[/barroc/,"barroco"],[/neoclasic/,"neoclasico"],[/renacim/,"renacimiento"],[/romanic/,"romanico"],[/bizantin/,"bizantino"],[/rococ/,"rococo"],[/beaux/,"beaux"],[/art nouveau/,"artnouveau"],[/eclectic/,"eclectico"],[/normand/,"normando"],[/entramado|fachwerk/,"entramado"],[/jardin a la francesa/,"jardin"],[/hierro|industrial|victoriano/,"hierro"],[/contempor|moderno|modernis|deconstruc|rascacielos/,"moderno"],[/\bclasic/,"clasicismo"]];
+Object.assign(GL,{artdeco:{t:"Art Déco",e:"1920–1940",q:"El estilo de la modernidad y el lujo entre las dos guerras: geométrico, brillante y elegante.",ed:"líneas rectas y simétricas, formas escalonadas, ventanales amplios y detalles geométricos o de rayos de sol, a veces con mármol, bronce y cromo.",es:"figuras estilizadas, con formas muy simples y poses elegantes.",pi:"afiches y carteles de colores planos y formas geométricas."}});GLK.unshift([/art deco/,"artdeco"]);
+const glHTML=k=>{const g=GL[k];return g?`<div class="gl"><b>${g.t}</b> <small>${g.e}</small><p>${g.q}</p><ul><li><b>En un edificio:</b> ${g.ed}</li><li><b>En una escultura:</b> ${g.es}</li><li><b>En una pintura:</b> ${g.pi}</li></ul></div>`:""};
+const arqHTML=(s,e)=>{if(!s)return"";const t=s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");const ks=[];GLK.forEach(([re,k])=>{if(re.test(t)&&!ks.includes(k)&&!(k==="gotico"&&ks.includes("neogotico")))ks.push(k)});const top=ks.slice(0,2);
+  return top.length?`<details class="arq"><summary>🏛 <span><b>${s}</b>${e?` · ${e}`:""}</span><em>¿qué es?</em></summary>${top.map(glHTML).join("")}</details>`:`<div class="arq">🏛 <span><b>${s}</b>${e?` · ${e}`:""}</span></div>`};
+
+// estilo arquitectónico de los edificios históricos de Alemania y Praga (por nombre)
+const ARQD=[
+ [/Nuevo Ayuntamiento/,"Neogótico (1867–1909)","Parece medieval, pero se construyó en el siglo XIX: torre alta, arcos en punta y mucha ornamentación de piedra."],
+ [/Teufelstritt/,"Gótico tardío (1488)","La Frauenkirche es de ladrillo rojo, de líneas simples; sus dos torres terminan en cúpulas en forma de cebolla del siglo XVI."],
+ [/Residenz/,"Renacimiento y barroco","El palacio de los reyes de Baviera, ampliado durante siglos: patios y salas del Renacimiento y salones barrocos muy decorados."],
+ [/Nymphenburg/,"Barroco (siglo XVII–XVIII)","Palacio de verano de los reyes bávaros, con un gran jardín. Fachada larga y simétrica, y salones con techos pintados."],
+ [/Neuschwanstein/,"Neorrománico romántico (1869)","Un castillo de cuento del siglo XIX: torres, almenas y salones inspirados en leyendas medievales. Es muy nuevo para parecer tan antiguo."],
+ [/BMW Welt|Olympiapark/,"Arquitectura contemporánea","Formas atrevidas de vidrio, acero y techos de red tensada, hechas para sorprender y parecer una escultura."],
+ [/Puente Carlos/,"Gótico (1357)","Un puente de piedra de arcos redondeados con torres de entrada góticas, y estatuas barrocas de santos a lo largo."],
+ [/Reloj Astron/,"Gótico y barroco","El Ayuntamiento Viejo y su torre son góticos; muchas casas de la plaza son barrocas, con fachadas pintadas y adornos."],
+ [/Casa Danzante/,"Deconstructivismo (1996)","Dos torres de formas curvas e inclinadas, como si bailaran. Es obra del arquitecto Frank Gehry."],
+ [/Torre de la P/,"Gótico tardío (1475)","Una torre sólida de piedra oscura con detalles tallados, que fue una de las puertas de entrada a la ciudad."],
+ [/Strahov/,"Barroco (siglo XVIII)","La biblioteca tiene salones con techos pintados, estanterías doradas y globos antiguos: un barroco pensado para impresionar."],
+ [/Egipcio|Neues Museum/,"Neoclásico y moderno","Un museo del siglo XIX reconstruido por David Chipperfield después de la guerra, dejando ver las cicatrices del bombardeo."],
+ [/Puerta de Brandeburgo/,"Neoclásico (1791)","Imita la entrada de un templo griego, con columnas y una escultura de cuadriga arriba. Era la puerta de la ciudad."],
+ [/Reichstag/,"Neorrenacimiento y contemporáneo","El edificio es de 1894, con formas del Renacimiento. La cúpula de vidrio es de Norman Foster (1999) y deja ver el salón de sesiones."],
+ [/Fernsehturm/,"Moderno (1969)","La torre de televisión de Berlín Oriental: una esfera de acero sobre una aguja de hormigón, símbolo de la ciudad."],
+ [/Catedral de Berl/,"Neobarroco (1905)","Una catedral enorme con cúpula, construida a fines del siglo XIX para parecerse a las grandes iglesias barrocas."],
+ [/Charlottenburg/,"Barroco (1699)","Un palacio largo y simétrico con una torre con cúpula, rodeado de jardines, hecho para la reina Sofía Carlota."],
+ [/Sanssouci/,"Rococó (1747)","Una casa de verano amarilla y dorada, más pequeña que un palacio. Es el rococó prusiano: luminoso, delicado y lleno de adornos."],
+ [/San Miguel/,"Barroco protestante (1762)","Una iglesia luminosa con un gran espacio blanco y dorado, sin imágenes de santos. La torre es el símbolo de Hamburgo."],
+ [/Elbphilharmonie/,"Contemporáneo (2017)","Una sala de conciertos de vidrio con forma de olas, sobre un viejo almacén de ladrillo. Es obra de Herzog & de Meuron."],
+ [/Speicherstadt/,"Neogótico de ladrillo (1883–1927)","Almacenes de ladrillo rojo con torrecillas y ventanas en punta, sobre canales. Es la mayor zona de almacenes del mundo en su tipo."],
+ [/Ayuntamiento \(Rathaus\)/,"Neorrenacimiento (1897)","Un edificio de piedra con una gran torre central y muchas estatuas. Imita los palacios del Renacimiento para mostrar la riqueza de la ciudad."],
+ [/Chilehaus/,"Expresionismo de ladrillo (1924)","Un edificio de ladrillo con forma de proa de barco, sin adornos: la forma curva y los ladrillos son la decoración."],
+ [/St\. Nikolai/,"Neogótico (1874)","Era una de las torres más altas del mundo. Hoy quedan la torre y las ruinas de la iglesia, dejadas como recuerdo de la guerra."]
+];
+const arqFor=a=>{const e=ARQD.find(([re])=>re.test(a.n));return e?arqHTML(e[1],e[2]):""};
+
+let ctxOpen=false,attListOpen=false;const openFic=new Set();
+const attList=(c,idx)=>idx.length?`<details class="attlist" data-attlist${attListOpen?" open":""}><summary>☰ Lista de ${idx.length} (tocar para ir)</summary><ol>${idx.map(i=>{const a=ACTS[c][i],nm=esc2(String(a.n).replace(/\s*\(.*?\)\s*$/,""));return `<li><label class="alchk" title="Agregar al programa"><input type="checkbox" data-act="${aKeyG(c,i)}" ${isSel(c,i)?"checked":""}></label><button type="button" class="aln" data-fjump="f-${c}-${i}">${nm}</button><small>${a.p?fmt(a.p):"gratis"}</small></li>`}).join("")}</ol></details>`:"";
+const railNav=n=>`<div class="railnav"><button type="button" data-rail="-1" aria-label="Ficha anterior">‹</button><span class="rp">1 de ${n}</span><span class="railbar"><i style="width:${n?100/n:0}%"></i></span><button type="button" data-rail="1" aria-label="Ficha siguiente">›</button></div>`;
+const railed=h=>h.replace(/<\/article>/g,'<span class="fcue"><i class="c1">Ver ficha completa ▾</i><i class="c2">Tocar para cerrar ▴</i></span></article>');
+(function(){const cap=(t,f)=>document.addEventListener(t,f,true);
+  cap("toggle",e=>{const d=e.target;if(!d||!d.matches)return;if(d.matches("details.ctxd"))ctxOpen=d.open;if(d.matches("details[data-attlist]"))attListOpen=d.open});
+  const upd=rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
+    const l=rail.getBoundingClientRect().left;let i=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4?cs.length-1:cs.findIndex(c=>c.getBoundingClientRect().right-l>40);if(i<0)i=0;
+    rp.textContent=`${i+1} de ${cs.length}`;bar.style.width=(i+1)/cs.length*100+"%";bs[0].disabled=i<=0;bs[1].disabled=i>=cs.length-1;return i};
+  document.addEventListener("scroll",e=>{const r=e.target;if(r&&r.classList&&r.classList.contains("att"))requestAnimationFrame(()=>upd(r))},true);
+  document.addEventListener("click",e=>{
+    const rb=e.target.closest("[data-rail]");if(rb){const rail=rb.parentElement.nextElementSibling;if(!rail)return;const cs=[...rail.children],i=upd(rail)||0,j=Math.max(0,Math.min(cs.length-1,i+ +rb.dataset.rail));rail.scrollBy({left:cs[j].getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"});return}
+    const jb=e.target.closest("[data-fjump]");if(jb){const f=document.getElementById(jb.dataset.fjump);if(!f)return;const rail=f.closest(".fichas.att");f.classList.add("open");openFic.add(f.id);const lst=jb.closest("details");if(lst){lst.open=false;attListOpen=false}
+      if(rail&&getComputedStyle(rail).display==="flex"){rail.scrollBy({left:f.getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"});scrollTo({top:rail.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})}else f.scrollIntoView({behavior:"smooth",block:"start"});f.classList.add("flash");setTimeout(()=>f.classList.remove("flash"),1600);return}
+    const fc=e.target.closest(".fichas.att .ficha");if(fc&&innerWidth<=900&&!e.target.closest("a,button,select,input,label,details")){fc.classList.toggle("open");fc.classList.contains("open")?(openFic.add(fc.id),fc.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})):openFic.delete(fc.id)}});
+})();
+
+const isAttC=(c,n)=>custom.acts.some(x=>x.c===c&&x.n===n&&!x.del);
+const addAttBtn=(c,n,desc,pr)=>isAttC(c,n)?`<small class="muted">✓ en Atracciones</small>`:`<button type="button" class="lnkb" data-fadd="${c}|${esc2(n)}|${esc2(desc||"")}|${esc2(pr||"")}">+ Atracción</button>`;
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-fadd]");if(!b)return;const [c,n,desc,pr]=b.dataset.fadd.split("|");if(isAttC(c,n))return;b.disabled=true;b.textContent="Buscando…";
+  const CITY={H:"Hamburg",B:"Berlin",P:"Praha",M:"München"};let ll=null,addr="";
+  try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(n.replace(/\s*\(.*?\)/,"")+", "+CITY[c]));const j=await r.json();if(j&&j[0]){ll=[+j[0].lat,+j[0].lon];addr=(j[0].display_name||"").split(",").slice(0,3).join(",")}}catch(_){}
+  const approx=!ll;if(!ll){const h=hotelOf(c);ll=h&&h.ll?h.ll:null}
+  addCustomAct({c,n,p:0,h:1,t:"ent",ll,s:(desc||"Lugar para comer recomendado en Comidas.")+(pr?" · precio aprox. "+pr:""),in:1,close:21,addr});
+  renderAll(true);renderAtt();renderFood();toast(`✔ <b>${esc2(n)}</b> agregado a Atracciones${approx?" (ubicación aproximada)":""}`)});
+
 function fichaHTML(c,i){const a=ACTS[c][i],x=ATTR[c+":"+i];if(!x)return"";const id=`f-${c}-${i}`;const sel=isSel(c,i);
   return `<article class="ficha" id="${id}"><div class="ftab">EXP. ${c}-${String(i+1).padStart(2,"0")} · ${CN[c].toUpperCase()}</div>
    <header><h3>${a.n.replace(/\s*\(.*?\)\s*$/,"")}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
    <p class="flead">${x.s}</p>
-   ${x.h&&x.h.length?`<div class="fhist"><span class="flab">Historia</span>${x.h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${x.h&&x.h.length?`<div class="fwhy"><span class="flab">Por qué vale la pena</span><p>${x.h[0]}</p></div>`:""}
+   ${x.h&&x.h.length>1?`<div class="fhist"><span class="flab">Historia</span>${x.h.slice(1).map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${arqFor(a)}
    ${x.v?`<div><span class="flab">Qué van a ver</span><p>${x.v}</p></div>`:""}
    ${x.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${x.d}</p></div>`:""}
    ${x.f&&x.f.length?`<div class="fphotos">${x.f.map(f=>`<a class="polaroid" href="${f[1]}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${PHOTO[f[0]]?`<img class="ph" src="${PHOTO[f[0]][0]}" alt="${f[0]}" loading="lazy">`:`<span class="ph">📷</span>`}<span class="cap">${f[0]}</span><span class="go">más fotos →</span></a>`).join("")}</div><p class="credit">Fotos: Wikimedia Commons · ${x.f.filter(f=>PHOTO[f[0]]).map(f=>`<a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(PHOTO[f[0]][1].replace(/ /g,"_"))}" target="_blank" rel="noopener">${PHOTO[f[0]][2]}</a>`).join(" · ")}</p>`:""}
@@ -1576,15 +1692,15 @@ function fichaHTML(c,i){const a=ACTS[c][i],x=ATTR[c+":"+i];if(!x)return"";const 
 function renderAtt(){const host=$("att");if(!host)return;const c=attCity,X=CTX[c];
   let h=`<div class="attbar" role="group" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" class="btn ${k===c?"":"alt"}" data-attc="${k}" aria-pressed="${k===c}">${CN[k]}</button>`).join("")}</div>`;
   h+=`<button type="button" class="btn sm findbtn" data-find="1">${IC.lupa} Buscar y agregar atracción o destino personal</button>`;
-  h+=`<section class="ctx card"><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2>${tlSVG(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</section>`;
+  h+=`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tlSVG(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
   const idx=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&(ATTR[c+":"+i].h||[]).length);
   const rest=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&!(ATTR[c+":"+i].h||[]).length);
   idx.sort((x,y)=>(isSel(c,y)-isSel(c,x))||((ACTS[c][y].top?1:0)-(ACTS[c][x].top?1:0)));
-  h+=`<div class="fichas">${idx.map(i=>fichaHTML(c,i)).join("")}</div>`;
+  h+=attList(c,idx)+railNav(idx.length)+`<div class="fichas att">${railed(idx.map(i=>fichaHTML(c,i)).join(""))}</div>`;
   if(rest.length)h+=`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(i=>`<li><b>${ACTS[c][i].n}</b>: ${ATTR[c+":"+i].s}${ATTR[c+":"+i].d?" "+ATTR[c+":"+i].d:""}</li>`).join("")}</ul></div>`;
   h+=customCard(c);
   h+=`<section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas y libros · ${CN[c]}</h2><div class="mgrid">${MEDIA[c].map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas; revisarlas antes de ver.</p></section>`;
-  host.innerHTML=h}
+  host.innerHTML=h;host.querySelectorAll('.fichas.att .ficha').forEach(f=>{if(openFic.has(f.id))f.classList.add('open')});host.querySelectorAll('.fichas.att').forEach(r=>{const n=r.previousElementSibling;if(n&&n.classList.contains('railnav')){const cs=r.children.length;n.querySelector('.rp').textContent='1 de '+cs;n.querySelector('[data-rail="-1"]').disabled=true}})}
 function openFicha(key){const [c,i]=key.split(":");attCity=c;renderAtt();const b=$("tab-att");if(b)b.click();
   setTimeout(()=>{const el=$(`f-${c}-${i}`);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}},60)}
 
@@ -1831,7 +1947,7 @@ function renderFood(){const host=$("food");if(!host)return;const c=cfg.order.inc
   const mine=custom.food.filter(x=>x.c===c);
   let h=`<div class="attbar" role="group" aria-label="Ciudad">${cfg.order.map(k=>`<button type="button" class="btn ${k===c?"":"alt"}" data-foodc="${k}" aria-pressed="${k===c}">${CN[k]}</button>`).join("")}</div>
    <p class="note">Precios aproximados por persona (2026–2027), sin verificar: confírmalos en el lugar. Para jóvenes de 16 años: comida rápida o local, sin restaurantes caros.</p>`;
-  FOOD_G[c].forEach(([t,L])=>{h+=`<div class="card"><span class="eyebrow">${esc2(CN[c])} · ${t}</span><div class="tbl-wrap"><table><thead><tr><th>Lugar</th><th class="r">Precio aprox.</th></tr></thead><tbody>${L.map(r=>`<tr><td><b>${r[0]}</b><br><small class="muted">${r[1]}</small> <a href="${mapq(r[0],c)}" target="_blank" rel="noopener">mapa</a></td><td class="r num">${r[2]}</td></tr>`).join("")}</tbody></table></div></div>`});
+  FOOD_G[c].forEach(([t,L])=>{h+=`<div class="card"><span class="eyebrow">${esc2(CN[c])} · ${t}</span><div class="tbl-wrap"><table><thead><tr><th>Lugar</th><th class="r">Precio aprox.</th></tr></thead><tbody>${L.map(r=>`<tr><td><b>${r[0]}</b><br><small class="muted">${r[1]}</small> <a href="${mapq(r[0],c)}" target="_blank" rel="noopener">mapa</a></td><td class="r num">${r[2]}<br>${addAttBtn(c,r[0],r[1],r[2])}</td></tr>`).join("")}</tbody></table></div></div>`});
   if(mine.length)h+=`<div class="card cust"><span class="eyebrow">Agregados por ustedes · ${esc2(CN[c])}</span><div class="tbl-wrap"><table><tbody>${mine.map(x=>`<tr><td><b>${esc2(x.n)}</b>${x.ft?` <small class="muted">· ${esc2(x.ft)}</small>`:""}${x.s?`<br><small class="muted">${esc2(x.s)}</small>`:""} <a href="${mapq(x.addr||x.n,c)}" target="_blank" rel="noopener">mapa</a>${x.addr?` <small class="muted">· ${esc2(x.addr)}</small>`:""}</td><td class="r num">${esc2(x.pr||"")}<br><button type="button" class="lnkb" data-fooddel="${x.id}">quitar</button></td></tr>`).join("")}</tbody></table></div></div>`;
   h+=`<details class="card manf"><summary><b>＋ Agregar un lugar para comer a mano</b></summary><form class="fform" data-foodform>
    <label class="f">Nombre<input name="n" required placeholder="Ej.: Café Einstein"></label>
