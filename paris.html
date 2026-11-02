@@ -2155,7 +2155,7 @@ function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);cons
 function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:d.c;
   const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN0=sunOf(D(d.d),ll),SUN=d.city==="LO"?Object.fromEntries(Object.entries(SUN0).map(([k,v])=>[k,typeof v==="number"?v-1:v])):SUN0;
   const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"||d.city==="LO"?null:"par";
-  const night=nightK?`Noche en ${esc(hotSelName(nightK)||("alojamiento en "+(nightK==="par"?"París":short(d.c.n))+" (por definir)"))}`:d.city==="LO"?`Noche donde Alli${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
+  const night=nightK?`Noche en ${esc(hotSelName(nightK)||(nightK==="par"?"departamento ("+esc(W.par_dir||PAR_DEF)+")":"alojamiento en "+short(d.c.n)+" (por definir)"))}`:d.city==="LO"?`Noche donde Alli${W.lon_dir?" ("+esc(W.lon_dir)+")":""}`:"Sin noche de hotel";
   const X=d.c?EXT[d.c.id]||{}:{},fx=d.from?ESC.find(x=>x.id===d.from.id):null;
   const tl={first:`🚄 Eurostar ${W.eur_hora?"sale "+esc(W.eur_hora)+" de":"desde"} Londres St Pancras → <b>París Gare du Nord</b> · metro al alojamiento (${esc(ST.base||"centro")}) · <b>París: actividades desde las 14:30</b>`,
     ret:fx?`🚄 Tren ${fx.n} → París (${fx.tr}) por la mañana · <b>París: actividades desde las 14:30</b>`:"",
@@ -2215,6 +2215,7 @@ function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Comple
   return `<div class="daytabs" id="hottabs" role="tablist" aria-label="Ciudad">${S.map(s=>`<button type="button" role="tab" class="dtab" style="--c:${col(s)}" data-htab="${s.k}" aria-selected="${s.k===hotTab}"><b>${short(s.n)}</b><small>${s.nn} ${s.nn===1?"noche":"noches"} · ${esc(hotSelName(s.k)||"sin elegir")}</small></button>`).join("")}</div>
   <div id="hotels" style="display:flex;flex-direction:column;gap:22px">${S.filter(s=>s.k===hotTab).map(s=>{const L=hotList(s.k);
    return `<div class="city" style="--c:${col(s)}"><h3>${s.n} · ${s.nn} ${s.nn===1?"noche":"noches"} · ${pretty(s.ini)} → ${pretty(s.fin)}</h3>
+   ${s.k==="par"&&!hotSelName("par")?`<div class="opt on"><div class="opt-top"><span class="name">🏠 Departamento · ${esc(ST.wiz.par_dir||PAR_DEF)}</span><span class="pill sel">Alojamiento propio</span></div><p class="note" style="margin:6px 0 0">Sin costo de alojamiento. Es el punto de partida de todos los recorridos; la dirección se cambia en <a href="#" data-gotab="cfg">Configurar</a>. Si agregan un hotel y lo eligen, reemplaza al departamento.</p></div>`:""}
    ${s.k==="par"&&ST.esc.some(e=>nights(e.ini,e.fin)>0)?`<p class="note">Las noches de las escapadas no se cuentan aquí. Si mantienen el alojamiento de París mientras viajan, ingresen la tarifa total.</p>`:""}
    <div class="hotels">${L.map(o=>{const pp=o.price?(o.mode==="t"?+o.price/Math.max(1,s.nn):+o.price)/2:0;
     return `<div class="opt${o.sel?" on":""}"><div class="opt-top"><input type="radio" name="h-${s.k}" data-hsel="${s.k}|${o.id}" ${o.sel?"checked":""} aria-label="Elegir ${esc(o.n)}"><span class="name">${esc(o.n)}</span><span class="pill ${o.sel?"sel":""}">${o.sel?"✔ Elegido":"Alternativa"}</span></div>
