@@ -319,6 +319,23 @@ html:root[data-paper="1"] .dchipw .dchips,html:root[data-paper="1"] .dchips{padd
 html:root[data-paper="1"] .dchipw::after{bottom:12px;height:60px;background:radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 0/28px 12px,radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 100%/28px 12px}
 html:root[data-paper="1"] .dchipw::before{top:calc(100% - 73px)}
 html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
+
+#calBtn{display:none!important}
+.attfil{display:flex;flex-direction:column;gap:2px;margin:0}
+.attfil .afrow{display:flex;align-items:center;gap:8px;min-width:0}
+.attfil .afrow .eyebrow{flex:none;margin:0;font-size:11px;width:74px}
+.attfil .filters{flex-wrap:nowrap;min-width:0;padding-bottom:2px}
+.attfil .chip{padding:4px 10px;font-size:12px;color:var(--ink)}
+.attfil .chip[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.daytabs.stag{display:grid!important;gap:0!important;padding-top:24px}
+.daytabs.stag .dtab{flex:none;min-width:0;text-align:center;padding:7px 2px 6px!important;margin:0}
+.daytabs.stag .dtab b{font-size:11.5px;letter-spacing:.02em;white-space:normal;line-height:1.15}
+.daytabs.stag .dtab small{display:none}
+#p-prog #daytabs.stag .dtab::before,#p-prog #daytabs.stag .dtab::after,#p-hot #hottabs.stag .dtab::before,#p-hot #hottabs.stag .dtab::after{display:none!important}
+.daytabs.stag .dtab[style*="grid-row: 2"]{margin-top:-7px;z-index:2;opacity:1}
+.daytabs.stag .dtab[style*="grid-row: 1"]{z-index:1;opacity:.9}
+.daytabs.stag .dtab[aria-selected="true"]{z-index:3;opacity:1}
+#p-prog #daytabs.stag .dtab::before,#p-prog #daytabs.stag .dtab::after{display:none!important}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -1694,6 +1711,21 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-fadd
   renderAll(true);renderAtt();renderFood();toast(`✔ <b>${esc2(n)}</b> agregado a Atracciones${approx?" (ubicación aproximada)":""}`)});
 
 document.addEventListener("click",e=>{if(!e.target.closest("[data-cabhelp]"))return;const p=[...document.querySelectorAll(".panel")].find(x=>!x.hidden),g=p&&p.querySelector(".guide");if(g){g.open=!g.open;if(g.open)g.scrollIntoView({block:"center",behavior:"smooth"})}});
+function stagger(){document.querySelectorAll(".daytabs").forEach(c=>{
+  c.classList.remove("stag");c.style.gridTemplateColumns="";const t=[...c.querySelectorAll(":scope > .dtab")];t.forEach(x=>{x.style.gridColumn="";x.style.gridRow=""});
+  if(t.length<3)return;
+  const bad=c.scrollWidth>c.clientWidth+1||t.some(x=>{const b=x.querySelector("b");return b&&b.scrollWidth>b.clientWidth+1});
+  if(!bad)return;
+  const n=t.length,top=Math.ceil(n/2),cols=n%2?2*top:n+1,act=t.findIndex(x=>x.getAttribute("aria-selected")==="true"),aTop=act>=0&&act<top;
+  c.classList.add("stag");c.style.gridTemplateColumns=`repeat(${cols},minmax(0,1fr))`;
+  t.forEach((x,i)=>{const g=i<top;const j=g?i:i-top;x.style.gridColumn=g?`${2*j+1} / span 2`:`${2*j+2} / span 2`;x.style.gridRow=(g===aTop)?"2":"1"})})}
+addEventListener("resize",()=>stagger());try{document.fonts.ready.then(()=>stagger())}catch(e){}
+
+let attCat="todas",attFilt="todas";
+const attPass=(c,i)=>{const a=ACTS[c][i];return (attCat==="todas"||catKey(c,i)===attCat)&&(attFilt==="todas"||(attFilt==="prog"&&isSel(c,i))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in)||(attFilt==="teen"&&a.teen))};
+function attFilters(c,idx){const cats=allCats().filter(([k])=>idx.some(i=>catKey(c,i)===k));if(attCat!=="todas"&&!cats.some(x=>x[0]===attCat))attCat="todas";const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"],["teen","🎮 Para 16 años"]];
+  return `<div class="attfil"><div class="afrow"><span class="eyebrow">Categoría</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todas (${idx.length})</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} (${idx.filter(i=>catKey(c,i)===k).length})</button>`).join("")}</div></div><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div></div>`}
+document.addEventListener("click",e=>{const k=e.target.closest("[data-attcat]");if(k){attCat=k.dataset.attcat;renderAtt();return}const f=e.target.closest("[data-attf]");if(f){attFilt=f.dataset.attf;renderAtt()}});
 function fichaHTML(c,i){const a=ACTS[c][i],x=ATTR[c+":"+i];if(!x)return"";const id=`f-${c}-${i}`;const sel=isSel(c,i);
   return `<article class="ficha" id="${id}"><div class="ftab">EXP. ${c}-${String(i+1).padStart(2,"0")} · ${CN[c].toUpperCase()}</div>
    <header><h3>${a.n.replace(/\s*\(.*?\)\s*$/,"")}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
@@ -1714,7 +1746,8 @@ function renderAtt(){const host=$("att");if(!host)return;const c=attCity,X=CTX[c
   const idx=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&(ATTR[c+":"+i].h||[]).length);
   const rest=ACTS[c].map((a,i)=>i).filter(i=>ATTR[c+":"+i]&&!(ATTR[c+":"+i].h||[]).length);
   idx.sort((x,y)=>(isSel(c,y)-isSel(c,x))||((ACTS[c][y].top?1:0)-(ACTS[c][x].top?1:0)));
-  h+=railNav(idx.length)+`<div class="fichas att">${railed(idx.map(i=>fichaHTML(c,i)).join(""))}</div>`;
+  const idxF=idx.filter(i=>attPass(c,i));
+  h+=attFilters(c,idx)+(idxF.length?railNav(idxF.length)+`<div class="fichas att">${railed(idxF.map(i=>fichaHTML(c,i)).join(""))}</div>`:`<p class="muted" style="margin:6px 0">Ninguna atracción cumple estos filtros.</p>`);
   if(rest.length)h+=`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(i=>`<li><b>${ACTS[c][i].n}</b>: ${ATTR[c+":"+i].s}${ATTR[c+":"+i].d?" "+ATTR[c+":"+i].d:""}</li>`).join("")}</ul></div>`;
   h+=customCard(c);
   h+=`<section class="card media"><span class="eyebrow">Para llegar sabiendo</span><h2>Películas y libros · ${CN[c]}</h2><div class="mgrid">${MEDIA[c].map(m=>`<div class="mitem"><b>${m[0]}</b>${m[3]?` <span class="tag">${m[3]}</span>`:""}<small>${m[1]}</small><p>${m[2]}</p></div>`).join("")}</div><p class="note">Las clasificaciones por edad son aproximadas; revisarlas antes de ver.</p></section>`;
@@ -2020,14 +2053,14 @@ const MOB=matchMedia("(max-width:700px)");const isMob=()=>MOB.matches;
 let progDay={};try{progDay=JSON.parse(localStorage.getItem("ruta_progday")||"{}")}catch(e){}
 const openActs=new Set();
 function renderDayTabs(plan){const t=$("daytabs");if(!t)return;if(!cfg.order.includes(progCity))progCity=cfg.order[0];
-  t.innerHTML=cfg.order.map(c=>{const ds=plan.filter(d=>d.city===c||d.from===c);const a=ds[0],b=ds[ds.length-1];
+  t.innerHTML=`<button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>`+cfg.order.map(c=>{const ds=plan.filter(d=>d.city===c||d.from===c);const a=ds[0],b=ds[ds.length-1];
     return `<button type="button" role="tab" class="dtab ${c}" data-dtab="${c}" aria-selected="${c===progCity}"><b>${CN[c]}</b><small>${a?pretty(a.date):""}${b&&b!==a?" – "+pretty(b.date):""} · ${ds.length} ${ds.length>1?"días":"día"}</small></button>`}).join("");
   {const ds=plan.filter(d=>d.city===progCity||d.from===progCity);if(!ds.some(d=>d.id===progDay[progCity]))progDay[progCity]=ds[0]&&ds[0].id;
     const CCV={M:"--mun",P:"--pra",B:"--ber",H:"--ham"};const dw=$("dchipw");if(dw){dw.style.setProperty("--cc",`var(${CCV[progCity]||"--ink"})`);dw.innerHTML=`<div class="dchips">${ds.map((d,i)=>{const q=pretty(d.date).split(" "),tg=d.from===progCity?"→ "+CN[d.city].slice(0,3):d.from?"llegada":i===0?"llegada":d.final?"fin":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div>`};
     const f=plan.feas&&plan.feas[progCity];const fm=$("feasmini");if(fm&&f){const n=f.unpl.length;fm.className="feasmini "+(n?"bad":"ok");fm.innerHTML=`<span>${n?`✕ ${CN[progCity]}: no caben ${n} actividad${n>1?"es":""}`:`✓ ${CN[progCity]}: todo cabe`}</span><span>${document.body.classList.contains("feas-open")?"ocultar ▴":"ver ▾"}</span>`}}
   let fv=0;document.querySelectorAll("#days > .day").forEach(el=>{el.hidden=!(el.classList.contains(progCity)||el.classList.contains("from-"+progCity));const isFrom=el.classList.contains("from-"+progCity);el.classList.toggle("view-from",isFrom);el.classList.toggle("view-to",!isFrom&&[...el.classList].some(c=>c.startsWith("from-")));el.classList.toggle("first-vis",!el.hidden&&!fv);el.classList.toggle("sel",!el.hidden&&el.dataset.day===progDay[progCity]);if(!el.hidden)fv=1});
   document.querySelectorAll(".actrow2[data-k]").forEach(r=>r.classList.toggle("open",openActs.has(r.closest(".day").dataset.day+"|"+r.dataset.k)));
-  document.querySelectorAll("#days > .day").forEach(d=>{const c=d.querySelector(".blk-com"),t=d.querySelector(".blk-tr");if(c)c.classList.toggle("open",openActs.has(d.dataset.day+"|com"));if(t)t.classList.toggle("open",openActs.has(d.dataset.day+"|tr"))})}
+  document.querySelectorAll("#days > .day").forEach(d=>{const c=d.querySelector(".blk-com"),t=d.querySelector(".blk-tr");if(c)c.classList.toggle("open",openActs.has(d.dataset.day+"|com"));if(t)t.classList.toggle("open",openActs.has(d.dataset.day+"|tr"))});stagger()}
 MOB.addEventListener("change",()=>{try{renderDayTabs(PLAN)}catch(e){}});matchMedia("(max-width:900px)").addEventListener("change",()=>{try{renderDayTabs(PLAN)}catch(e){}});
 // Al hacer scroll, la pastilla del día que se está viendo queda marcada
 let _spyLock=0,_spyT=null;window.addEventListener("scroll",()=>{if(_spyT)return;_spyT=setTimeout(()=>{_spyT=null;if(Date.now()-_spyLock<900||matchMedia("(max-width:900px)").matches)return;const tb=$("daytabs"),p=$("p-prog");if(!tb||!p||p.hidden)return;const lim=tb.getBoundingClientRect().bottom+40;let cur=null;
