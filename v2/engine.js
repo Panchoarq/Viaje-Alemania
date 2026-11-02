@@ -201,7 +201,7 @@ function blkUI(days,num){return `<div class="blkq"><span class="flab">${num} · 
 function blkNote(d){const b=blkOf(d.d);if(!b||(d.city!=="PA"&&d.city!=="LO"))return"";
   return `<span class="blknote ${b.k==="free"?"free":""}">${b.k==="free"?"🌿 <b>Día libre</b>: sin actividades programadas":`🔒 <b>${b.k==="am"?"Mañana ocupada":b.k==="pm"?"Tarde y noche ocupadas":"Día ocupado"}</b>${b.t?": "+esc(b.t):""}`}</span>`}
 function loOrgCard(A){const ld=lonDays();if(!ld.length)return"";const n=LON.filter(loSel).length;const nb=ld.filter(x=>blkOf(x.d)).length;const lr=A.RL||{unpl:[]};
-  const head=`<span>🧭 <b>Organizar Londres (con Alli):</b> ${ld.length} días · <b>${n}</b> actividad${n===1?"":"es"}${nb?` · ${nb} día${nb>1?"s":""} bloqueado${nb>1?"s":""} o libre${nb>1?"s":""}`:""}${lr.unpl.length?` · <b class="bad">✕ no caben ${lr.unpl.length}</b>`:""}</span>`;
+  const head=`<span>🧭 <b>Organizar Londres (con Alli):</b> ${ld.length} días · <b>${n}</b> actividad${n===1?"":"es"} · ritmo ${RIT[ritOf("LO")].n.toLowerCase()}${nb?` · ${nb} día${nb>1?"s":""} bloqueado${nb>1?"s":""} o libre${nb>1?"s":""}`:""}${lr.unpl.length?` · <b class="bad">✕ no caben ${lr.unpl.length}</b>`:""}</span>`;
   if(!ST.loOrg)return `<div class="jcard lo">${head}<span class="jact"><button type="button" class="btn sm" data-loorg>✏️ Organizar Londres</button></span></div>`;
   return `<div class="jcard lo open"><div class="jtop">${head}<button type="button" class="btn sm" data-loorgdone>✓ Listo · organizar</button></div>
    <span class="flab" style="display:block;margin-top:6px">Ritmo</span>${ritSel("LO")}
@@ -220,7 +220,7 @@ function jCard(A){const W=ST.wiz;if(!W[K.parIni]||!W[K.parFin])return"";const j=
   const JD=junDays(),jun=ST.paJun||{};const JL=PA.filter(a=>jun[a.id]&&paSel(a));
   const need=JL.reduce((t,a)=>t+a.h+0.3,0),avail=JD.reduce((t,x)=>{const b=blkOf(x.d);const c=x.first||x.ret?3:7;return t+(!b?c:b.k==="am"||b.k==="pm"?Math.min(c,3.5):0)},0);
   const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>jun[a.id]).length;
-  const head=`<span>👭 <b>Días con Alli:</b> ${pretty(j.ini)} → ${pretty(j.fin)} · ${JD.length} días · <b>${JL.length}</b> actividad${JL.length===1?"":"es"} · ${need.toFixed(1)} / ${avail.toFixed(1)} h${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
+  const head=`<span>👭 <b>Días con Alli:</b> ${pretty(j.ini)} → ${pretty(j.fin)} · ${JD.length} días · <b>${JL.length}</b> actividad${JL.length===1?"":"es"} · ${need.toFixed(1)} / ${avail.toFixed(1)} h · ritmo ${RIT[ritOf("PAJ")].n.toLowerCase()}${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
   if(!j.mode)return `<div class="jcard">${head}<span class="jact"><button type="button" class="btn sm" data-jmode>✏️ Organizar días con Alli</button></span></div>`;
   const last=parisDays().slice(-1)[0];
   return `<div class="jcard open"><div class="jtop">${head}<button type="button" class="btn sm" data-jdone>✓ Listo · volver al programa</button></div>
@@ -543,7 +543,7 @@ function tripCal(A){if(!calOpen)return "";const {M,ini,fin}=tripDays(A);if(!ini|
 function goDay(id){const A=window.LAST_A;const d=A&&A.days.find(x=>x.id===id);if(!d)return;calOpen=false;calPop=null;tab="prog";try{localStorage.setItem(TRIP.ls+"_tab","prog")}catch(e){}
   progCity=d.city;try{localStorage.setItem(TRIP.ls+"_progcity",progCity)}catch(e){}progDay[progCity]=id;render();
   setTimeout(()=>{document.querySelectorAll("[data-dchip]").forEach(y=>y.setAttribute("aria-pressed",y.dataset.dchip===id));document.querySelectorAll("#days > .day").forEach(q=>q.classList.toggle("sel",q.dataset.day===id&&!q.hidden));const dv=document.querySelector(`#days > .day[data-day="${id}"]`);if(dv)dayScroll(dv)},80)}
-function dayScroll(dv){const ch=document.querySelector(".dchips"),cb=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cabH"))||0;scrollTo({top:dv.getBoundingClientRect().top+scrollY-cb-(ch&&ch.offsetHeight||0)-6,behavior:"smooth"})}
+function dayScroll(dv){const ch=document.querySelector(".dchipw"),cb=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cabH"))||0;scrollTo({top:dv.getBoundingClientRect().top+scrollY-cb-(ch&&ch.offsetHeight||0)-6,behavior:"smooth"})}
 function toast(m){if(!m)return;let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.setAttribute("role","status");t.setAttribute("aria-live","polite");document.body.appendChild(t)}t.innerHTML=m;t.className="on";clearTimeout(toast._t);toast._t=setTimeout(()=>t.className="",3800)}
 function selMsg(id){const a=actById(id);if(!a)return"";if(!selOf(a))return `✕ <b>${esc(a.n)}</b> quitada del programa`;const d=ACTDAY[id];const pin=(ST.paPin||{})[id];
   return d?`✔ <b>${esc(a.n)}</b> → ${pretty(d)}${pin?" (día fijado)":" (día automático)"}`:`⚠ <b>${esc(a.n)}</b> no cabe${pin?" ese día":""}: prueba otro día o ritmo intenso`}
@@ -661,8 +661,11 @@ function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fe
   const nun=A.R.unpl.length;
   return `${progCity==="LO"||progCity==="PA"?"":`<div class="feas">${fcards(A,progCity)}</div>`}
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}</div>
-   <div class="dchips" style="--cc:${(A.C.find(c=>c.k===progCity)||{}).c||"var(--ink)"}">${ds.map(d=>{const q=pretty(d.d).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.kind==="final"?"fin":d.kind==="ret"?"vuelta":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div>
-   ${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${d.city===progCity&&d.id===progDay[progCity]?" sel":""}"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
+   ${orgBar(A)}<div class="dchipw" style="--cc:${(A.C.find(c=>c.k===progCity)||{}).c||"var(--ink)"}"><div class="dchips">${ds.map(d=>{const q=pretty(d.d).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.kind==="final"?"fin":d.kind==="ret"?"vuelta":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div></div><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${d.city===progCity&&d.id===progDay[progCity]?" sel":""}"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details>`}
+let orgOpen=null;
+function orgBar(A){const opts=progCity==="LO"?[{k:"lo",ic:"🧭",t:"Londres",h:loOrgCard(A),ed:ST.loOrg}]:progCity==="PA"?[{k:"jun",ic:"👭",t:"Con Alli",h:jCard(A),ed:ST.jun&&ST.jun.mode},{k:"solo",ic:"🧭",t:"Sin Alli",h:soloCard(A),ed:ST.soloOrg}]:[];
+  const ok=opts.filter(o=>o.h);if(!ok.length)return"";const show=ok.filter(o=>o.ed||orgOpen===o.k);
+  return `<div class="orgbar"><span class="eyebrow">Organizar</span>${ok.map(o=>`<button type="button" class="orgb" data-orgk="${o.k}" aria-pressed="${show.includes(o)}" title="Organizar: ${o.t}"><span>${o.ic}</span>${o.t}</button>`).join("")}</div>${show.length?`<div class="orgpanel">${show.map(o=>o.h).join("")}</div>`:""}`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
@@ -1235,6 +1238,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const fm=$("#feasmini");if(fm)fm.onclick=()=>{document.body.classList.toggle("feas-open");render()};
   Q("[data-gofeas]",x=>x.onclick=e=>{e.preventDefault();attCity=x.dataset.gofeas;attFilt="todas";attCat="todas";go("att");scrollTo(0,0)});
   Q("details.ctxd",d=>d.ontoggle=()=>{ctxOpen=d.open});
+  Q("[data-orgk]",b=>b.onclick=()=>{orgOpen=orgOpen===b.dataset.orgk?null:b.dataset.orgk;render()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
     const upd=()=>{const i=cur();rp.textContent=`${i+1} de ${cs.length}`;bar.style.width=(i+1)/cs.length*100+"%";bs[0].disabled=i<=0;bs[1].disabled=i>=cs.length-1};

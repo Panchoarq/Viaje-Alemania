@@ -387,7 +387,6 @@ details.legd{margin:0 0 8px}details.legd summary{cursor:pointer;font-size:13px;c
   #p-prog #daytabs .dtab[aria-selected="true"]{padding-top:9px}
   #p-prog #daytabs .dtab[aria-selected="true"]::after{right:6px;top:-25px;height:31px;width:11px}#p-prog #daytabs .dtab[aria-selected="true"]::before{right:9px;top:-19px;height:20px}#p-prog #daytabs{padding-top:24px}
   #p-prog #daytabs{position:static}
-  .dchips{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 8px;scrollbar-width:none;position:sticky;top:var(--cabH,0px);z-index:6;background:var(--bg);border-bottom:1.5px solid var(--ink);margin:0 -2px}
   .dchip{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;height:52px;padding:0;border:1.5px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font-family:var(--f-mono);line-height:1.05}
   .dchip i{font-style:normal;font-size:10px;text-transform:uppercase;letter-spacing:.04em;opacity:.8}
   .dchip b{font-size:20px}
@@ -1150,7 +1149,8 @@ html.cab header.cabh{border-bottom:0!important;padding:0;gap:0}
 .cabh .cusr{gap:5px}.cib{width:28px;height:28px}
 html.cab .wrap{padding-top:6px;gap:8px}
 html.cab .guide:not([open]){display:none}
-@media (max-width:700px){
+@media (max-width:900px){
+  .totop{display:none!important}
   .jcard:not(.open){padding:6px 10px;margin:0 0 6px;gap:6px 8px;flex-wrap:nowrap;font-size:13px;line-height:1.3}
   .jcard:not(.open)>span:first-child{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .jcard:not(.open) .btn{flex:none;padding:5px 10px;font-size:12px;min-height:0}
@@ -1166,15 +1166,26 @@ html.cab .guide:not([open]){display:none}
 .dper[data-p="n"]{background:color-mix(in srgb,#2b3a67 14%,var(--card));border-left-color:#2b3a67}
 .dfoot{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-top:8px;border-top:1.5px dashed var(--line);grid-column:1/-1}
 #p-prog #daytabs{position:static}
-.dchips{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 8px;scrollbar-width:none;position:sticky;top:var(--cabH,0px);z-index:6;background:var(--bg);border-bottom:1.5px solid var(--ink);margin:0 -2px}
+.dchipw{position:sticky;top:var(--cabH,0px);z-index:6;background:var(--bg);border-bottom:1.5px solid var(--ink)}
+.dchips{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 8px;scrollbar-width:none}
+.orgbar{display:flex;align-items:center;gap:6px;padding:2px 0}
+.orgb{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);padding:3px 11px 3px 6px;font:700 12px var(--f-mono);cursor:pointer}
+.orgb span{font-size:15px}
+.orgb[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.orgpanel{display:flex;flex-direction:column;gap:6px}
+.orgpanel .jcard{margin:0}
+.orgpanel .jcard:not(.open){flex-wrap:wrap}
+.orgpanel .jcard:not(.open)>span:first-child{display:block;-webkit-line-clamp:unset;overflow:visible}
 .dchip{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;height:52px;padding:0;border:1.5px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font-family:var(--f-mono);line-height:1.05}
 .dchip i{font-style:normal;font-size:10px;text-transform:uppercase;letter-spacing:.04em;opacity:.8}
 .dchip b{font-size:20px}
 .dchip small{font-size:8.5px;text-transform:uppercase;letter-spacing:.02em;opacity:.8}
 .dchip[aria-pressed="true"]{background:var(--cc,var(--ink));color:var(--card);box-shadow:2px 2px 0 var(--ink)}
 html #days > .day:not(.sel){display:none!important}
-@media (min-width:901px){.dchips{top:0}}
-html:root[data-paper="1"] .dchips{padding-bottom:22px;border-bottom:0}
+@media (min-width:901px){.dchipw{top:0}}
+html:root[data-paper="1"] .dchipw{border-bottom:0}
+html:root[data-paper="1"] .dchips{padding-bottom:24px}
+html:root[data-paper="1"] .dchipw::after{content:"";position:absolute;left:30px;right:30px;bottom:8px;height:12px;pointer-events:none;background:radial-gradient(circle at 14px 6px,#4a4038 0 3.6px,rgba(0,0,0,.22) 4px,transparent 4.8px) space no-repeat 0 0/28px 12px}
 html:root[data-paper="1"] #days > .day.sel{padding-top:40px!important}
 html:root[data-paper="1"] #days > .day.sel::before{display:block!important;top:-34px!important;height:62px!important;background-size:28px 62px!important}
 html:root[data-paper="1"] #days > .day.sel::after{display:block!important;top:11px!important}
@@ -1239,7 +1250,7 @@ const IC={lupa:ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>'),
 /* ===== Cabecera compacta (celular): activa por defecto · se apaga con ?cab=0 (y se vuelve a prender con ?cab=1) ===== */
 const CAB=(()=>{try{const q=new URLSearchParams(location.search).get("cab");if(q==="1"||q==="0")localStorage.setItem("paris_cab",q);return localStorage.getItem("paris_cab")!=="0"}catch(e){return true}})();
 document.documentElement.classList.toggle("cab",CAB);
-try{const q=new URLSearchParams(location.search).get("nav");if(q==="b"||q==="t")localStorage.setItem("paris_nav",q);document.documentElement.classList.toggle("navb",localStorage.getItem("paris_nav")==="b")}catch(e){}
+try{const q=new URLSearchParams(location.search).get("nav");if(q==="b"||q==="t")localStorage.setItem("paris_nav",q);document.documentElement.classList.toggle("navb",localStorage.getItem("paris_nav")!=="t")}catch(e){}
 try{const q=new URLSearchParams(location.search).get("tabs");if(q==="1"||q==="0")localStorage.setItem("paris_tabs",q);document.documentElement.classList.toggle("tabs2",localStorage.getItem("paris_tabs")==="1")}catch(e){}
 const CABIC={cfg:ic('<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'),prog:ic('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
  att:ic('<path d="M3 21h18M5 21V10M19 21V10M9 21v-8M15 21v-8M12 3l9 6H3z"/>'),esc:ic('<rect x="6" y="3" width="12" height="13" rx="3"/><path d="M6 10h12M9 20l1.5-4M15 20l-1.5-4"/>'),
@@ -1577,7 +1588,7 @@ function blkUI(days,num){return `<div class="blkq"><span class="flab">${num} · 
 function blkNote(d){const b=blkOf(d.d);if(!b||(d.city!=="PA"&&d.city!=="LO"))return"";
   return `<span class="blknote ${b.k==="free"?"free":""}">${b.k==="free"?"🌿 <b>Día libre</b>: sin actividades programadas":`🔒 <b>${b.k==="am"?"Mañana ocupada":b.k==="pm"?"Tarde y noche ocupadas":"Día ocupado"}</b>${b.t?": "+esc(b.t):""}`}</span>`}
 function loOrgCard(A){const ld=lonDays();if(!ld.length)return"";const n=LON.filter(loSel).length;const nb=ld.filter(x=>blkOf(x.d)).length;const lr=A.RL||{unpl:[]};
-  const head=`<span>🧭 <b>Organizar Londres (con Alli):</b> ${ld.length} días · <b>${n}</b> actividad${n===1?"":"es"}${nb?` · ${nb} día${nb>1?"s":""} bloqueado${nb>1?"s":""} o libre${nb>1?"s":""}`:""}${lr.unpl.length?` · <b class="bad">✕ no caben ${lr.unpl.length}</b>`:""}</span>`;
+  const head=`<span>🧭 <b>Organizar Londres (con Alli):</b> ${ld.length} días · <b>${n}</b> actividad${n===1?"":"es"} · ritmo ${RIT[ritOf("LO")].n.toLowerCase()}${nb?` · ${nb} día${nb>1?"s":""} bloqueado${nb>1?"s":""} o libre${nb>1?"s":""}`:""}${lr.unpl.length?` · <b class="bad">✕ no caben ${lr.unpl.length}</b>`:""}</span>`;
   if(!ST.loOrg)return `<div class="jcard lo">${head}<span class="jact"><button type="button" class="btn sm" data-loorg>✏️ Organizar Londres</button></span></div>`;
   return `<div class="jcard lo open"><div class="jtop">${head}<button type="button" class="btn sm" data-loorgdone>✓ Listo · organizar</button></div>
    <span class="flab" style="display:block;margin-top:6px">Ritmo</span>${ritSel("LO")}
@@ -1596,7 +1607,7 @@ function jCard(A){const W=ST.wiz;if(!W.eur_fecha||!W.vue_fecha)return"";const j=
   const JD=junDays(),jun=ST.paJun||{};const JL=PA.filter(a=>jun[a.id]&&paSel(a));
   const need=JL.reduce((t,a)=>t+a.h+0.3,0),avail=JD.reduce((t,x)=>{const b=blkOf(x.d);const c=x.first||x.ret?3:7;return t+(!b?c:b.k==="am"||b.k==="pm"?Math.min(c,3.5):0)},0);
   const R=A.R||{unpl:[]};const nun=R.unpl.filter(a=>jun[a.id]).length;
-  const head=`<span>👭 <b>Días con Alli:</b> ${pretty(j.ini)} → ${pretty(j.fin)} · ${JD.length} días · <b>${JL.length}</b> actividad${JL.length===1?"":"es"} · ${need.toFixed(1)} / ${avail.toFixed(1)} h${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
+  const head=`<span>👭 <b>Días con Alli:</b> ${pretty(j.ini)} → ${pretty(j.fin)} · ${JD.length} días · <b>${JL.length}</b> actividad${JL.length===1?"":"es"} · ${need.toFixed(1)} / ${avail.toFixed(1)} h · ritmo ${RIT[ritOf("PAJ")].n.toLowerCase()}${nun?` · <b class="bad">✕ no caben ${nun}</b>`:""}</span>`;
   if(!j.mode)return `<div class="jcard">${head}<span class="jact"><button type="button" class="btn sm" data-jmode>✏️ Organizar días con Alli</button></span></div>`;
   const last=parisDays().slice(-1)[0];
   return `<div class="jcard open"><div class="jtop">${head}<button type="button" class="btn sm" data-jdone>✓ Listo · volver al programa</button></div>
@@ -2093,7 +2104,7 @@ function tripCal(A){if(!calOpen)return "";const {M,ini,fin}=tripDays(A);if(!ini|
 function goDay(id){const A=window.LAST_A;const d=A&&A.days.find(x=>x.id===id);if(!d)return;calOpen=false;calPop=null;tab="prog";try{localStorage.setItem("paris_tab","prog")}catch(e){}
   progCity=d.city;try{localStorage.setItem("paris_progcity",progCity)}catch(e){}progDay[progCity]=id;render();
   setTimeout(()=>{document.querySelectorAll("[data-dchip]").forEach(y=>y.setAttribute("aria-pressed",y.dataset.dchip===id));document.querySelectorAll("#days > .day").forEach(q=>q.classList.toggle("sel",q.dataset.day===id&&!q.hidden));const dv=document.querySelector(`#days > .day[data-day="${id}"]`);if(dv)dayScroll(dv)},80)}
-function dayScroll(dv){const ch=document.querySelector(".dchips"),cb=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cabH"))||0;scrollTo({top:dv.getBoundingClientRect().top+scrollY-cb-(ch&&ch.offsetHeight||0)-6,behavior:"smooth"})}
+function dayScroll(dv){const ch=document.querySelector(".dchipw"),cb=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cabH"))||0;scrollTo({top:dv.getBoundingClientRect().top+scrollY-cb-(ch&&ch.offsetHeight||0)-6,behavior:"smooth"})}
 function toast(m){if(!m)return;let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.setAttribute("role","status");t.setAttribute("aria-live","polite");document.body.appendChild(t)}t.innerHTML=m;t.className="on";clearTimeout(toast._t);toast._t=setTimeout(()=>t.className="",3800)}
 function selMsg(id){const a=actById(id);if(!a)return"";if(!selOf(a))return `✕ <b>${esc(a.n)}</b> quitada del programa`;const d=ACTDAY[id];const pin=(ST.paPin||{})[id];
   return d?`✔ <b>${esc(a.n)}</b> → ${pretty(d)}${pin?" (día fijado)":" (día automático)"}`:`⚠ <b>${esc(a.n)}</b> no cabe${pin?" ese día":""}: prueba otro día o ritmo intenso`}
@@ -2211,7 +2222,11 @@ function pProg(A){if(!A.days.length)return `<div class="card"><p>Completa las fe
   const nun=A.R.unpl.length;
   return `${progCity==="LO"||progCity==="PA"?"":`<div class="feas">${fcards(A,progCity)}</div>`}
    <div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad"><button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>${A.C.map(c=>{const cd=A.days.filter(d=>d.city===c.k);const a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${c.c}" data-dtab="${c.k}" aria-selected="${c.k===progCity}"><b>${short(c.n)}</b><small>${a?pretty(a.d):""}${b&&b!==a?" – "+pretty(b.d):""} · ${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}</div>
-   ${progCity==="LO"?loOrgCard(A):progCity==="PA"?jCard(A)+soloCard(A):""}${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details><div class="dchips" style="--cc:${(A.C.find(c=>c.k===progCity)||{}).c||"var(--ink)"}">${ds.map(d=>{const q=pretty(d.d).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.kind==="final"?"fin":d.kind==="ret"?"vuelta":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${d.city===progCity&&d.id===progDay[progCity]?" sel":""}"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>`}
+   ${orgBar(A)}<div class="dchipw" style="--cc:${(A.C.find(c=>c.k===progCity)||{}).c||"var(--ink)"}"><div class="dchips">${ds.map(d=>{const q=pretty(d.d).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.kind==="final"?"fin":d.kind==="ret"?"vuelta":q[2]||"";return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===progDay[progCity]}"><i>${q[0]}</i><b>${q[1]}</b><small>${tg}</small></button>`}).join("")}</div></div><div class="days" id="days">${A.days.map(d=>dayHTML(d,A).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${d.city===progCity&&d.id===progDay[progCity]?" sel":""}"${d.city===progCity?"":" hidden"}${a}>`)).join("")}</div>${progCity==="LO"||progCity==="PA"?wxCard(A,progCity):""}<details class="legd"><summary>Leyenda</summary><div class="feas">${fcards(A,"legend")}</div></details>`}
+let orgOpen=null;
+function orgBar(A){const opts=progCity==="LO"?[{k:"lo",ic:"🧭",t:"Londres",h:loOrgCard(A),ed:ST.loOrg}]:progCity==="PA"?[{k:"jun",ic:"👭",t:"Con Alli",h:jCard(A),ed:ST.jun&&ST.jun.mode},{k:"solo",ic:"🧭",t:"Sin Alli",h:soloCard(A),ed:ST.soloOrg}]:[];
+  const ok=opts.filter(o=>o.h);if(!ok.length)return"";const show=ok.filter(o=>o.ed||orgOpen===o.k);
+  return `<div class="orgbar"><span class="eyebrow">Organizar</span>${ok.map(o=>`<button type="button" class="orgb" data-orgk="${o.k}" aria-pressed="${show.includes(o)}" title="Organizar: ${o.t}"><span>${o.ic}</span>${o.t}</button>`).join("")}</div>${show.length?`<div class="orgpanel">${show.map(o=>o.h).join("")}</div>`:""}`}
 
 // ---------- 3 · Alojamiento ----------
 function pHot(){const S=stays();if(!S.length)return `<div class="card"><p>Completa las fechas en <b>1 · Configurar</b>.</p></div>`;
@@ -3000,6 +3015,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const fm=$("#feasmini");if(fm)fm.onclick=()=>{document.body.classList.toggle("feas-open");render()};
   Q("[data-gofeas]",x=>x.onclick=e=>{e.preventDefault();attCity=x.dataset.gofeas;attFilt="todas";attCat="todas";go("att");scrollTo(0,0)});
   Q("details.ctxd",d=>d.ontoggle=()=>{ctxOpen=d.open});
+  Q("[data-orgk]",b=>b.onclick=()=>{orgOpen=orgOpen===b.dataset.orgk?null:b.dataset.orgk;render()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
     const upd=()=>{const i=cur();rp.textContent=`${i+1} de ${cs.length}`;bar.style.width=(i+1)/cs.length*100+"%";bs[0].disabled=i<=0;bs[1].disabled=i>=cs.length-1};
