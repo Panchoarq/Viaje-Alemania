@@ -1208,6 +1208,18 @@ button,input,select,textarea{font-family:inherit}
 .daycal[aria-pressed="true"]{background:var(--ink);color:var(--card)}
 .legpop{margin:0 0 4px;padding:6px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--card) 70%,var(--bg));font-size:12.5px}
 .legpop .feas{display:block}.legpop .legendtr{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.stop{border-top:1px dashed var(--line)}
+.stop>summary{cursor:pointer;list-style:none;display:flex;gap:8px;align-items:baseline;padding:6px 0}
+.stop>summary::-webkit-details-marker{display:none}
+.stop>summary::after{content:"▸";margin-left:auto;color:var(--muted)}
+.stop[open]>summary::after{content:"▾"}
+.stopb{padding:2px 0 8px 2px}.stopb p{margin:0 0 6px;font-size:14px}
+li.stopli{list-style:none;margin-left:-18px}
+.arq{display:flex;gap:6px;align-items:flex-start;font-size:13px;background:color-mix(in srgb,var(--ink) 6%,transparent);border-radius:6px;padding:6px 8px;margin:4px 0}
+.lsugg>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;font-weight:700}
+.lsugg>summary::-webkit-details-marker{display:none}
+.lsugg>summary::after{content:"▸";margin-left:auto}
+.lsugg[open]>summary::after{content:"▾"}
 </style>
 </head>
 <body>
@@ -1780,6 +1792,7 @@ function paFicha(a,i){const x=PA_F[a.id];const sel=paSel(a);
    <p class="flead">${a.s}</p>
    ${x.h&&x.h.length?`<div class="fwhy"><span class="flab">Por qué vale la pena</span><p>${x.h[0]}</p></div>`:""}
    ${x.h&&x.h.length>1?`<div class="fhist"><span class="flab">Historia</span>${x.h.slice(1).map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${ARQ[a.id]?arqHTML(ARQ[a.id][0],ARQ[a.id][1]):""}
    <div><span class="flab">Qué van a ver</span><p>${x.v||a.v}</p></div>
    <div class="fnote"><span class="flab">Dato / consejo</span>${x.d?`<p>${x.d}</p>`:""}<p><b>Práctico:</b> ${a.d}</p></div>
    <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${fmtE(a.p)}${a.close?` · cierra ${hm(a.close)}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
@@ -2194,7 +2207,7 @@ function actRow(d,a,k,nonEve,SUN,days){const op=openActs.has(d.id+"|"+a.id);cons
  <div class="ar-meta"><span class="dur">🕐 visita ~${String(a.h).replace(".",",")} h</span>${late?`<span class="tag late">⚠ ${late}</span>`:""}${a.in?'<span class="tag indoor" title="Techado">🏛 techado</span>':""}${(ST.paJun||{})[a.id]?'<span class="tag jun">👭 con Alli</span>':""}${a.night&&a.lateo?'<span class="tag nite">🌙 horario nocturno</span>':""}${a.cl?`<span class="tag">cerrado ${a.cl.map(x=>DOW[x]).join(", ")}</span>`:""}<span class="tag ar-price ${a.p?"price":"free"}">${a.p?fmt(a.p):"gratis"}</span></div>
  <div class="ar-note">${a.v}</div>
  <div class="ar-links"><a href="${a.u}" target="_blank" rel="noopener">sitio</a> · <a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">mapa</a> <select class="daysel" data-papin="${a.id}" aria-label="Elegir día"><option value="">📅 día automático</option>${days.map(x=>`<option value="${x.d}" ${(ST.paPin||{})[a.id]===x.d?"selected":""}>${pretty(x.d)}</option>`).join("")}</select>${(ST.paPin||{})[a.id]?'<span class="tag pinday">día fijado</span>':""}</div>
- <details class="why"><summary>¿Por qué vale la pena?</summary>${a.s} ${typeof PA_F!=="undefined"&&PA_F[a.id]&&PA_F[a.id].h?PA_F[a.id].h[0]:""} <b>Consejo:</b> ${a.d} ${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">Ver ficha completa →</a>`:""}</details></div>`}
+ <details class="why"><summary>¿Por qué vale la pena?</summary>${a.s} ${typeof PA_F!=="undefined"&&PA_F[a.id]&&PA_F[a.id].h?PA_F[a.id].h[0]:""} <b>Consejo:</b> ${a.d} ${ARQ[a.id]?`<br><b>Estilo:</b> ${ARQ[a.id][0]}. ${ARQ[a.id][1]} `:""}${PA_F[a.id]?`<a href="#" data-ficha="${a.id}">Ver ficha completa →</a>`:""}</details></div>`}
 function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",c:PA_C}:d.city==="LO"?{n:"Londres",c:LO_C}:d.c;
   const ll=d.city==="PA"?PARIS:d.city==="LO"?LONDON:((EXT[d.c.id]||{}).ll||PARIS);const SUN0=sunOf(D(d.d),ll),SUN=d.city==="LO"?Object.fromEntries(Object.entries(SUN0).map(([k,v])=>[k,typeof v==="number"?v-1:v])):SUN0;
   const nightK=d.kind==="go"||d.kind==="stay"?stayKeyOf(d.c.e):d.kind==="final"||d.city==="LO"?null:"par";
@@ -2225,7 +2238,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     if(p.man)h+=`<div class="manord">✋ <b>Orden manual</b>${p.seq.some(a=>a.late||a.closed)?" · ⚠ algo queda fuera de horario":""}<button type="button" data-pmreset="${d.id}">↺ Orden automático</button></div>`;
     foot+=`<a class="route" href="${routeUrl(p)}" target="_blank" rel="noopener">🗺 Ver recorrido del día en Google Maps (A = alojamiento, luego ${p.seq.map((_,k)=>k+1).join("→")})</a>`;
     const used=p.seq.reduce((t,a)=>t+a.h,0)+legs.slice(0,-1).reduce((t,l)=>t+mv(l.from,l.to),0);foot+=`<span class="tused">⏱ Tiempo usado ${used.toFixed(1)} de ${p.cap.toFixed(1)} h disponibles</span>`}
-  else if(d.items&&d.items.length){h+=`<span class="eyebrow seg">Programa sugerido · según la ficha</span>`+d.items.map((v,i)=>`<div class="actrow2 lite"><div class="ar-top"><b class="num anum">${i+1}</b><span class="ar-name">${v}</span></div></div>`).join("")+`<a class="route" href="#" data-efic="${d.c.id}">📖 Ver ficha completa de ${short(d.c.n)}</a>`}
+  else if(d.items&&d.items.length){h+=`<span class="eyebrow seg">Programa sugerido · según la ficha</span>`+d.items.map((v,i)=>{const fv=((EXT[d.c.id]||{}).f||{}).v||[],st=(ESC_STOP[d.c.id]||[])[fv.indexOf(v)];if(!st||!st[0])return `<div class="actrow2 lite"><div class="ar-top"><b class="num anum">${i+1}</b><span class="ar-name">${v}</span></div></div>`;return `<div class="actrow2 lite"><details class="stop"><summary class="ar-top"><b class="num anum">${i+1}</b><span class="ar-name">${v}</span></summary><div class="stopb"><p>${st[0]}</p>${arqHTML(st[2],st[3])}</div></details></div>`}).join("")+`<a class="route" href="#" data-efic="${d.c.id}">📖 Ver ficha completa de ${short(d.c.n)}</a>`}
   else if(d.city==="LO")h+=`${(ST.lunchAt||{})[d.id]?`<div class="lunch">🍽 Almuerzo en <b>${esc(ST.lunchAt[d.id])}</b></div>`:""}<span class="muted" style="font-size:13px">Plan libre con Alli.</span><span class="eyebrow seg">Ideas gratis en Londres</span><ul class="brief"><li>British Museum, National Gallery, Tate Modern y Natural History Museum (gratis; algunas exposiciones se pagan)</li><li>Cambio de guardia en Buckingham, St James's Park y Westminster</li><li>Borough Market, Covent Garden y Camden Market</li><li>Luces de Navidad en Regent Street, Oxford Street y Carnaby</li></ul>`;
   else h+=`<span class="muted" style="font-size:13px">${d.kind==="final"?"Mañana libre según la hora del vuelo.":d.kind==="stay"?"Día libre: recorrer sin apuro.":"Libre / descanso"}</span>`;
   if((d.city==="PA"||d.city==="LO")&&d.kind!=="final")h+=`<button type="button" class="btn addact" data-addday="${d.id}">+ Agregar actividad a este día</button><button type="button" class="btn alt sm clrday" data-clrday="${d.id}">Vaciar este día</button>`;
@@ -2312,6 +2325,146 @@ const ESC_H={
  fon:{y:"Palacio desde el siglo XII",h:["Fue residencia de los reyes de Francia durante siete siglos; cada uno lo amplió a su gusto.","En el patio de la escalera en herradura, Napoleón se despidió de su guardia en 1814 antes de partir al exilio en la isla de Elba."]},
  cha:{y:"Castillo reconstruido en el siglo XIX",h:["El duque de Aumale reconstruyó el castillo en el siglo XIX y lo donó al Instituto de Francia con su colección de pintura, una de las mejores de Francia después del Louvre.","Las Grandes Caballerizas del siglo XVIII se hicieron para 240 caballos: según la leyenda, el príncipe que las mandó creía que se reencarnaría en caballo."]}};
 const ESC_WK={bru:[["Grand-Place","Grand Place (Bruselas)"],["Brujas","Brujas"]],ams:[["Canales","Ámsterdam"],["Rijksmuseum","Rijksmuseum"]],col:[["La catedral","Catedral de Colonia"]],lil:[["Lille","Lille"]],rei:[["Catedral de Reims","Catedral de Notre-Dame de Reims"]],str:[["Petite France","Estrasburgo"],["Colmar","Colmar"]],lyo:[["Vieux Lyon","Lyon"],["Fourvière","Basílica de Notre-Dame de Fourvière"]],dij:[["Dijon","Dijon"]],bdx:[["Espejo de Agua","Burdeos"]],loi:[["Chambord","Castillo de Chambord"],["Chenonceau","Castillo de Chenonceau"]],nor:[["Étretat","Étretat"],["Catedral de Rouen","Catedral de Ruan"]],msm:[["La abadía","Monte Saint-Michel"]],gin:[["Lago Lemán","Ginebra"],["Annecy","Annecy"]],ver:[["El palacio","Palacio de Versalles"],["Salón de los Espejos","Galería de los Espejos"]],giv:[["Jardín de Monet","Giverny"]],fon:[["El palacio","Palacio de Fontainebleau"]],cha:[["El castillo","Castillo de Chantilly"]]};
+// ---- Detalle de cada parada de las escapadas (mismo orden que «Qué van a ver») y estilo arquitectónico ----
+// cada parada: [resumen corto (día), detalle (ficha), estilo, explicación simple del estilo]
+const ESC_STOP={
+ ver:[
+  ["Una galería de 73 m de largo: de un lado 17 ventanales al jardín, del otro 17 arcos cubiertos de espejos.","Se terminó en 1684. En esa época los espejos grandes eran un lujo carísimo que dominaba Venecia; el ministro Colbert trajo artesanos venecianos para fabricarlos en Francia y mostrar que Francia podía igualarlos. Son 357 espejos. En el techo, el pintor Le Brun contó con escenas las victorias de Luis XIV. La corte caminaba por aquí para ir a la capilla y recibir a los embajadores. Aquí se proclamó el Imperio alemán en 1871 y se firmó el Tratado de Versalles en 1919. Mejor a media tarde, cuando el sol entra por las ventanas y los espejos duplican la luz.","Barroco clásico francés (estilo Luis XIV)","Barroco con orden: mármoles de colores, dorados y mucha pintura, pero con líneas rectas y simetría. Está pensado para impresionar y mostrar el poder del rey, y es más sobrio que el barroco italiano."],
+  ["Las habitaciones oficiales del rey y de la reina, con camas con dosel, tapices y techos pintados.","El Gran Apartamento del Rey tiene siete salones dedicados a dioses y planetas (Hércules, Venus, Diana, Marte, Mercurio, Apolo…), para comparar al rey con el Sol. La vida del rey era pública: cada mañana la corte miraba cómo se levantaba (el «lever») y cada noche cómo se acostaba (el «coucher»), con reglas de etiqueta muy estrictas. En el dormitorio de la reina nacían los hijos de los reyes con testigos en la sala, para probar que eran herederos de verdad. En 1778 María Antonieta casi se asfixia por la multitud, y desde entonces se limitó el público.","Barroco (estilo Luis XIV)","Cada sala cuenta una escena mitológica en el techo, con mármoles de colores, bronces dorados y telas ricas. Todo está calculado para que el visitante se sienta pequeño ante el rey."],
+  ["Jardines geométricos con fuentes y el Gran Canal, y al fondo el Petit Trianon y la Aldea de la Reina.","El parque tiene unas 800 hectáreas. André Le Nôtre lo diseñó en el siglo XVII como «jardín a la francesa»: ejes rectos, parterres de flores, estanques y fuentes colocados para mirar el palacio desde lejos. En diciembre las fuentes están apagadas (los espectáculos con música y agua son en temporada alta). El Petit Trianon lo regaló Luis XVI a María Antonieta en 1774; ella escapaba allí de la etiqueta de la corte y mandó hacer la Aldea de la Reina, con casitas rústicas, para jugar a la vida de campo. Hay que caminar bastante: conviene llevar zapatos cómodos y considerar el tren turístico o las bicicletas.","Jardín a la francesa y neoclásico (Petit Trianon)","El jardín a la francesa es naturaleza ordenada con regla y compás: todo es simétrico. El Petit Trianon es neoclásico: una fachada simple con columnas, como un pequeño templo griego, que reacciona contra lo recargado del barroco."]
+ ],
+ bru:[
+  ["Plaza medieval rodeada de casas de gremios con fachadas doradas y el Ayuntamiento con su torre.","Es el corazón de Bruselas desde la Edad Media. Gran parte de las casas se reconstruyó en pocos años tras el bombardeo francés de 1695. Cada casa pertenecía a un gremio (panaderos, cerveceros, carniceros…) y tiene su escudo y estatuas doradas. Cada dos años, en agosto, la plaza se cubre con una alfombra de flores. Es Patrimonio de la Humanidad.","Gótico brabantino y barroco flamenco","El Ayuntamiento es gótico: torre alta y ventanas en punta. Las casas de los gremios son barroco flamenco: fachadas altas y angostas, con dorados, volutas y estatuas."],
+  ["Una estatuilla de bronce de un niño haciendo pis, símbolo travieso de Bruselas, y muros pintados con personajes de cómic.","La estatua mide unos 55 cm y la que se ve en la calle es una copia. Tiene un guardarropa de más de mil trajes que le ponen en fechas especiales. Por el centro hay decenas de murales de Tintín, Lucky Luke, los Pitufos y otros personajes: Bélgica es la cuna del cómic europeo.","",""],
+  ["Nueve esferas de acero unidas por tubos: un cristal de hierro agrandado 165 mil millones de veces.","Se construyó para la Exposición Universal de 1958 y mide 102 m. Dentro hay exposiciones y un mirador en la esfera más alta, con vista de toda la ciudad. Iba a ser temporal, pero la gente lo quiso tanto que se quedó.","Modernismo de posguerra","Formas atrevidas y futuristas que celebraban la ciencia y el optimismo de los años cincuenta."],
+  ["Ciudad medieval de canales, con el Belfort (la torre del campanario) y la plaza del Markt.","El Belfort tiene 83 m y 366 escalones; desde arriba se ve toda la ciudad y el campanario toca un carillón. Brujas fue uno de los puertos más ricos de Europa en la Edad Media. Un paseo en bote por los canales dura unos 30 minutos.","Gótico flamenco de ladrillo","Edificios de ladrillo rojo con ventanas en punta, torres altas y frontones escalonados."]
+ ],
+ ams:[
+  ["El museo nacional: La ronda de noche de Rembrandt y obras de Vermeer.","La ronda de noche (1642) es enorme, de unos 3,6 por 4,4 m, y retrata a una compañía de milicianos en plena acción, algo nuevo para la época. De Vermeer está La lechera. El edificio es de 1885 y tiene un pasaje abierto en el centro por donde pasan bicicletas.","Neogótico y neorrenacentista holandés","Un edificio del siglo XIX que imita lo antiguo: ladrillo rojo, torres de aspecto medieval y detalles del Renacimiento."],
+  ["La mayor colección del mundo de Van Gogh: unas 200 pinturas.","Se ve cómo cambió su pintura: de los colores oscuros de Holanda a los colores brillantes que descubrió en Francia. Están Los girasoles y El campo de trigo con cuervos. Conviene comprar entrada con hora.","Modernismo (De Stijl)","Líneas rectas y planos simples, de los años setenta: la caja del museo es muy sobria para no competir con las pinturas."],
+  ["El anexo secreto donde se escondió Ana Frank con su familia entre 1942 y 1944.","Se recorre en silencio, por habitaciones casi vacías. Una estantería giratoria ocultaba la entrada. Las entradas se venden solo en línea, con semanas de anticipación.","Casa de canal holandesa del siglo XVII","Casas altas y angostas. Se cuenta que se pagaba impuesto según el ancho de la fachada, y por eso son estrechas; el gancho del techo servía para subir los muebles con una polea."],
+  ["Una hora recorriendo los canales del siglo XVII, Patrimonio de la Humanidad.","Los canales concéntricos se trazaron en el Siglo de Oro neerlandés para ordenar el crecimiento de la ciudad. Desde el bote se ven las casas inclinadas y los puentes iluminados al anochecer.","",""]
+ ],
+ col:[
+  ["Catedral gótica de dos torres de 157 m; se puede subir por 533 escalones.","Empezó a construirse en 1248 para guardar las reliquias de los Reyes Magos, y se terminó en 1880. Entre 1880 y 1884 fue el edificio más alto del mundo. En la Segunda Guerra Mundial recibió bombas pero se mantuvo en pie.","Gótico","Arcos en punta, bóvedas muy altas y enormes vitrales. Los muros se apoyan por fuera en contrafuertes, así quedan paredes llenas de luz."],
+  ["Puente de trenes con cientos de miles de candados de enamorados y vista a la catedral.","Es el mejor lugar para fotografiar la catedral al atardecer. Los candados se ponen como símbolo de amor eterno y se tira la llave al río.","",""],
+  ["Museo con una fuente de chocolate y un recorrido del cacao al bombón.","Está junto al Rin. Muestra cómo se cultiva, se procesa y se moldea el chocolate, con degustaciones.","",""],
+  ["Varios mercados de Navidad con casetas de madera; el más famoso está bajo la catedral.","Prueba el Glühwein (vino caliente especiado) y los Reibekuchen (tortitas de papa). Es de los mercados más visitados de Alemania.","",""]
+ ],
+ lil:[
+  ["Plaza flamenca y la Vieille Bourse (1653), con un patio interior de libros usados y ajedrecistas.","Lille perteneció a Flandes y pasó a Francia en 1668, por eso se ve más belga que francesa. El patio de la Vieille Bourse reúne a vendedores de libros y mesas de ajedrez.","Barroco flamenco","Ladrillo rojo y piedra clara con adornos tallados: columnas, máscaras y frontones."],
+  ["Calles empedradas con casas de ladrillo, tiendas y cafés.","Es el barrio histórico: callejuelas, panaderías y chocolaterías. Un lugar para pasear sin apuro.","",""],
+  ["Uno de los museos de bellas artes más grandes de Francia.","Reúne pinturas desde la Edad Media hasta el siglo XX, y esculturas. El edificio es monumental.","Beaux-Arts (1892)","Un edificio grande y simétrico con columnas y escalinatas, que imita la antigüedad clásica para dar sensación de importancia."]
+ ],
+ rei:[
+  ["La catedral donde se coronaron los reyes de Francia durante ocho siglos, con vitrales de Chagall.","Aquí fue coronado Carlos VII en 1429 con Juana de Arco a su lado. En la fachada está el «ángel sonriente», una escultura famosa. Los vitrales de Chagall son de 1974, de un azul intenso.","Gótico","Arcos en punta, grandes vitrales y esculturas en cada rincón: una catedral para la luz y para contar historias."],
+  ["Antiguo palacio de los arzobispos, con los tesoros de la catedral y las coronaciones.","Se guardan tapices, objetos de oro y piezas usadas en las ceremonias de coronación.","",""],
+  ["Galerías de creta bajo tierra, a unos 10–12 °C todo el año, con degustación de champaña.","Las bodegas de Taittinger y Pommery ocupan antiguas canteras romanas. La visita explica cómo se hace el champaña y termina con una copa.","",""]
+ ],
+ str:[
+  ["Una catedral de arenisca rosada de 142 m, con un reloj astronómico que desfila figuras a las 12:30.","Entre 1647 y 1874 fue el edificio más alto del mundo. El reloj astronómico es un mecanismo con muñecos que se mueven; conviene llegar antes para tener lugar.","Gótico","Todo apunta hacia arriba: arcos en punta, torre calada y mucho adorno de piedra. La arenisca rosada la hace muy distinta de otras catedrales."],
+  ["Barrio de casas con entramado de madera junto a canales y esclusas.","Era el barrio de curtidores, molineros y pescadores. Hoy es un lugar de paseo con cafés. Hay un mirador en la presa Vauban.","Entramado de madera (Fachwerk)","Se ven las vigas de madera de la estructura por fuera, y los espacios entre ellas se rellenan con yeso. Es típico de Alsacia y del mundo alemán."],
+  ["Un pueblo de casas de colores y canales, muy fotogénico.","El barrio llamado «Pequeña Venecia» tiene canales con barcas. Conviene ir a primera hora para evitar multitudes.","Entramado de madera (Fachwerk)","Casas de vigas a la vista con colores pastel y balcones de flores."]
+ ],
+ lyo:[
+  ["Calles renacentistas con pasajes cubiertos, los traboules, que cruzan los edificios.","Los tejedores de seda usaban los traboules para llevar la tela sin mojarla. En la Segunda Guerra Mundial la Resistencia los usó para escapar. Muchos se pueden recorrer, mirando que no sea propiedad privada cerrada.","Renacimiento italiano","Patios con galerías de arcos y escaleras de caracol, traídas por los banqueros italianos que vivían aquí."],
+  ["Una basílica blanca sobre la colina, con la mejor vista de la ciudad.","Se construyó entre 1872 y 1884. Desde la terraza se ve toda Lyon y, en días claros, los Alpes.","Eclecticismo del siglo XIX","Mezcla estilos antiguos: torres, mosaicos, columnas y cúpulas, todo muy decorado."],
+  ["Un mural gigante con cerca de treinta personajes famosos de Lyon.","Entre ellos están los hermanos Lumière, Antoine de Saint-Exupéry (autor de El Principito) y el chef Paul Bocuse. Está pintado de forma que parece una fachada con balcones y gente asomada.","",""],
+  ["Cuatro noches de diciembre en que la ciudad se llena de luces y velas en las ventanas.","La fiesta nació en 1852, cuando se inauguró una estatua de la Virgen. Hoy hay instalaciones de luz por toda la ciudad. Es muy concurrida y los hoteles se llenan antes.","",""]
+ ],
+ dij:[
+  ["El Palacio de los Duques, con una torre de 46 m, y un museo de bellas artes gratuito.","Dijon fue la capital del ducado de Borgoña, más rico que el rey de Francia en el siglo XV. La Torre Philippe le Bon se sube por 316 escalones. El museo guarda las tumbas de los duques.","Clasicismo francés","Fachadas ordenadas y simétricas, del siglo XVII y XVIII, sobre bases medievales."],
+  ["Una ruta con flechitas de bronce en el suelo que guía por el casco antiguo.","Sigue una lechuza tallada en la iglesia de Notre-Dame: la tradición dice que tocarla con la mano izquierda trae suerte.","",""],
+  ["La famosa ruta de los grandes vinos de Borgoña, con pueblos como Gevrey-Chambertin.","Los viñedos están divididos en pequeñas parcelas llamadas «climats» y son Patrimonio de la Humanidad desde 2015.","",""]
+ ],
+ bdx:[
+  ["La plaza del siglo XVIII con el espejo de agua más grande del mundo, de unos 3.450 m².","El agua tiene solo 2 cm de profundidad y cada cierto rato sale una niebla. De noche, el espejo refleja los edificios iluminados. Es el lugar favorito para fotografías.","Clasicismo francés del siglo XVIII","Edificios elegantes con columnas, frontones y piedra clara, ordenados alrededor de una plaza."],
+  ["Un museo interactivo sobre el vino, con un mirador en el piso 8 y una copa incluida.","El edificio tiene una forma curva que recuerda el vino girando en la copa. Se recorre con un audífono que explica cada sala.","Arquitectura contemporánea (2016)","Formas curvas y materiales brillantes que buscan parecer un objeto escultórico."],
+  ["Un pueblo medieval de piedra, a unos 40 minutos, con una iglesia excavada en la roca.","Su iglesia monolítica se talló en la roca caliza entre los siglos IX y XII. El pueblo es Patrimonio de la Humanidad.","Románico y gótico","Arcos redondos y muros gruesos (románico) junto a arcos en punta (gótico)."]
+ ],
+ loi:[
+  ["Un castillo construido sobre el río Cher, conocido como «el castillo de las damas».","Lo marcaron mujeres: Catherine Briçonnet lo hizo construir en el siglo XVI, Diana de Poitiers lo recibió como regalo del rey y Catalina de Médicis lo mejoró. Una galería cruza el río sobre arcos. Es de los castillos más visitados de Francia.","Renacimiento francés","El Renacimiento llegó de Italia: simetría, ventanas rectangulares y adornos clásicos sobre una base todavía medieval."],
+  ["El castillo más grande del Loira, con una escalera de doble hélice atribuida a ideas de Leonardo.","Francisco I lo empezó en 1519 como pabellón de caza. Tiene más de 400 habitaciones y un parque amurallado enorme. En la escalera, dos personas pueden subir sin cruzarse.","Renacimiento francés","Una base de fortaleza medieval con una cantidad enorme de torrecillas y chimeneas decoradas, al estilo italiano."],
+  ["El pueblo donde Leonardo da Vinci pasó sus últimos años, y su casa, el Clos Lucé.","Leonardo vivió aquí desde 1516, invitado por Francisco I, y murió en 1519. En los jardines hay maquetas de sus inventos para tocar.","",""]
+ ],
+ nor:[
+  ["La catedral que Monet pintó decenas de veces y el reloj astronómico del siglo XIV sobre la calle.","La catedral tiene la aguja más alta de Francia (151 m, de hierro, del siglo XIX). El Gros-Horloge es un reloj con un arco que cruza la calle principal.","Gótico","Arcos en punta, mucha piedra tallada y vitrales; la fachada tiene tanto detalle que Monet la pintó a distintas horas del día."],
+  ["Aquí se quemó a Juana de Arco en 1431; hoy hay una iglesia moderna de aspecto muy especial.","La iglesia de Santa Juana de Arco (1979) tiene un techo curvo que recuerda a un barco vikingo dado vuelta, con vitrales del siglo XVI rescatados de otra iglesia.","Arquitectura moderna (1979)","Formas curvas de hormigón y madera, muy distintas de lo medieval que la rodea."],
+  ["Acantilados blancos de creta con arcos de piedra naturales sobre el mar.","Se sube caminando por un sendero hasta la capilla de Notre-Dame de la Garde para ver el arco de Aval. Inspiró a Monet y a Maurice Leblanc, el creador de Arsène Lupin.","",""]
+ ],
+ msm:[
+  ["La abadía benedictina que corona el islote, con su claustro suspendido en lo alto.","La abadía se levantó desde el año 966 y creció durante siglos hacia arriba, sobre la roca. «La Merveille», del siglo XIII, es el conjunto gótico con el claustro y el refectorio.","Románico y gótico","Muros gruesos y arcos redondos en las partes más antiguas (románico). En el claustro y los pasillos se ven arcos en punta y más luz (gótico)."],
+  ["La calle empinada del pueblo, llena de tiendas y casas medievales.","Se sube hacia la abadía entre casas de entramado de madera. Es muy turística, mejor a primera hora o al final del día.","",""],
+  ["Las mareas de aquí están entre las mayores de Europa: el mar sube y baja hasta 14 m.","Conviene mirar el horario de mareas altas: con algunas, el mar rodea la isla. Nunca se debe caminar por la bahía sin guía.","",""]
+ ],
+ gin:[
+  ["El chorro más famoso de Ginebra, de 140 m de alto, lanzado a unos 200 km/h.","Nació como una válvula de seguridad de una central hidráulica y terminó convertida en símbolo de la ciudad. Se ve desde casi todo el lago, y de noche se ilumina.","",""],
+  ["La ciudad vieja, la catedral de San Pedro donde predicó Calvino, con una torre con vista al lago.","Desde la torre se ve el lago Lemán y el Jura. Ginebra fue la ciudad de la Reforma protestante y hoy sede de la ONU y de la Cruz Roja.","Románico y gótico con fachada neoclásica","La catedral mezcla siglos: partes de arco redondo y de arco en punta, y una fachada frontal con columnas añadida en el siglo XVIII."],
+  ["Una ciudad de canales y casas de colores a orillas de un lago alpino turquesa.","Tiene un castillo, el Palais de l'Isle (una casa-fortaleza del siglo XII) en medio del canal y calles con arcadas. Está a poco menos de una hora de Ginebra.","",""]
+ ],
+ giv:[
+  ["La casa rosada de Monet con persianas verdes, su cocina de azulejos azules y su colección de estampas japonesas.","Monet vivió aquí desde 1883 hasta su muerte, en 1926. Reunió estampas japonesas que influyeron en su pintura. La casa está tal como la dejó.","",""],
+  ["El jardín de agua con el puente japonés y los nenúfares que pintó cientos de veces.","El estanque lo hizo excavar él mismo. Las flores cambian con las estaciones: en invierno el jardín es más tranquilo, y muchas partes están cerradas fuera de temporada.","",""]
+ ],
+ fon:[
+  ["Las habitaciones imperiales de Napoleón y la sala del trono.","Fontainebleau fue residencia de reyes durante siete siglos, y cada uno agregó su estilo. Napoleón lo usó como palacio y aquí abdicó en 1814.","Renacimiento francés","Francisco I trajo artistas italianos para decorar las salas con yeserías, frescos y madera tallada."],
+  ["La escalera en forma de herradura donde Napoleón se despidió de su guardia en 1814.","Napoleón se despidió el 20 de abril de 1814, antes de partir al exilio en la isla de Elba. Se construyó en el siglo XVII.","Barroco clásico","Una escalera doble que parece abrazar el patio, con una curva muy elegante."],
+  ["El bosque de 25.000 hectáreas, famoso entre los escaladores por sus rocas.","Es un bosque de arenisca con senderos para caminatas fáciles; en el aire huele a pino y humedad.","",""]
+ ],
+ cha:[
+  ["Un museo con una de las mejores colecciones de pintura antigua de Francia.","El duque de Aumale reconstruyó el castillo y donó todo a condición de que nada cambiara de lugar: los cuadros siguen colgados como él los dispuso. Se conserva un famoso libro de horas medieval (se muestra una copia).","Neorrenacimiento (siglo XIX)","Un castillo reconstruido en el siglo XIX para parecer del Renacimiento, con torres y ventanas ornamentadas."],
+  ["Un enorme establo de lujo hecho para 240 caballos, hoy museo del caballo y centro de espectáculos.","Se construyó en el siglo XVIII para un príncipe que, según la leyenda, creía que se reencarnaría en caballo. Hay espectáculos ecuestres.","Barroco del siglo XVIII","Una fachada enorme, con una cúpula y grandes puertas, que parece un palacio más que un establo."],
+  ["Jardines diseñados por Le Nôtre, con un gran canal y un espejo de agua que refleja el castillo.","Son los mismos que diseñó para Versalles, con ejes rectos y geometría. Mucho más tranquilos y menos concurridos.","Jardín a la francesa","Naturaleza en orden: caminos rectos, estanques de formas geométricas y árboles recortados."]
+ ]
+};
+// estilo arquitectónico de los edificios históricos: [estilo, explicación simple]
+const ARQ={
+ louvre:["Renacimiento y clasicismo francés","Fue fortaleza medieval y luego palacio. Las fachadas mezclan columnas y esculturas del Renacimiento con alas del siglo XIX; la pirámide de vidrio (1989) agrega un contraste moderno."],
+ orsay:["Beaux-Arts (1900)","Era una estación de trenes: por fuera una fachada de piedra clásica y por dentro una gran nave de hierro y vidrio con un reloj enorme."],
+ eiffel:["Arquitectura de hierro (1889)","Una estructura de hierro en forma de celosía que deja la estructura a la vista, algo nuevo en su época. Se pensó como temporal."],
+ arc:["Neoclásico (1836)","Imita los arcos de triunfo de la antigua Roma, con grandes esculturas que cuentan batallas."],
+ notre:["Gótico (siglos XII–XIV)","Arcos en punta, vitrales y contrafuertes volantes por fuera, que sostienen los muros para dejar paredes llenas de luz."],
+ chapelle:["Gótico radiante (1248)","Los muros casi desaparecen: son vitrales de 15 m que cuentan escenas de la Biblia con luz de colores."],
+ concier:["Gótico (siglo XIV)","Salas de piedra con bóvedas en punta, de cuando fue palacio de los reyes y luego prisión."],
+ panth:["Neoclásico (1790)","Un templo con columnas corintias y una gran cúpula, inspirado en la Antigüedad."],
+ luxem:["Renacimiento italiano","Un palacio inspirado en los de Florencia, que la reina Maria de Médicis quiso construir para sentirse en su ciudad natal."],
+ stgerm:["Románico","Muros gruesos y arcos redondos. La torre es del siglo XI, de las partes más antiguas que quedan en París."],
+ sacre:["Romano-bizantino (1914)","Cúpulas blancas de piedra, como una iglesia de Oriente. Se construyó sobre la colina de Montmartre."],
+ opera:["Segundo Imperio (1875)","Muy recargado: mármoles, dorados, estatuas y una gran escalera. El edificio mismo es parte del espectáculo."],
+ lafay:["Art Nouveau (1912)","La cúpula de vidrio y hierro tiene formas de flores y hojas, características de la época."],
+ inval:["Barroco clásico (1706)","Una cúpula dorada sobre un edificio simétrico y ordenado, para tumba del emperador."],
+ marais:["Estilo Luis XIII (1612)","La Place des Vosges tiene 36 pabellones iguales de ladrillo rojo, piedra clara y techos de pizarra: la primera plaza ordenada de París."],
+ vivienne:["Galería cubierta del siglo XIX","Un pasaje con techo de vidrio y suelos de mosaico, antes de los grandes almacenes."],
+ petitp:["Beaux-Arts (1900)","Fachada clásica con columnas y un patio con jardín semicircular, hecho para la Exposición Universal."],
+ bourse:["Rotonda de hierro y vidrio","Una cúpula del siglo XIX con una pintura circular; el interior se renovó con concreto por Tadao Ando (2021)."],
+ rodin:["Rococó (siglo XVIII)","Una mansión con salones claros, espejos y molduras suaves, en medio de un gran jardín."],
+ carnav:["Renacimiento (siglo XVI)","Mansión con patio y esculturas de piedra, una de las más antiguas del barrio del Marais."],
+ picasso:["Barroco (siglo XVII)","La mansión llamada Hôtel Salé, con una escalera monumental de piedra esculpida."],
+ flv:["Deconstructivismo (2014)","De Frank Gehry: formas curvas de vidrio, como velas de un barco, que parecen desarmadas y vueltas a armar."],
+ brancly:["Arquitectura contemporánea (2006)","De Jean Nouvel: un edificio suspendido con un jardín vertical lleno de plantas."],
+ montp:["Rascacielos moderno (1973)","Una torre sencilla de vidrio y acero. Desde arriba se ve la Torre Eiffel, que no se ve desde abajo."],
+ lo_bm:["Neoclásico y moderno","La fachada con columnas es de 1850 y imita un templo griego. El gran patio con techo de vidrio (2000) es de Foster."],
+ lo_ng:["Neoclásico (1838)","Una fachada con columnas y una cúpula, frente a Trafalgar Square, como un templo para las pinturas."],
+ lo_va:["Victoriano ecléctico","Mezcla de estilos: ladrillos rojos, terracota y patios con mosaicos, pensado como escuela de artes."],
+ lo_nhm:["Románico victoriano (1881)","Parece una catedral: arcos redondos, torres y una fachada de terracota con animales esculpidos."],
+ lo_tm:["Industrial reconvertido","Era una central eléctrica de ladrillo. Su chimenea y su gran sala de turbinas se conservaron."],
+ lo_tower:["Normando (1078)","La Torre Blanca es un castillo de piedra de muros de hasta 4 m, hecho por Guillermo el Conquistador para dominar la ciudad."],
+ lo_tb:["Neogótico victoriano (1894)","Parece medieval, pero por dentro es de acero. Se hizo así para que combinara con la Torre de Londres."],
+ lo_wa:["Gótico inglés (siglos XIII–XVI)","Arcos en punta, bóvedas con nervios y capillas altas. Aquí se coronan los reyes desde 1066."],
+ lo_spc:["Barroco inglés (1710)","De Christopher Wren, con una enorme cúpula doble, la segunda más grande del mundo en su época. Se construyó tras el Gran Incendio de 1666."],
+ lo_wm:["Neogótico (1840–1870)","El Parlamento y el Big Ben son del siglo XIX pero imitan la Edad Media: torres, arcos en punta y mucha ornamentación."],
+ lo_kp:["Estilo Guillermo y María (1689)","Casa de ladrillo rojo con ventanas simétricas, reformada por Wren, más sencilla que un palacio de Versalles."],
+ lo_guard:["Neoclásico (fachada de 1913)","La fachada que se ve hoy es de 1913, de piedra clara con columnas, para dar imagen de monarquía ordenada."],
+ lo_cg:["Mercado victoriano de hierro y vidrio","Una plaza con un mercado cubierto de 1830, que luego fue un lugar para espectáculos."],
+ lo_lead:["Mercado victoriano (1881)","Una galería con techo de vidrio y hierro pintado de verde, rojo y crema."],
+ lo_shard:["Contemporáneo (2012)","De Renzo Piano: una aguja de vidrio con facetas inclinadas que reflejan el cielo."],
+ lo_sky:["Contemporáneo (2014)","Un rascacielos de forma ancha arriba, apodado «Walkie Talkie», con un jardín en la cima."],
+ lo_kew:["Hierro y vidrio victoriano (1848)","El Palm House es un invernadero enorme con estructura de hierro curvo, inspirado en el casco de un barco invertido."]
+};
+const arqHTML=(s,e)=>s?`<div class="arq">🏛 <span><b>${s}</b>${e?` · ${e}`:""}</span></div>`:"";
+
+const CUIS={french:"cocina francesa",italian:"pastas y pizzas",pizza:"pizzas",burger:"hamburguesas",crepe:"crepes y galettes",sandwich:"sándwiches",japanese:"cocina japonesa",chinese:"cocina china",vietnamese:"cocina vietnamita",thai:"cocina tailandesa",indian:"cocina india",lebanese:"cocina libanesa",turkish:"cocina turca",kebab:"kebab",regional:"cocina regional",bistro:"bistró",brasserie:"brasserie, platos clásicos",coffee_shop:"café y pastelería",bakery:"panadería",vegetarian:"vegetariana",seafood:"pescados y mariscos",asian:"cocina asiática",mexican:"cocina mexicana",greek:"cocina griega",fish_and_chips:"fish and chips",pub:"pub con platos sencillos",steak_house:"carnes a la parrilla",american:"cocina americana",korean:"cocina coreana",spanish:"cocina española",mediterranean:"mediterránea",georgian:"cocina georgiana",african:"cocina africana",moroccan:"cocina marroquí"};
+let lsOpen=new Set();
 function escFichaHTML(id){const x=ESC.find(z=>z.id===id),e=EXT[id]||{},f=e.f||{v:[]};const i=ESC.indexOf(x);const sel=ST.esc.filter(z=>z.id===id);const ph=ESC_WK[id]||[[short(x.n),short(x.n)]];
   return `<article class="ficha" id="fes-${id}"><div class="ftab">EXP. ESC-${String(i+1).padStart(2,"0")} · ${short(x.n).toUpperCase()}</div>
    <header><h3>${x.n}</h3><span class="fy">${(ESC_H[id]||{}).y?ESC_H[id].y+" · ":""}${x.p} ${x.k==="dia"?"Excursión de un día":x.nt==="0–1"?"De un día o 1 noche":x.nt+" noche"+(x.nt==="1"?"":"s")+" sugeridas"}</span>${x.k!=="dia"&&/ams|str|lyo|msm|ver/.test(id)?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel.length?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
@@ -2319,7 +2472,7 @@ function escFichaHTML(id){const x=ESC.find(z=>z.id===id),e=EXT[id]||{},f=e.f||{v
    ${ESC_WHY[id]?`<div class="ewhy"><span class="flab">Por qué ir</span><p>${ESC_WHY[id]}</p></div>`:""}
    ${(ESC_H[id]||{}).h?`<div class="fhist"><span class="flab">Historia</span>${ESC_H[id].h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
    <div><span class="flab">Por qué vale la pena</span><p>${f.h||""}</p></div>
-   <div><span class="flab">Qué van a ver</span><ul class="brief">${f.v.map(v=>`<li>${v}</li>`).join("")}</ul></div>
+   <div><span class="flab">Qué van a ver</span><ul class="brief">${f.v.map((v,i)=>{const st=(ESC_STOP[id]||[])[i];return st&&st[0]?`<li class="stopli"><details class="stop"><summary>${v}</summary><div class="stopb"><p>${st[0]}</p>${st[1]?`<p>${st[1]}</p>`:""}${arqHTML(st[2],st[3])}</div></details></li>`:`<li>${v}</li>`}).join("")}</ul></div>
    <div><span class="flab">Qué probar</span><p>${f.c||""}</p></div>
    <div class="fnote"><span class="flab">Dato / consejo</span><p>${f.d||""}</p><p><b>Cómo llegar:</b> ${e.how||""}</p></div>
    <p class="fmeta">🚄 ${x.tr} · 💶 ${e.cost||""}${sel.length?" · 📅 "+sel.map(z=>pretty(z.ini)+(z.fin!==z.ini?" → "+pretty(z.fin):"")).join(" · "):""}</p>
@@ -2337,6 +2490,7 @@ function loFicha(a,i){const sel=selOf(a),w=LO_WK[a.id]||a.wk,lo=isLO(a.id),cu=/^
    <p class="flead">${a.s}</p>
    ${LO_F[a.id]&&LO_F[a.id].h.length?`<div class="fwhy"><span class="flab">Por qué vale la pena</span><p>${LO_F[a.id].h[0]}</p></div>`:""}
    ${LO_F[a.id]&&LO_F[a.id].h.length>1?`<div class="fhist"><span class="flab">Historia</span>${LO_F[a.id].h.slice(1).map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${ARQ[a.id]?arqHTML(ARQ[a.id][0],ARQ[a.id][1]):""}
    <div><span class="flab">Qué van a ver</span><p>${a.v}</p></div>
    <div class="fnote"><span class="flab">Dato / consejo</span><p>${a.d}</p></div>
    <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p)+(lo?" (≈ £"+Math.round(a.p/GBP)+")":""):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${late?` · 🌙 ${late}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
@@ -2947,14 +3101,14 @@ function lunchSugg(d,p){const city=d.city,pos=p.seq.lunchPos||p.base;if(!pos||(c
   else{const L=FOOD_G.LO.c.flatMap(c=>c[1]).filter(r=>!/meal deal|chinatown|greggs|mcdonald|burger|kfc/i.test(r[0]));const r=L[i%L.length];if(r)items.push({n:r[0],pr:r[2],src:"est",note:"de la guía · "+r[1]})}
   // dos del mapa
   const u=nearUrl("restaurant",pos,0.006);const R=LL_CACHE[u];
-  if(!R)items.push({pend:u});else R.filter(o=>o.name&&!/universitaire|crous|cantine|staff|canteen|school|école|ecole/i.test(o.name)&&!items.some(x=>x.n&&favKey(x.n)===favKey(o.name))).map(o=>({n:o.name,ll:[+o.lat,+o.lon],typ:o.type,cu:(o.extratags||{}).cuisine||""})).sort((x,y)=>km(pos,x.ll)-km(pos,y.ll)).slice(0,2).forEach(o=>items.push({n:o.n,ll:o.ll,pr:estPr(o.typ,city),src:"map",note:(o.typ==="fast_food"?"comida rápida":o.typ==="cafe"?"café":"restaurante")+(o.cu?" · "+o.cu.replace(/;/g,", ").replace(/_/g," "):"")}));
+  if(!R)items.push({pend:u});else R.filter(o=>o.name&&!/universitaire|crous|cantine|staff|canteen|school|école|ecole/i.test(o.name)&&!items.some(x=>x.n&&favKey(x.n)===favKey(o.name))).map(o=>({n:o.name,ll:[+o.lat,+o.lon],typ:o.type,cu:(o.extratags||{}).cuisine||""})).sort((x,y)=>km(pos,x.ll)-km(pos,y.ll)).slice(0,2).forEach(o=>items.push({n:o.n,ll:o.ll,pr:estPr(o.typ,city),src:"map",note:(o.typ==="fast_food"?"comida rápida, barata y al paso":o.typ==="cafe"?"café con algo para comer":"restaurante con servicio en mesa")+(o.cu?" · "+o.cu.split(";").map(t=>CUIS[t.trim()]||t.trim().replace(/_/g," ")).join(", "):"")}));
   const pend=items.filter(x=>x.pend).map(x=>x.pend);if(pend.length){pend.forEach(u=>nomi(u).then(()=>{clearTimeout(_nearT);_nearT=setTimeout(()=>{if(tab==="prog")render()},400)}))}
   const chosen=(ST.lunchAt||{})[d.id];
   const row=x=>{const f=favOf(x.n,city);const dist=x.ll?Math.max(1,Math.round(km(pos,x.ll)*13)):null;
     return `<li class="ls ${x.src}"><span class="lsdot" aria-hidden="true"></span><span class="lsn"><b>${esc(x.n)}</b>${x.note?` <small>${esc(x.note)}</small>`:""}<small class="num">${x.pr?esc(x.pr):""}${dist?` · ~${dist} min a pie`:""}${x.src==="ver"?" · precio verificado":x.src==="fav"?" · favorito":x.src==="map"?" · precio estimado":" · precio aprox."}</small></span>
      <span class="lsact">${x.ll?`<a href="${mlinkQ(x.ll.join(","))}" target="_blank" rel="noopener" aria-label="Mapa de ${esc(x.n)}">mapa</a>`:""}<button type="button" class="favb${f?" on":""}" data-fav="${city}|${esc(x.n)}|${x.ll?x.ll.join(","):""}|${esc(x.pr||"")}" aria-pressed="${!!f}" title="${f?"Quitar de favoritos":"Marcar como favorito"}">${f?"★":"☆"}</button><button type="button" class="btn sm" data-lpick="${d.id}|${esc(x.n)}">${chosen===x.n?"✓ elegido":"Elegir"}</button></span></li>`};
   const shown=items.filter(x=>!x.pend);
-  return `<div class="lsugg"><span class="lsh">Sugerencias cerca${p.seq.lunchPos?"":" del alojamiento"}:</span><ul>${shown.map(row).join("")}${pend.length?`<li class="ls wait"><small class="muted">Buscando lugares cerca en el mapa…</small></li>`:""}</ul><small class="lsleg"><i class="ver"></i>precio verificado <i class="est"></i>precio estimado <i class="fav"></i>favorito</small></div>`}
+  return `<details class="lsugg" data-ls="${d.id}"${lsOpen.has(d.id)?" open":""}><summary class="lsh">Sugerencias de almuerzo cerca${p.seq.lunchPos?"":" del alojamiento"} (${shown.length}${pend.length?"+":""})</summary><ul>${shown.map(row).join("")}${pend.length?`<li class="ls wait"><small class="muted">Buscando lugares cerca en el mapa…</small></li>`:""}</ul><small class="lsleg"><i class="ver"></i>precio verificado <i class="est"></i>precio estimado <i class="fav"></i>favorito</small></details>`}
 function toggleFav(city,n,ll,pr){ST.favs=ST.favs||[];const k=favKey(n);const i=ST.favs.findIndex(f=>f.k===k&&f.city===city);
   if(i>=0){ST.favs.splice(i,1);toast(`☆ ${esc(n)} quitado de favoritos`)}else{ST.favs.push({k,n,city,ll:ll||null,pr:pr||"",chain:CHAINS.test(n)});toast(`★ <b>${esc(n)}</b> en favoritos${CHAINS.test(n)?" · es cadena: se sugerirá el local más cercano cada día":" · se sugerirá cuando estén cerca"}`)}save();render()}
 function favCard(key){if(key!=="PA"&&key!=="LO")return"";const L=(ST.favs||[]).filter(f=>f.city===key);
@@ -3042,6 +3196,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const fm=$("#feasmini");if(fm)fm.onclick=()=>{document.body.classList.toggle("feas-open");render()};
   Q("[data-gofeas]",x=>x.onclick=e=>{e.preventDefault();attCity=x.dataset.gofeas;attFilt="todas";attCat="todas";go("att");scrollTo(0,0)});
   Q("details.ctxd",d=>d.ontoggle=()=>{ctxOpen=d.open});
+  Q("details[data-ls]",x=>x.ontoggle=()=>{x.open?lsOpen.add(x.dataset.ls):lsOpen.delete(x.dataset.ls)});
   Q("[data-legend]",b=>b.onclick=()=>{legOpen=!legOpen;render()});
   Q("[data-orgk]",b=>b.onclick=()=>{orgOpen=orgOpen===b.dataset.orgk?null:b.dataset.orgk;render()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
