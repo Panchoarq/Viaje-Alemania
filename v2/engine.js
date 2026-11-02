@@ -296,13 +296,14 @@ function paFicha(a,i){const x=PA_F[a.id];const sel=paSel(a);
   return `<article class="ficha" id="fpa-${a.id}"><div class="ftab">EXP. PAR-${String(i+1).padStart(2,"0")} · ${a.z.toUpperCase()}</div>
    <header><h3>${a.n.replace(/\s*\(.*?\)\s*$/,"")}</h3>${x.y?`<span class="fy">${x.y}</span>`:""}${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
    <p class="flead">${a.s}</p>
-   ${x.h&&x.h.length?`<div class="fhist"><span class="flab">Historia</span>${x.h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${x.h&&x.h.length?`<div class="fwhy"><span class="flab">Por qué vale la pena</span><p>${x.h[0]}</p></div>`:""}
+   ${x.h&&x.h.length>1?`<div class="fhist"><span class="flab">Historia</span>${x.h.slice(1).map(p=>`<p>${p}</p>`).join("")}</div>`:""}
    <div><span class="flab">Qué van a ver</span><p>${x.v||a.v}</p></div>
    <div class="fnote"><span class="flab">Dato / consejo</span>${x.d?`<p>${x.d}</p>`:""}<p><b>Práctico:</b> ${a.d}</p></div>
    <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${fmtE(a.p)}${a.close?` · cierra ${hm(a.close)}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
    ${x.f&&x.f.length?`<div class="fphotos">${x.f.filter((f,j,A)=>A.findIndex(g=>g[1]===f[1])===j).map(f=>`<a class="polaroid" href="${GIq(f[0]+" "+a.n.replace(/\s*\(.*?\)/,"")+" París")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${f[1]}" alt="${f[0]}" loading="lazy"><span class="cap">${f[0]}</span><span class="go">más fotos →</span></a>`).join("")}</div><p class="credit">Fotos: Wikipedia / Wikimedia Commons · ${[...new Set(x.f.map(f=>f[1]))].map(t=>`<a href="${WKq(t)}" target="_blank" rel="noopener">${t}</a>`).join(" · ")}</p>`:""}
    <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="${WKq(x.w||a.n)}" target="_blank" rel="noopener">Wikipedia ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a>
-   <button type="button" class="btn alt sm" data-fsel="${a.id}">${sel?"✕ Quitar del programa":"+ Agregar al programa"}</button>${daySelPA(a.id,"")}</div>
+   ${sel?`<button type="button" class="btn alt sm" data-fsel="${a.id}">✕ Quitar del programa</button>`:""}${daySelPA(a.id,"")}</div>
   </article>`}
 // ===== Alojamiento =====
 const uid=()=>Math.random().toString(36).slice(2,8);
@@ -709,21 +710,23 @@ function loFicha(a,i){const sel=selOf(a),w=LO_WK[a.id]||a.wk,lo=isLO(a.id),cu=/^
   return `<article class="ficha" id="fpa-${a.id}"><div class="ftab">EXP. ${lo?"LON":"PAR"}-${String(i+1).padStart(2,"0")} · ${esc(String(a.z).toUpperCase())}${cu?" · AGREGADA":""}</div>
    <header><h3>${a.n}</h3>${LO_F[a.id]?`<span class="fy">${LO_F[a.id].y}</span>`:""}${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${sel?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
    <p class="flead">${a.s}</p>
-   ${LO_F[a.id]?`<div class="fhist"><span class="flab">Historia</span>${LO_F[a.id].h.map(p=>`<p>${p}</p>`).join("")}</div>`:""}
+   ${LO_F[a.id]&&LO_F[a.id].h.length?`<div class="fwhy"><span class="flab">Por qué vale la pena</span><p>${LO_F[a.id].h[0]}</p></div>`:""}
+   ${LO_F[a.id]&&LO_F[a.id].h.length>1?`<div class="fhist"><span class="flab">Historia</span>${LO_F[a.id].h.slice(1).map(p=>`<p>${p}</p>`).join("")}</div>`:""}
    <div><span class="flab">Qué van a ver</span><p>${a.v}</p></div>
    <div class="fnote"><span class="flab">Dato / consejo</span><p>${a.d}</p></div>
    <p class="fmeta">🕐 visita ~${String(a.h).replace(".",",")} h · ${a.p?fmt(a.p)+(lo?" (≈ £"+Math.round(a.p/GBP)+")":""):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${late?` · 🌙 ${late}`:""}${a.cl?` · cerrado ${a.cl.map(x=>DOW[x]).join(", ")}`:""}${a.in?" · 🏛 techado":""}</p>
    ${w?`<div class="fphotos"><a class="polaroid" href="${GIq(a.n+" London")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${a.img?`<img class="ph" src="${a.img}" alt="${esc(a.n)}" loading="lazy">`:`<img class="ph" data-wk="${w}" alt="${esc(a.n)}" loading="lazy">`}<span class="cap">${esc(a.n.split(/ \(|:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${a.wkl==="en"?"https://en.wikipedia.org/wiki/"+encodeURIComponent(w.replace(/ /g,"_")):WKq(w)}" target="_blank" rel="noopener">${w}</a></p>`:""}
-   <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a><button type="button" class="btn ${sel?"alt ":""}sm" data-pasel-btn="${a.id}">${sel?"✕ Quitar del programa":"+ Agregar al programa"}</button>${cu?`<button type="button" class="lnkb" data-fdel="att|${a.id}">quitar de la lista</button>`:""}</div></article>`}
+   <div class="flinks"><a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a><a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a>${sel?`<button type="button" class="btn alt sm" data-pasel-btn="${a.id}">✕ Quitar del programa</button>`:""}${daySelPA(a.id,"")}${cu?`<button type="button" class="lnkb" data-fdel="att|${a.id}">quitar de la lista</button>`:""}</div></article>`}
 let attCat="todas";
 function attFilters(items){const cnt=k=>items.filter(a=>typOf(a)===k).length;const cats=TYP.filter(t=>cnt(t[0])>0&&!["esp","com","cen","via"].includes(t[0]));
   if(attCat!=="todas"&&!cats.some(c=>c[0]===attCat))attCat="todas";
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"]];
-  return `<div class="attfil"><span class="eyebrow">Categoría</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todas (${items.length})</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} (${cnt(k)})</button>`).join("")}</div>
-   <span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div>`}
+  return `<div class="attfil"><div class="afrow"><span class="eyebrow">Categoría</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todas (${items.length})</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} (${cnt(k)})</button>`).join("")}</div></div>
+   <div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div></div>`}
 const attPass=(a,sel)=>(attCat==="todas"||typOf(a)===attCat)&&(attFilt==="todas"||(attFilt==="prog"&&sel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
 let ctxOpen=false;const openFic=new Set();
 const ctxCard=(X,tl)=>`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tl(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
+const railNav=n=>`<div class="railnav"><button type="button" data-rail="-1" aria-label="Ficha anterior">‹</button><span class="rp">1 de ${n}</span><span class="railbar"><i style="width:${n?100/n:0}%"></i></span><button type="button" data-rail="1" aria-label="Ficha siguiente">›</button></div>`;
 const railed=h=>h.replace(/<\/article>/g,'<span class="fcue"><i class="c1">Ver ficha completa ▾</i><i class="c2">Tocar para cerrar ▴</i></span></article>');
 function feasMsg(A,k){const lo=k==="LO",un=lo?(A.RL||{unpl:[]}).unpl.length:A.R.unpl.length,nm=lo?"Londres":"París";return {un,txt:un?`✕ ${nm}: no caben ${un} actividad${un>1?"es":""}`:`✓ ${nm}: todo cabe`}}
 function feasStat(A,k){const m=feasMsg(A,k);return `<a href="#" class="feasstat ${m.un?"bad":"ok"}" data-gofeas="${k}">${m.txt} · ver resumen en Atracciones →</a>`}
@@ -734,7 +737,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
     const L=items.filter(a=>attPass(a,loSel));L.sort((x,y)=>(loSel(y)-loSel(x))||((y.top?1:0)-(x.top?1:0)));
     return cityTabs("LO","data-attc")+findBtn("att","LO")+`
      ${ctxCard(CTX_LO,tlSVG)}${feasBox(A,"LO")}${attFilters(items)}<p class="muted attn">${L.length} de ${items.length} atracciones</p>
-     <div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
+     ${railNav(L.length)}<div class="fichas att">${railed(L.map(a=>loFicha(a,LON.indexOf(a))).join(""))}</div>${mediaCard(MEDIA_LO,"Londres")}<p class="note">Atracciones de Londres (precios en € con 1 £ = 1,17 €; verificar antes de comprar). Los espectáculos y eventos están en 5 · Espectáculos.</p>`}
   let h=cityTabs("PA","data-attc")+findBtn("att","PA");
   if(attCity!=="PA"){const c=C.find(z=>z.k===attCity);return h+`<div class="fichas">${escFichaHTML(c.id)}</div><p class="note">Las fichas de cada atracción de las escapadas vienen en la próxima etapa.</p>`}
   const items=PA.filter(a=>typOf(a)!=="esp");
@@ -742,7 +745,7 @@ function pAtt(A){const C=[A.C.find(c=>c.k==="PA")];if(attCity!=="LO")attCity="PA
   L.sort((x,y)=>(paSel(y)-paSel(x))||((y.top?1:0)-(x.top?1:0)));const rest=PA.filter(a=>!PA_F[a.id]&&typOf(a)!=="esp"&&!/^cu/.test(a.id)).filter(a=>attPass(a,paSel));const CU=PA.filter(a=>/^cu/.test(a.id)&&typOf(a)!=="esp").filter(a=>attPass(a,paSel));
   return h+`${ctxCard(CTX_PA,tlSVG)}${feasBox(A,"PA")}
     ${attFilters(items)}<p class="muted attn">${L.length+CU.length+rest.length} de ${items.length} atracciones</p>
-    <div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
+    ${railNav(CU.length+L.length)}<div class="fichas att">${railed(CU.map(a=>loFicha(a,PA.indexOf(a))).join("")+L.map(a=>paFicha(a,PA.indexOf(a))).join(""))}</div>
     ${rest.length?`<div class="card"><span class="eyebrow">Otras, en breve</span><ul class="brief">${rest.map(a=>`<li><b>${a.n}</b>: ${a.s} ${a.d}</li>`).join("")}</ul></div>`:""}
     ${mediaCard(MEDIA_PA,"París")}<p class="note">Atracciones de París. Las fichas de las escapadas están en 4 · Escapadas.</p>`}
 
@@ -821,7 +824,7 @@ const typOf=a=>a.t||PA_T[a.id]||"pas";
 const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["tie","Tiendas"],["otr","Personales y otros"],["cen","Cenas entretenidas"],["per","Personalizada"],["com","Restaurantes"],["via","Viajes"]];
 function nearDays(id){const a=actById(id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
 function daySelPA(id,cls){const days=isLO(id)?lonDays():parisDays();const pin=(ST.paPin||{})[id]||"";const on=selOf(actById(id));const N=nearDays(id);
-  return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Automático${!pin&&ACTDAY[id]?" → "+pretty(ACTDAY[id]):""}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar (día automático)…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
+  return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Automático${!pin&&ACTDAY[id]?" → "+pretty(ACTDAY[id]):""}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar al programa: elegir día…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
 let addDay=null,addTyp="pas";
 
 function perForm(d,lo){return `<form class="fform perf" data-perform="${d}|${lo?"LO":"PA"}">
@@ -1229,6 +1232,11 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   const fm=$("#feasmini");if(fm)fm.onclick=()=>{document.body.classList.toggle("feas-open");render()};
   Q("[data-gofeas]",x=>x.onclick=e=>{e.preventDefault();attCity=x.dataset.gofeas;attFilt="todas";attCat="todas";go("att");scrollTo(0,0)});
   Q("details.ctxd",d=>d.ontoggle=()=>{ctxOpen=d.open});
+  Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
+    const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
+    const upd=()=>{const i=cur();rp.textContent=`${i+1} de ${cs.length}`;bar.style.width=(i+1)/cs.length*100+"%";bs[0].disabled=i<=0;bs[1].disabled=i>=cs.length-1};
+    rail.addEventListener("scroll",()=>requestAnimationFrame(upd),{passive:true});
+    bs.forEach(b=>b.onclick=()=>{const j=Math.max(0,Math.min(cs.length-1,cur()+ +b.dataset.rail));rail.scrollBy({left:cs[j].getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"})});upd()});
   Q(".fichas.att .ficha",f=>{if(openFic.has(f.id))f.classList.add("open");f.onclick=e=>{if(innerWidth>700||e.target.closest("a,button,select,input,label"))return;f.classList.toggle("open");f.classList.contains("open")?(openFic.add(f.id),f.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})):openFic.delete(f.id)}});
   Q(".blk-com > h4, .blk-tr > h4",h=>h.onclick=()=>{const b=h.parentNode;b.classList.toggle("open");const k=b.closest(".day").dataset.day+"|"+(b.classList.contains("blk-com")?"com":"tr");b.classList.contains("open")?openActs.add(k):openActs.delete(k);setTimeout(()=>initMaps(A),0)});
   Q(".actrow2:not(.lite) .ar-top",t=>t.onclick=e=>{if(e.target.closest("button,a,select,input"))return;const r=t.closest(".actrow2"),k=r.closest(".day").dataset.day+"|"+r.dataset.k;r.classList.toggle("open");r.classList.contains("open")?openActs.add(k):openActs.delete(k)});
