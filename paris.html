@@ -1292,6 +1292,14 @@ html:root[data-paper="1"] .dchipw::after{bottom:12px;height:60px;background:radi
 html:root[data-paper="1"] .dchipw::before{top:calc(100% - 73px)}
 html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
 .aideas{display:flex;flex-direction:column;margin-top:4px}.aitem{border-top:1px dotted var(--line)}.aitem>summary{cursor:pointer;list-style:none;padding:7px 0;display:flex;gap:6px}.aitem>summary::-webkit-details-marker{display:none}.aitem>summary::after{content:"▸";margin-left:auto}.aitem[open]>summary::after{content:"▾"}.aitem p{margin:0 0 8px;font-size:14px}
+
+/* presupuesto / real del día */
+.day-total{display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:baseline!important;justify-content:space-between;gap:0 8px;text-align:left!important}
+.day-total .eyebrow{flex:1 1 0;min-width:0;font-size:10px;letter-spacing:.05em;white-space:nowrap}
+.day-total .big{margin-left:auto;text-align:right;font-size:18px;white-space:nowrap}
+.day-total .big .sl{opacity:.6;font-weight:400}.day-total .big .rd{color:#b3261e}
+.day-total .las{flex:1 1 100%;text-align:right;font-size:12px}
+@media (max-width:900px){html #days > .day .tkt .tn{display:none!important}}
 </style>
 </head>
 <body>
@@ -1340,7 +1348,7 @@ const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has
 const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ic=p=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
-const IC={lupa:ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>'),
+const IC={compras:ic('<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>'),lupa:ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>'),
  hotel:ic('<path d="M3 19V6M3 15h18v4M21 15v-2.5a3 3 0 0 0-3-3h-7V15"/><circle cx="7" cy="11.5" r="1.6"/>'),
  gastos:ic('<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H17v3"/><rect x="3" y="8.5" width="18" height="11" rx="2"/><circle cx="16.5" cy="14" r="1.1"/>'),
  cal:ic('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
@@ -1378,8 +1386,8 @@ addEventListener("resize",()=>stagger());try{document.fonts.ready.then(()=>stagg
 function cabH(){if(!CAB)return;const n=document.querySelector(".tabs");if(n&&document.documentElement.classList.contains("navb")){const s=n.querySelector("[aria-selected=true]");if(s)n.scrollLeft=s.offsetLeft-(n.clientWidth-s.offsetWidth)/2}if(n)document.documentElement.style.setProperty("--cabH",(document.documentElement.classList.contains("navb")?0:n.offsetHeight)+"px")}
 
 // ---- gasto real registrado en «Mis gastos» (se muestra en rojo junto al presupuesto del programa) ----
-const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot"};
-const RKEY={Alojamiento:"hot",Comidas:"meal",Entradas:"act",Transporte:"loc"};
+const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot",Souvenirs:"shop",Compras:"shop"};
+const RKEY={Alojamiento:"hot",Comidas:"meal",Entradas:"act",Transporte:"loc",Compras:"shop"};
 let REAL=[],realUn=[],rsT=null;
 const realSum=f=>REAL.filter(f).reduce((t,g)=>t+g.eur,0),hasReal=f=>REAL.some(f);
 const dayReal=d=>hasReal(g=>g.d===d.d)?`<span class="rl">/ ${fmt(realSum(g=>g.d===d.d))}</span>`:"";
@@ -2129,7 +2137,7 @@ function summary(A){const S={meal:0,act:0,loc:0,hot:0,total:0};const LD=A.days.f
    <div class="tile"><span class="eyebrow">Promedio diario p/p</span><span class="big">${fmt(n+ln?TOT/(n+ln):0)}</span><span class="muted" style="font-size:13px">París ${fmt(n?S.total/n:0)}/día · Londres ${fmt(ld)}/día</span></div></section>
   <section style="display:flex;flex-direction:column;gap:8px" aria-label="Desglose de París y escapadas"><span class="eyebrow">Desglose · París y escapadas</span><div class="dstrip sumstrip" id="bar">${parts.map(p=>`<div class="tkt" title="${p[1]}: ${fmt(p[2])} por persona"><span class="ti" aria-hidden="true">${p[0]}</span><b class="num">${fmt(p[2])}${hasReal(g=>g.city!=="Londres")?`<span class="rl">/ ${fmt(realSum(g=>g.city!=="Londres"&&g.k===RKEY[p[1]]))}</span>`:""}</b><span class="tn">${p[1]}</span><span class="tp num">${S.total?Math.round(p[2]/S.total*100):0}% · p/p</span><span class="tm"><span style="width:${(p[2]/M*100).toFixed(1)}%;background:${p[3]}"></span></span></div>`).join("")}</div><div class="legend" id="legend"></div></section>`}
 const TABS=[["cfg","1 · Configurar"],["prog","2 · Programa"],["att","3 · Atracciones"],["esc","4 · Escapadas"],["show","5 · Espectáculos"],["food","6 · Comidas"],["gas","7 · Gastos"],["tra","8 · Transporte"],["hot","9 · Alojamiento"],["buy","10 · Trámites previos"]];
-function costStrip(c,d){const dr=!!d&&hasReal(g=>g.d===d.d);const C=[[IC.hotel,"Alojamiento",c.hot,"var(--mun)"],[IC.comida,"Comidas",c.meal,"var(--pra)"],[IC.entrada,"Entradas",c.act,"var(--ber)"],[IC.tram,"Transporte",c.loc,"var(--ok)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
+function costStrip(c,d){const dr=!!d&&hasReal(g=>g.d===d.d);const C=[[IC.hotel,"Alojamiento",c.hot,"var(--mun)"],[IC.comida,"Comidas",c.meal,"var(--pra)"],[IC.entrada,"Entradas",c.act,"var(--ber)"],[IC.tram,"Transporte",c.loc,"var(--ok)"],[IC.compras,"Compras",0,"var(--mun)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
   return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}${dr?`<span class="rl">/ ${fmt(realSum(g=>g.d===d.d&&g.k===RKEY[x[1]]))}</span>`:""}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
 
 // ---------- 1 · Configurar ----------
@@ -2308,7 +2316,7 @@ function dayHTML(d,A){const c=d.cost,W=ST.wiz;const C=d.city==="PA"?{n:"París",
     go:d.c?`🚄 París → <b>${d.c.n}</b> · ${d.c.x.tr} · ${X.how||""}`:"",lonfirst:`✈ Llegada a Londres ${esc(W.ida_aerop||"")} ${esc(W.ida_vuelo||"")} · traslado donde Alli (Elizabeth line o Piccadilly desde Heathrow)`,trip:d.c?`🚆 Ida y vuelta en el día · ${d.c.x.tr} · ${X.how||""}`:""}[d.kind]||"";
   const CAL='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg>';
   let foot="";let h=`<div class="dtabrow"><span class="dftab"><b>${pretty(d.d)}</b><span class="fc">${esc(short(C.n))}</span>${d.city==="PA"&&isJunDay(d.d)?'<span class="fc" title="Día con Alli">👭</span>':""}${wxMini(d.city==="LO"?"LO":"PA",d.d)}</span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="daycal" data-legend aria-pressed="${legOpen}" title="Leyenda de símbolos" aria-label="Leyenda de símbolos">${CABIC.q}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div>${legOpen?`<div class="legpop">${fcards(A,"legend")}</div>`:""}<div class="day-head"><h3>${dayTitle(d)}</h3><span class="muted" style="font-size:13px">${night}</span><span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span></div>
-   ${costStrip(c,d)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}${dayReal(d)}</span><span class="muted num" style="font-size:12px">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}${blkNote(d)}
+   ${costStrip(c,d)}<div class="day-total"><span class="eyebrow">Presupuesto / real</span><span class="big">${fmt(c.total)}<span class="sl"> / </span><span class="rd">${fmt(realSum(g=>g.d===d.d))}</span></span><span class="muted num las">las 2: ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}${blkNote(d)}
    <div class="day-body"><div class="blk blk-com${openActs.has(d.id+"|com")?" open":""}"><h4>Comidas · ${fmt(c.meal)}</h4>`;
   ["d","a","m","c"].forEach(k=>{const T=MT(d),on=mealOnP(d.id,k),i=mealIxP(d.id,k,T),o=T[k];
     h+=`<label class="chk"><input type="checkbox" data-pmeal="${d.id}|${k}" ${on?"checked":""}><span class="t">${PA_MEAL_LBL[k]}<small>${o[i][0]}</small></span><span class="p">${fmt(o[i][1])}</span></label>${o.length>1?`<select class="msel" data-pmopt="${d.id}|${k}" aria-label="Opción ${PA_MEAL_LBL[k]}">${o.map((x,j)=>`<option value="${j}" ${j===i?"selected":""}>${x[0]} · ${fmt(x[1])}</option>`).join("")}</select>`:""}${k==="a"&&(ST.lunchAt||{})[d.id]?`<div class="lunchat">🍽 Almuerzo en <b>${esc(ST.lunchAt[d.id])}</b> <button type="button" class="lnkb" data-lunchx="${d.id}">quitar</button></div>`:""}`});
@@ -3078,7 +3086,7 @@ function gasBoard(A){const days=A.days;if(!days.length)return `<div class="card"
   const over=TR>TB+0.005;
   const hoy=days.find(d=>d.d===today);
   const tl=hoy?`<div class="gtoday">Hoy (${pretty(hoy.d)} · ${cname(hoy)}): estimado <b>${fmt(hoy.cost.total)}</b> · gastado <b class="rd">${fmt(realSum(g=>g.d===hoy.d))}</b></div>`:"";
-  const cats=[["Alojamiento","hot"],["Comidas","meal"],["Entradas","act"],["Transporte","loc"]].map(([n,k])=>{const b=days.reduce((t,d)=>t+d.cost[k],0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${n}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
+  const cats=[["Alojamiento","hot"],["Comidas","meal"],["Entradas","act"],["Transporte","loc"],["Compras","shop"]].map(([n,k])=>{const b=days.reduce((t,d)=>t+(d.cost[k]||0),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${n}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
   return `<section class="gtotal" aria-label="Total del viaje">
     <span class="eyebrow">Total del viaje · por persona</span>
     <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>presupuesto</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>

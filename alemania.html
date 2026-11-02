@@ -336,6 +336,15 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
 .daytabs.stag .dtab[style*="grid-row: 1"]{z-index:1;opacity:.9}
 .daytabs.stag .dtab[aria-selected="true"]{z-index:3;opacity:1}
 #p-prog #daytabs.stag .dtab::before,#p-prog #daytabs.stag .dtab::after{display:none!important}
+
+/* presupuesto / real del día */
+.day-total{display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:baseline!important;justify-content:space-between;gap:0 8px;text-align:left!important}
+.day-total .eyebrow{flex:1 1 0;min-width:0;font-size:10px;letter-spacing:.05em;white-space:nowrap}
+.day-total .big{margin-left:auto;text-align:right;font-size:18px;white-space:nowrap}
+.day-total .big .sl{opacity:.6;font-weight:400}.day-total .big .rd{color:#b3261e}
+.day-total .las{flex:1 1 100%;text-align:right;font-size:12px}
+@media (max-width:900px){html #days > .day .tkt .tn{display:none!important}}
+html #days > .day .dstrip{grid-template-columns:repeat(6,minmax(0,1fr))!important}
 </style>
 
 <div class="cover" id="cover" role="dialog" aria-label="Portada"><figure><img src="img/sticker-big.jpg" alt="Afiche Deutschland 2027: ruta de los cinco viajeros"></figure><small>Toca para entrar</small></div>
@@ -879,7 +888,7 @@ const w=document.createElement("div");w.innerHTML=`<button id="hlpBtn" class="hl
 <script>window.__grpStart=function(){};window.__grpSaved=function(){};</script>
 <script>
 const ic=p=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
-const IC={lupa:ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>'),
+const IC={compras:ic('<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>'),lupa:ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>'),
  hotel:ic('<path d="M3 19V6M3 15h18v4M21 15v-2.5a3 3 0 0 0-3-3h-7V15"/><circle cx="7" cy="11.5" r="1.6"/>'),
  gastos:ic('<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H17v3"/><rect x="3" y="8.5" width="18" height="11" rx="2"/><circle cx="16.5" cy="14" r="1.1"/>'),
  cal:ic('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
@@ -1857,7 +1866,7 @@ function routeUrl(seg){const ll=p=>p[0].toFixed(5)+","+p[1].toFixed(5);const a0=
   return"https://www.google.com/maps/dir/?"+q.toString()}
 function mealOn(d,k){const key=d.id+k;if(!(key in mealState)){mealState[key]=!((d.first&&k==="d")||(d.final&&k==="c"))}return mealState[key]}
 
-function costStrip(c,d){const dr=!!d&&hasReal(g=>g.d===iso(d.date));const C=[[IC.tren,"Pasaje",c.leg,"var(--ink)"],[IC.hotel,"Alojamiento",c.hot,"var(--mun)"],[IC.comida,"Comidas",c.meal,"var(--pra)"],[IC.entrada,"Entradas",c.act,"var(--ber)"],[IC.tram,"Transporte",c.loc,"var(--ok)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
+function costStrip(c,d){const dr=!!d&&hasReal(g=>g.d===iso(d.date));const C=[[IC.tren,"Pasaje",c.leg,"var(--ink)"],[IC.hotel,"Alojamiento",c.hot,"var(--mun)"],[IC.comida,"Comidas",c.meal,"var(--pra)"],[IC.entrada,"Entradas",c.act,"var(--ber)"],[IC.tram,"Transporte",c.loc,"var(--ok)"],[IC.compras,"Compras",0,"var(--mun)"]];const M=Math.max(...C.map(x=>x[2]),0.01);
   return `<div class="dstrip" aria-label="Gasto del día por categoría">${C.map(x=>`<div class="tkt${x[2]>0.005?"":" zero"}" title="${x[1]}: ${fmt(x[2])}"><span class="ti" aria-hidden="true">${x[0]}</span><b class="num">${x[2]>0.005?fmt(x[2]):"—"}${dr&&RKEY[x[1]]?`<span class="rl">/ ${fmt(realSum(g=>g.d===iso(d.date)&&g.k===RKEY[x[1]]))}</span>`:""}</b><span class="tn">${x[1]}</span><span class="tm"><span style="width:${(x[2]/M*100).toFixed(1)}%;background:${x[3]}"></span></span></div>`).join("")}</div>`}
 function dayCost(d){
   let meal=0,act=0,leg=0,hot=0;
@@ -1956,8 +1965,8 @@ function lunchSuggHTML(c,ls,dayId){const fm=(FOOD[foodMode]||FOOD.fast)[c];const
     return `<li class="ls est"><span class="lsdot" aria-hidden="true"></span><span class="lsn"><b>${f[2]}</b><span class="tg">${t[0]}</span><small>${t[1]}</small><small class="num">~${fmt(pr)} p/p · ~${walkMin(x.d)} min a pie · precio estimado</small></span><span class="lsact"><a href="${ffLink(f)}" target="_blank" rel="noopener">mapa</a></span></li>`}).join("")}</ul><small class="lsleg">Precios aproximados por persona; a los 16 años se paga como adulto.</small></details>`}
 
 /* ===== Gasto real (Mis gastos) en rojo junto al presupuesto ===== */
-const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot"};
-const RKEY={Alojamiento:"hot",Comidas:"meal",Entradas:"act",Transporte:"loc"};
+const CATGRP={Desayuno:"meal",Almuerzo:"meal",Cena:"meal",Cafecito:"meal",Supermercado:"meal",Entradas:"act",Transporte:"loc",Alojamiento:"hot",Souvenirs:"shop",Compras:"shop"};
+const RKEY={Alojamiento:"hot",Comidas:"meal",Entradas:"act",Transporte:"loc",Compras:"shop"};
 let REAL=[],realUn=[],budLast="",budT=null;
 const realSum=f=>REAL.filter(f).reduce((t,g)=>t+g.eur,0),hasReal=f=>REAL.some(f);
 const dayReal=d=>hasReal(g=>g.d===iso(d.date))?`<span class="rl">/ ${fmt(realSum(g=>g.d===iso(d.date)))}</span>`:"";
@@ -2217,7 +2226,7 @@ function renderDays(plan){
     else if(d.final)tl=`Check-out ${CN[d.city]} 10:00 · dejar maletas en recepción · fin del viaje`;
     let h=`<div class="dtabrow"><span class="dftab"><b>${pretty(d.date)}</b><span class="fc">${CN[d.city]}</span>${wxMini(d.city,iso(d.date))}</span><button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div><div class="day-head"><h3>${title}</h3>
       <span class="muted" style="font-size:13px">${d.night?"Noche en "+hotelOf(d.night).name:"Sin noche de hotel"}</span>${(()=>{const S=sunOf(d.date,hotelOf(d.city).ll);return `<span class="sunline">🌇 Se pone el sol ${hm(S.set)} · 🌙 oscuro desde ${hm(S.dusk)}</span>`})()}</div>
-      ${costStrip(c,d)}<div class="day-total"><span class="eyebrow">Por persona</span><span class="big">${fmt(c.total)}${dayReal(d)}</span><span class="muted num" style="font-size:12px">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk blk-com"><h4>Comidas</h4>`;
+      ${costStrip(c,d)}<div class="day-total"><span class="eyebrow">Presupuesto / real</span><span class="big">${fmt(c.total)}<span class="sl"> / </span><span class="rd">${fmt(realSum(g=>g.d===iso(d.date)))}</span></span><span class="muted num las">grupo ${fmt(c.total*PEOPLE)}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}<div class="day-body"><div class="blk blk-com"><h4>Comidas</h4>`;
     ["d","a","m","c"].forEach(k=>{const mi=mealPick(d,k);
       h+=`<label class="chk"><input type="checkbox" data-meal="${d.id}|${k}" ${mealOn(d,k)?"checked":""}><span class="t">${MEAL_LBL[k]}${mi[3]?' <span class="tag hotel" title="Se compra en el hotel">🏨 hotel</span>':""}<small>${mi[1]}${mi[2]?` · <a href="${mi[2]}" target="_blank" rel="noopener">fuente</a>`:""}</small></span><span class="p">${fmt(mi[0])}</span></label>${mealSel(d,k)}`});
     h+=`</div><div class="blk blk-att"><h4>Atracciones</h4>`;
@@ -2394,7 +2403,7 @@ function renderGastos(plan){const host=$("gas");if(!host)return;
   let when;if(today<first){const f=Math.round((new Date(first+"T00:00:00")-new Date(today+"T00:00:00"))/864e5);when=`Faltan <b>${f}</b> día${f===1?"":"s"} para viajar · el viaje tiene ${n} días`}else if(today>last)when=`El viaje terminó (${n} días)`;else when=`Quedan <b>${nL}</b> día${nL===1?"":"s"} de ${n}`;
   const hoy=cost.find(x=>x.iso===today);
   const tl=hoy?`<div class="gtoday">Hoy (${pretty(hoy.d.date)} · ${CN[hoy.d.city]}): estimado <b>${fmt(hoy.c.total)}</b> · gastado <b class="rd">${fmt(realSum(g=>g.d===today))}</b></div>`:"";
-  const cats=[["Pasajes y transporte",x=>x.c.loc+x.c.leg,"loc"],["Alojamiento",x=>x.c.hot,"hot"],["Comidas",x=>x.c.meal,"meal"],["Entradas",x=>x.c.act,"act"]].map(([nm,f,k])=>{const b=cost.reduce((t,x)=>t+f(x),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${nm}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
+  const cats=[["Pasajes y transporte",x=>x.c.loc+x.c.leg,"loc"],["Alojamiento",x=>x.c.hot,"hot"],["Comidas",x=>x.c.meal,"meal"],["Entradas",x=>x.c.act,"act"],["Compras",x=>0,"shop"]].map(([nm,f,k])=>{const b=cost.reduce((t,x)=>t+f(x),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${nm}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
   host.innerHTML=`<section class="gtotal" aria-label="Total del viaje">
     <span class="eyebrow">Total del viaje · por persona</span>
     <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>presupuesto</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>
