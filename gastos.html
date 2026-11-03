@@ -255,8 +255,8 @@ function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C
   <div class="seg dark">${["hoy","ciudad","viaje"].map(k=>`<button data-rv="${k}" aria-pressed="${rv===k}">${esc(lbl[k])}</button>`).join("")}</div>
   <div class="k2"><div class="kpi dk"><span class="eb">Gastado · ${esc(lbl[rv])}</span><b>${fe(spent)}</b><small>${clp(spent)}</small></div>
    <div class="kpi"><span class="eb">Presupuesto del programa</span><b>${bt?fe(bt):"—"}</b><small style="color:${bt?(spent<=bt?"var(--ok)":"var(--red)"):""}">${bt?(spent<=bt?`vas ${fe(bt-spent)} bajo`:`te pasaste ${fe(spent-bt)}`):"abre el viaje para cargarlo"}</small></div>
-   <div class="kpi"><span class="eb">Efectivo · te queda</span><b style="color:${C.EUR<0?"var(--red)":"inherit"}">${num(C.EUR)} €</b><small>y ${T.c2.sym} ${num(C[T.c2.code])} en ${T.c2.sym} · llevabas ${num(+(P.cashEUR||0))} € y ${T.c2.sym} ${num(+(P[T.c2.ck]||0))}</small></div>
-   <div class="kpi"><span class="eb">Te queda del presupuesto</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
+   <div class="kpi"><span class="eb">Saldo efectivo</span><b style="color:${C.EUR<0?"var(--red)":"inherit"}">${num(C.EUR)} €</b><small>y ${T.c2.sym} ${num(C[T.c2.code])} en ${T.c2.sym} · llevabas ${num(+(P.cashEUR||0))} € y ${T.c2.sym} ${num(+(P[T.c2.ck]||0))}</small></div>
+   <div class="kpi"><span class="eb">Saldo presupuesto viaje</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
   ${payBox(scope,lbl[rv],bt)}
   ${left.length?`<div class="alert"><span class="eb" style="color:var(--red)">Para los días que quedan</span><br>Quedan <b>${left.length} día${left.length>1?"s":""} en ${esc(city)}</b>: puedes gastar <b>${fe(Math.max(0,perDay))}/día</b> para cerrar en el presupuesto (el programa estima ${fe(progDay)}/día).</div>`:""}
   <div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Por categoría · real vs presupuesto</span>

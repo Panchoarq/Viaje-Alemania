@@ -1267,6 +1267,7 @@ details.escord,details.escfich{padding-top:10px;padding-bottom:10px}
 .gbar i{display:block;height:100%;background:var(--ink);border-radius:4px}.gtotal .gbar i{background:#ff7a68}
 .gbar.over i{background:#b3261e}
 .gcities{display:flex;flex-direction:column;gap:8px}
+.gcat .num{white-space:nowrap}.gcat.tot{border-top:1.5px solid var(--ink);margin-top:4px;padding-top:6px;font-weight:700}.gcat.tot.off{border-top:0;margin-top:0;padding-top:2px}
 #p-gas>.gcities{margin-top:-10px}
 .gcity{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:5px}
 .gch{display:flex;align-items:baseline;gap:8px}.gch .gn{margin-left:auto;font:14px var(--f-mono);white-space:nowrap}
@@ -1399,8 +1400,10 @@ const cellReal=(n,k)=>hasReal(g=>g.city===n)?`<span class="rl">/ ${fmt(realSum(g
 function setReal(list){REAL=list;clearTimeout(rsT);rsT=setTimeout(()=>{try{render()}catch(e){}},250)}
 window.__setReal=setReal;
 function twoStep(btn,ms){if(btn.dataset.arm==="1")return true;btn.dataset.arm="1";btn._t0=btn.innerHTML;btn.textContent="¿Seguro? Toca de nuevo para confirmar";btn.classList.add("arm");setTimeout(()=>{if(btn.dataset.arm==="1"){btn.dataset.arm="";btn.innerHTML=btn._t0;btn.classList.remove("arm")}},ms||4500);return false}
+let PROF={};window.__setProf=p=>{PROF=p||{};try{render()}catch(e){}};
 function listenReal(){realUn.forEach(f=>f());realUn=[];REAL=[];if(DEMO||!F||!ref||!user)return;
-  const db=ref.firestore,em=String(user.email||"").toLowerCase();let own=[],jun=[];const upd=()=>setReal([...own,...jun]);
+  const db=ref.firestore,em=String(user.email||"").toLowerCase();let own=[],jun=[];
+  realUn.push(F.onSnapshot(F.doc(db,ref.path+"/users/"+em),s=>{PROF=s.exists()?s.data():{};try{render()}catch(e){}},()=>{}));const upd=()=>setReal([...own,...jun]);
   // gastos propios (completos) y compartidos (la parte de cada una); retiros de efectivo y categorías fuera del presupuesto no cuentan
   const conv=(g,div)=>{const k=g.grp==="shop"?"shop":CATGRP[g.cat];return k&&!g.retiro&&g.eur>0?{d:g.d,city:g.city||"",k,eur:g.eur/div}:null};
   realUn.push(F.onSnapshot(F.collection(db,ref.path+"/users/"+em+"/gastos"),s=>{own=s.docs.map(x=>conv(x.data(),1)).filter(Boolean);upd()},()=>{}));
@@ -3081,8 +3084,8 @@ function gasBoard(A){const days=A.days;if(!days.length)return `<div class="card"
   const col=n=>n==="Londres"?LO_C:n==="París"?PA_C:((A.C.find(c=>short(c.n)===n)||{}).c||"#6b5d43");
   const G=[];days.forEach(d=>{const n=cname(d);let g=G.find(x=>x.n===n);if(!g){g={n,c:col(n),days:0,bud:0,list:[]};G.push(g)}g.days++;g.bud+=d.cost.total;g.list.push(d)});
   G.forEach(g=>g.real=realSum(x=>x.city===g.n&&x.k!=="shop"));
-  const SB=+(ST.wiz.shop_ppto||0),SR=realSum(x=>x.k==="shop");
-  const TB=G.reduce((t,g)=>t+g.bud,0)+SB,TR=realSum(()=>true),lost=TR-G.reduce((t,g)=>t+g.real,0)-SR;
+  const SBp=PROF.shopBud!=null&&PROF.shopBud!==""?+PROF.shopBud:null,SB=SBp!=null?SBp:+(ST.wiz.shop_ppto||0),SR=realSum(x=>x.k==="shop");
+  const EST=G.reduce((t,g)=>t+g.bud,0)+SB,OFF=+(PROF.pres||0),TB=OFF>0?OFF:EST,TR=realSum(()=>true),lost=TR-G.reduce((t,g)=>t+g.real,0)-SR;
   const today=iso(new Date()),first=days[0].d,last=days[days.length-1].d;
   const left=days.filter(d=>d.d>=today),nL=left.length,avg=TB/days.length;
   const rest=TB-TR,perDay=nL?rest/nL:0;
@@ -3093,13 +3096,13 @@ function gasBoard(A){const days=A.days;if(!days.length)return `<div class="card"
   const cats=[["Alojamiento","hot"],["Comidas","meal"],["Entradas","act"],["Transporte","loc"],["Compras","shop"]].map(([n,k])=>{const b=k==="shop"?SB:days.reduce((t,d)=>t+(d.cost[k]||0),0),r=realSum(g=>g.k===k);return `<div class="gcat"><span>${n}</span><span class="num">${fmt(b)}</span><span class="num rd">${fmt(r)}</span></div>`}).join("");
   return `<section class="gtotal" aria-label="Total del viaje">
     <span class="eyebrow">Total del viaje · por persona</span>
-    <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>presupuesto</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>
+    <div class="gtn"><div><b class="gb">${fmt(TB)}</b><small>${OFF>0?"presupuesto oficial":"presupuesto"}</small></div><div><b class="gr">${fmt(TR)}</b><small>gastado</small></div></div>
     ${gbar(TB,TR)}
-    <div class="gtm"><b class="${over?"gr":""}">${over?"Te pasaste por "+fmt(TR-TB):"Te quedan "+fmt(rest)}</b> · ${when}${nL&&today<=last&&!over?` · puedes gastar unos <b>${fmt(perDay)}</b> por día (el presupuesto prevé ${fmt(avg)})`:""}</div>${tl}
+    <div class="gtm"><b class="${over?"gr":""}">${over?"Te pasaste por "+fmt(TR-TB):"Te quedan "+fmt(rest)}</b> · ${when}${nL&&today<=last&&!over?` · puedes gastar unos <b>${fmt(perDay)}</b> por día (el presupuesto prevé ${fmt(avg)})`:""}</div>${OFF>0?`<div class="gtm" style="opacity:.75">Estimado día a día: ${fmt(EST)} · ${OFF>=EST?"margen de "+fmt(OFF-EST):"te faltan "+fmt(EST-OFF)+" para cubrirlo"}</div>`:`<div class="gtm" style="opacity:.75">Define tu presupuesto en <a href="/gastos" style="color:inherit">Mi bolsillo</a> para compararlo.</div>`}${tl}
   </section>
-  <section class="gcities" aria-label="Por ciudad">${G.map(g=>`<div class="gcity" style="--c:${g.c}"><div class="gch"><b>${g.n}</b><span class="muted">${g.days} día${g.days>1?"s":""}</span><span class="gn"><b>${fmt(g.bud)}</b><span class="rd"> / ${fmt(g.real)}</span></span></div>${gbar(g.bud,g.real)}${gst(g.bud,g.real)}</div>`).join("")}<div class="gcity" style="--c:#c2477f"><div class="gch"><b>Compras</b><span class="muted">regalos y otros</span><span class="gn"><b>${fmt(SB)}</b><span class="rd"> / ${fmt(SR)}</span></span></div>${gbar(SB,SR)}${SB?gst(SB,SR):`<small class="gs">Define cuánto quieren gastar en compras (abajo) para compararlo con lo real.</small>`}<label class="shopin">Presupuesto de compras por persona (€)<input type="number" inputmode="decimal" min="0" step="5" value="${SB||""}" placeholder="0" data-shopbud></label></div>${Math.abs(lost)>0.005?`<p class="muted" style="font-size:12.5px;margin:2px 0">Hay ${fmt(lost)} gastados sin ciudad asignada: están en el total, pero no en las barras de arriba.</p>`:""}</section>
+  <section class="gcities" aria-label="Por ciudad">${G.map(g=>`<div class="gcity" style="--c:${g.c}"><div class="gch"><b>${g.n}</b><span class="muted">${g.days} día${g.days>1?"s":""}</span><span class="gn"><b>${fmt(g.bud)}</b><span class="rd"> / ${fmt(g.real)}</span></span></div>${gbar(g.bud,g.real)}${gst(g.bud,g.real)}</div>`).join("")}<div class="gcity" style="--c:#c2477f"><div class="gch"><b>Compras</b><span class="muted">regalos y otros</span><span class="gn"><b>${fmt(SB)}</b><span class="rd"> / ${fmt(SR)}</span></span></div>${gbar(SB,SR)}${SB?gst(SB,SR):`<small class="gs">Define cuánto quieren gastar en compras (abajo) para compararlo con lo real.</small>`}${SBp!=null?`<small class="gs">Presupuesto de compras: se define en <a href="/gastos">Mi bolsillo</a>.</small>`:`<label class="shopin">Presupuesto de compras por persona (€)<input type="number" inputmode="decimal" min="0" step="5" value="${SB||""}" placeholder="0" data-shopbud></label>`}</div>${Math.abs(lost)>0.005?`<p class="muted" style="font-size:12.5px;margin:2px 0">Hay ${fmt(lost)} gastados sin ciudad asignada: están en el total, pero no en las barras de arriba.</p>`:""}</section>
   <details class="card gdays"><summary><span class="eyebrow">Día a día · estimado y gastado</span></summary><div class="gdl">${days.map(d=>{const r=realSum(g=>g.d===d.d),b=d.cost.total,t=d.d===today;return `<div class="gday${t?" today":""}${r>b+0.005?" over":""}" ${t?'aria-current="date"':""}><span>${pretty(d.d)}</span><small class="muted">${cname(d)}</small><span class="num">${fmt(b)}</span><span class="num rd">${r?fmt(r):"—"}</span></div>`}).join("")}</div></details>
-  <details class="card gdays"><summary><span class="eyebrow">Por categoría · estimado y gastado</span></summary><div class="gdl"><div class="gcat head"><span></span><span>estimado</span><span>gastado</span></div>${cats}</div></details>
+  <details class="card gdays"><summary><span class="eyebrow">Por categoría · estimado y gastado</span></summary><div class="gdl"><div class="gcat head"><span></span><span>estimado</span><span>gastado</span></div>${cats}<div class="gcat tot"><span>Total</span><span class="num">${fmt(EST)}</span><span class="num rd">${fmt(TR)}</span></div><div class="gcat tot off"><span>Presupuesto oficial</span><span class="num">${OFF>0?fmt(OFF):"—"}</span><span class="num rd">${fmt(TR)}</span></div></div></details>
   <p class="note">El presupuesto sale del programa (comidas, entradas, transporte y alojamiento de cada día). <span class="rd">En rojo</span>, lo que registraron en <a href="/gastos">Mis gastos</a>.</p>`}
 
 // ---------- plano ampliado ----------
