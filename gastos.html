@@ -295,13 +295,20 @@ function vJun(){const by={};J.forEach(g=>{by[g.by]=by[g.by]||{n:g.byName||g.by,e
   ${J.length?`<div class="kpi dk"><span class="eb">Saldo ${T.ellos}</span><span style="font-size:15px">${ppl.map(p=>`${esc(p.n)} pagó <b>${fe(p.e)}</b>`).join(" · ")}</span><b style="font-size:16px;color:#f2b8a0">${bal}</b></div>
   <div><span class="eb">Por categoría</span><table class="tbl">${Object.entries(cat).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<tr><td>${esc(n)}</td><td>${fe(v)}</td></tr>`).join("")}</table></div>
   <div><span class="eb">Todos los compartidos</span><div class="gl">${[...J].sort((a,b)=>b.ts-a.ts).map(gRow).join("")}</div></div>`:""}`}
+function cashLeft(){const C=cash(),ini={EUR:+(P.cashEUR||0),[T.c2.code]:+(P[T.c2.ck]||0)};if(!ini.EUR&&!ini[T.c2.code]&&G.every(g=>!g.retiro))return "";
+  const cell=(code,sym)=>`<div class="kpi"><span class="eb">Me queda en ${sym}</span><b style="color:${C[code]<0?"var(--red)":"inherit"}">${num(C[code])} ${sym}</b><small>de ${num(ini[code])} + retiros</small></div>`;
+  return `<div class="k2" style="margin-top:6px">${cell("EUR","€")}${cell(T.c2.code,T.c2.sym)}</div>`}
+function payBox(){const M=mine(),by={},n={};M.forEach(g=>{by[g.pay]=(by[g.pay]||0)+g.mineEur;n[g.pay]=(n[g.pay]||0)+1});const T0=Object.values(by).reduce((t,v)=>t+v,0);
+  const names=[...new Set([...(P.medios||PAYS),...Object.keys(by)])];
+  return `<div class="box" style="gap:2px"><span class="eb">Gastado por medio de pago · todo el viaje</span><table class="tbl">${names.map(p=>`<tr><td>${esc(p)} <small class="sub">${n[p]||0} gasto${(n[p]||0)===1?"":"s"}</small></td><td>${fe(by[p]||0)}</td></tr>`).join("")}<tr><td><b>Total</b></td><td><b>${fe(T0)}</b></td></tr></table></div>`}
 function vSet(){const pays=P.medios||PAYS;
   return `<div class="top"><div><span class="eb">Una vez · al empezar</span><h1 class="h1">Mi bolsillo</h1></div><span class="sub">${esc(em())}</span></div>
   <div class="box"><label class="fld">Mi nombre (para los gastos compartidos)<input id="s-nom" value="${esc(P.nombre||"")}"></label>
    <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="${T.pres}"></label>
    <span class="sub">${P.pres?clp(+P.pres):""}${BUD&&BUD.days&&BUD.days.length?` · el programa estima ${fe(tot(sumBud(BUD.days)))} en comidas, entradas, transporte y alojamiento`:""}</span></div>
   ${bdHTML()}
-  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div></div>
+  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div>${cashLeft()}</div>
+  ${payBox()}
   <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${PAYS.map(p=>`<label class="tg"><input type="checkbox" data-med="${p}" ${pays.includes(p)?"checked":""}><span>${p}</span></label>`).join("")}</div>
   <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">1 ${T.c2.sym} en €<input id="s-rg" inputmode="decimal" value="${esc(P[T.c2.rk]||T.c2.def)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
   <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)}${(P.catsShop||[]).includes(c)?" · compras":""} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
