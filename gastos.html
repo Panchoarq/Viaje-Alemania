@@ -127,6 +127,7 @@ const CATS=[["Desayuno","#c9930f","com"],["Almuerzo","#d9622b","com"],["Cena","#
 const XCOL=["#b5651d","#3d7a99","#9a3d6b","#6b8e23","#8b6914","#556b8d"];
 const GRP={com:"Comidas",ent:"Entradas",tra:"Transporte",alo:"Alojamiento",shop:"Compras",fue:"Fuera del presupuesto del viaje"};
 const PAYS=["Crédito","Débito","Efectivo","Global66"];
+const allPays=()=>[...PAYS,...(P.paysX||[])];
 function cats(){const X=(P.cats||[]).map((n,i)=>[n,XCOL[i%XCOL.length],(P.catsShop||[]).includes(n)?"shop":"fue"]);return [...CATS,...X]}
 const catOf=n=>cats().find(c=>c[0]===n)||["Otros","#8a8270","fue"];
 // sugerencia por palabras y hora
@@ -222,7 +223,7 @@ const IC={add:'<path d="M12 5v14M5 12h14"/>',res:'<path d="M4 20V10M10 20V4M16 2
 const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
 function nav(){return `<nav class="tb">${[["add","Gasto"],["res","Resumen"],["map","Mapa"],["jun","Juntas"],["set","Ajustes"]].map(([k,t])=>`<button data-tab="${k}" ${tab===k?'aria-current="page"':""}>${svg(k)}${t}</button>`).join("")}</nav>`}
 function vAdd(){const today=todayISO(),city=cityOn(today);const cur=form.cur||curOfCity(city);const m=mine().filter(g=>g.d===today);const spent=m.reduce((t,g)=>t+g.mineEur,0);const bd=budDay(today);
-  const cat=form.cat||suggest(form.com);const pays=PAYS.filter(p=>!P.medios||P.medios.includes(p));const pay=form.pay||(pays.includes("Global66")?"Global66":pays[0]);
+  const cat=form.cat||suggest(form.com);const pays=allPays().filter(p=>!P.medios||P.medios.includes(p));const pay=form.pay||(pays.includes("Global66")?"Global66":pays[0]);
   const a=parseFloat(String(form.amt).replace(",","."))||0;const e=toEUR(a,cur);
   return `<div class="top"><div><span class="eb">${pretty(today)} · ${esc(city)}</span><h1 class="h1">Nuevo gasto</h1></div><div style="text-align:right"><span class="eb">Hoy llevas</span><div style="font:700 18px var(--mono);color:var(--red)">${fe(spent)}${bd?` <span class="sub">/ ${fe(tot(bd))}</span>`:""}</div></div></div>
   <button class="mic" id="mic"><i>${'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fffdf6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>'}</i><span><b id="micT">Dictar el gasto</b><small>«café en Flore cuatro cincuenta»</small></span></button>
@@ -254,8 +255,9 @@ function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C
   <div class="seg dark">${["hoy","ciudad","viaje"].map(k=>`<button data-rv="${k}" aria-pressed="${rv===k}">${esc(lbl[k])}</button>`).join("")}</div>
   <div class="k2"><div class="kpi dk"><span class="eb">Gastado · ${esc(lbl[rv])}</span><b>${fe(spent)}</b><small>${clp(spent)}</small></div>
    <div class="kpi"><span class="eb">Presupuesto del programa</span><b>${bt?fe(bt):"—"}</b><small style="color:${bt?(spent<=bt?"var(--ok)":"var(--red)"):""}">${bt?(spent<=bt?`vas ${fe(bt-spent)} bajo`:`te pasaste ${fe(spent-bt)}`):"abre el viaje para cargarlo"}</small></div>
-   <div class="kpi"><span class="eb">Efectivo</span><b>${num(C.EUR)} €</b><small>+ ${T.c2.sym} ${num(C[T.c2.code])}</small></div>
+   <div class="kpi"><span class="eb">Efectivo · te queda</span><b style="color:${C.EUR<0?"var(--red)":"inherit"}">${num(C.EUR)} €</b><small>+ ${T.c2.sym} ${num(C[T.c2.code])} · de ${num(+(P.cashEUR||0))} € al partir</small></div>
    <div class="kpi"><span class="eb">Te queda</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
+  ${payBox(scope,lbl[rv],bt)}
   ${left.length?`<div class="alert"><span class="eb" style="color:var(--red)">Para los días que quedan</span><br>Quedan <b>${left.length} día${left.length>1?"s":""} en ${esc(city)}</b>: puedes gastar <b>${fe(Math.max(0,perDay))}/día</b> para cerrar en el presupuesto (el programa estima ${fe(progDay)}/día).</div>`:""}
   <div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Por categoría · real vs presupuesto</span>
    ${["com","ent","tra","alo","shop"].filter(k=>Bk(k)||real[k]).map(k=>bar(GRP[k],real[k],Bk(k),k==="com"?"#d9622b":k==="ent"?"#2e5aac":k==="tra"?"#5b6770":k==="shop"?"#c2477f":"#4b3f9a",k)).join("")||'<div class="empty">Sin gastos en este período.</div>'}
@@ -295,21 +297,17 @@ function vJun(){const by={};J.forEach(g=>{by[g.by]=by[g.by]||{n:g.byName||g.by,e
   ${J.length?`<div class="kpi dk"><span class="eb">Saldo ${T.ellos}</span><span style="font-size:15px">${ppl.map(p=>`${esc(p.n)} pagó <b>${fe(p.e)}</b>`).join(" · ")}</span><b style="font-size:16px;color:#f2b8a0">${bal}</b></div>
   <div><span class="eb">Por categoría</span><table class="tbl">${Object.entries(cat).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<tr><td>${esc(n)}</td><td>${fe(v)}</td></tr>`).join("")}</table></div>
   <div><span class="eb">Todos los compartidos</span><div class="gl">${[...J].sort((a,b)=>b.ts-a.ts).map(gRow).join("")}</div></div>`:""}`}
-function cashLeft(){const C=cash(),ini={EUR:+(P.cashEUR||0),[T.c2.code]:+(P[T.c2.ck]||0)};if(!ini.EUR&&!ini[T.c2.code]&&G.every(g=>!g.retiro))return "";
-  const cell=(code,sym)=>`<div class="kpi"><span class="eb">Me queda en ${sym}</span><b style="color:${C[code]<0?"var(--red)":"inherit"}">${num(C[code])} ${sym}</b><small>de ${num(ini[code])} + retiros</small></div>`;
-  return `<div class="k2" style="margin-top:6px">${cell("EUR","€")}${cell(T.c2.code,T.c2.sym)}</div>`}
-function payBox(){const M=mine(),by={},n={};M.forEach(g=>{by[g.pay]=(by[g.pay]||0)+g.mineEur;n[g.pay]=(n[g.pay]||0)+1});const T0=Object.values(by).reduce((t,v)=>t+v,0);
-  const names=[...new Set([...(P.medios||PAYS),...Object.keys(by)])];
-  return `<div class="box" style="gap:2px"><span class="eb">Gastado por medio de pago · todo el viaje</span><table class="tbl">${names.map(p=>`<tr><td>${esc(p)} <small class="sub">${n[p]||0} gasto${(n[p]||0)===1?"":"s"}</small></td><td>${fe(by[p]||0)}</td></tr>`).join("")}<tr><td><b>Total</b></td><td><b>${fe(T0)}</b></td></tr></table></div>`}
-function vSet(){const pays=P.medios||PAYS;
+function payBox(scope,label,bt){const by={},n={};scope.forEach(g=>{by[g.pay]=(by[g.pay]||0)+g.mineEur;n[g.pay]=(n[g.pay]||0)+1});const T0=Object.values(by).reduce((t,v)=>t+v,0);
+  const names=[...new Set([...(P.medios||allPays()),...Object.keys(by)])];
+  return `<div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Gastado por medio de pago · ${esc(label)}</span>${names.map(p=>{const v=by[p]||0,pc=T0?v/T0*100:0;return `<div class="row"><div class="rt"><span>${esc(p)} <small class="sub">${n[p]||0} gasto${(n[p]||0)===1?"":"s"}${bt&&v?` · ${(v/bt*100).toFixed(0)}% del presupuesto`:""}</small></span><b>${fe(v)}</b></div><div class="bar"><span style="width:${pc.toFixed(0)}%;background:var(--ink);opacity:.75"></span></div></div>`}).join("")}</div>`}
+function vSet(){const pays=P.medios||allPays();
   return `<div class="top"><div><span class="eb">Una vez · al empezar</span><h1 class="h1">Mi bolsillo</h1></div><span class="sub">${esc(em())}</span></div>
   <div class="box"><label class="fld">Mi nombre (para los gastos compartidos)<input id="s-nom" value="${esc(P.nombre||"")}"></label>
    <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="${T.pres}"></label>
    <span class="sub">${P.pres?clp(+P.pres):""}${BUD&&BUD.days&&BUD.days.length?` · el programa estima ${fe(tot(sumBud(BUD.days)))} en comidas, entradas, transporte y alojamiento`:""}</span></div>
   ${bdHTML()}
-  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div>${cashLeft()}</div>
-  ${payBox()}
-  <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${PAYS.map(p=>`<label class="tg"><input type="checkbox" data-med="${p}" ${pays.includes(p)?"checked":""}><span>${p}</span></label>`).join("")}</div>
+  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div></div>
+  <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${allPays().map(p=>`<label class="tg"><input type="checkbox" data-med="${esc(p)}" ${pays.includes(p)?"checked":""}><span>${esc(p)}</span>${(P.paysX||[]).includes(p)?`<button type="button" class="chip" data-delpay="${esc(p)}" style="margin-left:auto">✕</button>`:""}</label>`).join("")}<button type="button" class="chip add" id="addpay" style="align-self:flex-start;margin-top:8px">+ Agregar medio de pago</button></div>
   <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">1 ${T.c2.sym} en €<input id="s-rg" inputmode="decimal" value="${esc(P[T.c2.rk]||T.c2.def)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
   <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)}${(P.catsShop||[]).includes(c)?" · compras":""} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
   <button class="go" id="s-save">Guardar</button>
@@ -341,6 +339,8 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-rcat]",b=>b.onclick=()=>{rcat=rcat===b.dataset.rcat?null:b.dataset.rcat;render()});
   Q("[data-rclr]",b=>b.onclick=()=>{rcat=null;render()});
   Q("[data-rday]",b=>b.onclick=()=>{const d=b.dataset.rday;rdays.has(d)?rdays.delete(d):rdays.add(d);render()});
+  const ap=$("#addpay");if(ap)ap.onclick=()=>sheet(`<label class="fld">Nuevo medio de pago<input id="np" placeholder="Ej.: Revolut, Wise, Apple Pay"></label><button class="go" id="okp">Agregar</button>`,d=>{const i=d.querySelector("#np");i.focus();d.querySelector("#okp").onclick=async()=>{const n=i.value.trim();if(!n||allPays().includes(n))return;d.remove();await saveProf({paysX:[...(P.paysX||[]),n],...(P.medios?{medios:[...P.medios,n]}:{})})}});
+  Q("[data-delpay]",b=>b.onclick=e=>{e.preventDefault();const n=b.dataset.delpay;saveProf({paysX:(P.paysX||[]).filter(x=>x!==n),...(P.medios?{medios:P.medios.filter(x=>x!==n)}:{})})});
   Q("[data-cur]",b=>b.onclick=()=>{form.cur=b.dataset.cur;render()});
   Q("[data-cat]",b=>b.onclick=()=>{form.cat=b.dataset.cat;render()});
   Q("[data-pay]",b=>b.onclick=()=>{form.pay=b.dataset.pay;render()});
@@ -349,7 +349,7 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   const ac=$("#addcat");if(ac)ac.onclick=()=>sheet(`<label class="fld">Nueva categoría<input id="nc" placeholder="Ej.: Farmacia"></label><label class="tg"><input type="checkbox" id="ncs"><span>Es una subcategoría de Compras (cuenta en el presupuesto de compras)</span></label><button class="go" id="okc">Agregar</button>`,d=>{const i=d.querySelector("#nc");i.focus();d.querySelector("#okc").onclick=async()=>{const n=i.value.trim();if(!n)return;const sh=d.querySelector("#ncs").checked;d.remove();form.cat=n;if(!cats().some(c=>c[0]===n))await saveProf({cats:[...(P.cats||[]),n],catsShop:sh?[...(P.catsShop||[]),n]:(P.catsShop||[])});else render()}});
   const asb=$("#addsub");if(asb)asb.onclick=()=>sheet(`<label class="fld">Subcategoría de Compras<input id="nc" placeholder="Ej.: Ropa, cosas de escritorio"></label><button class="go" id="okc">Agregar</button>`,d=>{const i=d.querySelector("#nc");i.focus();d.querySelector("#okc").onclick=async()=>{const n=i.value.trim();if(!n)return;d.remove();form.cat=n;if(!cats().some(c=>c[0]===n))await saveProf({cats:[...(P.cats||[]),n],catsShop:[...(P.catsShop||[]),n]});else render()}});
   const sv=$("#save");if(sv)sv.onclick=async()=>{const today=todayISO(),city=cityOn(today);const cur=form.cur||curOfCity(city);const a=parseFloat(String(form.amt).replace(",","."))||0;if(!(a>0))return;
-    const pays=PAYS.filter(p=>!P.medios||P.medios.includes(p));
+    const pays=allPays().filter(p=>!P.medios||P.medios.includes(p));
     const g={ts:Date.now(),d:today,amt:a,cur,eur:Math.round(toEUR(a,cur)*100)/100,cat:form.cat||suggest(form.com),pay:form.pay||(pays.includes("Global66")?"Global66":pays[0]),com:form.com.trim(),city,ll:form.loc?form.ll:null,shared:form.shared};if(catOf(g.cat)[2]==="shop")g.grp="shop";
     sv.disabled=true;try{await addGasto(g);toast("✓ Guardado"+(navigator.onLine?"":" (se sincroniza con señal)"))}catch(e){toast("No se pudo guardar");sv.disabled=false;return}
     form={...form,amt:"",com:"",cat:null,shared:false};render()};
