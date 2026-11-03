@@ -194,11 +194,11 @@ label.vchk input{accent-color:var(--ok);margin:0}
 /* ===== Celular: cabecera de una fila, menú de pestañas fijo abajo ===== */
 .stylebar .sm,.tabs .ti,.tabs .ts,#hdrMeta .sm{display:none}.hicons{display:contents}.hbtn{display:none}
 @media (max-width:900px){
-  header.has-sticker{display:grid!important;grid-template-columns:auto 1fr auto;grid-template-areas:"sty t1 gas" "sty t2 gas" "gl gl gl";column-gap:8px;row-gap:0;align-items:center;padding:2px 0 4px!important;min-height:0!important;border-bottom:0!important}
+  header.has-sticker{display:grid!important;grid-template-columns:auto 1fr auto;grid-template-areas:"sty . gas" "t1 t1 t2" "gl gl gl";column-gap:8px;row-gap:3px;align-items:center;padding:2px 0 4px!important;min-height:0!important;border-bottom:0!important}
   header .stylebar{grid-area:sty}header .stylebar .eyebrow{display:none}
   header .stylebar .lg{display:none}header .stylebar .sm{display:inline}header .stylebar .seg button{padding:5px 9px}
-  header.has-sticker #h1{grid-area:t1;font-size:14px!important;line-height:1.12!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:0!important;margin:0}
-  header.has-sticker #hdrMeta{grid-area:t2;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+  header.has-sticker #h1{grid-area:t1;font-size:min(14px,2.9vw)!important;line-height:1.12!important;display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;min-width:0;letter-spacing:0!important;margin:0}
+  header.has-sticker #hdrMeta{grid-area:t2;font-size:min(10.5px,2.5vw);white-space:nowrap;margin:0;justify-self:end}
   header #route{display:none}
   header .hicons{grid-area:gas;display:flex;gap:5px;align-items:center}
   header .gastosbtn:not(#gLogin),header .hbtn{margin:0;padding:0;width:30px;height:30px;border-radius:50%;justify-content:center;font-size:0;gap:0;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);display:inline-flex;align-items:center;cursor:pointer;text-decoration:none}
@@ -215,7 +215,8 @@ label.vchk input{accent-color:var(--ok);margin:0}
   body{padding-bottom:62px}
   #syncChip{bottom:70px!important}#xferBtn{bottom:114px!important}#hlpBtn{bottom:70px!important}
   header .gastosbtn .ic{width:17px;height:17px}
-  #hdrMeta .sm{display:inline}
+  #hdrMeta .sm,#hdrMeta .wk,#hdrMeta .yr{display:none}
+  header.has-sticker #hdrMeta{letter-spacing:0!important;text-transform:none!important;font-weight:400}
   .btn.findbtn{white-space:normal!important;max-width:100%;text-align:left;line-height:1.25}
 }
 
@@ -263,6 +264,7 @@ button,input,select,textarea{font-family:inherit}
 .gbar i{display:block;height:100%;background:var(--ink);border-radius:4px}.gtotal .gbar i{background:#ff7a68}
 .gbar.over i{background:#b3261e}
 .gcities{display:flex;flex-direction:column;gap:8px}
+#gas>.gtotal{margin-bottom:8px}
 .gcity{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:5px}
 .gch{display:flex;align-items:baseline;gap:8px}.gch .gn{margin-left:auto;font:14px var(--f-mono);white-space:nowrap}
 .rd{color:#b3261e;font-weight:700}
@@ -1935,7 +1937,8 @@ function renderMap(){
 }
 function renderRoute(plan){
   const tot=plan.length, n=tot-1, end=plan[tot-1].date;
-  $("hdrMeta").innerHTML=`<span class="lg">5 viajeros · 16 años · </span>${pretty(plan[0].date)} – ${pretty(end)} ${end.getFullYear()}<span class="sm"> · 5 viajeros</span>`;
+  const wk=t=>t.replace(/^(\S+ )/,'<span class="wk">$1</span>');
+  $("hdrMeta").innerHTML=`<span class="lg">5 viajeros · 16 años · </span>${wk(pretty(plan[0].date))} – ${wk(pretty(end))}<span class="yr"> ${end.getFullYear()}</span><span class="sm"> · 5 viajeros</span>`;
   $("route").innerHTML=cfg.order.map((c,i)=>`${i?'<span class="arrow">→</span>':""}<span class="stop ${c}">${CN[c]} ×${cfg.nights[c]}</span>`).join("");
   $("h1").innerHTML='<span class="lg">Ruta </span>'+cfg.order.map(c=>CN[c]).join(" · ");
   $("cfgInfo").textContent=`${tot} días · ${n} noches · último día ${pretty(end)}`;
