@@ -90,6 +90,15 @@ nav.tb svg{width:22px;height:22px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .backlnk{align-self:flex-start;display:inline-block;font:700 13px var(--mono,monospace);color:var(--ink,#2a2219);text-decoration:none;border:1.5px solid var(--ink,#2a2219);border-radius:999px;padding:6px 14px;margin:0 0 4px}
 .backlnk:hover{background:var(--ink,#2a2219);color:var(--paper,#fffdf6)}
+.rb{display:block;width:100%;text-align:left;background:none;border:0;padding:4px 6px;margin:0 -6px;border-radius:8px;font:inherit;color:inherit;cursor:pointer}
+.rb[aria-pressed="true"]{background:rgba(0,0,0,.06);outline:1.5px solid currentColor}
+.rsh{display:flex;justify-content:space-between;align-items:center;gap:8px}.rsub .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.dl{display:flex;flex-direction:column;gap:6px;margin-top:6px}.dy{border:1px solid var(--line,#d8cfb8);border-radius:10px;background:var(--card,#fffdf6);overflow:hidden}
+.dh{display:grid;grid-template-columns:1fr auto auto 14px;gap:8px;align-items:baseline;width:100%;padding:11px 12px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.dh span{font-weight:700;text-transform:capitalize}.dh b{font:700 15px var(--mono,monospace)}.dh em{font-style:normal;opacity:.6}
+.dd{border-top:1px dashed var(--line,#d8cfb8);padding:4px 6px 6px}
+.g2{display:grid;grid-template-columns:12px 1fr auto;column-gap:8px;align-items:center;width:100%;padding:8px 6px;background:none;border:0;border-bottom:1px dotted var(--line,#d8cfb8);font:inherit;color:inherit;text-align:left;cursor:pointer}
+.g2:last-child{border-bottom:0}.g2 i{width:10px;height:10px;border-radius:50%}.g2 .cn{font-weight:700}.g2 b{font:700 14px var(--mono,monospace)}.g2 small{grid-column:2/4;color:var(--muted,#7a7260);font-size:12px}
 </style>
 </head>
 <body>
@@ -230,7 +239,7 @@ function vAdd(){const today=todayISO(),city=cityOn(today);const cur=form.cur||cu
   <button class="btn" id="retiro" style="align-self:center">Registrar retiro de efectivo (cajero)</button>
   ${G.length+J.length?`<div><span class="eb">Últimos</span><div class="gl">${mine().slice(0,5).map(gRow).join("")}</div></div>`:""}`}
 function gRow(g){const c=catOf(g.cat);return `<button class="g" data-g="${g.id}"><i style="background:${c[1]}"></i><span>${esc(g.com||g.cat)}${g.by?" 👭":""}</span><b>${num(g.amt)} ${sy(g.cur)}</b><small>${pretty(g.d)} ${hhmm(g.ts)} · ${esc(g.cat)} · ${esc(g.pay)}${g.city?" · "+esc(g.city):""}${g.by?" · pagó "+esc(g.byName||g.by):""}</small></button>`}
-let rv="hoy";
+let rv="hoy",rcat=null;const rdays=new Set();
 function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C=cash();const days=(BUD&&BUD.days)||[];
   const scope=rv==="hoy"?M.filter(g=>g.d===today):rv==="ciudad"?M.filter(g=>g.city===city):M;
   const bdays=rv==="hoy"?days.filter(x=>x.d===today):rv==="ciudad"?days.filter(x=>x.city===city):days;
@@ -249,11 +258,19 @@ function vRes(){const today=todayISO(),city=cityOn(today);const M=mine();const C
    <div class="kpi"><span class="eb">Te queda</span><b>${pres?fe(pres-allSpent):"—"}</b><small>${pres?`de ${fe(pres)} · ${clp(pres-allSpent)}`:"define tu presupuesto en Ajustes"}</small></div></div>
   ${left.length?`<div class="alert"><span class="eb" style="color:var(--red)">Para los días que quedan</span><br>Quedan <b>${left.length} día${left.length>1?"s":""} en ${esc(city)}</b>: puedes gastar <b>${fe(Math.max(0,perDay))}/día</b> para cerrar en el presupuesto (el programa estima ${fe(progDay)}/día).</div>`:""}
   <div style="display:flex;flex-direction:column;gap:9px"><span class="eb">Por categoría · real vs presupuesto</span>
-   ${["com","ent","tra","alo","shop"].filter(k=>Bk(k)||real[k]).map(k=>bar(GRP[k],real[k],Bk(k),k==="com"?"#d9622b":k==="ent"?"#2e5aac":k==="tra"?"#5b6770":k==="shop"?"#c2477f":"#4b3f9a")+(k==="shop"&&Object.keys(subs).length?`<small class="sub" style="margin:-4px 0 4px">${Object.entries(subs).map(([n,v])=>esc(n)+" "+fe(v)).join(" · ")}</small>`:"")).join("")||'<div class="empty">Sin gastos en este período.</div>'}
-   ${Object.keys(out).length?`<span class="eb" style="margin-top:4px">Fuera del presupuesto del viaje</span>`+Object.entries(out).map(([n,v])=>bar(n,v,0,catOf(n)[1])).join(""):""}</div>
-  <div><span class="eb">Gastos · ${esc(lbl[rv])}</span><div class="gl">${scope.map(gRow).join("")||'<div class="empty">Todavía no hay gastos.</div>'}</div></div>`}
-function bar(n,real,pre,c){const over=pre&&real>pre;const pct=pre?Math.min(100,real/pre*100):(real?100:0);
-  return `<div class="row"><div class="rt"><span>${esc(n)}</span><b style="color:${over?"var(--red)":"inherit"}">${fe(real)}${pre?" / "+fe(pre):""}</b></div><div class="bar"><span style="width:${pct.toFixed(0)}%;background:${over?"var(--red)":c};${pre?"":"opacity:.5"}"></span></div></div>`}
+   ${["com","ent","tra","alo","shop"].filter(k=>Bk(k)||real[k]).map(k=>bar(GRP[k],real[k],Bk(k),k==="com"?"#d9622b":k==="ent"?"#2e5aac":k==="tra"?"#5b6770":k==="shop"?"#c2477f":"#4b3f9a",k)).join("")||'<div class="empty">Sin gastos en este período.</div>'}
+   ${Object.keys(out).length?`<span class="eb" style="margin-top:4px">Fuera del presupuesto del viaje</span>`+Object.entries(out).map(([n,v])=>bar(n,v,0,catOf(n)[1],"out:"+n)).join(""):""}</div>
+  ${resList(scope,lbl[rv])}`}
+const rpass=g=>!rcat||(rcat.startsWith("out:")?g.cat===rcat.slice(4):catOf(g.cat)[2]===rcat);
+const rname=()=>rcat?(rcat.startsWith("out:")?rcat.slice(4):GRP[rcat]):"";
+function gRow2(g){const c=catOf(g.cat);return `<button class="g2" data-g="${g.id}"><i style="background:${c[1]}"></i><span class="cn">${esc(g.cat)}</span><b>${fe(g.mineEur)}</b><small>${esc(g.com||"")}${g.com?" · ":""}${hhmm(g.ts)} · ${esc(g.pay)}${g.by?" · compartido":""}</small></button>`}
+function resList(scope,label){const L=scope.filter(rpass);
+  let sub="";if(rcat){const m={};L.forEach(g=>{const o=m[g.cat]||(m[g.cat]={v:0,n:0});o.v+=g.mineEur;o.n++});const tt=L.reduce((t,g)=>t+g.mineEur,0);
+   sub=`<div class="box rsub" style="gap:2px"><div class="rsh"><span class="eb">${esc(rname())} · por subcategoría</span><button class="chip" data-rclr style="white-space:nowrap;flex:none">Quitar ✕</button></div><table class="tbl">${Object.entries(m).sort((a,b)=>b[1].v-a[1].v).map(([n,o])=>`<tr><td><i class="dot" style="background:${catOf(n)[1]}"></i>${esc(n)} <small class="sub">${o.n} gasto${o.n>1?"s":""}</small></td><td>${fe(o.v)}</td></tr>`).join("")||'<tr><td>Sin gastos</td><td></td></tr>'}<tr><td><b>Total</b></td><td><b>${fe(tt)}</b></td></tr></table></div>`}
+  const byD={};L.forEach(g=>(byD[g.d]=byD[g.d]||[]).push(g));const ds=Object.keys(byD).sort().reverse();
+  return sub+`<div><span class="eb">Gastos por día · ${esc(label)}${rcat?" · "+esc(rname()):""}</span><div class="dl">${ds.map(d=>{const a=byD[d],t=a.reduce((x,g)=>x+g.mineEur,0),o=rdays.has(d);return `<div class="dy"><button class="dh" data-rday="${d}" aria-expanded="${o}"><span>${pretty(d)}</span><small class="sub">${a.length} gasto${a.length>1?"s":""}</small><b>${fe(t)}</b><em aria-hidden="true">${o?"▾":"▸"}</em></button>${o?`<div class="dd">${[...a].sort((x,y)=>y.ts-x.ts).map(gRow2).join("")}</div>`:""}</div>`}).join("")||'<div class="empty">Todavía no hay gastos.</div>'}</div></div>`}
+function bar(n,real,pre,c,key){const over=pre&&real>pre;const pct=pre?Math.min(100,real/pre*100):(real?100:0);
+  return `<button type="button" class="row rb" data-rcat="${esc(key||"")}" aria-pressed="${rcat===key}"><div class="rt"><span>${esc(n)}</span><b style="color:${over?"var(--red)":"inherit"}">${fe(real)}${pre?" / "+fe(pre):""}</b></div><div class="bar"><span style="width:${pct.toFixed(0)}%;background:${over?"var(--red)":c};${pre?"":"opacity:.5"}"></span></div></button>`}
 let mapF="todo";
 function vMap(){const pts=mine().filter(g=>g.ll);const cities=[...new Set(pts.map(g=>g.city).filter(Boolean))];
   return `<div class="top"><h1 class="h1">Dónde gasté</h1><span class="eb">${pts.length} con ubicación</span></div>
@@ -314,6 +331,9 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   // registrar
   const amt=$("#amt");if(amt){amt.oninput=()=>{form.amt=amt.value;const a=parseFloat(amt.value.replace(",","."))||0;const cur=form.cur||curOfCity(cityOn(todayISO()));$("#save").disabled=!(a>0);$("#conv").textContent=a?(cur!=="EUR"?`= ${fe(toEUR(a,cur))} · `:"")+clp(toEUR(a,cur)):"Toca el micrófono o escribe el monto"}}
   const com=$("#com");if(com){com.oninput=()=>{form.com=com.value;if(!form.cat){const sg=suggest(com.value);document.querySelectorAll("[data-cat]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cat===sg))}}}
+  Q("[data-rcat]",b=>b.onclick=()=>{rcat=rcat===b.dataset.rcat?null:b.dataset.rcat;render()});
+  Q("[data-rclr]",b=>b.onclick=()=>{rcat=null;render()});
+  Q("[data-rday]",b=>b.onclick=()=>{const d=b.dataset.rday;rdays.has(d)?rdays.delete(d):rdays.add(d);render()});
   Q("[data-cur]",b=>b.onclick=()=>{form.cur=b.dataset.cur;render()});
   Q("[data-cat]",b=>b.onclick=()=>{form.cat=b.dataset.cat;render()});
   Q("[data-pay]",b=>b.onclick=()=>{form.pay=b.dataset.pay;render()});
