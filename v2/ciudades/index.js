@@ -3,8 +3,8 @@
 // Cada paquete: ./<pais>/<ciudad>.js (export CIUDAD, ATRACCIONES, ESCAPADAS, COMIDAS, GUIA_COMIDA, BARRIOS, TRANSPORTE, CONSEJOS, TRAMITES).
 export const PAISES=[
  {id:"escocia",n:"Escocia",p:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",moneda:"GBP",ciudades:[
-  {id:"edimburgo",n:"Edimburgo",estado:"lista"},{id:"glasgow",n:"Glasgow",estado:"pendiente"},{id:"inverness",n:"Inverness y Loch Ness",estado:"pendiente"},
-  {id:"skye",n:"Isla de Skye",estado:"pendiente"},{id:"standrews",n:"St Andrews",estado:"pendiente"}]},
+  {id:"edimburgo",n:"Edimburgo",estado:"lista"},{id:"glasgow",n:"Glasgow",estado:"lista"},{id:"inverness",n:"Inverness y Loch Ness",estado:"lista"},
+  {id:"skye",n:"Isla de Skye",estado:"lista"},{id:"standrews",n:"St Andrews",estado:"lista"}]},
  {id:"irlanda",n:"Irlanda",p:"🇮🇪",moneda:"EUR",ciudades:[
   {id:"dublin",n:"Dublín",estado:"pendiente"},{id:"galway",n:"Galway",estado:"pendiente"},{id:"cork",n:"Cork",estado:"pendiente"},
   {id:"killarney",n:"Killarney y Anillo de Kerry",estado:"pendiente"},{id:"belfast",n:"Belfast (Irlanda del Norte)",estado:"pendiente"}]},
