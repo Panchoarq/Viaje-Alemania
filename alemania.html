@@ -956,10 +956,11 @@ food:{t:"Comidas: dónde comer en cada ciudad",i:"Guía de lugares baratos y rá
  ["Mapa","Cada lugar tiene un enlace al mapa para ver cómo llegar."],
  ["Agregar a mano","«Agregar un lugar para comer a mano» guarda un restaurante, café o dato propio; lo ven todos y se puede quitar."],
  ["En cada día","Las comidas de cada día y sus precios están en el Programa."]]},
-gas:{t:"Gastos: presupuesto del programa",i:"Aquí está el presupuesto que estima el programa, por ciudad y por persona.",s:[
- ["Totales","Arriba están el total del grupo, el costo por persona, el promedio diario y el desglose por categoría."],
- ["Presupuesto por ciudad","La tabla suma pasajes, alojamiento, comidas, entradas y transporte de cada ciudad."],
- ["Gasto real","Lo que gastan de verdad se anota en «Mis gastos», cada uno en su celular."]]}
+gas:{t:"Gastos: presupuesto y gasto real",i:"El presupuesto que estima el programa, el que ustedes definen y el registro del gasto real.",s:[
+ ["Presupuesto oficial","Es el monto que cada uno escribe en <b>Mi bolsillo</b> (dentro de «Mis gastos»). Arriba se compara con lo gastado y dice cuánto queda y cuánto se puede gastar por día."],
+ ["Estimado del programa","Se arma solo con lo que van eligiendo día a día: alojamiento, comidas, entradas y transporte, incluidos los pasajes entre ciudades. Aparece por ciudad y en «Por categoría»."],
+ ["Compras","Su monto se define en <b>Mi bolsillo</b>. Al registrar un gasto de Compras pueden marcar regalo, souvenir, ropa u otra subcategoría; todas suman a Compras."],
+ ["Mis gastos","Botón <b>«Mis gastos»</b>: cada uno registra lo que gasta (monto, moneda, categoría, medio de pago, por voz 🎤 y con ubicación GPS). Los gastos «compartidos» se reparten entre los cinco y muestran quién le debe a quién."]]}
 };
 function guideHTML(tab){const g=GUIDE[tab];if(!g)return"";let seen=true;try{seen=!!localStorage.getItem("ruta_guide_"+tab);localStorage.setItem("ruta_guide_"+tab,"1")}catch(e){}
   return `<details class="guide" data-k="guide-${tab}" ${seen?"":"open"}><summary><span class="gq">?</span> Cómo usar esta sección <span class="muted">· ${g.t}</span></summary>
