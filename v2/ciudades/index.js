@@ -6,8 +6,8 @@ export const PAISES=[
   {id:"edimburgo",n:"Edimburgo",estado:"lista"},{id:"glasgow",n:"Glasgow",estado:"lista"},{id:"inverness",n:"Inverness y Loch Ness",estado:"lista"},
   {id:"skye",n:"Isla de Skye",estado:"lista"},{id:"standrews",n:"St Andrews",estado:"lista"}]},
  {id:"irlanda",n:"Irlanda",p:"🇮🇪",moneda:"EUR",ciudades:[
-  {id:"dublin",n:"Dublín",estado:"pendiente"},{id:"galway",n:"Galway",estado:"pendiente"},{id:"cork",n:"Cork",estado:"pendiente"},
-  {id:"killarney",n:"Killarney y Anillo de Kerry",estado:"pendiente"},{id:"belfast",n:"Belfast (Irlanda del Norte)",estado:"pendiente"}]},
+  {id:"dublin",n:"Dublín",estado:"lista"},{id:"galway",n:"Galway",estado:"lista"},{id:"cork",n:"Cork",estado:"lista"},
+  {id:"killarney",n:"Killarney y Anillo de Kerry",estado:"lista"},{id:"belfast",n:"Belfast (Irlanda del Norte)",estado:"lista"}]},
  {id:"japon",n:"Japón",p:"🇯🇵",moneda:"JPY",ciudades:[
   {id:"tokio",n:"Tokio",estado:"pendiente"},{id:"kioto",n:"Kioto",estado:"pendiente"},{id:"osaka",n:"Osaka",estado:"pendiente"},
   {id:"nara",n:"Nara",estado:"pendiente"},{id:"hiroshima",n:"Hiroshima y Miyajima",estado:"pendiente"},{id:"hakone",n:"Hakone y Monte Fuji",estado:"pendiente"}]},
