@@ -14,6 +14,8 @@ export const PAISES=[
  {id:"china",n:"China",p:"🇨🇳",moneda:"CNY",ciudades:[
   {id:"pekin",n:"Pekín",estado:"pendiente"},{id:"shanghai",n:"Shanghái",estado:"pendiente"},{id:"xian",n:"Xi'an",estado:"pendiente"},
   {id:"chengdu",n:"Chengdú",estado:"pendiente"},{id:"guilin",n:"Guilin y Yangshuo",estado:"pendiente"}]},
+ {id:"corea-del-sur",n:"Corea del Sur",p:"🇰🇷",moneda:"KRW",ciudades:[
+  {id:"seul",n:"Seúl",estado:"lista"},{id:"busan",n:"Busan",estado:"lista"},{id:"jeju",n:"Isla de Jeju",estado:"lista"},{id:"gyeongju",n:"Gyeongju",estado:"lista"}]},
  {id:"reino-unido",n:"Reino Unido (Londres)",p:"🇬🇧",moneda:"GBP",ciudades:[{id:"londres",n:"Londres",estado:"existente"}]},
  {id:"francia",n:"Francia",p:"🇫🇷",moneda:"EUR",ciudades:[{id:"paris",n:"París",estado:"existente"},{id:"estrasburgo",n:"Estrasburgo",estado:"existente"}]},
  {id:"alemania",n:"Alemania",p:"🇩🇪",moneda:"EUR",ciudades:[{id:"hamburgo",n:"Hamburgo",estado:"existente"},{id:"berlin",n:"Berlín",estado:"existente"},{id:"munich",n:"Múnich",estado:"existente"}]},
