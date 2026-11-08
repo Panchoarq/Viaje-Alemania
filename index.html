@@ -81,12 +81,10 @@ footer{text-align:center;font:12px var(--f-mono);color:var(--muted);letter-spaci
 
   <!-- Entrada -->
   <section id="vEntrada" class="panel" aria-live="polite">
-    <h1>Bienvenido a Marco Polo</h1>
-    <p class="sub" id="subEntrada">Entra con tu correo de Google para abrir tus viajes.</p>
+    <h1>¿A dónde viajas?</h1>
+    <p class="sub" id="subEntrada">Entra con tu correo de Google para abrir tus viajes o crear uno nuevo.</p>
     <button class="btn dark" id="bGoogle" type="button"><span aria-hidden="true">G</span><span id="bGoogleT">Entrar con Google</span></button>
     <p class="msg" id="msgEntrada" role="status"></p>
-    <div class="sep">o</div>
-    <button class="btn" id="bNuevo0" type="button">✚ Crear un nuevo viaje</button>
     <p class="note">¿Tienes el enlace del viaje a Alemania? <a href="/alemania" style="color:inherit">Entra aquí</a>.</p>
   </section>
 
@@ -103,8 +101,8 @@ footer{text-align:center;font:12px var(--f-mono);color:var(--muted);letter-spaci
 
   <!-- Nuevo viaje -->
   <section id="vNuevo" class="panel" hidden>
-    <h1>¿A dónde viajas?</h1>
-    <p class="sub">Elige un país para armar tu viaje.</p>
+    <h1 id="hNuevo">¿A dónde viajas?</h1>
+    <p class="sub" id="subNuevo">Elige un país para armar tu viaje.</p>
     <div class="paises" id="paises"></div>
     <p class="note">Por el momento se pueden crear viajes en estos países.</p>
     <div class="detalle" id="detalle" hidden></div>
@@ -170,15 +168,16 @@ function comenzar(p){
   try{localStorage.setItem("mp_nuevo_viaje",JSON.stringify({pais:p.id,email:usuario&&usuario.email||"",at:Date.now()}))}catch(e){}
   $("#msgComenzar").textContent="¡Anotado! El asistente de ruta (ciudades, días y ritmo) se habilita en la próxima etapa.";
 }
-function abrirNuevo(desde){alVolver=desde;pintarPaises();$("#detalle").hidden=true;vista("vNuevo")}
-$("#bNuevo0").onclick=()=>abrirNuevo("vEntrada");
+function abrirNuevo(desde,primero){alVolver=desde;pintarPaises();$("#detalle").hidden=true;
+  $("#subNuevo").textContent=primero?"Todavía no tienes viajes con este correo. Elige un país para armar el primero.":"Elige un país para armar tu viaje.";
+  $("#bVolver").hidden=!desde;vista("vNuevo")}
 $("#bNuevo").onclick=()=>abrirNuevo("vViajes");
 $("#bVolver").onclick=()=>vista(alVolver);
 
-function entro(u,ids){usuario=u;$("#quien").textContent=u.email;pintarViajes(ids);vista("vViajes")}
+function entro(u,ids){usuario=u;$("#quien").textContent=u.email;pintarViajes(ids);ids.length?vista("vViajes"):abrirNuevo(null,true)}
 
 if(DEMO){
-  $("#bGoogle").onclick=()=>entro({email:"demo@local"},["alemania","paris"]);
+  $("#bGoogle").onclick=()=>entro({email:"demo@local"},new URLSearchParams(location.search).has("sin")?[]:["alemania","paris"]);
   $("#subEntrada").textContent="Modo demo: no se conecta a Google.";
   $("#bSalir").onclick=()=>{usuario=null;vista("vEntrada")};
 }else{
@@ -203,6 +202,7 @@ if(DEMO){
     usuario=u;$("#quien").textContent=u.email;$("#msgViajes").textContent="Buscando tus viajes…";
     if($("#vNuevo").hidden)vista("vViajes");
     const ids=await accesos(u);pintarViajes(ids);$("#msgViajes").textContent="";
+    if(!ids.length&&$("#vViajes").hidden===false)abrirNuevo(null,true);
   });
 }
 </script>
