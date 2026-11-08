@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nuevo viaje · Marco Polo</title>
+<meta name="theme-color" content="#efe6d2">
+<link rel="icon" href="img/logo-marcopolo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<style>
+:root{--paper:#fffdf6;--desk:#efe6d2;--ink:#2a2219;--muted:#76695a;--line:#d8cba9;--red:#a8352b;--ok:#2e6b4f;--grid:rgba(91,139,201,.18);
+  --f-mono:"Courier Prime",ui-monospace,Menlo,monospace;--f-body:"Source Serif 4",Georgia,serif;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;background:var(--desk);color:var(--ink);font:16px/1.45 var(--f-body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+main{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 60px max(14px,env(safe-area-inset-left,0px));display:grid;gap:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top a{font:700 13px var(--f-mono);color:var(--ink)}
+.prog{display:flex;gap:6px;justify-content:center}
+.prog i{flex:1;max-width:60px;height:6px;border-radius:3px;background:var(--line)}
+.prog i.on{background:var(--ink)}
+.hoja{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px 16px 20px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 10px 22px rgba(40,25,10,.16);display:grid;gap:14px;position:relative;
+  background-image:repeating-linear-gradient(transparent 0 27px,rgba(91,139,201,.14) 27px 28px)}
+.hoja::before{content:"";position:absolute;top:-11px;left:50%;width:74px;height:22px;margin-left:-37px;background:rgba(233,220,180,.88);transform:rotate(-3deg)}
+.paso{font:700 12px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
+h1{font:700 24px/1.15 var(--f-mono);margin:0}
+p{margin:0}
+.muted{color:var(--muted)}
+.btn{font:700 15px var(--f-mono);letter-spacing:.03em;padding:11px 18px;border-radius:8px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:3px 3px 0 var(--ink);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn:hover,.btn:focus-visible{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.dark{background:var(--ink);color:var(--paper);box-shadow:3px 3px 0 var(--red)}
+.btn[disabled]{opacity:.45;cursor:default;box-shadow:none;transform:none}
+.btn.sm{font-size:13px;padding:5px 10px;box-shadow:2px 2px 0 var(--ink)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:4px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.opt input{margin-top:4px;accent-color:var(--ink)}
+.opt:has(input:checked){border-color:var(--ink);background:#fffaf0}
+.opt b{font:700 15px var(--f-mono)}
+.opt small{display:block;color:var(--muted);font-size:13.5px}
+label.fld{display:grid;gap:4px;font:700 13px var(--f-mono)}
+input[type=date],input[type=time],input[type=text],input[type=number]{font:16px var(--f-mono);padding:9px 10px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);width:100%}
+.disp,.sel{display:grid;gap:8px}
+.cc{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:#fff}
+.cc b{font:700 15px var(--f-mono)}
+.cc small{color:var(--muted)}
+.cc .g{flex:1;min-width:0}
+.cc.on{border-color:var(--ink);background:#fffaf0}
+.num{display:flex;align-items:center;gap:6px;font:700 15px var(--f-mono)}
+.num button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font:700 16px var(--f-mono);cursor:pointer;line-height:1}
+.ord{display:flex;flex-direction:column;gap:2px}
+.ord button{border:1.5px solid var(--line);background:#fff;border-radius:4px;font-size:11px;line-height:1;padding:3px 7px;cursor:pointer}
+.tag{font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1.5px solid currentColor}
+.tag.ok{color:var(--ok)}.tag.rojo{color:var(--red)}
+.tl{display:grid;gap:0;margin:4px 0}
+.tl .n{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:stretch}
+.tl .dot{display:grid;justify-items:center;position:relative}
+.tl .dot span{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:700 13px var(--f-mono);z-index:1}
+.tl .dot::after{content:"";position:absolute;top:26px;bottom:0;width:0;border-left:2px dashed var(--red)}
+.tl .n:last-child .dot::after{display:none}
+.tl .t{padding:0 0 14px}
+.tl .t b{font:700 16px var(--f-mono)}
+.tl .via{font:13px var(--f-mono);color:var(--muted)}
+.aviso{padding:11px 13px;border-radius:8px;border:1.5px solid var(--ok);background:#f3faf5;font-size:15px}
+.aviso.mal{border-color:var(--red);background:#fdf3f1}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chk{display:inline-flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;background:#fff;cursor:pointer;font:14px var(--f-mono)}
+.chk:has(input:checked){border-color:var(--ink);background:#fffaf0;font-weight:700}
+.chk input{accent-color:var(--ink)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg label{flex:1;min-width:92px;text-align:center;border:1.5px solid var(--line);border-radius:8px;padding:8px 6px;background:#fff;cursor:pointer;font:700 13px var(--f-mono)}
+.seg label:has(input:checked){border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl td{padding:6px 4px;border-bottom:1px dotted var(--line)}
+.tbl td:last-child{text-align:right;font:700 14px var(--f-mono)}
+.msg{font:13px var(--f-mono);color:var(--red);min-height:1.2em}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><a href="/">← Salir</a><span class="muted" id="paisT" style="font:700 13px var(--f-mono)"></span></div>
+  <div class="prog" id="prog" aria-hidden="true"></div>
+  <section class="hoja" id="hoja" aria-live="polite"></section>
+</main>
+
+<script type="module">
+import {PAISES,cargar} from "./v2/ciudades/index.js";
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const q=new URLSearchParams(location.search),paisId=q.get("pais");
+const PAIS=PAISES.find(p=>p.id===paisId);
+if(!PAIS){location.replace("/")}
+const DEMO=q.has("demo");
+$("#paisT").textContent=PAIS?PAIS.n:"";
+const MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],DIAS=["dom","lun","mar","mié","jue","vie","sáb"];
+
+// ---- datos de las ciudades del país (paquetes precargados)
+const C={};          // id -> {id,n,ll,ideal,min,resumen,mejor}
+const listas=PAIS?PAIS.ciudades.filter(c=>c.estado==="lista"):[];
+await Promise.all(listas.map(async c=>{try{const m=await cargar(PAIS.id,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length}}catch(e){}}));
+
+// ---- estado
+const KEY="mp_viaje_borrador";
+const W0={pais:PAIS&&PAIS.id,cuando:"fecha",inicio:"",hora:"",ciudades:[],hoteles:"reco",estandar:"medio",comida:[],comidaOtra:"",ritmo:{}};
+let W=W0;try{const g=JSON.parse(localStorage.getItem(KEY)||"null");if(g&&g.pais===W0.pais)W=Object.assign({},W0,g)}catch(e){}
+const guardar=()=>{try{localStorage.setItem(KEY,JSON.stringify(W))}catch(e){}};
+let paso=0;const PASOS=["Cuándo","Ciudades","Orden","Alojamiento","Comida","Ritmo","Resumen"];
+
+// ---- utilidades
+const km=(a,b)=>{const R=6371,t=x=>x*Math.PI/180,dl=t(b[0]-a[0]),dn=t(b[1]-a[1]);const h=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+const horas=k=>k<5?.3:k/70+.5;               // estimación gruesa: ~70 km/h de media + esperas
+const fh=h=>{const m=Math.round(h*60);return m<60?m+" min":Math.floor(m/60)+" h"+(m%60?" "+String(m%60).padStart(2,"0"):"")};
+const D=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const add=(s,n)=>{const d=D(s);d.setDate(d.getDate()+n);return iso(d)};
+const pretty=s=>{const d=D(s);return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}`};
+const largo=()=>W.ciudades.reduce((t,c,i)=>i?t+km(C[W.ciudades[i-1].id].ll,C[c.id].ll):0,0);
+const tot=a=>a.reduce((t,id,i)=>i?t+km(C[a[i-1]].ll,C[id].ll):0,0);
+// mejor orden (la primera ciudad queda fija: es donde aterrizas)
+function mejorOrden(ids){if(ids.length<3)return ids;const [f,...r]=ids;let best=ids,bk=tot(ids);
+  const perm=(a,pre=[])=>{if(!a.length){const o=[f,...pre],k=tot(o);if(k<bk-1e-6){bk=k;best=o}return}a.forEach((x,i)=>perm(a.filter((_,j)=>j!==i),[...pre,x]))};
+  if(r.length<=7)perm(r);return best}
+
+// ---- pasos
+const vistas=[
+ // 0 Cuándo
+ ()=>`<p class="paso">Paso 1 de 7 · ${PASOS[0]}</p><h1>¿Cuándo llegas a ${esc(PAIS.n)}?</h1>
+  <label class="opt"><input type="radio" name="cuando" value="fecha" ${W.cuando==="fecha"?"checked":""}><span><b>Ya tengo la fecha</b><small>Con fechas, calculo cuándo estás en cada ciudad.</small></span></label>
+  <div class="disp" id="bloqueFecha" ${W.cuando==="fecha"?"":"hidden"}>
+   <label class="fld">Fecha de llegada<input type="date" id="inicio" value="${esc(W.inicio)}"></label>
+   <label class="fld">Hora aproximada de llegada (opcional)<input type="time" id="hora" value="${esc(W.hora)}"></label></div>
+  <label class="opt"><input type="radio" name="cuando" value="generico" ${W.cuando==="generico"?"checked":""}><span><b>Aún no tengo fechas</b><small>Armo la ruta con «día 1, día 2…» y después le pones fecha.</small></span></label>`,
+ // 1 Ciudades
+ ()=>{const ids=W.ciudades.map(c=>c.id);
+  return `<p class="paso">Paso 2 de 7 · ${PASOS[1]}</p><h1>¿Qué ciudades visitas?</h1>
+  <p class="muted">Toca para agregar. <b>La primera es donde aterrizas.</b> Las noches sugeridas salen de lo que se necesita para verla bien.</p>
+  <div class="sel">${listas.map(l=>{const c=C[l.id];if(!c)return"";const on=ids.includes(l.id);return `<div class="cc ${on?"on":""}"><div class="g"><b>${esc(c.n)}</b><br><small>${c.atr} atracciones · ideal ${c.ideal} noche${c.ideal>1?"s":""}</small></div><button class="btn sm" data-tog="${l.id}" type="button">${on?"Quitar":"Agregar"}</button></div>`}).join("")}</div>
+  ${W.ciudades.length?`<p class="paso" style="margin-top:6px">Tu ruta, en orden</p><div class="sel">${W.ciudades.map((x,i)=>{const c=C[x.id];const bajo=x.noches<c.min;return `<div class="cc on"><div class="ord"><button data-up="${i}" type="button" ${i?"":"disabled"} aria-label="Subir">▲</button><button data-dn="${i}" type="button" ${i<W.ciudades.length-1?"":"disabled"} aria-label="Bajar">▼</button></div><div class="g"><b>${i+1}. ${esc(c.n)}</b>${i===0?' <span class="tag ok">Aterrizas</span>':""}<br><small>${bajo?`<span style="color:var(--red)">Muy corto: mínimo ${c.min}</span>`:`ideal ${c.ideal}`}</small></div><div class="num"><button data-mn="${i}" type="button" aria-label="Menos noches">−</button><span>${x.noches} noche${x.noches>1?"s":""}</span><button data-mas="${i}" type="button" aria-label="Más noches">+</button></div></div>`}).join("")}</div>
+  <p class="muted">${W.ciudades.reduce((t,x)=>t+x.noches,0)} noches en total.</p>`:""}`},
+ // 2 Orden
+ ()=>{const ids=W.ciudades.map(c=>c.id);if(ids.length<2)return `<p class="paso">Paso 3 de 7 · ${PASOS[2]}</p><h1>Tu ruta</h1><p>Con una sola ciudad no hay traslados que revisar. Puedes seguir.</p>`;
+  const mejor=mejorOrden(ids),k0=tot(ids),k1=tot(mejor),ahorro=k0-k1;
+  const igual=mejor.every((x,i)=>x===ids[i]);
+  const fechas=W.cuando==="fecha"&&W.inicio;let dia=0;
+  const lineas=W.ciudades.map((x,i)=>{const c=C[x.id];const d0=fechas?pretty(add(W.inicio,dia)):"Día "+(dia+1);dia+=x.noches;const d1=fechas?pretty(add(W.inicio,dia)):"Día "+(dia+1);
+    const via=i?(()=>{const k=km(C[ids[i-1]].ll,c.ll);return `<div class="via">↓ ${Math.round(k)} km desde ${esc(C[ids[i-1]].n)} · ~${fh(horas(k))}</div>`})():"";
+    return `<div class="n"><div class="dot"><span>${i+1}</span></div><div class="t">${via}<b>${esc(c.n)}</b><div class="via">${d0} → ${d1} · ${x.noches} noche${x.noches>1?"s":""}</div></div></div>`}).join("");
+  const aviso=igual?`<div class="aviso"><b>El orden tiene sentido.</b> Es el recorrido más corto que empieza en ${esc(C[ids[0]].n)}: ${Math.round(k0)} km de traslados en total.</div>`
+   :(ahorro>=60&&ahorro/k0>=.15)?`<div class="aviso mal"><b>Te sugiero otro orden:</b> ${mejor.map(id=>esc(C[id].n)).join(" → ")}.<br>Tu ruta suma ${Math.round(k0)} km de traslados y esta ${Math.round(k1)} km: ahorras ${Math.round(ahorro)} km (~${fh(horas(ahorro))} menos en el camino) y evitas volver sobre tus pasos.<br><button class="btn sm" id="aplicar" type="button" style="margin-top:8px">Usar el orden sugerido</button></div>`
+   :`<div class="aviso"><b>Tu orden está bien.</b> Hay un recorrido un poco más corto (${mejor.map(id=>esc(C[id].n)).join(" → ")}, ${Math.round(ahorro)} km menos), pero la diferencia es pequeña.</div>`;
+  return `<p class="paso">Paso 3 de 7 · ${PASOS[2]}</p><h1>Tu ruta, ¿tiene sentido?</h1>${aviso}<div class="tl">${lineas}</div><p class="muted">Distancias en línea recta y tiempos estimados; más adelante verás los trenes y buses reales entre ciudades.</p>`},
+ // 3 Alojamiento
+ ()=>`<p class="paso">Paso 4 de 7 · ${PASOS[3]}</p><h1>¿Y dónde te quedas?</h1>
+  <label class="opt"><input type="radio" name="hot" value="reservado" ${W.hoteles==="reservado"?"checked":""}><span><b>Ya tengo hoteles reservados</b><small>Los anotas después, ciudad por ciudad, y el programa parte desde ahí.</small></span></label>
+  <label class="opt"><input type="radio" name="hot" value="reco" ${W.hoteles==="reco"?"checked":""}><span><b>Quiero recomendaciones</b><small>Te propongo barrios y opciones según el estándar que elijas.</small></span></label>
+  <div id="bloqueEst" ${W.hoteles==="reco"?"":"hidden"}><p class="paso" style="margin-bottom:6px">Estándar</p><div class="seg">${[["eco","Económico"],["medio","Medio"],["conf","Confort"]].map(([k,t])=>`<label><input type="radio" name="est" value="${k}" ${W.estandar===k?"checked":""}>${t}</label>`).join("")}</div></div>`,
+ // 4 Comida
+ ()=>`<p class="paso">Paso 5 de 7 · ${PASOS[4]}</p><h1>¿Cómo te gusta comer?</h1><p class="muted">Lo tendré en cuenta cuando busque restaurantes en cada ciudad.</p>
+  <div class="chips">${[["veg","Vegetariano"],["vegano","Vegano"],["singluten","Sin gluten"],["sinmar","Sin mariscos"],["rapida","Comida rápida"],["local","Cocina local"],["barato","Económico"],["halal","Halal"]].map(([k,t])=>`<label class="chk"><input type="checkbox" data-co="${k}" ${W.comida.includes(k)?"checked":""}>${t}</label>`).join("")}</div>
+  <label class="fld">Otra preferencia o alergia (opcional)<input type="text" id="comidaOtra" value="${esc(W.comidaOtra)}" placeholder="Ej.: alergia a las nueces"></label>`,
+ // 5 Ritmo
+ ()=>`<p class="paso">Paso 6 de 7 · ${PASOS[5]}</p><h1>¿A qué ritmo recorres cada ciudad?</h1>
+  <div class="sel">${W.ciudades.map(x=>{const c=C[x.id],r=W.ritmo[x.id]||"int";return `<div class="cc on" style="display:grid"><b>${esc(c.n)} <small>(${x.noches} noche${x.noches>1?"s":""})</small></b><div class="seg">${[["rap","Rápido"],["int","Intermedio"],["rel","Relajado"]].map(([k,t])=>`<label><input type="radio" name="r_${x.id}" data-r="${x.id}" value="${k}" ${r===k?"checked":""}>${t}</label>`).join("")}</div><small class="muted" id="rt_${x.id}">${EXPL[r]}</small></div>`}).join("")}</div>`,
+ // 6 Resumen
+ ()=>{const fechas=W.cuando==="fecha"&&W.inicio,noches=W.ciudades.reduce((t,x)=>t+x.noches,0);
+  const fin=fechas?add(W.inicio,noches):"";
+  return `<p class="paso">Paso 7 de 7 · ${PASOS[6]}</p><h1>Tu viaje a ${esc(PAIS.n)}</h1>
+  <table class="tbl"><tr><td>Fechas</td><td>${fechas?pretty(W.inicio)+" → "+pretty(fin):"Sin fechas (días genéricos)"}</td></tr>
+   <tr><td>Duración</td><td>${noches} noches</td></tr>
+   <tr><td>Ruta</td><td>${W.ciudades.map(x=>esc(C[x.id].n)).join(" → ")||"—"}</td></tr>
+   <tr><td>Alojamiento</td><td>${W.hoteles==="reservado"?"Ya reservado":"Recomendaciones · "+({eco:"económico",medio:"medio",conf:"confort"}[W.estandar])}</td></tr>
+   <tr><td>Comida</td><td>${W.comida.length||W.comidaOtra?esc([...W.comida.map(k=>({veg:"Vegetariano",vegano:"Vegano",singluten:"Sin gluten",sinmar:"Sin mariscos",rapida:"Comida rápida",local:"Cocina local",barato:"Económico",halal:"Halal"}[k])),W.comidaOtra].filter(Boolean).join(", ")):"Sin preferencias"}</td></tr>
+   <tr><td>Ritmos</td><td>${W.ciudades.map(x=>esc(C[x.id].n)+": "+({rap:"rápido",int:"intermedio",rel:"relajado"}[W.ritmo[x.id]||"int"])).join(" · ")}</td></tr></table>
+  <div class="aviso">Tu ruta queda guardada en este dispositivo. El siguiente paso, la página de configuración con el plano y la línea de tiempo, se habilita en la próxima etapa.</div>`}
+];
+const EXPL={rap:"Más comprimido: hasta ~7,5 h de actividades al día, para ver lo máximo.",int:"Equilibrado: ~5,5 h de actividades al día, con pausas para comer y caminar.",rel:"Con calma: ~4 h de actividades al día y tiempo libre para pasear sin apuro."};
+
+// ---- validación por paso
+function valida(){
+  if(paso===0&&W.cuando==="fecha"&&!W.inicio)return "Pon la fecha de llegada o elige «Aún no tengo fechas».";
+  if(paso===1&&!W.ciudades.length)return "Agrega al menos una ciudad.";
+  return "";
+}
+
+// ---- dibujo
+function pintar(){
+  $("#prog").innerHTML=PASOS.map((_,i)=>`<i class="${i<=paso?"on":""}"></i>`).join("");
+  $("#hoja").innerHTML=vistas[paso]()+`<p class="msg" id="msg" role="status"></p><div class="nav"><button class="btn" id="atras" type="button" ${paso?"":"disabled"}>← Atrás</button><button class="btn dark" id="sig" type="button">${paso===PASOS.length-1?"Guardar ruta":"Siguiente →"}</button></div>`;
+  enlazar();window.scrollTo(0,0);
+}
+function enlazar(){
+  $("#atras").onclick=()=>{paso=Math.max(0,paso-1);pintar()};
+  $("#sig").onclick=()=>{const e=valida();if(e){$("#msg").textContent=e;return}guardar();
+    if(paso===PASOS.length-1){$("#msg").style.color="var(--ok)";$("#msg").textContent="¡Ruta guardada en este dispositivo!";return}
+    paso++;pintar()};
+  document.querySelectorAll('input[name="cuando"]').forEach(r=>r.onchange=()=>{W.cuando=r.value;$("#bloqueFecha").hidden=W.cuando!=="fecha";guardar()});
+  const i=$("#inicio");if(i)i.onchange=()=>{W.inicio=i.value;guardar()};
+  const h=$("#hora");if(h)h.onchange=()=>{W.hora=h.value;guardar()};
+  document.querySelectorAll("[data-tog]").forEach(b=>b.onclick=()=>{const id=b.dataset.tog,j=W.ciudades.findIndex(x=>x.id===id);if(j>=0)W.ciudades.splice(j,1);else W.ciudades.push({id,noches:C[id].ideal});guardar();pintar()});
+  document.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{const i=+b.dataset.up,a=W.ciudades;[a[i-1],a[i]]=[a[i],a[i-1]];guardar();pintar()});
+  document.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const i=+b.dataset.dn,a=W.ciudades;[a[i+1],a[i]]=[a[i],a[i+1]];guardar();pintar()});
+  document.querySelectorAll("[data-mn]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mn];x.noches=Math.max(1,x.noches-1);guardar();pintar()});
+  document.querySelectorAll("[data-mas]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mas];x.noches=Math.min(30,x.noches+1);guardar();pintar()});
+  const ap=$("#aplicar");if(ap)ap.onclick=()=>{const ids=W.ciudades.map(c=>c.id),m=mejorOrden(ids);W.ciudades=m.map(id=>W.ciudades.find(c=>c.id===id));guardar();pintar()};
+  document.querySelectorAll('input[name="hot"]').forEach(r=>r.onchange=()=>{W.hoteles=r.value;$("#bloqueEst").hidden=W.hoteles!=="reco";guardar()});
+  document.querySelectorAll('input[name="est"]').forEach(r=>r.onchange=()=>{W.estandar=r.value;guardar()});
+  document.querySelectorAll("[data-co]").forEach(c=>c.onchange=()=>{const k=c.dataset.co;W.comida=c.checked?[...new Set([...W.comida,k])]:W.comida.filter(x=>x!==k);guardar()});
+  const co=$("#comidaOtra");if(co)co.oninput=()=>{W.comidaOtra=co.value;guardar()};
+  document.querySelectorAll("[data-r]").forEach(r=>r.onchange=()=>{W.ritmo[r.dataset.r]=r.value;$("#rt_"+r.dataset.r).textContent=EXPL[r.value];guardar()});
+}
+if(PAIS)pintar();
+</script>
+</body>
+</html>

@@ -167,7 +167,7 @@ function elegir(id){
 function comenzar(p){
   if(!DEMO&&!usuario){$("#msgComenzar").textContent="Entra primero con Google para guardar tu viaje.";return}
   try{localStorage.setItem("mp_nuevo_viaje",JSON.stringify({pais:p.id,email:usuario&&usuario.email||"",at:Date.now()}))}catch(e){}
-  $("#msgComenzar").textContent="¡Anotado! El asistente de ruta (ciudades, días y ritmo) se habilita en la próxima etapa.";
+  location.href="nuevo.html?pais="+encodeURIComponent(p.id)+(DEMO?"&demo":"");
 }
 function abrirNuevo(desde,primero){alVolver=desde;pintarPaises();$("#detalle").hidden=true;
   $("#subNuevo").textContent=primero?"Todavía no tienes viajes con este correo. Elige un país para armar el primero.":"Elige un país para armar tu viaje.";
