@@ -137,9 +137,11 @@ const VIAJES=[
 const vista=n=>{for(const id of ["vEntrada","vViajes","vNuevo"])$("#"+id).hidden=(id!==n)};
 let usuario=null,alVolver="vEntrada";
 
+const locales=()=>{try{return JSON.parse(localStorage.getItem("mp_viajes")||"[]")}catch(e){return[]}};
 function pintarViajes(ids){
-  const L=VIAJES.filter(v=>ids.includes(v.id));
-  $("#lista").innerHTML=L.length?L.map(v=>`<a class="trip ${v.cls}" href="${v.href}"><span class="flag" aria-hidden="true">${v.flag}</span><b>${v.t}</b><small>${v.s}</small>${v.tag}</a>`).join(""):
+  const L=VIAJES.filter(v=>ids.includes(v.id)),N=locales();
+  const nuevos=N.map(v=>{const p=PAISES.find(x=>x.id===v.pais)||{n:v.pais},noches=(v.cfg.ciudades||[]).reduce((t,c)=>t+c.noches,0);return `<a class="trip fr" style="--c:#a8352b" href="viaje.html?id=${encodeURIComponent(v.id)}"><span class="flag" aria-hidden="true">✈</span><b>Viaje a ${p.n}</b><small>${noches} noches · ${(v.cfg.ciudades||[]).length} ciudad${(v.cfg.ciudades||[]).length>1?"es":""}${v.cfg.cuando==="fecha"&&v.cfg.inicio?" · desde "+v.cfg.inicio:" · sin fechas"}</small><span class="tag open">Nuevo · en este dispositivo</span></a>`}).join("");
+  $("#lista").innerHTML=(L.length||N.length)?L.map(v=>`<a class="trip ${v.cls}" href="${v.href}"><span class="flag" aria-hidden="true">${v.flag}</span><b>${v.t}</b><small>${v.s}</small>${v.tag}</a>`).join("")+nuevos:
     `<div class="empty">Todavía no tienes viajes con este correo.<br>Crea uno nuevo con el botón de abajo.</div>`;
 }
 
@@ -175,7 +177,7 @@ function abrirNuevo(desde,primero){alVolver=desde;pintarPaises();$("#detalle").h
 $("#bNuevo").onclick=()=>abrirNuevo("vViajes");
 $("#bVolver").onclick=()=>vista(alVolver);
 
-function entro(u,ids){usuario=u;$("#quien").textContent=u.email;pintarViajes(ids);ids.length?vista("vViajes"):abrirNuevo(null,true)}
+function entro(u,ids){usuario=u;$("#quien").textContent=u.email;pintarViajes(ids);(ids.length||locales().length)?vista("vViajes"):abrirNuevo(null,true)}
 
 if(DEMO){
   $("#bGoogle").onclick=()=>entro({email:"demo@local"},new URLSearchParams(location.search).has("sin")?[]:["alemania","paris"]);
@@ -203,7 +205,7 @@ if(DEMO){
     usuario=u;$("#quien").textContent=u.email;$("#msgViajes").textContent="Buscando tus viajes…";
     if($("#vNuevo").hidden)vista("vViajes");
     const ids=await accesos(u);pintarViajes(ids);$("#msgViajes").textContent="";
-    if(!ids.length&&$("#vViajes").hidden===false)abrirNuevo(null,true);
+    if(!ids.length&&!locales().length&&$("#vViajes").hidden===false)abrirNuevo(null,true);
   });
 }
 </script>

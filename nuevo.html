@@ -107,7 +107,12 @@ let TR={},AP={},OP={};try{const tm=await cargarTraslados(PAIS.id);TR=tm.TRASLADO
 // ---- estado
 const KEY="mp_viaje_borrador";
 const W0={pais:PAIS&&PAIS.id,cuando:"fecha",inicio:"",hora:"",ciudades:[],hoteles:"reco",estandar:"medio",comida:[],comidaOtra:"",ritmo:{},traslado:{}};
-let W=W0;try{const g=JSON.parse(localStorage.getItem(KEY)||"null");if(g&&g.pais===W0.pais)W=Object.assign({},W0,g)}catch(e){}
+const EDITAR=q.get("editar");
+const LISTA="mp_viajes",leerV=()=>{try{return JSON.parse(localStorage.getItem(LISTA)||"[]")}catch(e){return[]}};
+let W=W0;try{
+  const ed=EDITAR&&leerV().find(v=>v.id===EDITAR);
+  if(ed)W=Object.assign({},W0,ed.cfg);
+  else{const g=JSON.parse(localStorage.getItem(KEY)||"null");if(g&&g.pais===W0.pais)W=Object.assign({},W0,g)}}catch(e){}
 const guardar=()=>{try{localStorage.setItem(KEY,JSON.stringify(W))}catch(e){}};
 let paso=0;const PASOS=["Cuándo","Ciudades","Orden","Alojamiento","Comida","Ritmo","Resumen"];
 
@@ -197,7 +202,7 @@ const vistas=[
    <tr><td>Comida</td><td>${W.comida.length||W.comidaOtra?esc([...W.comida.map(k=>({veg:"Vegetariano",vegano:"Vegano",singluten:"Sin gluten",sinmar:"Sin mariscos",rapida:"Comida rápida",local:"Cocina local",barato:"Económico",halal:"Halal"}[k])),W.comidaOtra].filter(Boolean).join(", ")):"Sin preferencias"}</td></tr>
    <tr><td>Ritmos</td><td>${W.ciudades.map(x=>esc(C[x.id].n)+": "+({rap:"rápido",int:"intermedio",rel:"relajado"}[W.ritmo[x.id]||"int"])).join(" · ")}</td></tr></table>
   ${fechas?"":`<div class="cc on" style="display:grid;gap:6px"><b>¿Ya tienes la fecha de llegada?</b><small class="muted">Si la agregas, calculo las fechas de cada día en cada ciudad. Puedes hacerlo más tarde, volviendo a la configuración.</small><input type="date" id="fechaTarde"></div>`}
-  <div class="aviso">Tu ruta queda guardada en este dispositivo. El siguiente paso, la página de configuración con el plano y la línea de tiempo, se habilita en la próxima etapa.</div>`}
+  <div class="aviso">Al guardar abrimos la página de configuración de tu viaje, con el plano y la línea de tiempo. Por ahora queda guardado en este dispositivo.</div>`}
 ];
 const EXPL={rap:"Más comprimido: hasta ~7,5 h de actividades al día, para ver lo máximo.",int:"Equilibrado: ~5,5 h de actividades al día, con pausas para comer y caminar.",rel:"Con calma: ~4 h de actividades al día y tiempo libre para pasear sin apuro."};
 
@@ -217,7 +222,13 @@ function pintar(){
 function enlazar(){
   $("#atras").onclick=()=>{paso=Math.max(0,paso-1);pintar()};
   $("#sig").onclick=()=>{const e=valida();if(e){$("#msg").textContent=e;return}guardar();
-    if(paso===PASOS.length-1){$("#msg").style.color="var(--ok)";$("#msg").textContent="¡Ruta guardada en este dispositivo!";return}
+    if(paso===PASOS.length-1){
+      const l=leerV(),id=EDITAR||"nv_"+Date.now().toString(36),i=l.findIndex(v=>v.id===id);
+      const v={id,pais:PAIS.id,owner:i>=0?l[i].owner:"",creado:i>=0?l[i].creado:Date.now(),act:Date.now(),cfg:W};
+      if(i>=0)l[i]=v;else l.push(v);
+      try{localStorage.setItem(LISTA,JSON.stringify(l));localStorage.removeItem(KEY)}catch(e){$("#msg").textContent="No pude guardar en este dispositivo.";return}
+      $("#msg").style.color="var(--ok)";$("#msg").textContent="¡Ruta guardada!";
+      location.href="viaje.html?id="+encodeURIComponent(id)+(DEMO?"&demo":"");return}
     paso++;pintar()};
   document.querySelectorAll('input[name="cuando"]').forEach(r=>r.onchange=()=>{W.cuando=r.value;$("#bloqueFecha").hidden=W.cuando!=="fecha";guardar()});
   const i=$("#inicio");if(i)i.onchange=()=>{W.inicio=i.value;guardar()};
