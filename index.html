@@ -16,34 +16,181 @@
 html,body{margin:0}
 body{min-height:100vh;background:var(--desk);color:var(--ink);font:16px/1.45 var(--f-body);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
-main{max-width:760px;margin:0 auto;padding-block:max(28px,env(safe-area-inset-top,0px)) 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:26px}
-.logo{justify-self:center;width:min(300px,72vw);background:var(--paper);padding:9px 9px 12px;border-radius:6px;transform:rotate(-2deg);box-shadow:0 1px 0 rgba(0,0,0,.06),0 14px 30px rgba(40,25,10,.28);position:relative}
+main{max-width:760px;margin:0 auto;padding-block:max(28px,env(safe-area-inset-top,0px)) 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+.logo{justify-self:center;width:min(280px,70vw);background:var(--paper);padding:9px 9px 12px;border-radius:6px;transform:rotate(-2deg);box-shadow:0 1px 0 rgba(0,0,0,.06),0 14px 30px rgba(40,25,10,.28);position:relative}
 .logo::after{content:"";position:absolute;top:-11px;left:50%;width:80px;height:24px;margin-left:-40px;background:rgba(233,220,180,.85);transform:rotate(3deg)}
 .logo img{display:block;width:100%;border-radius:3px}
-h1{font:700 15px var(--f-mono);letter-spacing:.18em;text-transform:uppercase;text-align:center;margin:0;color:var(--muted)}
-.trips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
-.trip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;padding:16px 16px 14px;box-shadow:0 2px 0 rgba(0,0,0,.04),0 8px 18px rgba(40,25,10,.12);transition:transform .15s ease}
+h1,h2{font:700 18px/1.2 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;text-align:center;margin:0;color:var(--ink)}
+.sub{font:14px var(--f-mono);color:var(--muted);text-align:center;margin:0}
+.panel{display:grid;gap:16px;justify-items:center}
+.btn{font:700 15px var(--f-mono);letter-spacing:.04em;padding:13px 20px;border-radius:8px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s;text-decoration:none}
+.btn:hover,.btn:focus-visible{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.dark{background:var(--ink);color:var(--paper);box-shadow:3px 3px 0 var(--red)}
+.btn[disabled]{opacity:.55;cursor:default;box-shadow:none;transform:none}
+.btn.sm{font-size:13px;padding:7px 12px;box-shadow:2px 2px 0 var(--ink)}
+.msg{font:13px var(--f-mono);color:var(--red);text-align:center;min-height:1.2em;margin:0}
+.who{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;font:13px var(--f-mono);color:var(--muted)}
+.trips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px;width:100%}
+.trip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;padding:16px 16px 14px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 6px 14px rgba(40,25,10,.16);transition:transform .15s}
 .trip:hover,.trip:focus-visible{transform:translateY(-2px) rotate(-.3deg)}
-.trip:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.trip:focus-visible,.pais:focus-visible,.btn:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 .flag{grid-row:span 3;font-size:34px;line-height:1}
-.trip b{font:700 21px/1.2 var(--f-body)}
+.trip b{font:700 20px/1.2 var(--f-mono)}
 .trip small{font:13px var(--f-mono);color:var(--muted)}
 .tag{justify-self:start;font:700 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1.5px solid currentColor;margin-top:4px}
 .tag.open{color:#2e6b4f}.tag.priv{color:var(--red)}
 .de{--c:#2f6b4f}.fr{--c:#2e4f8f}
+.empty{background:var(--paper);border:1px dashed var(--line);border-radius:6px;padding:14px 16px;font:14px var(--f-mono);color:var(--muted);text-align:center;width:100%}
+.sep{display:flex;align-items:center;gap:12px;width:100%;color:var(--muted);font:12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.sep::before,.sep::after{content:"";flex:1;border-top:1.5px dashed var(--line)}
+/* creador de viajes */
+.paises{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:22px 18px;width:100%;padding-top:10px}
+.pais{position:relative;font:inherit;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:30px 14px 14px;color:var(--ink);cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.05),0 8px 16px rgba(40,25,10,.18);transform:rotate(var(--r,0deg));transition:transform .15s,box-shadow .15s;display:grid;gap:4px}
+.pais:nth-child(2n){--r:1.2deg}.pais:nth-child(3n){--r:-1.4deg}.pais:nth-child(2n+1){--r:-.8deg}
+.pais:hover,.pais:focus-visible,.pais[aria-pressed="true"]{transform:rotate(0) translateY(-3px);box-shadow:0 1px 0 rgba(0,0,0,.05),0 14px 26px rgba(40,25,10,.26)}
+.pais[aria-pressed="true"]{border-color:var(--ink)}
+.clip{position:absolute;top:-13px;left:20px;width:16px;height:38px;border:3px solid #8f969c;border-radius:9px;border-bottom-color:transparent;box-shadow:1px 1px 1px rgba(0,0,0,.2)}
+.clip::after{content:"";position:absolute;left:2px;top:6px;width:6px;height:22px;border:3px solid #a7aeb5;border-radius:6px;border-top-color:transparent}
+.sello{justify-self:start;width:54px;height:54px;border-radius:50%;border:3px double var(--red);color:var(--red);display:grid;place-items:center;font:700 15px var(--f-mono);letter-spacing:.04em;transform:rotate(-8deg);margin-bottom:4px}
+.pais b{font:700 19px/1.2 var(--f-mono)}
+.pais small{font:13px var(--f-body);color:var(--muted)}
+.tip{position:absolute;left:8px;right:8px;bottom:calc(100% + 6px);background:var(--ink);color:var(--paper);font:13px/1.35 var(--f-body);padding:9px 11px;border-radius:6px;opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .15s,transform .15s;z-index:3}
+.tip::after{content:"";position:absolute;top:100%;left:22px;border:6px solid transparent;border-top-color:var(--ink)}
+@media (hover:hover){.pais:hover .tip,.pais:focus-visible .tip{opacity:1;transform:none}}
+.detalle{width:100%;background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--red);border-radius:6px;padding:16px 18px;display:grid;gap:10px;box-shadow:0 6px 14px rgba(40,25,10,.14)}
+.detalle h3{font:700 20px var(--f-mono);margin:0}
+.detalle p{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:13px var(--f-mono);border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;background:#fff}
+.note{font:13px var(--f-mono);color:var(--muted);text-align:center;margin:0}
+[hidden]{display:none!important}
 footer{text-align:center;font:12px var(--f-mono);color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
-@media (prefers-reduced-motion:reduce){.trip{transition:none}}
+@media (prefers-reduced-motion:reduce){.trip,.pais,.btn,.tip{transition:none}}
 </style>
 </head>
 <body>
 <main>
   <div class="logo"><img src="img/logo-marcopolo.jpg" alt="Marco Polo · Planifica · Explora · Vive"></div>
-  <h1>¿A qué viaje quieres entrar?</h1>
-  <div class="trips">
-    <a class="trip de" href="/alemania"><span class="flag" aria-hidden="true">🇩🇪</span><b>Viaje a Alemania</b><small>Hamburgo · Berlín · Praga · Múnich · feb 2027</small><span class="tag open">Abierto</span></a>
-    <a class="trip fr" href="/paris"><span class="flag" aria-hidden="true">🇫🇷</span><b>Viaje a París</b><small>París y escapadas en tren</small><span class="tag priv">🔒 Privado · con Google</span></a>
-  </div>
+
+  <!-- Entrada -->
+  <section id="vEntrada" class="panel" aria-live="polite">
+    <h1>Bienvenido a Marco Polo</h1>
+    <p class="sub" id="subEntrada">Entra con tu correo de Google para abrir tus viajes.</p>
+    <button class="btn dark" id="bGoogle" type="button"><span aria-hidden="true">G</span><span id="bGoogleT">Entrar con Google</span></button>
+    <p class="msg" id="msgEntrada" role="status"></p>
+    <div class="sep">o</div>
+    <button class="btn" id="bNuevo0" type="button">✚ Crear un nuevo viaje</button>
+    <p class="note">¿Tienes el enlace del viaje a Alemania? <a href="/alemania" style="color:inherit">Entra aquí</a>.</p>
+  </section>
+
+  <!-- Mis viajes -->
+  <section id="vViajes" class="panel" hidden>
+    <h1>Mis viajes</h1>
+    <div class="who"><span id="quien"></span><button class="btn sm" id="bSalir" type="button">Salir</button></div>
+    <div class="trips" id="lista"></div>
+    <p class="msg" id="msgViajes" role="status"></p>
+    <div class="sep">o</div>
+    <button class="btn dark" id="bNuevo" type="button">✚ Crear un nuevo viaje</button>
+    <p class="note">¿Tienes el enlace del viaje a Alemania? <a href="/alemania" style="color:inherit">Entra aquí</a>.</p>
+  </section>
+
+  <!-- Nuevo viaje -->
+  <section id="vNuevo" class="panel" hidden>
+    <h1>¿A dónde viajas?</h1>
+    <p class="sub">Elige un país para armar tu viaje.</p>
+    <div class="paises" id="paises"></div>
+    <p class="note">Por el momento se pueden crear viajes en estos países.</p>
+    <div class="detalle" id="detalle" hidden></div>
+    <button class="btn sm" id="bVolver" type="button">← Volver</button>
+  </section>
+
   <footer>Planifica · Explora · Vive</footer>
 </main>
+
+<script type="module">
+import {PAISES} from "./v2/ciudades/index.js";
+const $=s=>document.querySelector(s);
+const DEMO=new URLSearchParams(location.search).has("demo");
+const FBC={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
+
+// Reseñas de los países con ciudades precargadas
+const RESENA={
+ "escocia":{c:"Castillos sobre volcanes, whisky, lagos con leyendas y las Highlands.",l:"Edimburgo y su castillo, el ambiente de Glasgow, el monstruo del Loch Ness y los paisajes de Skye. Cuna del golf, de los kilts y de las gaitas."},
+ "irlanda":{c:"Acantilados, pubs con música en vivo y el verde más verde de Europa.",l:"De Dublín y su Libro de Kells a los acantilados de Moher, el Anillo de Kerry y la costa de Antrim, con 5.000 años de historia."},
+ "corea-del-sur":{c:"Palacios de 600 años junto a rascacielos, K-pop y comida callejera.",l:"Seúl y sus palacios, los templos de Busan frente al mar, la isla volcánica de Jeju y la antigua capital Silla en Gyeongju."}
+};
+const SELLO={"escocia":"SCO","irlanda":"IRL","corea-del-sur":"KOR"};
+const disponibles=()=>PAISES.filter(p=>RESENA[p.id]&&p.ciudades.some(c=>c.estado==="lista"));
+
+// Viajes que ya existen en la app
+const VIAJES=[
+ {id:"alemania",href:"/alemania",cls:"de",flag:"🇩🇪",t:"Viaje a Alemania",s:"Hamburgo · Berlín · Praga · Múnich · feb 2027",tag:'<span class="tag open">Abierto</span>'},
+ {id:"paris",href:"/paris",cls:"fr",flag:"🇫🇷",t:"Viaje a París",s:"Londres, París y escapadas en tren",tag:'<span class="tag priv">🔒 Privado · con Google</span>'}
+];
+
+const vista=n=>{for(const id of ["vEntrada","vViajes","vNuevo"])$("#"+id).hidden=(id!==n)};
+let usuario=null,alVolver="vEntrada";
+
+function pintarViajes(ids){
+  const L=VIAJES.filter(v=>ids.includes(v.id));
+  $("#lista").innerHTML=L.length?L.map(v=>`<a class="trip ${v.cls}" href="${v.href}"><span class="flag" aria-hidden="true">${v.flag}</span><b>${v.t}</b><small>${v.s}</small>${v.tag}</a>`).join(""):
+    `<div class="empty">Todavía no tienes viajes con este correo.<br>Crea uno nuevo con el botón de abajo.</div>`;
+}
+
+// Nuevo viaje
+function pintarPaises(){
+  $("#paises").innerHTML=disponibles().map(p=>`<button type="button" class="pais" data-p="${p.id}" aria-pressed="false"><span class="clip" aria-hidden="true"></span><span class="sello" aria-hidden="true">${SELLO[p.id]}</span><b>${p.n}</b><small>${p.ciudades.filter(c=>c.estado==="lista").length} ciudades listas</small><span class="tip" role="tooltip">${RESENA[p.id].c}</span></button>`).join("");
+  document.querySelectorAll(".pais").forEach(b=>b.onclick=()=>elegir(b.dataset.p));
+}
+function elegir(id){
+  const p=PAISES.find(x=>x.id===id),r=RESENA[id];
+  document.querySelectorAll(".pais").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===id));
+  const d=$("#detalle");d.hidden=false;
+  d.innerHTML=`<h3>${p.n}</h3><p>${r.l}</p><div class="chips">${p.ciudades.filter(c=>c.estado==="lista").map(c=>`<span class="chip">${c.n}</span>`).join("")}</div><p><b>¡Vamos a organizar la mejor experiencia posible!</b></p><button class="btn dark" id="bComenzar" type="button">Comenzar ${p.n} →</button><p class="msg" id="msgComenzar" role="status"></p>`;
+  $("#bComenzar").onclick=()=>comenzar(p);
+  d.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function comenzar(p){
+  if(!DEMO&&!usuario){$("#msgComenzar").textContent="Entra primero con Google para guardar tu viaje.";return}
+  try{localStorage.setItem("mp_nuevo_viaje",JSON.stringify({pais:p.id,email:usuario&&usuario.email||"",at:Date.now()}))}catch(e){}
+  $("#msgComenzar").textContent="¡Anotado! El asistente de ruta (ciudades, días y ritmo) se habilita en la próxima etapa.";
+}
+function abrirNuevo(desde){alVolver=desde;pintarPaises();$("#detalle").hidden=true;vista("vNuevo")}
+$("#bNuevo0").onclick=()=>abrirNuevo("vEntrada");
+$("#bNuevo").onclick=()=>abrirNuevo("vViajes");
+$("#bVolver").onclick=()=>vista(alVolver);
+
+function entro(u,ids){usuario=u;$("#quien").textContent=u.email;pintarViajes(ids);vista("vViajes")}
+
+if(DEMO){
+  $("#bGoogle").onclick=()=>entro({email:"demo@local"},["alemania","paris"]);
+  $("#subEntrada").textContent="Modo demo: no se conecta a Google.";
+  $("#bSalir").onclick=()=>{usuario=null;vista("vEntrada")};
+}else{
+  const B="https://www.gstatic.com/firebasejs/10.12.2/";
+  const [A,U,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+  const app=A.initializeApp(FBC),auth=U.getAuth(app),db=FS.getFirestore(app);
+  const bG=$("#bGoogle");
+  bG.onclick=async()=>{bG.disabled=true;$("#bGoogleT").textContent="Abriendo Google…";
+    const t=setTimeout(()=>{$("#msgEntrada").textContent="Si no se abrió la ventana de Google, permite las ventanas emergentes de este sitio."},8000);
+    try{await U.signInWithPopup(auth,new U.GoogleAuthProvider());$("#bGoogleT").textContent="Entrando…"}
+    catch(e){clearTimeout(t);bG.disabled=false;$("#bGoogleT").textContent="Entrar con Google";if(e.code!=="auth/popup-closed-by-user")$("#msgEntrada").textContent="No se pudo entrar con Google ("+e.code+")."}};
+  $("#bSalir").onclick=()=>U.signOut(auth);
+  // ¿A qué viajes tiene acceso este correo? Se comprueba lo mismo que hace cada viaje al abrirlo.
+  async function accesos(u){
+    const em=String(u.email||"").toLowerCase(),ids=[];
+    try{await FS.getDoc(FS.doc(db,"trips","paris"));ids.push("paris")}catch(e){}
+    try{const s=await FS.getDoc(FS.doc(db,"trips","alemania","users",em));if(s.exists())ids.push("alemania")}catch(e){}
+    return ids;
+  }
+  U.onAuthStateChanged(auth,async u=>{
+    if(!u||u.isAnonymous){usuario=null;bG.disabled=false;$("#bGoogleT").textContent="Entrar con Google";if($("#vNuevo").hidden)vista("vEntrada");return}
+    usuario=u;$("#quien").textContent=u.email;$("#msgViajes").textContent="Buscando tus viajes…";
+    if($("#vNuevo").hidden)vista("vViajes");
+    const ids=await accesos(u);pintarViajes(ids);$("#msgViajes").textContent="";
+  });
+}
+</script>
 </body>
 </html>
