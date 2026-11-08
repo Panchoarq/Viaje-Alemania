@@ -9,3 +9,7 @@ export const TRASLADOS={
  "busan-jeju":[{m:"avion",min:65,eur:45,rec:1,n:"Gimhae ⇄ Jeju; no conviene el ferri (muy largo)."}],
  "gyeongju-jeju":[{m:"avion",min:240,eur:60,rec:1,n:"Bus o tren a Busan (1 h) y vuelo a Jeju; no hay vuelo directo."}]
 };
+
+// Códigos de aeropuerto (vacío = sin vuelos comerciales útiles) y operadores para los enlaces de búsqueda.
+export const AEROPUERTO={seul:"GMP",busan:"PUS",jeju:"CJU",gyeongju:""};
+export const OPERADORES={tren:{n:"Korail (KTX)",u:"https://www.letskorail.com/"},bus:{n:"Kobus (bus exprés)",u:"https://www.kobus.co.kr/"}};

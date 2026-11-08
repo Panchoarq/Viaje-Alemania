@@ -101,8 +101,8 @@ const MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","
 // ---- datos de las ciudades del país (paquetes precargados)
 const C={};          // id -> {id,n,ll,ideal,min,resumen,mejor}
 const listas=PAIS?PAIS.ciudades.filter(c=>c.estado==="lista"):[];
-await Promise.all(listas.map(async c=>{try{const m=await cargar(PAIS.id,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length,local:m.TRANSPORTE&&m.TRANSPORTE.local,pases:m.TRANSPORTE&&m.TRANSPORTE.pases}}catch(e){}}));
-let TR={};try{TR=(await cargarTraslados(PAIS.id)).TRASLADOS}catch(e){}
+await Promise.all(listas.map(async c=>{try{const m=await cargar(PAIS.id,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length,geo:String(m.CIUDAD.geo||"").replace(/^,\s*/,"")||m.CIUDAD.n,local:m.TRANSPORTE&&m.TRANSPORTE.local,pases:m.TRANSPORTE&&m.TRANSPORTE.pases}}catch(e){}}));
+let TR={},AP={},OP={};try{const tm=await cargarTraslados(PAIS.id);TR=tm.TRASLADOS;AP=tm.AEROPUERTO||{};OP=tm.OPERADORES||{}}catch(e){}
 
 // ---- estado
 const KEY="mp_viaje_borrador";
@@ -126,6 +126,12 @@ const llave=(a,b)=>[a,b].sort().join("-");
 function opciones(a,b){const k=llave(a,b);if(TR[k])return TR[k];const d=km(C[a].ll,C[b].ll);return [{m:"bus",min:Math.round(horas(d)*60),eur:Math.round(d*.1),rec:1,n:"Estimación por distancia: aún no tengo datos de esta ruta. Verifica en la web del transportista."}]}
 function eleccion(a,b){const o=opciones(a,b),k=llave(a,b);return o.find(x=>x.m===W.traslado[k])||o.find(x=>x.rec)||o[0]}
 const fm=min=>fh(min/60);
+function fechaTramo(a){if(!(W.cuando==="fecha"&&W.inicio))return"";let d=0;for(const x of W.ciudades){d+=x.noches;if(x.id===a)break}return add(W.inicio,d)}
+function enlaces(a,b,modo){const A=C[a],B=C[b],f=fechaTramo(a),e=encodeURIComponent,L=[];
+  if(modo==="avion"){const o=AP[a]||A.geo,d=AP[b]||B.geo;L.push(["Buscar vuelos en Google Flights",`https://www.google.com/travel/flights?q=${e(`Flights from ${o} to ${d}`+(f?` on ${f}`:""))}`])}
+  else if(modo==="auto")L.push(["Ver ruta en Google Maps",`https://www.google.com/maps/dir/?api=1&origin=${e(A.geo)}&destination=${e(B.geo)}&travelmode=driving`]);
+  else if(OP[modo])L.push([`Horarios y precios en ${OP[modo].n}`,OP[modo].u]);
+  L.push(["Comparar todo en Rome2rio",`https://www.rome2rio.com/map/${e(A.geo)}/${e(B.geo)}`]);return L}
 // mejor orden (la primera ciudad queda fija: es donde aterrizas)
 function mejorOrden(ids){if(ids.length<3)return ids;const [f,...r]=ids;let best=ids,bk=tot(ids);
   const perm=(a,pre=[])=>{if(!a.length){const o=[f,...pre],k=tot(o);if(k<bk-1e-6){bk=k;best=o}return}a.forEach((x,i)=>perm(a.filter((_,j)=>j!==i),[...pre,x]))};
@@ -135,9 +141,9 @@ function mejorOrden(ids){if(ids.length<3)return ids;const [f,...r]=ids;let best=
 function bloqueTraslados(ids){
   const legs=ids.slice(1).map((b,i)=>[ids[i],b]);let min=0,eur=0;
   const cards=legs.map(([a,b])=>{const o=opciones(a,b),e=eleccion(a,b),k=llave(a,b);min+=e.min;eur+=e.eur;
-    return `<div class="cc on" style="display:grid;gap:8px"><b>${esc(C[a].n)} → ${esc(C[b].n)} <small>(${Math.round(km(C[a].ll,C[b].ll))} km)</small></b>${o.map(x=>`<label class="opt" style="padding:8px 10px"><input type="radio" name="t_${k}" data-t="${k}" value="${x.m}" ${x.m===e.m?"checked":""}><span><b>${MODO[x.m]} · ${fm(x.min)} · ${x.eur?"~"+x.eur+" €":"según auto"}</b>${x.rec?' <span class="tag ok">Recomendado</span>':""}<small>${esc(x.n)}</small></span></label>`).join("")}</div>`}).join("");
+    return `<div class="cc on" style="display:grid;gap:8px"><b>${esc(C[a].n)} → ${esc(C[b].n)} <small>(${Math.round(km(C[a].ll,C[b].ll))} km)</small></b>${o.map(x=>`<label class="opt" style="padding:8px 10px"><input type="radio" name="t_${k}" data-t="${k}" value="${x.m}" ${x.m===e.m?"checked":""}><span><b>${MODO[x.m]} · ${fm(x.min)} · ${x.eur?"~"+x.eur+" €":"según auto"}</b>${x.rec?' <span class="tag ok">Recomendado</span>':""}<small>${esc(x.n)}</small></span></label>`).join("")}<div class="chips">${enlaces(a,b,e.m).map(([t,u])=>`<a class="btn sm" href="${u}" target="_blank" rel="noopener">${esc(t)} ↗</a>`).join("")}</div></div>`}).join("");
   return `<p class="paso" style="margin-top:6px">Cómo viajas entre ciudades</p><div class="sel">${cards}</div>
-  <div class="aviso"><b>Total de traslados:</b> ~${fm(min)} y ~${eur} € por persona (sin contar el combustible si vas en auto).<br><small class="muted">Tiempos de estación a estación o de ruta. Precios aproximados de 2025: confirma antes de comprar.</small></div>`}
+  <div class="aviso"><b>Total de traslados:</b> ~${fm(min)} y ~${eur} € por persona (sin contar el combustible si vas en auto).<br><small class="muted">Tiempos de estación a estación o de ruta. Precios aproximados de 2025. Los botones abren la búsqueda ya rellenada: ahí ves la tarifa real y compras.</small></div>`}
 function bloqueLocal(ids){
   const L=ids.filter(id=>C[id].local||C[id].pases);if(!L.length)return"";
   return `<p class="paso" style="margin-top:6px">Moverse dentro de cada ciudad</p><div class="sel">${L.map(id=>`<div class="cc on" style="display:grid;gap:2px"><b>${esc(C[id].n)}</b><small>${esc(C[id].local||"")}</small><small>${esc(C[id].pases||"")}</small></div>`).join("")}</div>`}

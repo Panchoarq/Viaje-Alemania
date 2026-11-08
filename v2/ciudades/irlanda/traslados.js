@@ -13,3 +13,7 @@ export const TRASLADOS={
  "belfast-cork":[{m:"auto",min:285,eur:0,rec:1,n:"Unos 440 km por la M1 y M8."},{m:"tren",min:300,eur:70,n:"Vía Dublín, con cambio."},{m:"bus",min:360,eur:50,n:"Con transbordo en Dublín."}],
  "belfast-killarney":[{m:"auto",min:360,eur:0,rec:1,n:"Unos 530 km; mejor en dos tramos."},{m:"bus",min:450,eur:45,n:"Dos o más cambios; muy largo."}]
 };
+
+// Códigos de aeropuerto (vacío = sin vuelos comerciales útiles) y operadores para los enlaces de búsqueda.
+export const AEROPUERTO={dublin:"DUB",galway:"",cork:"ORK",killarney:"KIR",belfast:"BFS"};
+export const OPERADORES={tren:{n:"Irish Rail",u:"https://www.irishrail.ie/"},bus:{n:"Bus Éireann",u:"https://www.buseireann.ie/"}};

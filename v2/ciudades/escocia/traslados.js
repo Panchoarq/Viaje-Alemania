@@ -13,3 +13,7 @@ export const TRASLADOS={
  "inverness-standrews":[{m:"auto",min:165,eur:0,rec:1,n:"Unos 250 km por la A9 y Perth."},{m:"tren",min:210,eur:35,n:"Con cambio en Perth o Edimburgo y bus desde Leuchars."}],
  "skye-standrews":[{m:"auto",min:330,eur:0,rec:1,n:"Unos 400 km; conviene hacerlo en dos tramos."},{m:"bus",min:480,eur:55,n:"Con dos o más cambios; muy largo."}]
 };
+
+// Códigos de aeropuerto (vacío = sin vuelos comerciales útiles) y operadores para los enlaces de búsqueda.
+export const AEROPUERTO={edimburgo:"EDI",glasgow:"GLA",inverness:"INV",skye:"",standrews:""};
+export const OPERADORES={tren:{n:"ScotRail",u:"https://www.scotrail.co.uk/"},bus:{n:"Citylink",u:"https://www.citylink.co.uk/"}};
