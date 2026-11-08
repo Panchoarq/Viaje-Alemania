@@ -45,17 +45,23 @@ h1,h2{font:700 18px/1.2 var(--f-mono);letter-spacing:.14em;text-transform:upperc
 .sep{display:flex;align-items:center;gap:12px;width:100%;color:var(--muted);font:12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
 .sep::before,.sep::after{content:"";flex:1;border-top:1.5px dashed var(--line)}
 /* creador de viajes */
-.paises{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:22px 18px;width:100%;padding-top:10px}
-.pais{position:relative;font:inherit;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:30px 14px 14px;color:var(--ink);cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.05),0 8px 16px rgba(40,25,10,.18);transform:rotate(var(--r,0deg));transition:transform .15s,box-shadow .15s;display:grid;gap:4px}
-.pais:nth-child(2n){--r:1.2deg}.pais:nth-child(3n){--r:-1.4deg}.pais:nth-child(2n+1){--r:-.8deg}
-.pais:hover,.pais:focus-visible,.pais[aria-pressed="true"]{transform:rotate(0) translateY(-3px);box-shadow:0 1px 0 rgba(0,0,0,.05),0 14px 26px rgba(40,25,10,.26)}
-.pais[aria-pressed="true"]{border-color:var(--ink)}
-.clip{position:absolute;top:-13px;left:20px;width:16px;height:38px;border:3px solid #8f969c;border-radius:9px;border-bottom-color:transparent;box-shadow:1px 1px 1px rgba(0,0,0,.2)}
-.clip::after{content:"";position:absolute;left:2px;top:6px;width:6px;height:22px;border:3px solid #a7aeb5;border-radius:6px;border-top-color:transparent}
-.sello{justify-self:start;width:54px;height:54px;border-radius:50%;border:3px double var(--red);color:var(--red);display:grid;place-items:center;font:700 15px var(--f-mono);letter-spacing:.04em;transform:rotate(-8deg);margin-bottom:4px}
-.pais b{font:700 19px/1.2 var(--f-mono)}
-.pais small{font:13px var(--f-body);color:var(--muted)}
-.tip{position:absolute;left:8px;right:8px;bottom:calc(100% + 6px);background:var(--ink);color:var(--paper);font:13px/1.35 var(--f-body);padding:9px 11px;border-radius:6px;opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .15s,transform .15s;z-index:3}
+.paises{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:30px 18px;width:100%;padding:14px 6px 0}
+.pais{position:relative;font:inherit;text-align:left;background:#fffefa;border:1px solid #e3d9bd;border-radius:3px;padding:11px 11px 14px;color:var(--ink);cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.06),0 12px 22px rgba(40,25,10,.26);transform:rotate(var(--r,0deg));transition:transform .18s,box-shadow .18s;display:grid;gap:10px}
+.pais:nth-child(3n+1){--r:-2.2deg}.pais:nth-child(3n+2){--r:1.6deg}.pais:nth-child(3n){--r:-1deg}
+.pais:hover,.pais:focus-visible,.pais[aria-pressed="true"]{transform:rotate(0) translateY(-4px) scale(1.02);box-shadow:0 1px 0 rgba(0,0,0,.06),0 18px 30px rgba(40,25,10,.32)}
+.pais[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:2px}
+.pais::before{content:"";position:absolute;top:-11px;left:50%;width:74px;height:22px;margin-left:-37px;background:rgba(233,220,180,.88);transform:rotate(-3deg);box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.foto{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;background:#e9dfc4;border:1px solid #d9cca6;box-shadow:inset 0 0 18px rgba(60,40,10,.2)}
+.foto .art{position:absolute;inset:0;display:block}
+.foto .art svg{width:100%;height:100%;display:block}
+.foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cap{display:grid;gap:2px;padding:2px 4px 0}
+.pais b{font:700 18px/1.15 var(--f-mono);letter-spacing:.01em}
+.pais small{font:13px var(--f-mono);color:var(--muted)}
+.fw{position:relative;display:block}
+.timbre{position:absolute;right:-12px;bottom:-16px;width:62px;height:62px;border-radius:50%;border:3px double var(--red);color:var(--red);background:rgba(255,253,246,.78);display:grid;place-items:center;align-content:center;gap:0;transform:rotate(-12deg);font:700 13px var(--f-mono);letter-spacing:.06em;mix-blend-mode:multiply;pointer-events:none}
+.timbre svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tip{position:absolute;left:8px;right:8px;bottom:calc(100% + 10px);background:var(--ink);color:var(--paper);font:13px/1.35 var(--f-body);padding:9px 11px;border-radius:6px;opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .15s,transform .15s;z-index:3}
 .tip::after{content:"";position:absolute;top:100%;left:22px;border:6px solid transparent;border-top-color:var(--ink)}
 @media (hover:hover){.pais:hover .tip,.pais:focus-visible .tip{opacity:1;transform:none}}
 .detalle{width:100%;background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--red);border-radius:6px;padding:16px 18px;display:grid;gap:10px;box-shadow:0 6px 14px rgba(40,25,10,.14)}
@@ -139,8 +145,16 @@ function pintarViajes(ids){
 }
 
 // Nuevo viaje
+const ARTE={
+ "escocia":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f5b94"/><path d="M-5 -5L105 105M105 -5L-5 105" stroke="#f7f1e1" stroke-width="15"/><circle cx="50" cy="50" r="22" fill="#f1e6c8" opacity=".9"/><path d="M50 62V42M50 50c-9-1-12-8-9-14 6 1 9 5 9 14zm0 0c9-1 12-8 9-14-6 1-9 5-9 14zM44 62c0-6 3-9 6-9s6 3 6 9" fill="#6b3f86" stroke="#4a2a62" stroke-width="2"/></svg>',
+ "irlanda":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3b7d4f"/><circle cx="50" cy="50" r="40" fill="#e9dfc4" opacity=".92"/><g fill="#2f6b42"><circle cx="50" cy="35" r="12"/><circle cx="36" cy="50" r="12"/><circle cx="64" cy="50" r="12"/><circle cx="50" cy="52" r="10"/></g><path d="M50 58C50 70 46 78 38 84" stroke="#2f6b42" stroke-width="5" fill="none" stroke-linecap="round"/></svg>',
+ "corea-del-sur":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#f1e6c8"/><circle cx="50" cy="50" r="22" fill="#2b4c8c"/><path d="M28 50a22 22 0 0 1 44 0a11 11 0 0 1-22 0a11 11 0 0 0-22 0z" fill="#c8312f"/><g stroke="#2a2219" stroke-width="5" stroke-linecap="round"><path d="M12 14l12-8M16 22l12-8M76 6l12 8M72 14l12 8M12 86l12 8M16 78l12 8M76 94l12-8M72 86l12-8" opacity=".85"/></g></svg>'};
+const ICONO={
+ "escocia":'<svg viewBox="0 0 24 24"><path d="M3 3l18 18M21 3L3 21"/></svg>',
+ "irlanda":'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><circle cx="7.5" cy="13" r="4"/><circle cx="16.5" cy="13" r="4"/><path d="M12 15c0 3-1 5-3 7"/></svg>',
+ "corea-del-sur":'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M4 12a8 8 0 0 1 16 0a4 4 0 0 1-8 0a4 4 0 0 0-8 0z"/></svg>'};
 function pintarPaises(){
-  $("#paises").innerHTML=disponibles().map(p=>`<button type="button" class="pais" data-p="${p.id}" aria-pressed="false"><span class="clip" aria-hidden="true"></span><span class="sello" aria-hidden="true">${SELLO[p.id]}</span><b>${p.n}</b><small>${p.ciudades.filter(c=>c.estado==="lista").length} ciudades listas</small><span class="tip" role="tooltip">${RESENA[p.id].c}</span></button>`).join("");
+  $("#paises").innerHTML=disponibles().map(p=>`<button type="button" class="pais" data-p="${p.id}" aria-pressed="false" aria-label="${p.n}"><span class="fw"><span class="foto"><span class="art" aria-hidden="true">${ARTE[p.id]}</span><img src="img/paises/${p.id}.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="timbre" aria-hidden="true">${ICONO[p.id]}<span>${SELLO[p.id]}</span></span></span><span class="cap"><b>${p.n}</b><small>${p.ciudades.filter(c=>c.estado==="lista").length} ciudades listas</small></span><span class="tip" role="tooltip">${RESENA[p.id].c}</span></button>`).join("");
   document.querySelectorAll(".pais").forEach(b=>b.onclick=()=>elegir(b.dataset.p));
 }
 function elegir(id){
