@@ -1,2 +1,2 @@
-Fotos de los países para la pantalla de entrada: escocia.jpg, irlanda.jpg, corea-del-sur.jpg (cuadradas, ~800x800).
+Fotos de los países para la pantalla de entrada: escocia.jpg, irlanda.jpg, corea-del-sur.jpg (apaisadas 4:3, ~960 px de ancho).
 Si falta una, se muestra la ilustración de respaldo.
