@@ -88,7 +88,7 @@ input[type=date],input[type=time],input[type=text],input[type=number]{font:16px 
 </main>
 
 <script type="module">
-import {PAISES,cargar} from "./v2/ciudades/index.js";
+import {PAISES,cargar,cargarTraslados} from "./v2/ciudades/index.js";
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const q=new URLSearchParams(location.search),paisId=q.get("pais");
@@ -101,11 +101,12 @@ const MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","
 // ---- datos de las ciudades del país (paquetes precargados)
 const C={};          // id -> {id,n,ll,ideal,min,resumen,mejor}
 const listas=PAIS?PAIS.ciudades.filter(c=>c.estado==="lista"):[];
-await Promise.all(listas.map(async c=>{try{const m=await cargar(PAIS.id,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length}}catch(e){}}));
+await Promise.all(listas.map(async c=>{try{const m=await cargar(PAIS.id,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length,local:m.TRANSPORTE&&m.TRANSPORTE.local,pases:m.TRANSPORTE&&m.TRANSPORTE.pases}}catch(e){}}));
+let TR={};try{TR=(await cargarTraslados(PAIS.id)).TRASLADOS}catch(e){}
 
 // ---- estado
 const KEY="mp_viaje_borrador";
-const W0={pais:PAIS&&PAIS.id,cuando:"fecha",inicio:"",hora:"",ciudades:[],hoteles:"reco",estandar:"medio",comida:[],comidaOtra:"",ritmo:{}};
+const W0={pais:PAIS&&PAIS.id,cuando:"fecha",inicio:"",hora:"",ciudades:[],hoteles:"reco",estandar:"medio",comida:[],comidaOtra:"",ritmo:{},traslado:{}};
 let W=W0;try{const g=JSON.parse(localStorage.getItem(KEY)||"null");if(g&&g.pais===W0.pais)W=Object.assign({},W0,g)}catch(e){}
 const guardar=()=>{try{localStorage.setItem(KEY,JSON.stringify(W))}catch(e){}};
 let paso=0;const PASOS=["Cuándo","Ciudades","Orden","Alojamiento","Comida","Ritmo","Resumen"];
@@ -120,12 +121,26 @@ const add=(s,n)=>{const d=D(s);d.setDate(d.getDate()+n);return iso(d)};
 const pretty=s=>{const d=D(s);return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}`};
 const largo=()=>W.ciudades.reduce((t,c,i)=>i?t+km(C[W.ciudades[i-1].id].ll,C[c.id].ll):0,0);
 const tot=a=>a.reduce((t,id,i)=>i?t+km(C[a[i-1]].ll,C[id].ll):0,0);
+const MODO={tren:"Tren",bus:"Bus",avion:"Avión",auto:"Auto",ferri:"Ferri"};
+const llave=(a,b)=>[a,b].sort().join("-");
+function opciones(a,b){const k=llave(a,b);if(TR[k])return TR[k];const d=km(C[a].ll,C[b].ll);return [{m:"bus",min:Math.round(horas(d)*60),eur:Math.round(d*.1),rec:1,n:"Estimación por distancia: aún no tengo datos de esta ruta. Verifica en la web del transportista."}]}
+function eleccion(a,b){const o=opciones(a,b),k=llave(a,b);return o.find(x=>x.m===W.traslado[k])||o.find(x=>x.rec)||o[0]}
+const fm=min=>fh(min/60);
 // mejor orden (la primera ciudad queda fija: es donde aterrizas)
 function mejorOrden(ids){if(ids.length<3)return ids;const [f,...r]=ids;let best=ids,bk=tot(ids);
   const perm=(a,pre=[])=>{if(!a.length){const o=[f,...pre],k=tot(o);if(k<bk-1e-6){bk=k;best=o}return}a.forEach((x,i)=>perm(a.filter((_,j)=>j!==i),[...pre,x]))};
   if(r.length<=7)perm(r);return best}
 
 // ---- pasos
+function bloqueTraslados(ids){
+  const legs=ids.slice(1).map((b,i)=>[ids[i],b]);let min=0,eur=0;
+  const cards=legs.map(([a,b])=>{const o=opciones(a,b),e=eleccion(a,b),k=llave(a,b);min+=e.min;eur+=e.eur;
+    return `<div class="cc on" style="display:grid;gap:8px"><b>${esc(C[a].n)} → ${esc(C[b].n)} <small>(${Math.round(km(C[a].ll,C[b].ll))} km)</small></b>${o.map(x=>`<label class="opt" style="padding:8px 10px"><input type="radio" name="t_${k}" data-t="${k}" value="${x.m}" ${x.m===e.m?"checked":""}><span><b>${MODO[x.m]} · ${fm(x.min)} · ${x.eur?"~"+x.eur+" €":"según auto"}</b>${x.rec?' <span class="tag ok">Recomendado</span>':""}<small>${esc(x.n)}</small></span></label>`).join("")}</div>`}).join("");
+  return `<p class="paso" style="margin-top:6px">Cómo viajas entre ciudades</p><div class="sel">${cards}</div>
+  <div class="aviso"><b>Total de traslados:</b> ~${fm(min)} y ~${eur} € por persona (sin contar el combustible si vas en auto).<br><small class="muted">Tiempos de estación a estación o de ruta. Precios aproximados de 2025: confirma antes de comprar.</small></div>`}
+function bloqueLocal(ids){
+  const L=ids.filter(id=>C[id].local||C[id].pases);if(!L.length)return"";
+  return `<p class="paso" style="margin-top:6px">Moverse dentro de cada ciudad</p><div class="sel">${L.map(id=>`<div class="cc on" style="display:grid;gap:2px"><b>${esc(C[id].n)}</b><small>${esc(C[id].local||"")}</small><small>${esc(C[id].pases||"")}</small></div>`).join("")}</div>`}
 const vistas=[
  // 0 Cuándo
  ()=>`<p class="paso">Paso 1 de 7 · ${PASOS[0]}</p><h1>¿Cuándo llegas a ${esc(PAIS.n)}?</h1>
@@ -147,12 +162,12 @@ const vistas=[
   const igual=mejor.every((x,i)=>x===ids[i]);
   const fechas=W.cuando==="fecha"&&W.inicio;let dia=0;
   const lineas=W.ciudades.map((x,i)=>{const c=C[x.id];const d0=fechas?pretty(add(W.inicio,dia)):"Día "+(dia+1);dia+=x.noches;const d1=fechas?pretty(add(W.inicio,dia)):"Día "+(dia+1);
-    const via=i?(()=>{const k=km(C[ids[i-1]].ll,c.ll);return `<div class="via">↓ ${Math.round(k)} km desde ${esc(C[ids[i-1]].n)} · ~${fh(horas(k))}</div>`})():"";
+    const via=i?(()=>{const k=km(C[ids[i-1]].ll,c.ll),e=eleccion(ids[i-1],ids[i]);return `<div class="via">↓ ${MODO[e.m]} · ${fm(e.min)} · ${e.eur?"~"+e.eur+" €":"costo según auto"} (${Math.round(k)} km desde ${esc(C[ids[i-1]].n)})</div>`})():"";
     return `<div class="n"><div class="dot"><span>${i+1}</span></div><div class="t">${via}<b>${esc(c.n)}</b><div class="via">${d0} → ${d1} · ${x.noches} noche${x.noches>1?"s":""}</div></div></div>`}).join("");
   const aviso=igual?`<div class="aviso"><b>El orden tiene sentido.</b> Es el recorrido más corto que empieza en ${esc(C[ids[0]].n)}: ${Math.round(k0)} km de traslados en total.</div>`
    :(ahorro>=60&&ahorro/k0>=.15)?`<div class="aviso mal"><b>Te sugiero otro orden:</b> ${mejor.map(id=>esc(C[id].n)).join(" → ")}.<br>Tu ruta suma ${Math.round(k0)} km de traslados y esta ${Math.round(k1)} km: ahorras ${Math.round(ahorro)} km (~${fh(horas(ahorro))} menos en el camino) y evitas volver sobre tus pasos.<br><button class="btn sm" id="aplicar" type="button" style="margin-top:8px">Usar el orden sugerido</button></div>`
    :`<div class="aviso"><b>Tu orden está bien.</b> Hay un recorrido un poco más corto (${mejor.map(id=>esc(C[id].n)).join(" → ")}, ${Math.round(ahorro)} km menos), pero la diferencia es pequeña.</div>`;
-  return `<p class="paso">Paso 3 de 7 · ${PASOS[2]}</p><h1>Tu ruta, ¿tiene sentido?</h1>${aviso}<div class="tl">${lineas}</div><p class="muted">Distancias en línea recta y tiempos estimados; más adelante verás los trenes y buses reales entre ciudades.</p>`},
+  return `<p class="paso">Paso 3 de 7 · ${PASOS[2]}</p><h1>Tu ruta, ¿tiene sentido?</h1>${aviso}<div class="tl">${lineas}</div>${bloqueTraslados(ids)}${bloqueLocal(ids)}`},
  // 3 Alojamiento
  ()=>`<p class="paso">Paso 4 de 7 · ${PASOS[3]}</p><h1>¿Y dónde te quedas?</h1>
   <label class="opt"><input type="radio" name="hot" value="reservado" ${W.hoteles==="reservado"?"checked":""}><span><b>Ya tengo hoteles reservados</b><small>Los anotas después, ciudad por ciudad, y el programa parte desde ahí.</small></span></label>
@@ -175,6 +190,7 @@ const vistas=[
    <tr><td>Alojamiento</td><td>${W.hoteles==="reservado"?"Ya reservado":"Recomendaciones · "+({eco:"económico",medio:"medio",conf:"confort"}[W.estandar])}</td></tr>
    <tr><td>Comida</td><td>${W.comida.length||W.comidaOtra?esc([...W.comida.map(k=>({veg:"Vegetariano",vegano:"Vegano",singluten:"Sin gluten",sinmar:"Sin mariscos",rapida:"Comida rápida",local:"Cocina local",barato:"Económico",halal:"Halal"}[k])),W.comidaOtra].filter(Boolean).join(", ")):"Sin preferencias"}</td></tr>
    <tr><td>Ritmos</td><td>${W.ciudades.map(x=>esc(C[x.id].n)+": "+({rap:"rápido",int:"intermedio",rel:"relajado"}[W.ritmo[x.id]||"int"])).join(" · ")}</td></tr></table>
+  ${fechas?"":`<div class="cc on" style="display:grid;gap:6px"><b>¿Ya tienes la fecha de llegada?</b><small class="muted">Si la agregas, calculo las fechas de cada día en cada ciudad. Puedes hacerlo más tarde, volviendo a la configuración.</small><input type="date" id="fechaTarde"></div>`}
   <div class="aviso">Tu ruta queda guardada en este dispositivo. El siguiente paso, la página de configuración con el plano y la línea de tiempo, se habilita en la próxima etapa.</div>`}
 ];
 const EXPL={rap:"Más comprimido: hasta ~7,5 h de actividades al día, para ver lo máximo.",int:"Equilibrado: ~5,5 h de actividades al día, con pausas para comer y caminar.",rel:"Con calma: ~4 h de actividades al día y tiempo libre para pasear sin apuro."};
@@ -205,7 +221,9 @@ function enlazar(){
   document.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const i=+b.dataset.dn,a=W.ciudades;[a[i+1],a[i]]=[a[i],a[i+1]];guardar();pintar()});
   document.querySelectorAll("[data-mn]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mn];x.noches=Math.max(1,x.noches-1);guardar();pintar()});
   document.querySelectorAll("[data-mas]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mas];x.noches=Math.min(30,x.noches+1);guardar();pintar()});
+  const ft=$("#fechaTarde");if(ft)ft.onchange=()=>{if(ft.value){W.cuando="fecha";W.inicio=ft.value;guardar();pintar()}};
   const ap=$("#aplicar");if(ap)ap.onclick=()=>{const ids=W.ciudades.map(c=>c.id),m=mejorOrden(ids);W.ciudades=m.map(id=>W.ciudades.find(c=>c.id===id));guardar();pintar()};
+  document.querySelectorAll("[data-t]").forEach(r=>r.onchange=()=>{W.traslado[r.dataset.t]=r.value;guardar();const y=scrollY;pintar();scrollTo(0,y)});
   document.querySelectorAll('input[name="hot"]').forEach(r=>r.onchange=()=>{W.hoteles=r.value;$("#bloqueEst").hidden=W.hoteles!=="reco";guardar()});
   document.querySelectorAll('input[name="est"]').forEach(r=>r.onchange=()=>{W.estandar=r.value;guardar()});
   document.querySelectorAll("[data-co]").forEach(c=>c.onchange=()=>{const k=c.dataset.co;W.comida=c.checked?[...new Set([...W.comida,k])]:W.comida.filter(x=>x!==k);guardar()});

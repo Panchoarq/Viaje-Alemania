@@ -26,3 +26,4 @@ export const PAISES=[
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 export function buscar(q){q=norm(q||"");return PAISES.flatMap(p=>p.ciudades.map(c=>({...c,pais:p.n,paisId:p.id,p:p.p}))).filter(c=>norm(c.n+" "+c.pais).includes(q))}
 export const cargar=(paisId,ciudadId)=>import(`./${paisId}/${ciudadId}.js`);
+export const cargarTraslados=paisId=>import(`./${paisId}/traslados.js`);
