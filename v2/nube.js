@@ -60,3 +60,18 @@ export async function sincronizar(em){
   escribirLocal(res);
   return res;
 }
+
+// Gastos del viaje: subcolección viajes/{id}/gastos (misma regla de dueño que el viaje).
+export async function gastosListar(id){
+  const {FS,db}=await conectar();
+  const s=await conTope(FS.getDocs(FS.collection(db,"viajes",id,"gastos")),8000);
+  return s.docs.map(d=>d.data());
+}
+export async function gastoSet(id,g){
+  const {FS,db}=await conectar();
+  await conTope(FS.setDoc(FS.doc(db,"viajes",id,"gastos",g.id),limpio(g)));
+}
+export async function gastoDel(id,gid){
+  const {FS,db}=await conectar();
+  await conTope(FS.deleteDoc(FS.doc(db,"viajes",id,"gastos",gid)));
+}

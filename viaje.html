@@ -60,10 +60,36 @@ input[type=date],input[type=time]{font:16px var(--f-mono);padding:8px 10px;borde
 .tbl td:last-child{text-align:right;font:700 13px var(--f-mono)}
 .aviso{padding:10px 12px;border-radius:8px;border:1.5px solid var(--ok);background:#f3faf5;font-size:15px}
 .msg{font:13px var(--f-mono);color:var(--red);min-height:1.2em}
+
+/* Pestañas del motor */
+h3{font:700 15px var(--f-mono);margin:6px 0 2px}
+.sub{display:flex;gap:6px;flex-wrap:wrap}
+.sub button{font:700 12px var(--f-mono);padding:6px 11px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
+.sub button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.lista{display:grid;gap:8px}
+.att{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.att.on{border-color:var(--ink);background:#fffbe9}
+.att input{width:18px;height:18px;margin-top:2px}
+.att b{font:700 15px var(--f-mono)}.att small{display:block;font:12.5px var(--f-mono);color:var(--muted)}
+.att .d{display:block;font-size:14px;margin-top:3px}.att details{margin-top:5px;font-size:14px}.att summary{cursor:pointer;font:700 12px var(--f-mono)}
+.tp{font:700 10px var(--f-mono);font-style:normal;background:var(--red);color:#fff;border-radius:999px;padding:1px 7px;vertical-align:2px}
+.dia{border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:10px;display:grid;gap:6px}
+.dia h3{display:flex;justify-content:space-between;gap:8px;margin:0;border-bottom:2px solid var(--ink);padding-bottom:4px}.dia h3 small{font:12px var(--f-mono);color:var(--muted);font-weight:400}
+.act{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center}
+.act>span{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:700 11px var(--f-mono)}
+.act small{display:block;font:12px var(--f-mono);color:var(--muted)}.act select{font:12px var(--f-mono);padding:4px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;max-width:92px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.form input,.form select{font:16px var(--f-mono);padding:8px 10px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);width:100%}
+.fld.chk{display:flex;align-items:center;gap:8px}.fld.chk input{width:auto}
+.fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+.aviso.alerta{border-color:var(--red);background:#fdf1ee}
+.guia{border-left:5px solid var(--c);padding-left:10px}.barrios p{font-size:14px;margin:2px 0}
+ul{margin:0;padding-left:20px}
 [hidden]{display:none!important}
 /* Menú de la aplicación (mismas 10 pestañas que París): arriba en escritorio, abajo en el celular */
 .tabs{display:flex;gap:4px;border-bottom:2.5px solid var(--ink);overflow-x:auto;position:sticky;top:0;z-index:30;background:var(--desk);padding-top:6px;scrollbar-width:none}
 .tabs button{font:700 13px var(--f-mono);padding:9px 12px;border:1.5px solid var(--ink);border-bottom:0;border-radius:10px 10px 0 0;background:color-mix(in srgb,var(--paper) 55%,var(--desk));color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+@media (min-width:901px){.tabs{flex-wrap:wrap;overflow:visible}.tabs button{padding:8px 10px;font-size:12px}}
 .tabs button .ic{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tabs button .sh{display:none}
 .tabs button[aria-selected="true"]{background:#ffe66d;color:var(--ink);padding-top:11px}
@@ -102,12 +128,14 @@ input[type=date],input[type=time]{font:16px var(--f-mono);padding:8px 10px;borde
       <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="editar" href="#">Cambiar mi ruta</a><button class="btn" id="borrar" type="button">Eliminar este viaje</button></div><p class="msg" id="msg" role="status"></p>
     </section>
   </div>
+  <div id="otra" hidden></div>
   <p class="aviso" id="vacio" hidden>No encontré este viaje en este dispositivo. <a href="/">Volver a Mis viajes</a>.</p>
 </main>
 
 <script type="module">
 import {PAISES,cargar,cargarTraslados} from "./v2/ciudades/index.js";
 import * as NUBE from "./v2/nube.js";
+import {dibujar} from "./v2/motor.js";
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const q=new URLSearchParams(location.search),id=q.get("id"),DEMO=q.has("demo");
@@ -135,11 +163,7 @@ const SEC=[["cfg","1 · Configurar","Config.",'<circle cx="12" cy="12" r="3"/><p
  ["tra","8 · Transporte","Transp.",'<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/>'],
  ["hot","9 · Alojamiento","Aloj.",'<path d="M3 19V6M3 15h18v4M21 15v-2.5a3 3 0 0 0-3-3h-7V15"/><circle cx="7" cy="11.5" r="1.6"/>'],
  ["buy","10 · Trámites previos","Trámites",'<path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>']];
-document.querySelector("#menu").innerHTML=SEC.map(([k,l,s,d])=>`<button type="button" role="tab" data-sec="${k}" aria-selected="${k==="cfg"}" ${k==="cfg"?"":'aria-disabled="true"'} title="${l}">${ic(d)}<span class="lg">${l}</span><span class="sh">${s}</span></button>`).join("");
-document.querySelector("#menu").addEventListener("click",e=>{const b=e.target.closest("[data-sec]");if(!b||b.dataset.sec==="cfg")return;
-  document.querySelector(".aviso-pronto")?.remove();const n=document.createElement("div");n.className="aviso-pronto";n.setAttribute("role","status");
-  n.textContent="«"+b.title.replace(/^\d+ · /,"")+"» llega con el Programa; aún no está disponible.";document.body.appendChild(n);setTimeout(()=>n.remove(),3200)});
-
+document.querySelector("#menu").innerHTML=SEC.map(([k,l,s,d])=>`<button type="button" role="tab" data-sec="${k}" aria-selected="${k==="cfg"}" title="${l}">${ic(d)}<span class="lg">${l}</span><span class="sh">${s}</span></button>`).join("");
 // ---- viaje guardado en este dispositivo
 const LIST="mp_viajes";
 const leer=()=>{try{return JSON.parse(localStorage.getItem(LIST)||"[]")}catch(e){return[]}};
@@ -151,8 +175,8 @@ if(!viaje&&!DEMO&&id){ // quizá se creó en otro dispositivo: se busca en la cu
 if(!viaje){$("#vacio").hidden=false}
 else{
   const W=viaje.cfg,PAIS=PAISES.find(p=>p.id===viaje.pais);
-  const C={};let TR={};
-  await Promise.all(W.ciudades.map(async x=>{try{const m=await cargar(PAIS.id,x.id);C[x.id]={n:m.CIUDAD.n,ll:m.CIUDAD.ll}}catch(e){}}));
+  const C={},M={};let TR={};
+  await Promise.all(W.ciudades.map(async x=>{try{const m=await cargar(PAIS.id,x.id);C[x.id]={n:m.CIUDAD.n,ll:m.CIUDAD.ll};M[x.id]=m}catch(e){}}));
   try{TR=(await cargarTraslados(PAIS.id)).TRASLADOS}catch(e){}
   const llave=(a,b)=>[a,b].sort().join("-");
   const eleccion=(a,b)=>{const o=TR[llave(a,b)]||[{m:"bus",min:Math.round(horas(km(C[a].ll,C[b].ll))*60),eur:Math.round(km(C[a].ll,C[b].ll)*.1),rec:1}];return o.find(x=>x.m===(W.traslado||{})[llave(a,b)])||o.find(x=>x.rec)||o[0]};
@@ -215,7 +239,22 @@ else{
       if(viaje.owner&&!DEMO){b.textContent="Eliminando…";try{await NUBE.borrar(id)}catch(e){console.warn("nube",e);b.textContent="No pude eliminarlo de tu cuenta. Revisa tu conexión.";b.dataset.arm="";return}}
       escribir(leer().filter(v=>v.id!==id));location.href="/"};
   }
-  $("#cuerpo").hidden=false;pintar();
+  const CTX={W,viaje,ids:null,M,PAIS,esc,pretty,add,km,fh,DEMO,nube:NUBE,MODO,eleccion,fechas,guardar,
+    render:()=>mostrar(actual()),ir:k=>{location.hash=k},actual:()=>actual()};
+  const actual=()=>{const k=location.hash.slice(1);return SEC.some(s=>s[0]===k)?k:"cfg"};
+  function mostrar(k){
+    CTX.ids=W.ciudades.map(c=>c.id);
+    document.querySelectorAll("#menu button").forEach(b=>b.setAttribute("aria-selected",b.dataset.sec===k));
+    const cfg=k==="cfg";$("#cuerpo").hidden=!cfg;$("#otra").hidden=cfg;
+    $("h2").textContent=cfg?"Paso 1 · Configurar":"Paso "+(SEC.findIndex(s=>s[0]===k)+1)+" · "+SEC.find(s=>s[0]===k)[1].replace(/^\d+ · /,"");
+    {const nn=W.ciudades.reduce((t,x)=>t+x.noches,0),nom=CTX.ids.map(i=>C[i].n).join(" · ");
+     $("#titulo").textContent="Viaje a "+PAIS.n;$("#subtitulo").textContent=fechas()?`${pretty(W.inicio)} → ${pretty(add(W.inicio,nn))} · ${nn} noches · ${nom}`:`${nn} noches · ${nom} · sin fechas todavía`}
+    if(cfg){pintar();return}
+    const y=scrollY;dibujar(k,CTX,$("#otra"));scrollTo(0,y);
+  }
+  document.querySelector("#menu").addEventListener("click",e=>{const b=e.target.closest("[data-sec]");if(b){location.hash=b.dataset.sec==="cfg"?"":b.dataset.sec;if(b.dataset.sec==="cfg")mostrar("cfg");scrollTo(0,0)}});
+  addEventListener("hashchange",()=>{mostrar(actual());scrollTo(0,0)});
+  mostrar(actual());
 }
 </script>
 </body>
