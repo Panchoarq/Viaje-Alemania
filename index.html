@@ -35,6 +35,12 @@ h1,h2{font:700 18px/1.2 var(--f-mono);letter-spacing:.14em;text-transform:upperc
 .trip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;padding:16px 16px 14px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 6px 14px rgba(40,25,10,.16);transition:transform .15s}
 .trip:hover,.trip:focus-visible{transform:translateY(-2px) rotate(-.3deg)}
 .trip:focus-visible,.pais:focus-visible,.btn:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.trip.st{grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:16px;align-items:center;padding:16px 16px 16px 18px}
+.trip.st .cuerpo{display:grid;gap:4px;min-width:0}
+.trip.st .fw::before{width:58px;height:18px;margin-left:-29px;top:-10px}
+.trip.st .timbre{width:38px;height:38px;right:-6px;bottom:-4px;font-size:10px}
+.trip.st .timbre svg{width:18px;height:18px}
+.trip.st .foto{box-shadow:0 1px 0 rgba(0,0,0,.06),0 6px 12px rgba(40,25,10,.28)}
 .flag{grid-row:span 3;font-size:34px;line-height:1}
 .trip b{font:700 20px/1.2 var(--f-mono)}
 .trip small{font:13px var(--f-mono);color:var(--muted)}
@@ -123,9 +129,13 @@ const FBC={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-
 const RESENA={
  "escocia":{c:"Castillos sobre volcanes, whisky, lagos con leyendas y las Highlands.",l:"Edimburgo y su castillo, el ambiente de Glasgow, el monstruo del Loch Ness y los paisajes de Skye. Cuna del golf, de los kilts y de las gaitas."},
  "irlanda":{c:"Acantilados, pubs con música en vivo y el verde más verde de Europa.",l:"De Dublín y su Libro de Kells a los acantilados de Moher, el Anillo de Kerry y la costa de Antrim, con 5.000 años de historia."},
- "corea-del-sur":{c:"Palacios de 600 años junto a rascacielos, K-pop y comida callejera.",l:"Seúl y sus palacios, los templos de Busan frente al mar, la isla volcánica de Jeju y la antigua capital Silla en Gyeongju."}
+ "corea-del-sur":{c:"Palacios de 600 años junto a rascacielos, K-pop y comida callejera.",l:"Seúl y sus palacios, los templos de Busan frente al mar, la isla volcánica de Jeju y la antigua capital Silla en Gyeongju."},
+ "inglaterra":{c:"Museos gratis, palacios, parques enormes y teatro en Londres.",l:"Londres con sus museos de primer nivel, el Támesis, los palacios reales y los barrios con mercados; fácil de combinar con París en tren."},
+ "francia":{c:"Arte, cafés, castillos y escapadas en tren desde París.",l:"París y sus museos, los barrios para caminar, la cocina de bistró y las escapadas a castillos y ciudades cercanas."},
+ "alemania":{c:"Historia, cervecerías, trenes rápidos y mercados navideños.",l:"Berlín y su historia reciente, Múnich y Baviera, el puerto de Hamburgo: ciudades muy distintas, bien conectadas en tren."},
+ "chequia":{c:"Praga medieval: puentes, castillo y cerveza de primera.",l:"Praga y su casco histórico casi intacto, con el puente de Carlos, el castillo y la plaza del Reloj Astronómico."}
 };
-const SELLO={"escocia":"SCO","irlanda":"IRL","corea-del-sur":"KOR"};
+const SELLO={"escocia":"SCO","irlanda":"IRL","corea-del-sur":"KOR","inglaterra":"ENG","francia":"FRA","alemania":"GER","chequia":"CZE"};
 const disponibles=()=>PAISES.filter(p=>RESENA[p.id]&&p.ciudades.some(c=>c.estado==="lista"));
 
 // Viajes que ya existen en la app
@@ -140,7 +150,8 @@ let usuario=null,alVolver="vEntrada";
 const locales=()=>{try{return JSON.parse(localStorage.getItem("mp_viajes")||"[]").filter(v=>!v.owner||!usuario||v.owner===String(usuario.email||"").toLowerCase())}catch(e){return[]}};
 function pintarViajes(ids){
   const L=VIAJES.filter(v=>ids.includes(v.id)),N=locales();
-  const nuevos=N.map(v=>{const p=PAISES.find(x=>x.id===v.pais)||{n:v.pais},noches=(v.cfg.ciudades||[]).reduce((t,c)=>t+c.noches,0);return `<a class="trip fr" style="--c:#a8352b" href="viaje.html?id=${encodeURIComponent(v.id)}"><span class="flag" aria-hidden="true">✈</span><b>Viaje a ${p.n}</b><small>${noches} noches · ${(v.cfg.ciudades||[]).length} ciudad${(v.cfg.ciudades||[]).length>1?"es":""}${v.cfg.cuando==="fecha"&&v.cfg.inicio?" · desde "+v.cfg.inicio:" · sin fechas"}</small><span class="tag open">${v.owner?"Nuevo · en tu cuenta":"Nuevo · en este dispositivo"}</span></a>`}).join("");
+  const nuevos=N.map(v=>{const p=PAISES.find(x=>x.id===v.pais)||{n:v.pais},ci=(v.cfg.ciudades||[]),noches=ci.reduce((t,c)=>t+c.noches,0);
+    return `<a class="trip st" href="viaje.html?id=${encodeURIComponent(v.id)}"><span class="fw"><span class="foto"><span class="art" aria-hidden="true">${ARTE[v.pais]||""}</span><img src="img/paises/${v.pais}.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="timbre" aria-hidden="true">${ICONO[v.pais]||""}<span>${SELLO[v.pais]||""}</span></span></span><span class="cuerpo"><b>Viaje a ${p.n}</b><small>${noches} noches · ${ci.length} ciudad${ci.length>1?"es":""}${v.cfg.cuando==="fecha"&&v.cfg.inicio?" · desde "+v.cfg.inicio:" · sin fechas"}</small><span class="tag open">${v.owner?"Nuevo · en tu cuenta":"Nuevo · en este dispositivo"}</span></span></a>`}).join("");
   $("#lista").innerHTML=(L.length||N.length)?L.map(v=>`<a class="trip ${v.cls}" href="${v.href}"><span class="flag" aria-hidden="true">${v.flag}</span><b>${v.t}</b><small>${v.s}</small>${v.tag}</a>`).join("")+nuevos:
     `<div class="empty">Todavía no tienes viajes con este correo.<br>Crea uno nuevo con el botón de abajo.</div>`;
 }
@@ -149,10 +160,18 @@ function pintarViajes(ids){
 const ARTE={
  "escocia":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#2f5b94"/><path d="M-5 -5L105 105M105 -5L-5 105" stroke="#f7f1e1" stroke-width="15"/><circle cx="50" cy="50" r="22" fill="#f1e6c8" opacity=".9"/><path d="M50 62V42M50 50c-9-1-12-8-9-14 6 1 9 5 9 14zm0 0c9-1 12-8 9-14-6 1-9 5-9 14zM44 62c0-6 3-9 6-9s6 3 6 9" fill="#6b3f86" stroke="#4a2a62" stroke-width="2"/></svg>',
  "irlanda":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#3b7d4f"/><circle cx="50" cy="50" r="40" fill="#e9dfc4" opacity=".92"/><g fill="#2f6b42"><circle cx="50" cy="35" r="12"/><circle cx="36" cy="50" r="12"/><circle cx="64" cy="50" r="12"/><circle cx="50" cy="52" r="10"/></g><path d="M50 58C50 70 46 78 38 84" stroke="#2f6b42" stroke-width="5" fill="none" stroke-linecap="round"/></svg>',
+ "inglaterra":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#f1e6c8"/><rect x="42" width="16" height="100" fill="#c8312f"/><rect y="42" width="100" height="16" fill="#c8312f"/></svg>',
+ "francia":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="34" height="100" fill="#2b4c8c"/><rect x="34" width="33" height="100" fill="#f7f1e1"/><rect x="67" width="33" height="100" fill="#c8312f"/></svg>',
+ "alemania":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="34" fill="#2a2219"/><rect y="34" width="100" height="33" fill="#c8312f"/><rect y="67" width="100" height="33" fill="#d9a21b"/></svg>',
+ "chequia":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="50" fill="#f7f1e1"/><rect y="50" width="100" height="50" fill="#c8312f"/><path d="M0 0L55 50L0 100z" fill="#2b4c8c"/></svg>',
  "corea-del-sur":'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><rect width="100" height="100" fill="#f1e6c8"/><circle cx="50" cy="50" r="22" fill="#2b4c8c"/><path d="M28 50a22 22 0 0 1 44 0a11 11 0 0 1-22 0a11 11 0 0 0-22 0z" fill="#c8312f"/><g stroke="#2a2219" stroke-width="5" stroke-linecap="round"><path d="M12 14l12-8M16 22l12-8M76 6l12 8M72 14l12 8M12 86l12 8M16 78l12 8M76 94l12-8M72 86l12-8" opacity=".85"/></g></svg>'};
 const ICONO={
  "escocia":'<svg viewBox="0 0 24 24"><path d="M3 3l18 18M21 3L3 21"/></svg>',
  "irlanda":'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><circle cx="7.5" cy="13" r="4"/><circle cx="16.5" cy="13" r="4"/><path d="M12 15c0 3-1 5-3 7"/></svg>',
+ "inglaterra":'<svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg>',
+ "francia":'<svg viewBox="0 0 24 24"><path d="M12 3l-3 8h6zM9 11l-3 10M15 11l3 10M7.5 16h9"/></svg>',
+ "alemania":'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="4"/><rect x="4" y="10" width="16" height="4"/><rect x="4" y="15" width="16" height="4"/></svg>',
+ "chequia":'<svg viewBox="0 0 24 24"><path d="M4 4l8 8-8 8zM12 12h8"/></svg>',
  "corea-del-sur":'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M4 12a8 8 0 0 1 16 0a4 4 0 0 1-8 0a4 4 0 0 0-8 0z"/></svg>'};
 function pintarPaises(){
   $("#paises").innerHTML=disponibles().map(p=>`<button type="button" class="pais" data-p="${p.id}" aria-pressed="false" aria-label="${p.n}"><span class="fw"><span class="foto"><span class="art" aria-hidden="true">${ARTE[p.id]}</span><img src="img/paises/${p.id}.jpg" alt="" loading="lazy" onerror="this.remove()"></span><span class="timbre" aria-hidden="true">${ICONO[p.id]}<span>${SELLO[p.id]}</span></span></span><span class="cap"><b>${p.n}</b><small>${p.ciudades.filter(c=>c.estado==="lista").length} ciudades</small></span><span class="tip" role="tooltip">${RESENA[p.id].c}</span></button>`).join("");

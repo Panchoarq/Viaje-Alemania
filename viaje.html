@@ -17,6 +17,11 @@ html,body{margin:0}
 body{min-height:100vh;background:var(--desk);color:var(--ink);font:16px/1.45 var(--f-body);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
 main{max-width:960px;margin:0 auto;padding:max(18px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 60px max(14px,env(safe-area-inset-left,0px));display:grid;gap:18px}
+.cab{display:flex;gap:16px;align-items:center;justify-content:space-between}
+.sello{position:relative;flex:none;width:112px;aspect-ratio:4/3;background:#f3ead2;box-shadow:0 1px 0 rgba(0,0,0,.06),0 8px 16px rgba(40,25,10,.3);transform:rotate(2deg)}
+.sello::before{content:"";position:absolute;z-index:2;top:-9px;left:50%;width:54px;height:17px;margin-left:-27px;background:rgba(233,220,180,.88);transform:rotate(-3deg);box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.sello img{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width:520px){.sello{width:84px}}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;font:700 13px var(--f-mono)}
 .top a{color:var(--ink)}
 h1{font:700 26px/1.15 var(--f-mono);margin:0}
@@ -108,7 +113,7 @@ ul{margin:0;padding-left:20px}
 <main>
   <div class="top"><a href="/">← Mis viajes</a><span id="estado" class="muted"></span></div>
   <nav class="tabs" id="menu" role="tablist" aria-label="Secciones del viaje"></nav>
-  <div><h2>Paso 1 · Configurar</h2><h1 id="titulo">Tu viaje</h1><p class="muted" id="subtitulo"></p></div>
+  <div class="cab"><div><h2>Paso 1 · Configurar</h2><h1 id="titulo">Tu viaje</h1><p class="muted" id="subtitulo"></p></div><span class="sello" id="sello" hidden><img alt="" id="selloImg"></span></div>
   <div id="cuerpo" class="dos" hidden>
     <div style="display:grid;gap:18px">
       <section class="hoja cinta" aria-label="Fechas">
@@ -244,6 +249,7 @@ else{
   const actual=()=>{const k=location.hash.slice(1);return SEC.some(s=>s[0]===k)?k:"cfg"};
   function mostrar(k){
     CTX.ids=W.ciudades.map(c=>c.id);
+    {const im=$("#selloImg");if(im&&!im.src){im.onload=()=>$("#sello").hidden=false;im.onerror=()=>$("#sello").remove();im.src="img/paises/"+PAIS.id+".jpg"}}
     document.querySelectorAll("#menu button").forEach(b=>b.setAttribute("aria-selected",b.dataset.sec===k));
     const cfg=k==="cfg";$("#cuerpo").hidden=!cfg;$("#otra").hidden=cfg;
     $("h2").textContent=cfg?"Paso 1 · Configurar":"Paso "+(SEC.findIndex(s=>s[0]===k)+1)+" · "+SEC.find(s=>s[0]===k)[1].replace(/^\d+ · /,"");
