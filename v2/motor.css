@@ -1,0 +1,122 @@
+/* Estilos provisionales de las pestañas que aún no usan el diseño de París. */
+#otra{--paper:var(--card);--red:var(--stamp);--desk:var(--bg);--muted:var(--muted);display:grid;gap:14px}
+#otra .hoja{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 10px 22px rgba(40,25,10,.16);display:grid;gap:12px;position:relative}
+#otra .hoja.cinta::before{content:"";position:absolute;top:-11px;left:50%;width:74px;height:22px;margin-left:-37px;background:rgba(233,220,180,.88);transform:rotate(-3deg)}
+#otra .dos{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+#otra .dos{grid-template-columns:1fr}
+#otra .btn{font:700 14px var(--f-mono);padding:9px 14px;border-radius:8px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:2px 2px 0 var(--ink);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+#otra .btn:hover,#otra .btn:focus-visible{transform:translate(-1px,-1px)}
+#otra .btn.dark{background:var(--ink);color:var(--paper);box-shadow:2px 2px 0 var(--red)}
+#otra .btn.sm{font-size:12px;padding:4px 9px}
+#otra .btn[disabled]{opacity:.45;cursor:default;box-shadow:none;transform:none}
+#otra label.fld{display:grid;gap:4px;font:700 13px var(--f-mono)}
+#otra input[type=date],#otra input[type=time]{font:16px var(--f-mono);padding:8px 10px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);width:100%}
+#otra .filas{display:grid;gap:8px}
+#otra .fila{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;border-left:6px solid var(--k)}
+#otra .fila .nº{width:28px;height:28px;border-radius:50%;background:var(--k);color:#fff;display:grid;place-items:center;font:700 13px var(--f-mono)}
+#otra .fila b{font:700 16px var(--f-mono)}
+#otra .fila small{display:block;color:var(--muted);font:13px var(--f-mono)}
+#otra .num{display:flex;align-items:center;gap:6px;font:700 14px var(--f-mono)}
+#otra .num button,#otra .mv button{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font:700 15px var(--f-mono);cursor:pointer;line-height:1;padding:0}
+#otra .mv{display:flex;gap:4px}
+#otra .fila{grid-template-columns:30px minmax(0,1fr)}
+#otra .fila>div:last-child{grid-column:1/-1;justify-content:space-between}
+#otra .mv button{border-radius:5px;width:26px;font-size:11px}
+#otra .via{display:flex;gap:8px;align-items:center;margin:-2px 0 -2px 18px;padding-left:12px;border-left:3px dashed var(--red);font:13px var(--f-mono);color:var(--muted);min-height:26px}
+#otra .mapa{width:100%;height:auto;display:block;border:1.5px solid var(--line);border-radius:6px;background:#f6eed8}
+#otra .barra{display:flex;gap:3px;height:54px}
+#otra .barra div{flex:var(--n) 1 0;min-width:0;background:var(--k);color:#fff;border-radius:4px;display:grid;align-content:center;justify-items:center;padding:2px 3px;font:700 11px var(--f-mono);overflow:hidden;text-align:center;line-height:1.15;overflow-wrap:anywhere}
+#otra .barra div small{font:11px var(--f-mono);opacity:.9}
+#otra .fechasb{display:flex;justify-content:space-between;font:12px var(--f-mono);color:var(--muted)}
+#otra .tramos{display:flex;gap:3px}
+#otra .tramos div{flex:var(--n) 1 0;min-width:0;text-align:center;font:11px var(--f-mono);color:var(--muted)}
+#otra .seg{display:flex;gap:6px;flex-wrap:wrap}
+#otra .seg label{flex:1;min-width:84px;text-align:center;border:1.5px solid var(--line);border-radius:8px;padding:6px;background:#fff;cursor:pointer;font:700 12px var(--f-mono)}
+#otra .seg label:has(input:checked){border-color:var(--ink);background:var(--ink);color:var(--paper)}
+#otra .seg input{position:absolute;opacity:0;pointer-events:none}
+#otra .tbl{width:100%;border-collapse:collapse;font-size:15px}
+#otra .tbl td{padding:6px 4px;border-bottom:1px dotted var(--line);vertical-align:top}
+#otra .tbl td:last-child{text-align:right;font:700 13px var(--f-mono)}
+#otra .aviso{padding:10px 12px;border-radius:8px;border:1.5px solid var(--ok);background:#f3faf5;font-size:15px}
+#otra .msg{font:13px var(--f-mono);color:var(--red);min-height:1.2em}
+#otra h3{font:700 15px var(--f-mono);margin:6px 0 2px}
+#otra .sub{display:flex;gap:6px;flex-wrap:wrap}
+#otra .sub button{font:700 12px var(--f-mono);padding:6px 11px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
+#otra .sub button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+#otra .lista{display:grid;gap:8px}
+#otra .att{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+#otra .att.on{border-color:var(--ink);background:#fffbe9}
+#otra .att input{width:18px;height:18px;margin-top:2px}
+#otra .att b{font:700 15px var(--f-mono)}
+#otra .att small{display:block;font:12.5px var(--f-mono);color:var(--muted)}
+#otra .att .d{display:block;font-size:14px;margin-top:3px}
+#otra .att details{margin-top:5px;font-size:14px}
+#otra .att summary{cursor:pointer;font:700 12px var(--f-mono)}
+#otra .tp{font:700 10px var(--f-mono);font-style:normal;background:var(--red);color:#fff;border-radius:999px;padding:1px 7px;vertical-align:2px}
+#otra .dia{border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:10px;display:grid;gap:6px}
+#otra .dia h3{display:flex;justify-content:space-between;gap:8px;margin:0;border-bottom:2px solid var(--ink);padding-bottom:4px}
+#otra .dia h3 small{font:12px var(--f-mono);color:var(--muted);font-weight:400}
+#otra .act{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center}
+#otra .act>span{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:700 11px var(--f-mono)}
+#otra .act small{display:block;font:12px var(--f-mono);color:var(--muted)}
+#otra .act select{font:12px var(--f-mono);padding:4px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;max-width:92px}
+#otra .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+#otra .form input,#otra .form select{font:16px var(--f-mono);padding:8px 10px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);width:100%}
+#otra .fld.chk{display:flex;align-items:center;gap:8px}
+#otra .fld.chk input{width:auto}
+#otra .fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+#otra .aviso.alerta{border-color:var(--red);background:#fdf1ee}
+#otra .guia{border-left:5px solid var(--c);padding-left:10px}
+#otra .barrios p{font-size:14px;margin:2px 0}
+#otra ul{margin:0;padding-left:20px}
+#otra h3{font:700 15px var(--f-mono);margin:6px 0 2px}
+#otra .sub{display:flex;gap:6px;flex-wrap:wrap}
+#otra .sub button{font:700 12px var(--f-mono);padding:6px 11px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer}
+#otra .sub button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+#otra .lista{display:grid;gap:8px}
+#otra .att{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+#otra .att.on{border-color:var(--ink);background:#fffbe9}
+#otra .att input{width:18px;height:18px;margin-top:2px}
+#otra .att b{font:700 15px var(--f-mono)}
+#otra .att small{display:block;font:12.5px var(--f-mono);color:var(--muted)}
+#otra .att .d{display:block;font-size:14px;margin-top:3px}
+#otra .att details{margin-top:5px;font-size:14px}
+#otra .att summary{cursor:pointer;font:700 12px var(--f-mono)}
+#otra .tp{font:700 10px var(--f-mono);font-style:normal;background:var(--red);color:#fff;border-radius:999px;padding:1px 7px;vertical-align:2px}
+#otra .dia{border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:10px;display:grid;gap:6px}
+#otra .dia h3{display:flex;justify-content:space-between;gap:8px;margin:0;border-bottom:2px solid var(--ink);padding-bottom:4px}
+#otra .dia h3 small{font:12px var(--f-mono);color:var(--muted);font-weight:400}
+#otra .act{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center}
+#otra .act>span{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:700 11px var(--f-mono)}
+#otra .act small{display:block;font:12px var(--f-mono);color:var(--muted)}
+#otra .act select{font:12px var(--f-mono);padding:4px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;max-width:92px}
+#otra .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+#otra .form input,#otra .form select{font:16px var(--f-mono);padding:8px 10px;border:1.5px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);width:100%}
+#otra .fld.chk{display:flex;align-items:center;gap:8px}
+#otra .fld.chk input{width:auto}
+#otra .fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+#otra .aviso.alerta{border-color:var(--red);background:#fdf1ee}
+#otra .guia{border-left:5px solid var(--c);padding-left:10px}
+#otra .barrios p{font-size:14px;margin:2px 0}
+#otra ul{margin:0;padding-left:20px}
+#otra .tabs{display:flex;gap:4px;border-bottom:2.5px solid var(--ink);overflow-x:auto;position:sticky;top:0;z-index:30;background:var(--desk);padding-top:6px;scrollbar-width:none}
+#otra .tabs button{font:700 13px var(--f-mono);padding:9px 12px;border:1.5px solid var(--ink);border-bottom:0;border-radius:10px 10px 0 0;background:color-mix(in srgb,var(--paper) 55%,var(--desk));color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+#otra .tabs{flex-wrap:wrap;overflow:visible}
+#otra .tabs button{padding:8px 10px;font-size:12px}
+#otra .tabs button .ic{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#otra .tabs button .sh{display:none}
+#otra .tabs button[aria-selected="true"]{background:#ffe66d;color:var(--ink);padding-top:11px}
+#otra .tabs button[aria-disabled="true"]{opacity:.62}
+#otra .aviso-pronto{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;z-index:40;background:var(--ink);color:var(--paper);font:600 13px var(--f-mono);padding:9px 14px;border-radius:10px;max-width:92vw;text-align:center}
+#otra .tabs{position:fixed;top:auto;bottom:0;left:0;right:0;gap:2px;padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));border-bottom:0;border-top:2.5px solid var(--ink);order:0}
+#otra .tabs button{flex:0 0 19%;flex-direction:column;gap:1px;font-size:9.5px;font-weight:600;padding:4px 1px 3px;border:0;border-radius:8px;background:transparent;color:var(--ink);justify-content:center}
+#otra .tabs button .ic{width:14px;height:14px}
+#otra .tabs button .lg{display:none}
+#otra .tabs button .sh{display:inline}
+#otra .tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 1.5px var(--ink);padding-top:4px}
+#otra body{padding-bottom:64px}
+.cfgml{height:320px;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--land)}
+.cfgpin{display:flex;align-items:center;gap:6px;pointer-events:none}
+.cfgpin b{width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;border:2px solid #fffdf6;display:grid;place-items:center;font:700 13px var(--f-mono);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.cfgpin span{font:700 12px var(--f-mono);color:#2a2219;background:rgba(255,253,246,.88);padding:1px 5px;border-radius:3px;white-space:nowrap}
+@media (max-width:560px){.nights .n{flex-wrap:wrap}.nights .n .nn{flex:1 1 100%;justify-content:space-between!important}}
