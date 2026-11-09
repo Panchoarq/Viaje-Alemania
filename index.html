@@ -137,10 +137,10 @@ const VIAJES=[
 const vista=n=>{for(const id of ["vEntrada","vViajes","vNuevo"])$("#"+id).hidden=(id!==n)};
 let usuario=null,alVolver="vEntrada";
 
-const locales=()=>{try{return JSON.parse(localStorage.getItem("mp_viajes")||"[]")}catch(e){return[]}};
+const locales=()=>{try{return JSON.parse(localStorage.getItem("mp_viajes")||"[]").filter(v=>!v.owner||!usuario||v.owner===String(usuario.email||"").toLowerCase())}catch(e){return[]}};
 function pintarViajes(ids){
   const L=VIAJES.filter(v=>ids.includes(v.id)),N=locales();
-  const nuevos=N.map(v=>{const p=PAISES.find(x=>x.id===v.pais)||{n:v.pais},noches=(v.cfg.ciudades||[]).reduce((t,c)=>t+c.noches,0);return `<a class="trip fr" style="--c:#a8352b" href="viaje.html?id=${encodeURIComponent(v.id)}"><span class="flag" aria-hidden="true">✈</span><b>Viaje a ${p.n}</b><small>${noches} noches · ${(v.cfg.ciudades||[]).length} ciudad${(v.cfg.ciudades||[]).length>1?"es":""}${v.cfg.cuando==="fecha"&&v.cfg.inicio?" · desde "+v.cfg.inicio:" · sin fechas"}</small><span class="tag open">Nuevo · en este dispositivo</span></a>`}).join("");
+  const nuevos=N.map(v=>{const p=PAISES.find(x=>x.id===v.pais)||{n:v.pais},noches=(v.cfg.ciudades||[]).reduce((t,c)=>t+c.noches,0);return `<a class="trip fr" style="--c:#a8352b" href="viaje.html?id=${encodeURIComponent(v.id)}"><span class="flag" aria-hidden="true">✈</span><b>Viaje a ${p.n}</b><small>${noches} noches · ${(v.cfg.ciudades||[]).length} ciudad${(v.cfg.ciudades||[]).length>1?"es":""}${v.cfg.cuando==="fecha"&&v.cfg.inicio?" · desde "+v.cfg.inicio:" · sin fechas"}</small><span class="tag open">${v.owner?"Nuevo · en tu cuenta":"Nuevo · en este dispositivo"}</span></a>`}).join("");
   $("#lista").innerHTML=(L.length||N.length)?L.map(v=>`<a class="trip ${v.cls}" href="${v.href}"><span class="flag" aria-hidden="true">${v.flag}</span><b>${v.t}</b><small>${v.s}</small>${v.tag}</a>`).join("")+nuevos:
     `<div class="empty">Todavía no tienes viajes con este correo.<br>Crea uno nuevo con el botón de abajo.</div>`;
 }
@@ -185,6 +185,7 @@ if(DEMO){
   $("#bSalir").onclick=()=>{usuario=null;vista("vEntrada")};
 }else{
   const B="https://www.gstatic.com/firebasejs/10.12.2/";
+  const N=await import("./v2/nube.js");
   const [A,U,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
   const app=A.initializeApp(FBC),auth=U.getAuth(app),db=FS.getFirestore(app);
   const bG=$("#bGoogle");
@@ -204,7 +205,9 @@ if(DEMO){
     if(!u||u.isAnonymous){usuario=null;bG.disabled=false;$("#bGoogleT").textContent="Entrar con Google";if($("#vNuevo").hidden)vista("vEntrada");return}
     usuario=u;$("#quien").textContent=u.email;$("#msgViajes").textContent="Buscando tus viajes…";
     if($("#vNuevo").hidden)vista("vViajes");
-    const ids=await accesos(u);pintarViajes(ids);$("#msgViajes").textContent="";
+    const ids=await accesos(u);pintarViajes(ids);
+    try{await N.sincronizar(String(u.email||"").toLowerCase())}catch(e){$("#msgViajes").textContent="No pude leer tus viajes guardados en la cuenta; muestro los de este dispositivo.";console.warn("sync",e);pintarViajes(ids);return}
+    pintarViajes(ids);$("#msgViajes").textContent="";
     if(!ids.length&&!locales().length&&$("#vViajes").hidden===false)abrirNuevo(null,true);
   });
 }

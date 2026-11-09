@@ -89,6 +89,7 @@ input[type=date],input[type=time],input[type=text],input[type=number]{font:16px 
 
 <script type="module">
 import {PAISES,cargar,cargarTraslados} from "./v2/ciudades/index.js";
+import * as NUBE from "./v2/nube.js";
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const q=new URLSearchParams(location.search),paisId=q.get("pais");
@@ -221,13 +222,17 @@ function pintar(){
 }
 function enlazar(){
   $("#atras").onclick=()=>{paso=Math.max(0,paso-1);pintar()};
-  $("#sig").onclick=()=>{const e=valida();if(e){$("#msg").textContent=e;return}guardar();
+  $("#sig").onclick=async()=>{const e=valida();if(e){$("#msg").textContent=e;return}guardar();
     if(paso===PASOS.length-1){
-      const l=leerV(),id=EDITAR||"nv_"+Date.now().toString(36),i=l.findIndex(v=>v.id===id);
-      const v={id,pais:PAIS.id,owner:i>=0?l[i].owner:"",creado:i>=0?l[i].creado:Date.now(),act:Date.now(),cfg:W};
+      $("#sig").disabled=true;
+      const l=leerV(),id=EDITAR||"nv_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),i=l.findIndex(v=>v.id===id);
+      let em="";if(!DEMO){try{em=await NUBE.correo(4000)}catch(x){}}
+      const v={id,pais:PAIS.id,owner:(i>=0&&l[i].owner)||em,creado:i>=0?l[i].creado:Date.now(),act:Date.now(),cfg:W};
       if(i>=0)l[i]=v;else l.push(v);
-      try{localStorage.setItem(LISTA,JSON.stringify(l));localStorage.removeItem(KEY)}catch(e){$("#msg").textContent="No pude guardar en este dispositivo.";return}
-      $("#msg").style.color="var(--ok)";$("#msg").textContent="¡Ruta guardada!";
+      try{localStorage.setItem(LISTA,JSON.stringify(l));localStorage.removeItem(KEY)}catch(x){$("#msg").textContent="No pude guardar en este dispositivo.";$("#sig").disabled=false;return}
+      let nube="";
+      if(v.owner&&!DEMO){try{await NUBE.subir(v);nube=" y en tu cuenta"}catch(x){console.warn("nube",x);nube=" en este dispositivo (no pude subirla a tu cuenta; se reintentará al entrar)"}}
+      $("#msg").style.color="var(--ok)";$("#msg").textContent="¡Ruta guardada"+nube+"!";
       location.href="viaje.html?id="+encodeURIComponent(id)+(DEMO?"&demo":"");return}
     paso++;pintar()};
   document.querySelectorAll('input[name="cuando"]').forEach(r=>r.onchange=()=>{W.cuando=r.value;$("#bloqueFecha").hidden=W.cuando!=="fecha";guardar()});

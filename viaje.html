@@ -91,6 +91,7 @@ input[type=date],input[type=time]{font:16px var(--f-mono);padding:8px 10px;borde
 
 <script type="module">
 import {PAISES,cargar,cargarTraslados} from "./v2/ciudades/index.js";
+import * as NUBE from "./v2/nube.js";
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const q=new URLSearchParams(location.search),id=q.get("id"),DEMO=q.has("demo");
@@ -111,6 +112,9 @@ const LIST="mp_viajes";
 const leer=()=>{try{return JSON.parse(localStorage.getItem(LIST)||"[]")}catch(e){return[]}};
 const escribir=l=>{try{localStorage.setItem(LIST,JSON.stringify(l))}catch(e){}};
 let viaje=leer().find(v=>v.id===id);
+if(!viaje&&!DEMO&&id){ // quizá se creó en otro dispositivo: se busca en la cuenta
+  try{const em=await NUBE.correo(5000);const n=em&&await NUBE.traer(id);if(n&&n.owner===em){viaje=n;escribir([...leer(),n])}}catch(e){console.warn("nube",e)}
+}
 if(!viaje){$("#vacio").hidden=false}
 else{
   const W=viaje.cfg,PAIS=PAISES.find(p=>p.id===viaje.pais);
@@ -119,7 +123,11 @@ else{
   try{TR=(await cargarTraslados(PAIS.id)).TRASLADOS}catch(e){}
   const llave=(a,b)=>[a,b].sort().join("-");
   const eleccion=(a,b)=>{const o=TR[llave(a,b)]||[{m:"bus",min:Math.round(horas(km(C[a].ll,C[b].ll))*60),eur:Math.round(km(C[a].ll,C[b].ll)*.1),rec:1}];return o.find(x=>x.m===(W.traslado||{})[llave(a,b)])||o.find(x=>x.rec)||o[0]};
-  const guardar=()=>{viaje.cfg=W;viaje.act=Date.now();const l=leer(),i=l.findIndex(v=>v.id===id);if(i>=0)l[i]=viaje;else l.push(viaje);escribir(l);$("#estado").textContent="Guardado en este dispositivo"};
+  const guardar=()=>{viaje.cfg=W;viaje.act=Date.now();const l=leer(),i=l.findIndex(v=>v.id===id);if(i>=0)l[i]=viaje;else l.push(viaje);escribir(l);$("#estado").textContent="Guardado en este dispositivo";nubeLuego()};
+  let tmr;
+  const nubeLuego=()=>{if(DEMO)return;clearTimeout(tmr);tmr=setTimeout(async()=>{try{
+    if(!viaje.owner){viaje.owner=await NUBE.correo(4000);if(viaje.owner){const l=leer(),i=l.findIndex(v=>v.id===id);if(i>=0){l[i]=viaje;escribir(l)}}}
+    if(viaje.owner){await NUBE.subir(viaje);$("#estado").textContent="Guardado en tu cuenta"}}catch(e){console.warn("nube",e)}},700)};
   const fechas=()=>W.cuando==="fecha"&&W.inicio;
   const noches=()=>W.ciudades.reduce((t,x)=>t+x.noches,0);
 
@@ -170,7 +178,9 @@ else{
     document.querySelectorAll("[data-mn]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mn];x.noches=Math.max(1,x.noches-1);guardar();pintar()});
     document.querySelectorAll("[data-mas]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mas];x.noches=Math.min(30,x.noches+1);guardar();pintar()});
     document.querySelectorAll("[data-r]").forEach(r=>r.onchange=()=>{W.ritmo=W.ritmo||{};W.ritmo[r.dataset.r]=r.value;$("#rt_"+r.dataset.r).textContent=EXPL[r.value];guardar()});
-    $("#borrar").onclick=()=>{const b=$("#borrar");if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="¿Seguro? Toca de nuevo";return}escribir(leer().filter(v=>v.id!==id));location.href="/"};
+    $("#borrar").onclick=async()=>{const b=$("#borrar");if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="¿Seguro? Toca de nuevo";return}
+      if(viaje.owner&&!DEMO){b.textContent="Eliminando…";try{await NUBE.borrar(id)}catch(e){console.warn("nube",e);b.textContent="No pude eliminarlo de tu cuenta. Revisa tu conexión.";b.dataset.arm="";return}}
+      escribir(leer().filter(v=>v.id!==id));location.href="/"};
   }
   $("#cuerpo").hidden=false;pintar();
 }
