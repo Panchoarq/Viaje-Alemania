@@ -120,3 +120,5 @@
 .cfgpin b{width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;border:2px solid #fffdf6;display:grid;place-items:center;font:700 13px var(--f-mono);box-shadow:0 1px 3px rgba(0,0,0,.35)}
 .cfgpin span{font:700 12px var(--f-mono);color:#2a2219;background:rgba(255,253,246,.88);padding:1px 5px;border-radius:3px;white-space:nowrap}
 @media (max-width:560px){.nights .n{flex-wrap:wrap}.nights .n .nn{flex:1 1 100%;justify-content:space-between!important}}
+
+.clrcity{white-space:normal;text-align:left;max-width:100%}

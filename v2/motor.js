@@ -1,21 +1,22 @@
 // Pestañas del motor de viajes nuevos (todas menos «Configurar»), sobre los paquetes de ciudad.
 // Cada vista recibe ctx = {W, viaje, ids, M, PAIS, ruta, esc, pretty, add, km, fh, nube, DEMO, guardar, render}
 // W.sel{ciudad:[ids]} · W.prog{ciudad:[[ids por día]]} · W.alo{ciudad:{...}} · W.tk{tramo:{...}} · W.shows[] · W.tram{clave:1}
-const CAP={rap:7.5,int:5.5,rel:4},CAPN={rap:"rápido",int:"intermedio",rel:"relajado"};
+export const CAP={rap:7.5,int:5.5,rel:4},CAPN={rap:"rápido",int:"intermedio",rel:"relajado"};
 const EUR=n=>Math.round(n).toLocaleString("es-CL")+" €";
 const q=s=>encodeURIComponent(s);
 const sub=(ctx,cid,k)=>`<div class="sub" role="tablist">${ctx.ids.map(i=>`<button type="button" data-sub="${i}" aria-selected="${i===cid}">${ctx.esc(ctx.M[i].CIUDAD.n.replace(/ y .*/,""))}</button>`).join("")}</div>`;
-let SUB={};
+export let SUB={};
 const ciudadActual=(ctx,k)=>{const c=SUB.c;return ctx.ids.includes(c)?c:ctx.ids[0]};
 function enlazarSub(ctx,k){document.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>{SUB.c=b.dataset.sub;ctx.render()})}
 
+import {programa as programaP,bindPrograma as bindProgramaP} from "./programa.js";
 // ---------- utilidades del programa
 export const diasDe=(ctx,cid)=>Math.max(1,(ctx.W.ciudades.find(x=>x.id===cid)||{noches:1}).noches);
 export function inicioCiudad(ctx,cid){let d=0;for(const x of ctx.W.ciudades){if(x.id===cid)return d;d+=x.noches}return 0}
-function selDe(ctx,cid){
+export function selDe(ctx,cid){
   const W=ctx.W;W.sel=W.sel||{};
   if(!W.sel[cid]){const A=ctx.M[cid].ATRACCIONES||[],cap=CAP[(W.ritmo||{})[cid]||"int"]*diasDe(ctx,cid);let h=0;const s=[];
-    for(const a of [...A].sort((a,b)=>(b.top?1:0)-(a.top?1:0))){if(a.top||h+a.h<=cap){s.push(a.id);h+=a.h}}
+    for(const a of [...A].sort((a,b)=>(b.top?1:0)-(a.top?1:0))){if(h+a.h+0.3<=cap){s.push(a.id);h+=a.h+0.3}}
     W.sel[cid]=s}
   return new Set(W.sel[cid]);
 }
@@ -208,7 +209,7 @@ function bindGastos(ctx){
 
 const $=s=>document.querySelector(s);
 export const VISTAS={
-  prog:[programa,bindPrograma,"prog"],att:[atracciones,bindAtracciones,"att"],esc:[escapadas,bindEscapadas],show:[espectaculos,bindEspectaculos],
+  prog:[programaP,bindProgramaP],att:[atracciones,bindAtracciones,"att"],esc:[escapadas,bindEscapadas],show:[espectaculos,bindEspectaculos],
   food:[comidas,null,"food"],gas:[gastos,bindGastos],tra:[transporte,bindTransporte],hot:[alojamiento,bindAlojamiento],buy:[tramites,bindTramites]};
 export function dibujar(k,ctx,el){
   const [v,b,s]=VISTAS[k];
