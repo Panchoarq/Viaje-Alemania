@@ -122,3 +122,8 @@
 @media (max-width:560px){.nights .n{flex-wrap:wrap}.nights .n .nn{flex:1 1 100%;justify-content:space-between!important}}
 
 .clrcity{white-space:normal;text-align:left;max-width:100%}
+dl.facts .hin,dl.facts select,dl.facts input[type=number]{box-sizing:border-box}
+.hadd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.hadd input{flex:1 1 180px;min-width:0;font:15px var(--f-body);padding:6px 8px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box}
+.links-row{margin-top:8px}
+html{overflow-x:clip}

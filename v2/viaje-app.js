@@ -3,6 +3,7 @@
 import {PAISES,cargar,cargarTraslados} from "./ciudades/index.js";
 import * as NUBE from "./nube.js";
 import {dibujar} from "./motor.js";
+import {aplicarCustom} from "./programa.js";
 import {mlStyle} from "./mlstyle.js";
 
 const q=new URLSearchParams(location.search),id=q.get("id"),DEMO=q.has("demo");
@@ -51,6 +52,7 @@ const W=viaje.cfg,PAIS=PAISES.find(p=>p.id===viaje.pais),M={};let TR={};
 await Promise.all(W.ciudades.map(async x=>{try{M[x.id]=await cargar(PAIS.id,x.id)}catch(e){console.warn("paquete",x.id,e)}}));
 W.ciudades=W.ciudades.filter(x=>M[x.id]);
 try{TR=(await cargarTraslados(PAIS.id)).TRASLADOS}catch(e){}
+aplicarCustom({W,M});
 const nombre=i=>M[i].CIUDAD.n,ll=i=>M[i].CIUDAD.ll;
 const llave=(a,b)=>[a,b].sort().join("-");
 const eleccion=(a,b)=>{const d=km(ll(a),ll(b));const o=TR[llave(a,b)]||[{m:"bus",min:Math.round(horas(d)*60),eur:Math.round(d*.1),rec:1}];return o.find(x=>x.m===(W.traslado||{})[llave(a,b)])||o.find(x=>x.rec)||o[0]};
@@ -135,13 +137,13 @@ function initMap(){
 }
 
 // ---- render
-const CTX={W,viaje,ids:[],M,PAIS,esc,pretty,add,km,fh,DEMO,nube:NUBE,MODO,eleccion,fechas,guardar,render:()=>render(),ir:k=>go(k),actual:()=>tab};
+const CTX={W,viaje,ids:[],M,PAIS,esc,pretty,add,km,fh,DEMO,nube:NUBE,MODO,eleccion,opciones:(x,y)=>TR[llave(x,y)]||[],fechas,guardar,render:()=>render(),ir:k=>go(k),actual:()=>tab};
 function render(){
   CTX.ids=W.ciudades.map(c=>c.id);
   const y=scrollY;
   app.innerHTML=headerCab()+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CABIC[k]}<span>${CABSH[k]}</span></button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg():`<div id="otra"></div>`}</section>`;
-  if(tab!=="cfg")dibujar(tab,CTX,$("#otra"));
+   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg():`<div id="vista"></div>`}</section>`;
+  if(tab!=="cfg")dibujar(tab,CTX,$("#vista"));
   scrollTo(0,y);bindAll();
   if(tab==="cfg")setTimeout(initMap,0);
   cabH();
