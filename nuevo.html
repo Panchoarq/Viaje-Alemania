@@ -88,7 +88,7 @@ input[type=date],input[type=time],input[type=text],input[type=number]{font:16px 
 </main>
 
 <script type="module">
-import {PAISES,cargar,cargarTraslados} from "./v2/ciudades/index.js";
+import {PAISES,cargar,cargarTraslados,anexasDe} from "./v2/ciudades/index.js";
 import * as NUBE from "./v2/nube.js";
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -103,7 +103,9 @@ const MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","
 const C={};          // id -> {id,n,ll,ideal,min,resumen,mejor}
 const listas=PAIS?PAIS.ciudades.filter(c=>c.estado==="lista"):[];
 await Promise.all(listas.map(async c=>{try{const m=await cargar(PAIS.id,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length,geo:String(m.CIUDAD.geo||"").replace(/^,\s*/,"")||m.CIUDAD.n,local:m.TRANSPORTE&&m.TRANSPORTE.local,pases:m.TRANSPORTE&&m.TRANSPORTE.pases}}catch(e){}}));
-let TR={},AP={},OP={};try{const tm=await cargarTraslados(PAIS.id);TR=tm.TRASLADOS;AP=tm.AEROPUERTO||{};OP=tm.OPERADORES||{}}catch(e){}
+const anexas=PAIS?anexasDe(PAIS.id):[];
+await Promise.all(anexas.map(async c=>{try{const m=await cargar(c.pais,c.id);C[c.id]={id:c.id,n:m.CIUDAD.n,ll:m.CIUDAD.ll,ideal:m.CIUDAD.dias.ideal,min:m.CIUDAD.dias.minimo,resumen:m.CIUDAD.resumen,mejor:m.CIUDAD.mejorEpoca,atr:m.ATRACCIONES.length,geo:String(m.CIUDAD.geo||"").replace(/^,\s*/,"")||m.CIUDAD.n,local:m.TRANSPORTE&&m.TRANSPORTE.local,pases:m.TRANSPORTE&&m.TRANSPORTE.pases,anexa:c.pais}}catch(e){}}));
+let TR={},AP={},OP={};for(const pid of new Set([PAIS&&PAIS.id,...anexas.map(a=>a.pais)].filter(Boolean))){try{const tm=await cargarTraslados(pid);TR=Object.assign({},tm.TRASLADOS,TR);if(pid===PAIS.id){AP=tm.AEROPUERTO||{};OP=tm.OPERADORES||{}}else Object.assign(AP,tm.AEROPUERTO||{})}catch(e){}}
 
 // ---- estado
 const KEY="mp_viaje_borrador";
@@ -166,6 +168,7 @@ const vistas=[
   return `<p class="paso">Paso 2 de 7 · ${PASOS[1]}</p><h1>¿Qué ciudades visitas?</h1>
   <p class="muted">Toca para agregar. <b>La primera es donde aterrizas.</b> Las noches sugeridas salen de lo que se necesita para verla bien.</p>
   <div class="sel">${listas.map(l=>{const c=C[l.id];if(!c)return"";const on=ids.includes(l.id);return `<div class="cc ${on?"on":""}"><div class="g"><b>${esc(c.n)}</b><br><small>${c.atr} atracciones · ideal ${c.ideal} noche${c.ideal>1?"s":""}</small></div><button class="btn sm" data-tog="${l.id}" type="button">${on?"Quitar":"Agregar"}</button></div>`}).join("")}</div>
+  ${anexas.filter(a=>C[a.id]).length?`<p class="paso" style="margin-top:6px">Escapada a otro país (opcional)</p><p class="muted">Una ciudad vecina que se suma a tu viaje con su propia pestaña, como una ciudad más.</p><div class="sel">${anexas.map(l=>{const c=C[l.id];if(!c)return"";const on=ids.includes(l.id);return `<div class="cc ${on?"on":""}"><div class="g"><b>${esc(l.bandera||"")} ${esc(c.n)}</b> <small>(${esc(l.paisN)})</small><br><small>${c.atr} atracciones · ideal ${c.ideal} noche${c.ideal>1?"s":""}</small></div><button class="btn sm" data-tog="${l.id}" type="button">${on?"Quitar":"Agregar"}</button></div>`}).join("")}</div>`:""}
   ${W.ciudades.length?`<p class="paso" style="margin-top:6px">Tu ruta, en orden</p><div class="sel">${W.ciudades.map((x,i)=>{const c=C[x.id];const bajo=x.noches<c.min;return `<div class="cc on"><div class="ord"><button data-up="${i}" type="button" ${i?"":"disabled"} aria-label="Subir">▲</button><button data-dn="${i}" type="button" ${i<W.ciudades.length-1?"":"disabled"} aria-label="Bajar">▼</button></div><div class="g"><b>${i+1}. ${esc(c.n)}</b>${i===0?' <span class="tag ok">Aterrizas</span>':""}<br><small>${bajo?`<span style="color:var(--red)">Muy corto: mínimo ${c.min}</span>`:`ideal ${c.ideal}`}</small></div><div class="num"><button data-mn="${i}" type="button" aria-label="Menos noches">−</button><span>${x.noches} noche${x.noches>1?"s":""}</span><button data-mas="${i}" type="button" aria-label="Más noches">+</button></div></div>`}).join("")}</div>
   <p class="muted">${W.ciudades.reduce((t,x)=>t+x.noches,0)} noches en total.</p>`:""}`},
  // 2 Orden
@@ -238,7 +241,7 @@ function enlazar(){
   document.querySelectorAll('input[name="cuando"]').forEach(r=>r.onchange=()=>{W.cuando=r.value;$("#bloqueFecha").hidden=W.cuando!=="fecha";guardar()});
   const i=$("#inicio");if(i)i.onchange=()=>{W.inicio=i.value;guardar()};
   const h=$("#hora");if(h)h.onchange=()=>{W.hora=h.value;guardar()};
-  document.querySelectorAll("[data-tog]").forEach(b=>b.onclick=()=>{const id=b.dataset.tog,j=W.ciudades.findIndex(x=>x.id===id);if(j>=0)W.ciudades.splice(j,1);else W.ciudades.push({id,noches:C[id].ideal});guardar();pintar()});
+  document.querySelectorAll("[data-tog]").forEach(b=>b.onclick=()=>{const id=b.dataset.tog,j=W.ciudades.findIndex(x=>x.id===id);if(j>=0)W.ciudades.splice(j,1);else W.ciudades.push(C[id].anexa?{id,noches:C[id].ideal,pais:C[id].anexa}:{id,noches:C[id].ideal});guardar();pintar()});
   document.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{const i=+b.dataset.up,a=W.ciudades;[a[i-1],a[i]]=[a[i],a[i-1]];guardar();pintar()});
   document.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const i=+b.dataset.dn,a=W.ciudades;[a[i+1],a[i]]=[a[i],a[i+1]];guardar();pintar()});
   document.querySelectorAll("[data-mn]").forEach(b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mn];x.noches=Math.max(1,x.noches-1);guardar();pintar()});

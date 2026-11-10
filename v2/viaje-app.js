@@ -50,9 +50,9 @@ if(!viaje){app.innerHTML=`<div class="card"><p>No encontré este viaje en este d
 
 const W=viaje.cfg,PAIS=PAISES.find(p=>p.id===viaje.pais),M={};let TR={};
 // paquetes de todas las ciudades del viaje (y traslados de su país)
-await Promise.all(W.ciudades.map(async x=>{try{M[x.id]=await cargar(PAIS.id,x.id)}catch(e){console.warn("paquete",x.id,e)}}));
+await Promise.all(W.ciudades.map(async x=>{try{M[x.id]=await cargar(x.pais||PAIS.id,x.id)}catch(e){console.warn("paquete",x.id,e)}}));
 W.ciudades=W.ciudades.filter(x=>M[x.id]);
-try{TR=(await cargarTraslados(PAIS.id)).TRASLADOS}catch(e){}
+for(const pid of new Set([PAIS.id,...W.ciudades.map(x=>x.pais).filter(Boolean)])){try{TR=Object.assign({},(await cargarTraslados(pid)).TRASLADOS,TR)}catch(e){}}
 aplicarCustom({W,M});
 const nombre=i=>M[i].CIUDAD.n,ll=i=>M[i].CIUDAD.ll;
 const llave=(a,b)=>[a,b].sort().join("-");

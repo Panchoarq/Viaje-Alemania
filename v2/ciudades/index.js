@@ -22,6 +22,11 @@ export const PAISES=[
  {id:"chequia",n:"Chequia",p:"🇨🇿",moneda:"CZK",ciudades:[{id:"praga",n:"Praga",estado:"lista"}]}
 ];
 
+// Ciudades anexas: escapada a una ciudad de un país vecino dentro de un viaje de otro país (como Bruselas desde París).
+const ANEXAS={alemania:[["chequia","praga"]],chequia:[["alemania","berlin"],["alemania","munich"]],francia:[["inglaterra","londres"]],inglaterra:[["francia","paris"]],
+ escocia:[["irlanda","dublin"],["irlanda","belfast"]],irlanda:[["escocia","edimburgo"],["escocia","glasgow"]]};
+export const anexasDe=paisId=>(ANEXAS[paisId]||[]).map(([p,c])=>{const P=PAISES.find(x=>x.id===p),C=P&&P.ciudades.find(x=>x.id===c);return C&&C.estado==="lista"?{...C,pais:p,paisN:P.n,bandera:P.p}:null}).filter(Boolean);
+
 // Buscador simple por texto (sin tildes) para el asistente.
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 export function buscar(q){q=norm(q||"");return PAISES.flatMap(p=>p.ciudades.map(c=>({...c,pais:p.n,paisId:p.id,p:p.p}))).filter(c=>norm(c.n+" "+c.pais).includes(q))}
