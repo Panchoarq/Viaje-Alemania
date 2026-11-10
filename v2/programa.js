@@ -4,6 +4,7 @@
 // Datos del viaje: W.sel{ciudad:[ids]} · W.prog{ciudad:[[ids por día]]} (el orden de cada día es el orden de visita)
 //                  W.pin{idAtracción:díaDeLaCiudad} · W.meal{"día|k":0/1} · W.mealOpt{"día|k":n}
 import {SUB,selDe,diasDe,inicioCiudad,CAP} from "./motor.js";
+import {inicioDia1,textoLlegada,tarjetaSalida} from "./extremos.js";
 import {mlStyle} from "./mlstyle.js";
 
 const COL=["#2e4f8f","#1d6f7a","#a8352b","#2e6b4f","#b8860b","#7b4ba0","#c2477f"];
@@ -55,7 +56,7 @@ const ritDe=(ctx,cid)=>RIT[(ctx.W.ritmo||{})[cid]||"int"]||RIT.int;
 const colDe=(ctx,cid)=>COL[Math.max(0,ctx.ids.indexOf(cid))%COL.length];
 
 // ---------- orden de visita de un día (misma lógica que París)
-function sequence(ctx,acts,day,base,manual){const km=ctx.km;let pos=base,t=day.first?14.5:9.5;const dow=day.d?D(day.d).getDay():null,seq=[];
+function sequence(ctx,acts,day,base,manual){const km=ctx.km;let pos=base,t=day.first?inicioDia1(ctx.W):9.5;const dow=day.d?D(day.d).getDay():null,seq=[];
   let rest=acts.filter(a=>!a.eve),ev=acts.filter(a=>a.eve);
   while(rest.length){
     if(!manual){const fx=rest.find(a=>a.at);if(fx)rest.splice(rest.indexOf(fx),1),rest.unshift(fx);
@@ -152,7 +153,7 @@ function dayHTML(ctx,day,S){const W=ctx.W,cid=day.cid,M=ctx.M[cid],CI=M.CIUDAD,c
   const al=(W.alo||{})[cid]||{};
   const night=`Noche en ${ctx.esc(al.n||"alojamiento en "+short(CI.n)+" (por definir en Alojamiento)")}`;
   let tl="";
-  if(day.kind==="first")tl=`✈ Llegada a <b>${ctx.esc(CI.n)}</b> · actividades desde las 14:30`;
+  if(day.kind==="first")tl=textoLlegada(ctx,CI);
   else if(day.kind==="go"){const prev=ctx.ids[ctx.ids.indexOf(cid)-1],e=ctx.eleccion(prev,cid);tl=`🚄 ${ctx.esc(short(ctx.M[prev].CIUDAD.n))} → <b>${ctx.esc(short(CI.n))}</b> · ${ctx.MODO[e.m]||e.m} ${ctx.fh(e.min/60)}${e.eur?" · ~"+FM(e.eur):""} · actividades desde las 14:30`}
   {const ex=ctx.ids.length===1?(M.ESCAPADAS||[]).filter(e=>(W.esc||[]).includes(e.id)&&(W.escF||{})[e.id]===day.g):[];
    if(ex.length)tl+=(tl?" · ":"")+ex.map(e=>`🚆 Escapada: <b>${ctx.esc(e.n)}</b> (${ctx.esc(e.tr)})`).join(" · ")}
@@ -290,7 +291,7 @@ export function programa(ctx){
     return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===P.day[cid]}"><i>${d.d?q[0]:"día"}</i><b>${d.d?q[1]:d.g+1}</b><small>${tg}</small></button>`}).join("")}</div></div>`;
   const days=all.map(d=>{const S=planDe(ctx,d);const sel=d.cid===cid&&d.id===P.day[cid];
     return dayHTML(ctx,d,S).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${sel?" sel":""}"${d.cid===cid?"":" hidden"}${a}>`)}).join("");
-  return `${fcard(ctx,cid)}${wxCard(ctx,cid)}${tabs}${org}${chips}<div class="days" id="days">${days}</div>${tripCal(ctx)}${mapOverlay(ctx)}`}
+  return `${fcard(ctx,cid)}${wxCard(ctx,cid)}${tabs}${org}${chips}<div class="days" id="days">${days}</div>${cid===ctx.ids[ctx.ids.length-1]?tarjetaSalida(ctx):""}${tripCal(ctx)}${mapOverlay(ctx)}`}
 
 // ---------- mapas MapLibre (plano del día)
 const circ=(c,r)=>{const o=[];for(let i=0;i<=24;i++){const a=i/24*2*Math.PI;o.push([c[1]+r/111320/Math.cos(c[0]*Math.PI/180)*Math.cos(a),c[0]+r/110574*Math.sin(a)])}return o};

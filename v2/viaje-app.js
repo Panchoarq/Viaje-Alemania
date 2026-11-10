@@ -1,6 +1,7 @@
 // Motor de viajes nuevos con el diseño de París (cabecera, pestañas, tarjetas, mapa «cuaderno»).
 // Fase 1: cabecera + pestañas + Configurar. Las demás pestañas usan v2/motor.js hasta portarlas al diseño de París.
 import {PAISES,cargar,cargarTraslados} from "./ciudades/index.js";
+import {cfgExtremos,bindExtremos} from "./extremos.js";
 import * as NUBE from "./nube.js";
 import {dibujar} from "./motor.js";
 import {aplicarCustom} from "./programa.js";
@@ -83,13 +84,13 @@ function headerCab(){
 // ---- Configurar
 function ritSel(c){const cur=(W.ritmo||{})[c]||"int";return `<div class="seg ritseg" role="group" aria-label="Ritmo ${esc(nombre(c))}">${Object.entries(RIT).map(([r,o])=>`<button type="button" data-rit="${c}|${r}" aria-pressed="${cur===r}" title="${o.d}">${o.n}</button>`).join("")}</div>`}
 function cfgRoute(){
-  const ids=W.ciudades.map(c=>c.id);let d=0,h=`<div class="end">✈ Inicio: llegada a ${esc(nombre(ids[0]))}${fechas()?` · ${pretty(W.inicio)}`:""}${W.hora?` · ${esc(W.hora)} h`:""}</div>`;
+  const ids=W.ciudades.map(c=>c.id);let d=0,h=`<div class="end">✈ Inicio: llegada a ${esc(nombre(ids[0]))}${(W.llega||{}).de?" desde "+esc(W.llega.de):""}${fechas()?` · ${pretty(W.inicio)}`:""}${W.hora?` · ${esc(W.hora)} h`:""}</div>`;
   W.ciudades.forEach((x,i)=>{const a=d,b=d+x.noches;d=b;
     if(i){const e=eleccion(ids[i-1],ids[i]);h+=`<div class="arr">↓ <b>${MODO[e.m]}</b> · ${fh(e.min/60)}${e.eur?` · ~${e.eur} €`:""}${e.rec?" · recomendado":""}</div>`}
     const rango=fechas()?`Llega ${pretty(add(W.inicio,a))} · sale ${pretty(add(W.inicio,b))}`:`Día ${a+1} → día ${b+1}`;
     h+=`<div class="n" style="--c:${COL[i%COL.length]}"><span style="flex:1;min-width:0"><b>${i+1}.</b> ${esc(nombre(x.id))}<br><small class="muted num">${rango}</small></span>
       <span class="nn" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn sm" data-up="${i}" ${i?"":"disabled"} aria-label="Subir">▲</button><button class="btn sm" data-dn="${i}" ${i<ids.length-1?"":"disabled"} aria-label="Bajar">▼</button><button class="btn sm" data-mn="${i}" aria-label="Menos noches">−</button><b class="num">${x.noches}</b> noches<button class="btn sm" data-mas="${i}" aria-label="Más noches">+</button></span></div>`});
-  h+=`<div class="end">✈ Fin: salida desde ${esc(nombre(ids[ids.length-1]))}${fechas()?` · ${pretty(add(W.inicio,noches()))}`:""}</div>`;
+  h+=`<div class="end">✈ Fin: salida desde ${esc(nombre(ids[ids.length-1]))}${(W.sale||{}).a?" hacia "+esc(W.sale.a):""}${(W.sale||{}).hora?" · "+esc(W.sale.hora)+" h":""}${fechas()?` · ${pretty(add(W.inicio,noches()))}`:""}</div>`;
   return `<div class="routegrid">
    <div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0"><span class="eyebrow">Noches en cada ciudad · orden de visita</span><div class="nights">${h}</div>
     <span class="muted" style="font-size:13px">${noches()} noches · ${ids.length} ciudad${ids.length>1?"es":""}</span></div>
@@ -111,6 +112,7 @@ function pCfg(){
    ${f("inicio","Fecha de llegada","date",W.inicio)}${f("hora","Hora aproximada de llegada","time",W.hora)}
    ${W.ciudades.map(x=>`<div class="field"><span>Ritmo · ${esc(nombre(x.id))}</span>${ritSel(x.id)}<small class="muted" id="rt_${x.id}">${RIT[(W.ritmo||{})[x.id]||"int"].d}</small></div>`).join("")}
   </div>
+  ${cfgExtremos(CTX)}
   ${cfgRoute()}
   <div class="card"><span class="eyebrow">Línea de tiempo</span>${timeline()}</div>
   <div class="card cfg"><span class="eyebrow" style="grid-column:1/-1">Tus preferencias</span>
@@ -157,6 +159,7 @@ function bindAll(){
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/"+(DEMO?"?demo":"");
   if(tab!=="cfg")return;
   Q("[data-w]",x=>x.onchange=()=>{W[x.dataset.w]=x.value;if(x.dataset.w==="inicio")W.cuando=x.value?"fecha":"generico";guardar();render()});
+  bindExtremos(CTX);
   Q("[data-rit]",b=>b.onclick=()=>{const [c,r]=b.dataset.rit.split("|");W.ritmo=W.ritmo||{};W.ritmo[c]=r;if(W.prog)delete W.prog[c];guardar();render()});
   Q("[data-up]",b=>b.onclick=()=>{const i=+b.dataset.up,a=W.ciudades;[a[i-1],a[i]]=[a[i],a[i-1]];guardar();render()});
   Q("[data-dn]",b=>b.onclick=()=>{const i=+b.dataset.dn,a=W.ciudades;[a[i+1],a[i]]=[a[i],a[i+1]];guardar();render()});

@@ -1,5 +1,6 @@
 // Pestañas Gastos, Transporte, Alojamiento y Trámites previos del motor, con el diseño de /paris.
 import {inicioCiudad,diasDe,SUB} from "./motor.js";
+import {tarjetasTransporte} from "./extremos.js";
 import {costosDias} from "./programa.js";
 import {ctabs} from "./pestanas.js";
 
@@ -90,6 +91,7 @@ export function transporte(ctx){
   const est=tramos.reduce((t,{a,b})=>t+(ctx.eleccion(a,b).eur||0),0);
   return `<div class="card buy"><span class="eyebrow">Entre ciudades · ${tramos.length} traslado${tramos.length===1?"":"s"}</span><h3>${tramos.length?"Cómo ir de una ciudad a otra":"Tu viaje tiene una sola ciudad"}</h3>
     ${tramos.length?`<p>Para cada traslado se propone el medio recomendado. Cámbialo si prefieres otro, y anota abajo lo que compres.</p>`:`<p class="muted">No hay traslados entre ciudades. Cómo llegar y moverse en ${ctx.esc(ctx.M[ctx.ids[0]].CIUDAD.n)} está más abajo.</p>`}</div>
+  ${tarjetasTransporte(ctx,FM)}
   ${tramos.map(({a,b})=>{const k=[a,b].sort().join("-"),e=ctx.eleccion(a,b),t=W.tk[k]||{},na=ctx.M[a].CIUDAD.n,nb=ctx.M[b].CIUDAD.n,f=ctx.fechas()?ctx.add(W.inicio,inicioCiudad(ctx,b)):"",ops=ctx.opciones(a,b);
    return `<div class="card buy" style="border-left:6px solid ${colDe(ctx,b)}"><span class="eyebrow">${f?ctx.pretty(f):"Traslado"}</span><h3>${ctx.esc(short(na))} → ${ctx.esc(short(nb))}</h3>
     <p><b>${ctx.MODO[e.m]}</b> · ${ctx.fh(e.min/60)}${e.eur?` · ~${FM(e.eur)} por persona`:""}${e.rec?" · recomendado":""}</p>${e.n?`<p class="muted">${ctx.esc(e.n)}</p>`:""}
