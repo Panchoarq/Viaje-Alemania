@@ -166,8 +166,10 @@ function dayHTML(ctx,day,S){const W=ctx.W,cid=day.cid,M=ctx.M[cid],CI=M.CIUDAD,c
   h+=`<span class="muted" style="font-size:12px">Precios aproximados por persona.</span></div><div class="blk blk-att"><h4>Atracciones</h4>`;
   if(S&&S.seq.length){const legs=S.legs;let lp=false,cp=null;
     const per=a=>a.night||a.st>=19?"n":a.st>(S.lunch||13)?"t":"m",PH={m:"🌅 Mañana",t:"☀ Tarde",n:"🌙 Noche"};
-    const lunch=()=>{
-      return `<div class="lunch">🍽 <b>${hm(S.lunch)}–${hm(S.lunch+1)}</b> Almuerzo (1 h)${(M.COMIDAS||{}).a?` <span class="ffs">${(M.COMIDAS.a||[]).slice(0,2).map(x=>ctx.esc(x[0])+" ("+FM(x[1])+")").join(" · ")} · <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("restaurantes cerca de "+(S.lunchPos||CI.ll).join(","))}" target="_blank" rel="noopener">buscar cerca</a></span>`:""}</div>`};
+    const lunch=()=>{const lr=(W.lunchAt||{})[day.id],CA=(M.COMIDAS||{}).a||[];
+      return `<div class="lunch">🍽 <b>${hm(S.lunch)}–${hm(S.lunch+1)}</b> ${lr?"Almuerzo en <b>"+ctx.esc(lr)+"</b>":"Almuerzo (1 h)"}${CA.length?`<span class="ffs">${CA.slice(0,2).map(x=>ctx.esc(x[0])+" ("+FM(x[1])+")").join(" · ")} · <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("restaurantes cerca de "+(S.lunchPos||CI.ll).join(","))}" target="_blank" rel="noopener">buscar cerca</a></span>`:""}
+        <select class="daysel lunchsel" data-lunchpick="${day.id}" aria-label="Elegir dónde almorzar"><option value="">🍽 elegir lugar…</option>${CA.map(x=>`<option value="${ctx.esc(x[0])}" ${lr===x[0]?"selected":""}>${ctx.esc(x[0])}</option>`).join("")}${lr?`<option value="-">✕ quitar</option>`:""}</select>
+        <form class="fsearch" data-lunchfree="${day.id}"><input name="n" placeholder="Otro lugar…" aria-label="Nombre del lugar"><button type="submit" class="btn sm">Almorzar aquí</button></form></div>`};
     S.seq.forEach((a,k)=>{const l=legs[k];if(S.lunch&&!lp&&a.st>S.lunch){h+=lunch();lp=true}const pr=per(a);if(pr!==cp){cp=pr;h+=`<div class="dper" data-p="${pr}"><span>${PH[pr]}</span><small>desde ${hm(a.st)}</small></div>`}
       h+=l.noloc?`<span class="mv">↓ ${ctx.esc(a.n)}: sin dirección, sin traslado calculado</span>`:l.metro?`<span class="mv">↓ ~${l.min} min en transporte público${k===0?" desde el alojamiento":""} · <a href="${trUrl(l.from,l.to,1)}" target="_blank" rel="noopener">ver cómo llegar</a></span>`:`<span class="mv">↓ a pie ~${l.min} min${k===0?" desde el alojamiento":""}</span>`;
       h+=actRow(ctx,day,a,k,S)});
@@ -259,6 +261,21 @@ function mapOverlay(ctx){if(!P.map)return "";const day=todosDias(ctx).find(x=>x.
 function planDe(ctx,day){const ids=((ctx.W.prog||{})[day.cid]||[])[day.i];if(!ids)return null;const A=atrDe(ctx,day.cid),acts=ids.map(i=>A[i]).filter(Boolean);
   const S=sequence(ctx,acts,day,baseDe(ctx,day.cid),true);S.legs=legsOf(ctx,S);return S}
 
+// ---------- Pronóstico (Open-Meteo)
+let WX={};
+const WXI=c=>c===0?"☀️":c<=2?"🌤":c===3?"☁️":c<=48?"🌫":c<=57?"🌦":c<=67?"🌧":c<=77?"🌨":c<=82?"🌧":"⛈";
+function wxLoad(ctx,cid){if(WX[cid])return;WX[cid]={loading:1};const ll=ctx.M[cid].CIUDAD.ll;
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ll[0]}&longitude=${ll[1]}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=auto&forecast_days=16`).then(r=>r.json()).then(j=>{const o={};(j.daily.time||[]).forEach((t,i)=>o[t]={c:j.daily.weather_code[i],mx:j.daily.temperature_2m_max[i],mn:j.daily.temperature_2m_min[i],pp:j.daily.precipitation_probability_max[i],mm:j.daily.precipitation_sum[i]});WX[cid]={d:o};if(document.querySelector(".wxcard"))ctx.render()}).catch(()=>{WX[cid]={err:1}})}
+const wxOf=(cid,d)=>{const w=WX[cid]&&WX[cid].d&&WX[cid].d[d];return w&&w.mx!=null&&w.pp!=null?w:null};
+const rainy=w=>w&&(w.pp>=60||(w.pp>=40&&w.mm>=4));
+function wxCard(ctx,cid){const ds=diasCiudad(ctx,cid).filter(d=>d.d);if(!ds.length)return"";const iso=x=>x.toISOString().slice(0,10),today=iso(new Date()),lim=iso(new Date(Date.now()+15*864e5)),nm=short(ctx.M[cid].CIUDAD.n);
+  if(ds[0].d>lim)return `<div class="wxcard muted">🌦 El pronóstico del tiempo de ${ctx.esc(nm)} aparece aquí desde 16 días antes de llegar.</div>`;
+  if(ds[ds.length-1].d<today)return"";wxLoad(ctx,cid);if(!WX[cid]||WX[cid].loading)return `<div class="wxcard muted">🌦 Cargando pronóstico…</div>`;if(WX[cid].err)return `<div class="wxcard muted">🌦 No se pudo cargar el pronóstico.</div>`;
+  const vis=ds.filter(d=>wxOf(cid,d.d));if(!vis.length)return"";
+  return `<div class="wxcard"><div class="wxh"><span class="eyebrow">Pronóstico · ${ctx.esc(nm)}</span><small class="muted">Open-Meteo · se actualiza al abrir</small></div>
+   <div class="wxrow">${vis.map(d=>{const w=wxOf(cid,d.d);return `<button type="button" class="wxd${rainy(w)?" wet":""}" data-calgo="${d.id}" title="${ctx.pretty(d.d)}: ${Math.round(w.mn)}–${Math.round(w.mx)} °C, lluvia ${w.pp}% (${w.mm} mm)"><small>${ctx.pretty(d.d).replace(/ [a-zé]+$/,"")}</small><span class="wi">${WXI(w.c)}</span><b>${Math.round(w.mx)}°</b><small>${Math.round(w.mn)}° · ${w.pp}%</small></button>`}).join("")}</div>
+   <small class="muted">${vis.some(d=>rainy(wxOf(cid,d.d)))?"Hay días con lluvia: prefiere atracciones techadas (🏛) esos días.":"Sin lluvia importante en el pronóstico."}</small></div>`}
+
 // ---------- vista principal
 export function programa(ctx){
   ML.forEach(m=>{try{m.remove()}catch(e){}});ML=[];
@@ -273,7 +290,7 @@ export function programa(ctx){
     return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===P.day[cid]}"><i>${d.d?q[0]:"día"}</i><b>${d.d?q[1]:d.g+1}</b><small>${tg}</small></button>`}).join("")}</div></div>`;
   const days=all.map(d=>{const S=planDe(ctx,d);const sel=d.cid===cid&&d.id===P.day[cid];
     return dayHTML(ctx,d,S).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${sel?" sel":""}"${d.cid===cid?"":" hidden"}${a}>`)}).join("");
-  return `${fcard(ctx,cid)}${tabs}${org}${chips}<div class="days" id="days">${days}</div>${tripCal(ctx)}${mapOverlay(ctx)}`}
+  return `${fcard(ctx,cid)}${wxCard(ctx,cid)}${tabs}${org}${chips}<div class="days" id="days">${days}</div>${tripCal(ctx)}${mapOverlay(ctx)}`}
 
 // ---------- mapas MapLibre (plano del día)
 const circ=(c,r)=>{const o=[];for(let i=0;i<=24;i++){const a=i/24*2*Math.PI;o.push([c[1]+r/111320/Math.cos(c[0]*Math.PI/180)*Math.cos(a),c[0]+r/110574*Math.sin(a)])}return o};
@@ -302,6 +319,8 @@ function initMaps(ctx){if(!window.maplibregl)return;const all=todosDias(ctx);
 export function bindPrograma(ctx){const W=ctx.W,Q=(s,f)=>document.querySelectorAll(s).forEach(f),R=()=>{ctx.guardar();ctx.render()};
   const cidAct=SUB.c;
   Q("details[data-poolc]",d=>d.ontoggle=()=>{P.pool[d.dataset.poolc]=d.open});
+  Q("[data-lunchpick]",x=>x.onchange=()=>{W.lunchAt=W.lunchAt||{};if(x.value==="-"||!x.value)delete W.lunchAt[x.dataset.lunchpick];else W.lunchAt[x.dataset.lunchpick]=x.value;R()});
+  Q("[data-lunchfree]",f=>f.onsubmit=e=>{e.preventDefault();const n=f.n.value.trim();if(!n)return;W.lunchAt=W.lunchAt||{};W.lunchAt[f.dataset.lunchfree]=n;R()});
   Q("[data-dtab]",b=>b.onclick=()=>{SUB.c=b.dataset.dtab;ctx.render()});
   Q("[data-dchip]",b=>b.onclick=()=>{P.day[cidAct]=b.dataset.dchip;ctx.render();const dv=document.querySelector(`#days > .day[data-day="${b.dataset.dchip}"]`);if(dv)dayScroll(dv)});
   Q("[data-calopen]",b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();P.cal=true;P.pop=null;ctx.render()});
