@@ -11,7 +11,11 @@ export const TRASLADOS={
  "glasgow-standrews":[{m:"auto",min:105,eur:0,rec:1,n:"Unos 130 km; la mejor opción."},{m:"tren",min:140,eur:25,n:"Con cambio en Edimburgo y bus desde Leuchars."},{m:"bus",min:150,eur:20,n:"Citylink con transbordo."}],
  "inverness-skye":[{m:"auto",min:120,eur:0,rec:1,n:"Unos 170 km por Kyle of Lochalsh y el puente."},{m:"bus",min:150,eur:25,n:"Citylink directo a Portree (verificar horarios)."}],
  "inverness-standrews":[{m:"auto",min:165,eur:0,rec:1,n:"Unos 250 km por la A9 y Perth."},{m:"tren",min:210,eur:35,n:"Con cambio en Perth o Edimburgo y bus desde Leuchars."}],
- "skye-standrews":[{m:"auto",min:330,eur:0,rec:1,n:"Unos 400 km; conviene hacerlo en dos tramos."},{m:"bus",min:480,eur:55,n:"Con dos o más cambios; muy largo."}]
+ "skye-standrews":[{m:"auto",min:330,eur:0,rec:1,n:"Unos 400 km; conviene hacerlo en dos tramos."},{m:"bus",min:480,eur:55,n:"Con dos o más cambios; muy largo."}],
+ "dublin-edimburgo":[{m:"avion",min:70,eur:50,rec:1,n:"DUB–EDI, vuelos directos frecuentes; llegar 2 h antes."},{m:"barco",min:480,eur:60,n:"Ferry Belfast–Cairnryan + bus; largo."}],
+ "dublin-glasgow":[{m:"avion",min:70,eur:50,rec:1,n:"DUB–GLA, vuelos directos frecuentes."},{m:"barco",min:420,eur:55,n:"Ferry Belfast–Cairnryan + bus; largo."}],
+ "belfast-edimburgo":[{m:"avion",min:55,eur:45,rec:1,n:"BFS–EDI, vuelo corto."},{m:"barco",min:420,eur:50,n:"Ferry Belfast–Cairnryan + bus."}],
+ "belfast-glasgow":[{m:"barco",min:300,eur:40,rec:1,n:"Ferry Belfast–Cairnryan (2 h 15) + bus a Glasgow."},{m:"avion",min:50,eur:45,n:"BFS–GLA, vuelo corto."}]
 };
 
 // Códigos de aeropuerto (vacío = sin vuelos comerciales útiles) y operadores para los enlaces de búsqueda.

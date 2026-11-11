@@ -23,8 +23,8 @@ export const PAISES=[
 ];
 
 // Ciudades anexas: escapada a una ciudad de un país vecino dentro de un viaje de otro país (como Bruselas desde París).
-const ANEXAS={alemania:[["chequia","praga"]],chequia:[["alemania","berlin"],["alemania","munich"]],francia:[["inglaterra","londres"]],inglaterra:[["francia","paris"]],
- escocia:[["irlanda","dublin"],["irlanda","belfast"]],irlanda:[["escocia","edimburgo"],["escocia","glasgow"]]};
+const ANEXAS={alemania:[["chequia","praga"]],chequia:[["alemania","berlin"],["alemania","munich"]],francia:[["inglaterra","londres"]],inglaterra:[["francia","paris"],["escocia","edimburgo"],["escocia","glasgow"],["irlanda","dublin"],["irlanda","belfast"]],
+ escocia:[["inglaterra","londres"],["irlanda","dublin"],["irlanda","belfast"]],irlanda:[["inglaterra","londres"],["escocia","edimburgo"],["escocia","glasgow"]]};
 export const anexasDe=paisId=>(ANEXAS[paisId]||[]).map(([p,c])=>{const P=PAISES.find(x=>x.id===p),C=P&&P.ciudades.find(x=>x.id===c);return C&&C.estado==="lista"?{...C,pais:p,paisN:P.n,bandera:P.p}:null}).filter(Boolean);
 
 // Buscador simple por texto (sin tildes) para el asistente.
