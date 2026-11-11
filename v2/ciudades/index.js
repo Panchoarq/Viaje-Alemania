@@ -17,7 +17,7 @@ export const PAISES=[
  {id:"corea-del-sur",n:"Corea del Sur",p:"🇰🇷",moneda:"KRW",ciudades:[
   {id:"seul",n:"Seúl",estado:"lista"},{id:"busan",n:"Busan",estado:"lista"},{id:"jeju",n:"Isla de Jeju",estado:"lista"},{id:"gyeongju",n:"Gyeongju",estado:"lista"}]},
  {id:"inglaterra",n:"Inglaterra",p:"🇬🇧",moneda:"GBP",ciudades:[{id:"londres",n:"Londres",estado:"lista"}]},
- {id:"francia",n:"Francia",p:"🇫🇷",moneda:"EUR",ciudades:[{id:"paris",n:"París",estado:"lista"},{id:"estrasburgo",n:"Estrasburgo",estado:"pendiente"}]},
+ {id:"francia",n:"Francia",p:"🇫🇷",moneda:"EUR",ciudades:[{id:"paris",n:"París",estado:"lista"},{id:"estrasburgo",n:"Estrasburgo",estado:"lista"}]},
  {id:"alemania",n:"Alemania",p:"🇩🇪",moneda:"EUR",ciudades:[{id:"hamburgo",n:"Hamburgo",estado:"lista"},{id:"berlin",n:"Berlín",estado:"lista"},{id:"munich",n:"Múnich",estado:"lista"}]},
  {id:"chequia",n:"Chequia",p:"🇨🇿",moneda:"CZK",ciudades:[{id:"praga",n:"Praga",estado:"lista"}]}
 ];
