@@ -89,6 +89,7 @@ input[type=date],input[type=time],input[type=text],input[type=number]{font:16px 
 
 <script type="module">
 import {PAISES,cargar,cargarTraslados,anexasDe} from "./v2/ciudades/index.js";
+import {MODOS} from "./v2/extremos.js";
 import * as NUBE from "./v2/nube.js";
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -162,7 +163,14 @@ const vistas=[
   <div class="disp" id="bloqueFecha" ${W.cuando==="fecha"?"":"hidden"}>
    <label class="fld">Fecha de llegada<input type="date" id="inicio" value="${esc(W.inicio)}"></label>
    <label class="fld">Hora aproximada de llegada (opcional)<input type="time" id="hora" value="${esc(W.hora)}"></label></div>
-  <label class="opt"><input type="radio" name="cuando" value="generico" ${W.cuando==="generico"?"checked":""}><span><b>Aún no tengo fechas</b><small>Armo la ruta con «día 1, día 2…» y después le pones fecha.</small></span></label>`,
+  <label class="opt"><input type="radio" name="cuando" value="generico" ${W.cuando==="generico"?"checked":""}><span><b>Aún no tengo fechas</b><small>Armo la ruta con «día 1, día 2…» y después le pones fecha.</small></span></label>
+  ${(()=>{const l=W.llega||{},s=W.sale||{},sel=(k,v)=>`<select data-x="${k}">${Object.entries(MODOS).map(([m,t])=>`<option value="${m}" ${(v||"avion")===m?"selected":""}>${t}</option>`).join("")}</select>`;
+   return `<p class="paso" style="margin-top:14px">Cómo llegas y cómo te vas (opcional)</p><p class="muted">Así el día 1 parte desde el aeropuerto o la estación hacia tu alojamiento, y el último día calculo a qué hora salir. Se puede cambiar después en Configurar.</p>
+   <div class="disp"><label class="fld">Llegas en${sel("llega.modo",l.modo)}</label><label class="fld">Sales desde<input data-x="llega.de" value="${esc(l.de||"")}" placeholder="Ej.: Santiago, Londres" maxlength="60"></label>
+   <label class="fld">Llegas a (aeropuerto, estación…)<input data-x="llega.pt" value="${esc(l.pt||"")}" placeholder="Ej.: Aeropuerto, Estación central" maxlength="60"></label></div>
+   <div class="disp"><label class="fld">Te vas en${sel("sale.modo",s.modo)}</label><label class="fld">Te vas hacia<input data-x="sale.a" value="${esc(s.a||"")}" placeholder="Ej.: Santiago, otra ciudad" maxlength="60"></label>
+   <label class="fld">Sales desde<input data-x="sale.pt" value="${esc(s.pt||"")}" placeholder="Aeropuerto, estación…" maxlength="60"></label>
+   <label class="fld">Hora de salida (si la sabes)<input type="time" data-x="sale.hora" value="${esc(s.hora||"")}"></label></div>`})()}`,
  // 1 Ciudades
  ()=>{const ids=W.ciudades.map(c=>c.id);
   return `<p class="paso">Paso 2 de 7 · ${PASOS[1]}</p><h1>¿Qué ciudades visitas?</h1>
@@ -241,6 +249,7 @@ function enlazar(){
   document.querySelectorAll('input[name="cuando"]').forEach(r=>r.onchange=()=>{W.cuando=r.value;$("#bloqueFecha").hidden=W.cuando!=="fecha";guardar()});
   const i=$("#inicio");if(i)i.onchange=()=>{W.inicio=i.value;guardar()};
   const h=$("#hora");if(h)h.onchange=()=>{W.hora=h.value;guardar()};
+  document.querySelectorAll("[data-x]").forEach(x=>x.onchange=()=>{const [o,k]=x.dataset.x.split(".");W[o]=W[o]||{};W[o][k]=x.value;guardar()});
   document.querySelectorAll("[data-tog]").forEach(b=>b.onclick=()=>{const id=b.dataset.tog,j=W.ciudades.findIndex(x=>x.id===id);if(j>=0)W.ciudades.splice(j,1);else W.ciudades.push(C[id].anexa?{id,noches:C[id].ideal,pais:C[id].anexa}:{id,noches:C[id].ideal});guardar();pintar()});
   document.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{const i=+b.dataset.up,a=W.ciudades;[a[i-1],a[i]]=[a[i],a[i-1]];guardar();pintar()});
   document.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const i=+b.dataset.dn,a=W.ciudades;[a[i+1],a[i]]=[a[i],a[i+1]];guardar();pintar()});
