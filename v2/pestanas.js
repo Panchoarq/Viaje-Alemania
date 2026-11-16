@@ -3,6 +3,7 @@
 import {SUB,selDe,diasDe,CAP,GRUPOS,grupoDe,agrupar} from "./motor.js";
 import {alternarAtr,formNueva,quitarCustom,bindNueva,diasCiudad} from "./programa.js";
 import {arqHTML} from "./estilos.js";
+import {mlStyle} from "./mlstyle.js";
 
 const COL=["#2e4f8f","#1d6f7a","#a8352b","#2e6b4f","#b8860b","#7b4ba0","#c2477f"];
 const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -56,6 +57,21 @@ function contextoHTML(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,U=M.UNDIA||[],ME=
   if(ME.length)h+=`<details class="cxs" data-cx="${cid}:med"${cxOpen(cid+":med")}><summary>🎬 Cine, música y libros para conocerla</summary>
    <div class="media">${ME.map(([t,tipo,d,ed])=>`<div class="mi"><b>${ctx.esc(t)}</b><small>${ctx.esc(tipo)}${ed?" · "+ctx.esc(ed):""}</small><p>${ctx.esc(d)}</p></div>`).join("")}</div></details>`;
   return h}
+// ---------- plano de cada caminata (mismo estilo que el plano del día del Programa)
+let RM=[];
+function mapaRuta(ctx,el,P){const m=new maplibregl.Map({container:el,style:mlStyle(),interactive:true,attributionControl:false,
+    bounds:[[Math.min(...P.map(a=>a.ll[1])),Math.min(...P.map(a=>a.ll[0]))],[Math.max(...P.map(a=>a.ll[1])),Math.max(...P.map(a=>a.ll[0]))]],fitBoundsOptions:{padding:30,maxZoom:16}});
+  m.scrollZoom.disable();m.dragPan.disable();m.touchZoomRotate.disable();m.doubleClickZoom.disable();el._m=m;RM.push(m);
+  P.forEach((a,k)=>{const w=document.createElement("div");w.className="mlmk";w.innerHTML=`<div class="lm-a${a.top?" top":""}">${k+1}</div>`;new maplibregl.Marker({element:w,anchor:"left",offset:[-11,0]}).setLngLat([a.ll[1],a.ll[0]]).addTo(m)});
+  m.on("load",()=>{const f=P.slice(1).map((a,i)=>({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:[[P[i].ll[1],P[i].ll[0]],[a.ll[1],a.ll[0]]]}}));
+    m.addSource("walk",{type:"geojson",data:{type:"FeatureCollection",features:f}});
+    m.addLayer({id:"walk-h",type:"line",source:"walk",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#fffdf5","line-width":5,"line-opacity":.85}});
+    m.addLayer({id:"walk",type:"line",source:"walk",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#2a2620","line-width":2.6,"line-dasharray":[0.2,2]}})});
+  return m}
+function initMapasRuta(ctx){if(!window.maplibregl)return;
+  document.querySelectorAll(".lmap[data-rmap]").forEach(el=>{if(el._m||!el.offsetParent)return;const [cid,rid,k]=el.dataset.rmap.split(":"),ru=(ctx.M[cid].RUTAS||[]).find(x=>x.id===rid),v=ru&&(ru.v||[]).find(x=>x.k===k);if(!v)return;
+    const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),P=v.ids.map(i=>A[i]).filter(a=>a&&a.ll);if(P.length<1)return;
+    try{el.classList.add("ml");mapaRuta(ctx,el,P)}catch(e){console.warn("mapa ruta",e);el.classList.remove("ml")}})}
 // ---------- recorridos a pie temáticos, según el tiempo disponible
 const hmin=m=>{m=Math.round(m);const h=Math.floor(m/60),x=m%60;return h?`${h} h${x?" "+x+" min":""}`:`${x} min`};
 function datosRuta(ctx,cid,v){const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),P=(v.ids||[]).map(i=>A[i]).filter(Boolean);
@@ -66,6 +82,7 @@ function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return
    <p class="muted" style="margin-top:0">Cada recorrido viene en versiones según el tiempo que tengas. Al agregarlo, sus paradas pasan al programa y se reparten en tus días.</p>
    <div class="rutarail">${R.map(ru=>{const vs=ru.v||[],cur=vs.find(x=>x.k===E.rv[cid+":"+ru.id])||vs[0];if(!cur)return "";const d=datosRuta(ctx,cid,cur),todo=cur.ids.every(i=>S.has(i));
     return `<div class="ruta"><h3>${ru.e||"🚶"} ${ctx.esc(ru.n)}</h3>${ru.d?`<p>${ctx.esc(ru.d)}</p>`:""}${ilu(ctx,ru.img)}
+     ${window.maplibregl?`<div class="mapclip lclip rmapclip" data-rclip="${cid}:${ru.id}:${cur.k}" role="button" tabindex="0" aria-label="Ampliar el plano de la caminata"><span class="clip" aria-hidden="true"></span><div class="lmap" data-rmap="${cid}:${ru.id}:${cur.k}"></div><span class="mc-cap">Plano de la caminata · ampliar</span><span class="mc-cr">© OpenFreeMap · OSM</span></div>`:""}
      <div class="seg" role="group" aria-label="Tiempo disponible">${vs.map(x=>{const t2=datosRuta(ctx,cid,x).tot,hh=Math.round(t2/30)/2;return `<button type="button" data-rv="${cid}:${ru.id}:${x.k}" aria-pressed="${x.k===cur.k}">${ctx.esc(x.n)} · ~${String(hh).replace(".",",")} h</button>`}).join("")}</div>
      <p class="rtot">⏱ <b>~${hmin(d.tot)}</b> en total · ${hmin(d.vis*60)} de visitas + ${hmin(d.cam)} caminando · ${d.km.toFixed(1).replace(".",",")} km · ${d.T.length} paradas</p>
      <ol class="rstops">${d.T.map(({a,w},i)=>`<li>${i?`<span class="rwalk">🚶 ${w} min a pie</span>`:""}<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}</small>${a.arq?arqHTML(a.arq):""}${cur.n2&&cur.n2[a.id]?`<em>${ctx.esc(cur.n2[a.id])}</em>`:""}</li>`).join("")}</ol>
@@ -120,6 +137,12 @@ export function atracciones(ctx){
 }
 export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s).forEach(f),R=()=>{ctx.guardar();ctx.render()};
   bindNueva(ctx);
+  RM.forEach(m=>{try{m.remove()}catch(e){}});RM=[];
+  Q(".rmapclip",c=>{const tog=()=>{const big=c.classList.toggle("rbig"),m=c.querySelector(".lmap")._m;c.querySelector(".mc-cap").textContent=big?"Plano de la caminata · reducir":"Plano de la caminata · ampliar";
+      if(m){setTimeout(()=>{m.resize();const b=m.getBounds();m.fitBounds(b,{padding:30,duration:0});if(big){m.dragPan.enable();m.touchZoomRotate.enable();m.scrollZoom.disable()}else{m.dragPan.disable();m.touchZoomRotate.disable()}},60)}};
+    c.onclick=tog;c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}}});
+  setTimeout(()=>initMapasRuta(ctx),0);
+  Q("details.rutas",d=>d.addEventListener("toggle",()=>{if(d.open)setTimeout(()=>initMapasRuta(ctx),0)}));
   Q("[data-afil]",b=>b.onclick=()=>{E.fil=b.dataset.afil;ctx.render()});
   Q("[data-azon]",b=>b.onclick=()=>{E.zon=b.dataset.azon;ctx.render()});
   Q("[data-atip]",b=>b.onclick=()=>{E.tip=b.dataset.atip;ctx.render()});
@@ -137,7 +160,11 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;
     const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
-    const upd=()=>{const i=cur();rp.textContent=`${i+1} de ${cs.length}`;bar.style.width=(i+1)/cs.length*100+"%";bs[0].disabled=i<=0;bs[1].disabled=i>=cs.length-1};
+    // En el celular el carrusel toma la altura de la ficha que se está viendo (no la de la más larga), para que lo que sigue quede pegado a ella.
+    const fit=()=>{if(getComputedStyle(rail).display!=="flex"){rail.style.height="";rail.style.alignItems="";rail.style.overflowY="";return}const f=cs[cur()];rail.style.alignItems="flex-start";rail.style.overflowY="hidden";rail.style.height=(f.offsetHeight+10)+"px"};
+    const upd=()=>{const i=cur();rp.textContent=`${i+1} de ${cs.length}`;bar.style.width=(i+1)/cs.length*100+"%";bs[0].disabled=i<=0;bs[1].disabled=i>=cs.length-1;fit()};
+    if(window.ResizeObserver){const ro=new ResizeObserver(()=>fit());cs.forEach(c=>ro.observe(c))}
+    addEventListener("resize",fit);
     rail.addEventListener("scroll",()=>requestAnimationFrame(upd),{passive:true});
     bs.forEach(b=>b.onclick=()=>{const j=Math.max(0,Math.min(cs.length-1,cur()+ +b.dataset.rail));rail.scrollBy({left:cs[j].getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"})});upd()});
   Q(".fichas.att .ficha",f=>{if(E.open.has(f.id))f.classList.add("open");f.onclick=e=>{if(innerWidth>700||e.target.closest("a,button,select,input,label"))return;f.classList.toggle("open");f.classList.contains("open")?(E.open.add(f.id),f.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})):E.open.delete(f.id)}});
