@@ -6,6 +6,10 @@ import {atracciones,bindAtracciones,escapadas,bindEscapadas,espectaculos,bindEsp
 import {gastos,bindGastos,transporte,bindTransporte,alojamiento,bindAlojamiento,tramites,bindTramites} from "./pestanas2.js";
 export const CAP={rap:7.5,int:5.5,rel:4},CAPN={rap:"rápido",int:"intermedio",rel:"relajado"};
 export let SUB={};
+// Categorías de atracciones (para listas por grupo en Programa y Atracciones): [clave, nombre, tipos de ficha]
+export const GRUPOS=[["mus","Museos y ciencia",["mus","cie"]],["his","Monumentos, historia y miradores",["his","mon","mir","pal","cas"]],["igl","Iglesias y catedrales",["igl"]],["pas","Paseos, barrios y mercados",["bar","par","mer","cafe"]],["nat","Naturaleza y excursiones",["nat"]],["ent","Atracciones entretenidas",["ent","exp","dep"]],["fam","En familia",["fam"]],["otr","Compras y otros",["tie"]]];
+export const grupoDe=a=>(GRUPOS.find(g=>g[2].includes(a.t))||GRUPOS[GRUPOS.length-1])[0];
+export const agrupar=L=>GRUPOS.map(([k,n])=>({k,n,L:L.filter(a=>grupoDe(a)===k)})).filter(g=>g.L.length);
 export const diasDe=(ctx,cid)=>Math.max(1,(ctx.W.ciudades.find(x=>x.id===cid)||{noches:1}).noches);
 export function inicioCiudad(ctx,cid){let d=0;for(const x of ctx.W.ciudades){if(x.id===cid)return d;d+=x.noches}return 0}
 export function selDe(ctx,cid){

@@ -3,7 +3,7 @@
 // Generalizado a N ciudades: lee W.ciudades y los paquetes de ciudad (ctx.M). El reparto usa el mismo algoritmo de París.
 // Datos del viaje: W.sel{ciudad:[ids]} · W.prog{ciudad:[[ids por día]]} (el orden de cada día es el orden de visita)
 //                  W.pin{idAtracción:díaDeLaCiudad} · W.meal{"día|k":0/1} · W.mealOpt{"día|k":n}
-import {SUB,selDe,diasDe,inicioCiudad,CAP} from "./motor.js";
+import {SUB,selDe,diasDe,inicioCiudad,CAP,agrupar} from "./motor.js";
 import {inicioDia1,textoLlegada,tarjetaSalida} from "./extremos.js";
 import {mlStyle} from "./mlstyle.js";
 
@@ -32,7 +32,7 @@ const NOMC={d:"Desayuno",a:"Almuerzo",m:"Merienda",c:"Cena"};
 const ONMEAL={d:1,a:1,m:0,c:1};
 
 // estado de la vista (no se guarda)
-const P={pool:{},day:{},cal:false,pop:null,leg:false,add:null,map:null,fich:null,open:new Set()};
+const P={pool:{},poolOpen:{},grp:{},day:{},cal:false,pop:null,leg:false,add:null,map:null,fich:null,open:new Set()};
 let ML=[];
 
 // ---------- sol (hora local de la ciudad)
@@ -224,10 +224,17 @@ function fcard(ctx,cid){const W=ctx.W,M=ctx.M[cid],At=M.ATRACCIONES||[],S=selDe(
    <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div>
    <span class="status ${over?"bad":"ok"}">${over?`No alcanza: faltan ${sin.length} actividad(es) → ritmo intenso, más noches o quitar otras`:"✓ Todo cabe"}</span>
    ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora</span>`+sin.map(a=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-psel="${cid}|${a.id}" checked><span class="t">${ctx.esc(a.n)}<small>~${num1(a.h)} h</small></span></label>`).join(""):""}
-   <span class="eyebrow" style="margin-top:6px">Agregar o quitar actividades</span>
-   <details class="pool" data-poolc="${cid}"${P.pool[cid]?" open":""}><summary>Atracciones de ${ctx.esc(short(CI.n))} <span class="poolcnt">(${S.size} de ${At.length})</span></summary>${At.map(a=>{const on=S.has(a.id),dd=dia(a),pin=(W.pin||{})[a.id];
-     return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-psel="${cid}|${a.id}" ${on?"checked":""}><span class="t">${ctx.esc(a.n)}${a.top?'<span class="top">★ imperdible</span>':""}${a.in?' 🏛':""}<small>~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.u?` · <a href="${ctx.esc(a.u)}" target="_blank" rel="noopener">sitio</a>`:""}</small></span></label>${on?`<select class="daysel poolday" data-papin="${cid}|${a.id}" aria-label="Día"><option value="">📅 día automático</option>${days.map(x=>`<option value="${x.i}" ${pin===x.i?"selected":""}>${diaTxt(ctx,x)}</option>`).join("")}</select>`:""}${on?`<small class="pdst${dd?"":" bad"}">${dd?`✔ ${diaTxt(ctx,dd)} · ${pin!=null?"día fijado":"día automático"} · <a href="#" data-goday="${dd.id}">ver el día →</a>`:"⚠ No cabe en el programa: elige otro día o ritmo intenso"}</small>`:""}</div>`}).join("")||'<p class="muted">Esta ciudad aún no tiene atracciones precargadas.</p>'}</details>
-   <button type="button" class="btn alt sm clrcity" data-clrcity="${cid}">Reformatear ${ctx.esc(short(CI.n))}: quitar todas las actividades</button></div></div>`}
+   </div></div>`}
+
+// Elegir atracciones: lista por categoría (se abre con «Elegir atracciones»)
+function poolPanel(ctx,cid){const W=ctx.W,M=ctx.M[cid],At=M.ATRACCIONES||[],S=selDe(ctx,cid),days=diasCiudad(ctx,cid),pr=W.prog[cid];
+  const dia=a=>{for(let i=0;i<pr.length;i++)if(pr[i].includes(a.id))return days[i]};
+  const row=a=>{const on=S.has(a.id),dd=dia(a),pin=(W.pin||{})[a.id];
+   return `<div class="poolrow${on?" on":""}"><label class="chk"><input type="checkbox" data-psel="${cid}|${a.id}" ${on?"checked":""}><span class="t">${ctx.esc(a.n)}${a.top?'<span class="top">★ imperdible</span>':""}${a.in?' 🏛':""}<small>~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.u?` · <a href="${ctx.esc(a.u)}" target="_blank" rel="noopener">sitio</a>`:""}</small></span></label>${on?`<select class="daysel poolday" data-papin="${cid}|${a.id}" aria-label="Día"><option value="">📅 día automático</option>${days.map(x=>`<option value="${x.i}" ${pin===x.i?"selected":""}>${diaTxt(ctx,x)}</option>`).join("")}</select>`:""}${on?`<small class="pdst${dd?"":" bad"}">${dd?`✔ ${diaTxt(ctx,dd)} · ${pin!=null?"día fijado":"día automático"} · <a href="#" data-goday="${dd.id}">ver el día →</a>`:"⚠ No cabe en el programa: elige otro día o ritmo intenso"}</small>`:""}</div>`};
+  const G=agrupar([...At].sort((a,b)=>(b.top?1:0)-(a.top?1:0)));
+  return `<div class="poolpanel"><div class="pphead"><span class="eyebrow">Elegir atracciones de ${ctx.esc(short(M.CIUDAD.n))} · ${S.size} de ${At.length}</span><button type="button" class="lnkb" data-orgpick="${cid}">Cerrar ✕</button></div>
+   ${G.map(g=>{const n=g.L.filter(a=>S.has(a.id)).length,k=cid+":"+g.k,open=P.grp[k]!=null?P.grp[k]:n>0;
+    return `<details class="pgrp" data-pgrp="${k}"${open?" open":""}><summary><b>${g.n}</b><span class="poolcnt">${n} de ${g.L.length}</span></summary>${g.L.map(row).join("")}</details>`}).join("")||'<p class="muted">Esta ciudad aún no tiene atracciones precargadas.</p>'}</div>`}
 
 // ---------- calendario del viaje
 function tripCal(ctx){if(!P.cal||!ctx.fechas())return "";const W=ctx.W,days=todosDias(ctx);if(!days.length)return "";
@@ -286,12 +293,12 @@ export function programa(ctx){
   const ds=diasCiudad(ctx,cid);if(!P.day[cid]||!ds.some(x=>x.id===P.day[cid]))P.day[cid]=ds[0].id;
   const all=todosDias(ctx),W=ctx.W,cc=colDe(ctx,cid);
   const tabs=`<div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad">${ctx.fechas()?`<button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>`:""}${ctx.ids.map(c=>{const cd=diasCiudad(ctx,c),a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-dtab="${c}" aria-selected="${c===cid}"><b>${ctx.esc(short(ctx.M[c].CIUDAD.n))}</b><small>${a.d?ctx.pretty(a.d)+(b!==a?" – "+ctx.pretty(b.d):"")+" · ":""}${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}</div>`;
-  const org=`<div class="orgbar"><span class="eyebrow">Organizar</span><button type="button" class="orgb" data-orgrun="${cid}" title="Repartir las atracciones elegidas por días, agrupando por cercanía y ritmo"><span>🧭</span>Reorganizar</button><button type="button" class="orgb" data-gotab="att" title="Elegir atracciones"><span>🏛</span>Elegir atracciones</button><button type="button" class="orgb clr" data-clrcity="${cid}" title="Quitar todas las actividades"><span>🗑</span>Vaciar</button></div>`;
+  const org=`<div class="orgbar"><span class="eyebrow">Organizar</span><button type="button" class="orgb" data-orgrun="${cid}" title="Repartir las atracciones elegidas por días, agrupando por cercanía y ritmo"><span>🧭</span>Reorganizar</button><button type="button" class="orgb" data-orgpick="${cid}" aria-pressed="${!!P.poolOpen[cid]}" title="Elegir atracciones por categoría"><span>🏛</span>Elegir atracciones</button><button type="button" class="orgb clr" data-clrcity="${cid}" title="Quitar todas las actividades"><span>🗑</span>Vaciar</button></div>`;
   const chips=`<div class="dchipw" style="--cc:${cc}"><div class="dchips">${ds.map(d=>{const q=(d.d?ctx.pretty(d.d):"Día "+(d.g+1)).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.d?q[2]||"":"";
     return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===P.day[cid]}"><i>${d.d?q[0]:"día"}</i><b>${d.d?q[1]:d.g+1}</b><small>${tg}</small></button>`}).join("")}</div></div>`;
   const days=all.map(d=>{const S=planDe(ctx,d);const sel=d.cid===cid&&d.id===P.day[cid];
     return dayHTML(ctx,d,S).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${sel?" sel":""}"${d.cid===cid?"":" hidden"}${a}>`)}).join("");
-  return `${fcard(ctx,cid)}${wxCard(ctx,cid)}${tabs}${org}${chips}<div class="days" id="days">${days}</div>${cid===ctx.ids[ctx.ids.length-1]?tarjetaSalida(ctx):""}${tripCal(ctx)}${mapOverlay(ctx)}`}
+  return `${fcard(ctx,cid)}${wxCard(ctx,cid)}${tabs}${org}${P.poolOpen[cid]?poolPanel(ctx,cid):""}${chips}<div class="days" id="days">${days}</div>${cid===ctx.ids[ctx.ids.length-1]?tarjetaSalida(ctx):""}${tripCal(ctx)}${mapOverlay(ctx)}`}
 
 // ---------- mapas MapLibre (plano del día)
 const circ=(c,r)=>{const o=[];for(let i=0;i<=24;i++){const a=i/24*2*Math.PI;o.push([c[1]+r/111320/Math.cos(c[0]*Math.PI/180)*Math.cos(a),c[0]+r/110574*Math.sin(a)])}return o};
@@ -320,6 +327,8 @@ function initMaps(ctx){if(!window.maplibregl)return;const all=todosDias(ctx);
 export function bindPrograma(ctx){const W=ctx.W,Q=(s,f)=>document.querySelectorAll(s).forEach(f),R=()=>{ctx.guardar();ctx.render()};
   const cidAct=SUB.c;
   Q("details[data-poolc]",d=>d.ontoggle=()=>{P.pool[d.dataset.poolc]=d.open});
+  Q("[data-orgpick]",b=>b.onclick=()=>{const c=b.dataset.orgpick;P.poolOpen[c]=!P.poolOpen[c];ctx.render();if(P.poolOpen[c])setTimeout(()=>{const e=document.querySelector(".poolpanel");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},50)});
+  Q("details[data-pgrp]",d=>d.ontoggle=()=>{P.grp[d.dataset.pgrp]=d.open});
   Q("[data-lunchpick]",x=>x.onchange=()=>{W.lunchAt=W.lunchAt||{};if(x.value==="-"||!x.value)delete W.lunchAt[x.dataset.lunchpick];else W.lunchAt[x.dataset.lunchpick]=x.value;R()});
   Q("[data-lunchfree]",f=>f.onsubmit=e=>{e.preventDefault();const n=f.n.value.trim();if(!n)return;W.lunchAt=W.lunchAt||{};W.lunchAt[f.dataset.lunchfree]=n;R()});
   Q("[data-dtab]",b=>b.onclick=()=>{SUB.c=b.dataset.dtab;ctx.render()});

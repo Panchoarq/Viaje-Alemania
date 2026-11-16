@@ -1,6 +1,6 @@
 // Pestañas Atracciones, Escapadas, Espectáculos y Comidas del motor, con el diseño de /paris
 // (fichas tipo expediente con clip y polaroid, filtros, lista, carrusel en celular, mapa/ideas, tarjetas).
-import {SUB,selDe,diasDe,CAP} from "./motor.js";
+import {SUB,selDe,diasDe,CAP,GRUPOS,grupoDe,agrupar} from "./motor.js";
 import {alternarAtr,formNueva,quitarCustom,bindNueva,diasCiudad} from "./programa.js";
 import {arqHTML} from "./estilos.js";
 
@@ -17,7 +17,7 @@ const ciudadActual=ctx=>ctx.ids.includes(SUB.c)?SUB.c:ctx.ids[0];
 const zn=(ctx,cid,a)=>{const Z=ctx.M[cid].ZONAS||{},z=Z[a.z];return String((z&&z.n)||z||a.z||"").trim()};
 
 // estado de la pantalla (no se guarda)
-const E={fil:"todas",zon:"todas",open:new Set(),lst:false,food:"",ctx:true,rv:{},cx:new Set()};
+const E={fil:"todas",zon:"todas",tip:"todos",open:new Set(),lst:false,food:"",ctx:true,rv:{},cx:new Set()};
 
 // ---------- piezas comunes
 export function ctabs(ctx,cid,nota){
@@ -43,14 +43,16 @@ export function hidratar(){document.querySelectorAll("img[data-wk]:not([src])").
   else if(g)g.remove();
   else if(f){const cr=f.nextElementSibling;if(cr&&cr.classList.contains("credit"))cr.remove();f.remove()}})}
 
+// Ilustración de la ciudad (img/<ciudad>/…): si el archivo no existe, no se muestra nada.
+const ilu=(ctx,f)=>f&&f[0]?`<figure class="ilu"><img src="${ctx.esc(f[0])}" alt="${ctx.esc(f[1]||"")}" loading="lazy" onerror="this.closest('figure').remove()">${f[1]?`<figcaption>${ctx.esc(f[1])}</figcaption>`:""}</figure>`:"";
 // ---------- contexto de la ciudad: historia, un día en la ciudad y cultura
 const cxOpen=k=>E.cx.has(k)?" open":"";
 function contextoHTML(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,U=M.UNDIA||[],ME=M.MEDIA||[];let h="";
   if(C)h+=`<details class="cxs" data-cx="${cid}:his"${cxOpen(cid+":his")}><summary>📜 ${ctx.esc(C.t||"Historia")}</summary>
    ${C.tl&&C.tl.length?`<ol class="cxtl">${C.tl.map(([y,t])=>`<li><b>${ctx.esc(y)}</b><span>${ctx.esc(t)}</span></li>`).join("")}</ol>`:""}
-   ${(C.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}</details>`;
+   ${(C.p||[]).map((x,i)=>`<p>${ctx.esc(x)}</p>`+(C.fig||[]).filter(f=>f[0]===i).map(f=>ilu(ctx,f.slice(1))).join("")).join("")}</details>`;
   if(U.length)h+=`<details class="cxs" data-cx="${cid}:dia"${cxOpen(cid+":dia")}><summary>🧭 Si vienes por un día: lo que conviene saber</summary>
-   ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</details>`;
+   ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${(u.fig||[]).map(f=>ilu(ctx,f)).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</details>`;
   if(ME.length)h+=`<details class="cxs" data-cx="${cid}:med"${cxOpen(cid+":med")}><summary>🎬 Cine, música y libros para conocerla</summary>
    <div class="media">${ME.map(([t,tipo,d,ed])=>`<div class="mi"><b>${ctx.esc(t)}</b><small>${ctx.esc(tipo)}${ed?" · "+ctx.esc(ed):""}</small><p>${ctx.esc(d)}</p></div>`).join("")}</div></details>`;
   return h}
@@ -62,14 +64,15 @@ function datosRuta(ctx,cid,v){const A=Object.fromEntries((ctx.M[cid].ATRACCIONES
 function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return "";const S=selDe(ctx,cid);
   return `<details class="card rutas" data-cx="${cid}:rutas"${E.cx.has(cid+":rutas")||!E.cx.has(cid+":rutasx")?" open":""}><summary><span class="eyebrow">Recorridos a pie</span><h2>Elige tu caminata</h2></summary><div class="ctxb">
    <p class="muted" style="margin-top:0">Cada recorrido viene en versiones según el tiempo que tengas. Al agregarlo, sus paradas pasan al programa y se reparten en tus días.</p>
-   ${R.map(ru=>{const vs=ru.v||[],cur=vs.find(x=>x.k===E.rv[cid+":"+ru.id])||vs[0];if(!cur)return "";const d=datosRuta(ctx,cid,cur),todo=cur.ids.every(i=>S.has(i));
-    return `<div class="ruta"><h3>${ru.e||"🚶"} ${ctx.esc(ru.n)}</h3>${ru.d?`<p>${ctx.esc(ru.d)}</p>`:""}
+   <div class="rutarail">${R.map(ru=>{const vs=ru.v||[],cur=vs.find(x=>x.k===E.rv[cid+":"+ru.id])||vs[0];if(!cur)return "";const d=datosRuta(ctx,cid,cur),todo=cur.ids.every(i=>S.has(i));
+    return `<div class="ruta"><h3>${ru.e||"🚶"} ${ctx.esc(ru.n)}</h3>${ru.d?`<p>${ctx.esc(ru.d)}</p>`:""}${ilu(ctx,ru.img)}
      <div class="seg" role="group" aria-label="Tiempo disponible">${vs.map(x=>{const t2=datosRuta(ctx,cid,x).tot,hh=Math.round(t2/30)/2;return `<button type="button" data-rv="${cid}:${ru.id}:${x.k}" aria-pressed="${x.k===cur.k}">${ctx.esc(x.n)} · ~${String(hh).replace(".",",")} h</button>`}).join("")}</div>
      <p class="rtot">⏱ <b>~${hmin(d.tot)}</b> en total · ${hmin(d.vis*60)} de visitas + ${hmin(d.cam)} caminando · ${d.km.toFixed(1).replace(".",",")} km · ${d.T.length} paradas</p>
-     <ol class="rstops">${d.T.map(({a,w},i)=>`<li>${i?`<span class="rwalk">🚶 ${w} min a pie</span>`:""}<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.arq&&a.arq.t?" · "+ctx.esc(a.arq.t):""}</small>${cur.n2&&cur.n2[a.id]?`<em>${ctx.esc(cur.n2[a.id])}</em>`:""}</li>`).join("")}</ol>
+     <ol class="rstops">${d.T.map(({a,w},i)=>`<li>${i?`<span class="rwalk">🚶 ${w} min a pie</span>`:""}<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}</small>${a.arq?arqHTML(a.arq):""}${cur.n2&&cur.n2[a.id]?`<em>${ctx.esc(cur.n2[a.id])}</em>`:""}</li>`).join("")}</ol>
      ${(ru.comb&&ru.comb.length)?`<p class="muted rcomb">Para completar el día: ${ru.comb.map(i=>{const a=(M.ATRACCIONES||[]).find(z=>z.id===i);return a?`<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button>`:""}).join(" · ")}</p>`:""}
      ${ru.aviso?`<p class="note">${ctx.esc(ru.aviso)}</p>`:""}
-     <button type="button" class="btn sm${todo?" alt":""}" data-rtadd="${cid}:${ru.id}:${cur.k}:${todo?0:1}">${todo?"✕ Quitar este recorrido del programa":"＋ Agregar este recorrido al programa"}</button></div>`}).join("")}
+     <button type="button" class="btn sm${todo?" alt":""}" data-rtadd="${cid}:${ru.id}:${cur.k}:${todo?0:1}">${todo?"✕ Quitar este recorrido del programa":"＋ Agregar este recorrido al programa"}</button></div>`}).join("")}</div>
+   <p class="muted rhint">Desliza hacia el lado para ver más recorridos ›</p>
    </div></details>`}
 
 // ---------- 3 · Atracciones
@@ -81,6 +84,7 @@ function ficha(ctx,cid,a,i,on){const CI=ctx.M[cid].CIUDAD,cod=cid.slice(0,3).toU
    <header><h3>${ctx.esc(a.n)}</h3>${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${on?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
    ${a.s?`<p class="flead">${ctx.esc(a.s)}</p>`:""}
    ${a.y?`<p class="fyear">${ctx.esc(a.y)}</p>`:""}
+   ${ilu(ctx,a.ilu)}
    ${a.arq?arqHTML(a.arq):""}
    ${a.v?`<div class="fwhy"><span class="flab">Qué van a ver</span><p>${ctx.esc(a.v)}</p></div>`:""}
    ${a.mir&&a.mir.length?`<div class="fmir"><span class="flab">Qué mirar desde la calle</span><ul>${a.mir.map(x=>`<li>${ctx.esc(x)}</li>`).join("")}</ul></div>`:""}
@@ -95,18 +99,20 @@ export function atracciones(ctx){
   const cap=CAP[(W.ritmo||{})[cid]||"int"]*diasDe(ctx,cid),hs=A.filter(a=>S.has(a.id)).reduce((t,a)=>t+a.h+0.3,0);
   const zonas=[...new Set(A.map(a=>zn(ctx,cid,a)).filter(Boolean))];
   if(E.zon!=="todas"&&!zonas.includes(E.zon))E.zon="todas";
-  const pass=a=>(E.zon==="todas"||zn(ctx,cid,a)===E.zon)&&(E.fil==="todas"||(E.fil==="prog"&&S.has(a.id))||(E.fil==="top"&&a.top)||(E.fil==="in"&&a.in));
+  const grps=agrupar(A);if(E.tip!=="todos"&&!grps.some(g=>g.k===E.tip))E.tip="todos";
+  const pass=a=>(E.tip==="todos"||grupoDe(a)===E.tip)&&(E.zon==="todas"||zn(ctx,cid,a)===E.zon)&&(E.fil==="todas"||(E.fil==="prog"&&S.has(a.id))||(E.fil==="top"&&a.top)||(E.fil==="in"&&a.in));
   const L=A.filter(pass).sort((x,y)=>(S.has(y.id)-S.has(x.id))||((y.top?1:0)-(x.top?1:0)));
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"]];
   const sin=hs>cap*1.05;
   return `${guia("att")}${ctabs(ctx,cid,c=>`${(ctx.M[c].ATRACCIONES||[]).length} atracciones`)}
-   <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}${contextoHTML(ctx,cid)}</div></details>
+   <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${ilu(ctx,CI.portada)}${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}${contextoHTML(ctx,cid)}</div></details>
    ${rutasHTML(ctx,cid)}
    ${sin?`<a href="#" class="feasstat bad" data-gotab="prog">✕ ${ctx.esc(short(CI.n))}: lo elegido (${ctx.fh(hs)}) pasa de lo que cabe (${ctx.fh(cap)}) · ver en Programa →</a>`:`<span class="feasstat ok">✓ ${ctx.esc(short(CI.n))}: todo lo elegido cabe (${ctx.fh(hs)} de ${ctx.fh(cap)})</span>`}
    <div class="attfil"><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-afil="${k}" aria-pressed="${E.fil===k}">${t}</button>`).join("")}</div></div>
+   ${grps.length>1?`<div class="afrow"><span class="eyebrow">Tipo</span><div class="filters"><button type="button" class="chip" data-atip="todos" aria-pressed="${E.tip==="todos"}">Todos</button>${grps.map(g=>`<button type="button" class="chip" data-atip="${g.k}" aria-pressed="${E.tip===g.k}">${ctx.esc(g.n)} <small>${g.L.length}</small></button>`).join("")}</div></div>`:""}
    ${zonas.length>1?`<div class="afrow"><span class="eyebrow">Zona</span><div class="filters"><button type="button" class="chip" data-azon="todas" aria-pressed="${E.zon==="todas"}">Todas</button>${zonas.map(z=>`<button type="button" class="chip" data-azon="${ctx.esc(z)}" aria-pressed="${E.zon===z}">${ctx.esc(z)}</button>`).join("")}</div></div>`:""}</div>
    <p class="muted attn">${L.length} de ${A.length} atracciones · ${S.size} en el programa</p>
-   ${L.length?`<details class="attlist" data-attlist${E.lst?" open":""}><summary>☰ Lista de ${L.length} (tocar para ir)</summary><ol>${L.map(a=>`<li><label class="alchk" title="Agregar al programa"><input type="checkbox" data-asel="${cid}|${a.id}" ${S.has(a.id)?"checked":""}></label><button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>${a.p?FM(a.p):"gratis"}</small></li>`).join("")}</ol></details>
+   ${L.length?`<details class="attlist" data-attlist${E.lst?" open":""}><summary>☰ Lista de ${L.length} (tocar para ir)</summary><ol>${agrupar(L).map(g=>`<li class="lgh">${ctx.esc(g.n)} <small>${g.L.length}</small></li>`+g.L.map(a=>`<li><label class="alchk" title="Agregar al programa"><input type="checkbox" data-asel="${cid}|${a.id}" ${S.has(a.id)?"checked":""}></label><button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>${a.p?FM(a.p):"gratis"}</small></li>`).join("")).join("")}</ol></details>
    <div class="railnav"><button type="button" data-rail="-1" aria-label="Ficha anterior">‹</button><span class="rp">1 de ${L.length}</span><span class="railbar"><i style="width:${100/L.length}%"></i></span><button type="button" data-rail="1" aria-label="Ficha siguiente">›</button></div>
    <div class="fichas att">${L.map(a=>ficha(ctx,cid,a,A.indexOf(a),S.has(a.id))).join("")}</div>`:`<div class="card"><p class="muted">${A.length?"Ninguna atracción coincide con el filtro.":"Esta ciudad aún no tiene atracciones precargadas."}</p></div>`}
    <div class="card"><span class="eyebrow">Agregar a mano</span>${formNueva(ctx,cid,"")}</div>
@@ -116,6 +122,7 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
   bindNueva(ctx);
   Q("[data-afil]",b=>b.onclick=()=>{E.fil=b.dataset.afil;ctx.render()});
   Q("[data-azon]",b=>b.onclick=()=>{E.zon=b.dataset.azon;ctx.render()});
+  Q("[data-atip]",b=>b.onclick=()=>{E.tip=b.dataset.atip;ctx.render()});
   Q("details.ctxd",d=>d.ontoggle=()=>{E.ctx=d.open});
   Q("details[data-cx]",d=>d.ontoggle=e=>{if(e.target!==d)return;const k=d.dataset.cx;d.open?E.cx.add(k):E.cx.delete(k);if(k.endsWith(":rutas")){d.open?E.cx.delete(k+"x"):E.cx.add(k+"x")}});
   Q("[data-rv]",b=>b.onclick=()=>{const [c,r2,k]=b.dataset.rv.split(":");E.rv[c+":"+r2]=k;ctx.render()});

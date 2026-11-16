@@ -147,10 +147,13 @@ function render(){
   app.innerHTML=headerCab()+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CABIC[k]}<span>${CABSH[k]}</span></button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg():`<div id="vista"></div>`}</section>`+ayudaHTML(CTX);
   if(tab!=="cfg")dibujar(tab,CTX,$("#vista"));
-  scrollTo(0,y);bindAll();
+  scrollTo(0,y);bindAll();quitaDientes();
   if(tab==="cfg")setTimeout(initMap,0);
   cabH();
 }
+// El borde «rasgado» del cuaderno se recorta en % de la altura: en tarjetas altas los dientes tapan el texto. Aquí se quita en las altas.
+function quitaDientes(){document.querySelectorAll(".card,.day,.tile,.fcard,details.ctxd,details.rutas,label.opt").forEach(e=>{if(e.offsetHeight>420&&getComputedStyle(e).clipPath!=="none")e.style.setProperty("clip-path","none","important")})}
+addEventListener("toggle",()=>quitaDientes(),true);
 function cabH(){const n=$(".tabs");if(n&&R0.classList.contains("navb")){const s=n.querySelector("[aria-selected=true]");if(s)n.scrollLeft=s.offsetLeft-(n.clientWidth-s.offsetWidth)/2}if(n)R0.style.setProperty("--cabH",(R0.classList.contains("navb")?0:n.offsetHeight)+"px")}
 // Billetera (gastos.html): le dejo el presupuesto por día y la abro con este mismo viaje.
 function presupuestoDias(){try{const D=costosDias(CTX);return {days:D.filter(x=>x.d.d).map(({d,c})=>({d:d.d,city:short(nombre(d.cid)),cid:d.cid,meal:c.meal,act:c.act,loc:c.loc,hot:c.hot})),shop:+W.shopBud||0}}catch(e){console.warn("presupuesto",e);return {days:[]}}}
