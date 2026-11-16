@@ -189,3 +189,6 @@ figure.ilu figcaption{margin-top:5px;font:italic 13px var(--f-body);color:var(--
 .rmapclip .lmap{height:210px;pointer-events:none}
 .rmapclip.rbig{width:100%;transform:none;cursor:zoom-out}.rmapclip.rbig .lmap{height:min(60vh,440px);pointer-events:auto}
 .rmapclip .mc-cap{display:block;position:static;margin-top:4px}.rmapclip .mc-cr{position:static;display:block;text-align:right;font-size:9px}
+/* Aire alrededor de «Organizar» en Programa */
+#p-prog .orgbar{margin:18px 0 16px;gap:10px 8px;padding-top:4px}
+#p-prog .daytabs{margin-bottom:6px}
