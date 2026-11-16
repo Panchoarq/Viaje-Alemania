@@ -127,3 +127,27 @@ dl.facts .hin,dl.facts select,dl.facts input[type=number]{box-sizing:border-box}
 .hadd input{flex:1 1 180px;min-width:0;font:15px var(--f-body);padding:6px 8px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box}
 .links-row{margin-top:8px}
 html{overflow-x:clip}
+
+/* ---- Contexto de la ciudad, recorridos y fichas con arquitectura ---- */
+.fyear{margin:2px 0 6px;font:600 13px var(--f-mono);color:var(--muted);letter-spacing:.03em}
+.fhist,.fmir{margin:8px 0}.fhist p{margin:4px 0}.fmir ul{margin:4px 0;padding-left:18px}.fmir li{margin:3px 0}
+.glfig{margin:6px 0;text-align:center}.glfig img{width:100%;max-width:340px;max-height:190px;object-fit:cover;border-radius:6px;border:1.5px solid var(--ink)}
+.glfig .credit{font-size:11px;margin:2px 0 0}.glwiki{font-size:13px}
+details.cxs{margin:10px 0 0;border-top:1px dashed var(--line);padding-top:8px}
+details.cxs>summary{cursor:pointer;font:700 14px var(--f-mono);letter-spacing:.02em;list-style:none;min-height:30px;display:flex;align-items:center;gap:6px}
+details.cxs>summary::-webkit-details-marker{display:none}details.cxs>summary::after{content:"▸";margin-left:auto;color:var(--muted)}details.cxs[open]>summary::after{content:"▾"}
+ol.cxtl{list-style:none;margin:8px 0;padding:0 0 0 12px;border-left:3px solid var(--stamp,#a8352b)}
+ol.cxtl li{display:grid;grid-template-columns:62px 1fr;gap:8px;margin:5px 0;font-size:14px}ol.cxtl li b{font:700 13px var(--f-mono);color:var(--stamp,#a8352b)}
+.undia{margin:10px 0;padding:8px 10px;border-left:4px solid var(--ink);background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:4px}
+.undia h4{margin:0 0 4px;font:700 14px var(--f-mono)}.undia p{margin:4px 0}.undia ul{margin:4px 0;padding-left:18px}.undia li{margin:3px 0}
+.media{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-top:8px}
+.media .mi{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--card)}.media .mi b{display:block}.media .mi small{color:var(--muted)}.media .mi p{margin:4px 0 0;font-size:13.5px}
+details.rutas>summary{cursor:pointer;list-style:none;padding:12px 16px}details.rutas>summary::-webkit-details-marker{display:none}details.rutas>summary h2{margin:2px 0 0;font-size:18px}
+.ruta{margin:12px 0;padding:10px 12px;border:2px solid var(--ink);border-radius:8px;background:var(--card)}.ruta h3{margin:0 0 4px;font-size:17px}
+.ruta .seg{margin:8px 0}.rtot{margin:6px 0;font-size:14px}
+ol.rstops{margin:6px 0;padding-left:0;list-style:none;counter-reset:rs}
+ol.rstops li{counter-increment:rs;position:relative;margin:0;padding:2px 0 8px 34px;border-left:3px dotted var(--line);margin-left:12px}
+ol.rstops li::before{content:counter(rs);position:absolute;left:-14px;top:2px;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg,#fff);font:700 13px/26px var(--f-mono);text-align:center}
+ol.rstops li small{display:block;color:var(--muted)}ol.rstops li em{display:block;font-style:normal;font-size:13.5px;margin-top:2px}
+.rwalk{display:block;font-size:12.5px;color:var(--muted);margin-bottom:2px}.rcomb .aln{display:inline;padding:0}
+ol.rstops .aln,.rcomb .aln{background:none;border:0;padding:0;font:700 14.5px var(--f-body);color:var(--ink);text-align:left;text-decoration:underline dotted;cursor:pointer}

@@ -2,6 +2,7 @@
 // (fichas tipo expediente con clip y polaroid, filtros, lista, carrusel en celular, mapa/ideas, tarjetas).
 import {SUB,selDe,diasDe,CAP} from "./motor.js";
 import {alternarAtr,formNueva,quitarCustom,bindNueva,diasCiudad} from "./programa.js";
+import {arqHTML} from "./estilos.js";
 
 const COL=["#2e4f8f","#1d6f7a","#a8352b","#2e6b4f","#b8860b","#7b4ba0","#c2477f"];
 const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -16,7 +17,7 @@ const ciudadActual=ctx=>ctx.ids.includes(SUB.c)?SUB.c:ctx.ids[0];
 const zn=(ctx,cid,a)=>{const Z=ctx.M[cid].ZONAS||{},z=Z[a.z];return String((z&&z.n)||z||a.z||"").trim()};
 
 // estado de la pantalla (no se guarda)
-const E={fil:"todas",zon:"todas",open:new Set(),lst:false,food:"",ctx:true};
+const E={fil:"todas",zon:"todas",open:new Set(),lst:false,food:"",ctx:true,rv:{},cx:new Set()};
 
 // ---------- piezas comunes
 export function ctabs(ctx,cid,nota){
@@ -35,10 +36,41 @@ async function wk(t,lang){const k=lang+":"+t;if(k in WK)return WK[k];WK[k]=null;
   try{const r=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/`+q(t.replace(/ /g,"_"))+"?redirect=true");if(r.ok){const j=await r.json();if(j.type!=="disambiguation"&&j.thumbnail)WK[k]={u:j.thumbnail.source,p:j.content_urls&&j.content_urls.desktop.page}}}catch(e){}
   return WK[k]}
 export function hidratar(){document.querySelectorAll("img[data-wk]:not([src])").forEach(async im=>{const t=im.dataset.wk,c=im.dataset.wc||"";
-  const r=(await wk(t,"es"))||(await wk(t,"en"))||(c&&((await wk(t+" ("+c+")","es"))||(await wk(t+" "+c,"en"))));
-  const f=im.closest(".fphotos");
-  if(r){im.src=r.u;const cr=f&&f.nextElementSibling;if(cr&&cr.classList.contains("credit")&&r.p)cr.innerHTML=`Foto: Wikipedia / Wikimedia Commons · <a href="${r.p}" target="_blank" rel="noopener">${t}</a>`}
+  const t2=im.dataset.wk2||"";
+  const r=(await wk(t,"es"))||(await wk(t2||t,"en"))||(c&&((await wk(t+" ("+c+")","es"))||(await wk(t+" "+c,"en"))));
+  const f=im.closest(".fphotos"),g=im.closest(".glfig");
+  if(r){im.src=r.u;const cr=g?im.nextElementSibling:(f&&f.nextElementSibling);if(cr&&cr.classList.contains("credit")&&r.p)cr.innerHTML=`Foto: Wikipedia / Wikimedia Commons · <a href="${r.p}" target="_blank" rel="noopener">${t}</a>`}
+  else if(g)g.remove();
   else if(f){const cr=f.nextElementSibling;if(cr&&cr.classList.contains("credit"))cr.remove();f.remove()}})}
+
+// ---------- contexto de la ciudad: historia, un día en la ciudad y cultura
+const cxOpen=k=>E.cx.has(k)?" open":"";
+function contextoHTML(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,U=M.UNDIA||[],ME=M.MEDIA||[];let h="";
+  if(C)h+=`<details class="cxs" data-cx="${cid}:his"${cxOpen(cid+":his")}><summary>📜 ${ctx.esc(C.t||"Historia")}</summary>
+   ${C.tl&&C.tl.length?`<ol class="cxtl">${C.tl.map(([y,t])=>`<li><b>${ctx.esc(y)}</b><span>${ctx.esc(t)}</span></li>`).join("")}</ol>`:""}
+   ${(C.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}</details>`;
+  if(U.length)h+=`<details class="cxs" data-cx="${cid}:dia"${cxOpen(cid+":dia")}><summary>🧭 Si vienes por un día: lo que conviene saber</summary>
+   ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</details>`;
+  if(ME.length)h+=`<details class="cxs" data-cx="${cid}:med"${cxOpen(cid+":med")}><summary>🎬 Cine, música y libros para conocerla</summary>
+   <div class="media">${ME.map(([t,tipo,d,ed])=>`<div class="mi"><b>${ctx.esc(t)}</b><small>${ctx.esc(tipo)}${ed?" · "+ctx.esc(ed):""}</small><p>${ctx.esc(d)}</p></div>`).join("")}</div></details>`;
+  return h}
+// ---------- recorridos a pie temáticos, según el tiempo disponible
+const hmin=m=>{m=Math.round(m);const h=Math.floor(m/60),x=m%60;return h?`${h} h${x?" "+x+" min":""}`:`${x} min`};
+function datosRuta(ctx,cid,v){const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),P=(v.ids||[]).map(i=>A[i]).filter(Boolean);
+  let vis=0,cam=0,km=0;const T=P.map((a,i)=>{vis+=a.h;let w=0;if(i&&a.ll&&P[i-1].ll){const d=ctx.km(P[i-1].ll,a.ll)*1.3;km+=d;w=Math.max(1,Math.round(d/4.8*60));cam+=w}return {a,w}});
+  return {T,vis,cam,km,tot:vis*60+cam}}
+function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return "";const S=selDe(ctx,cid);
+  return `<details class="card rutas" data-cx="${cid}:rutas"${E.cx.has(cid+":rutas")||!E.cx.has(cid+":rutasx")?" open":""}><summary><span class="eyebrow">Recorridos a pie</span><h2>Elige tu caminata</h2></summary><div class="ctxb">
+   <p class="muted" style="margin-top:0">Cada recorrido viene en versiones según el tiempo que tengas. Al agregarlo, sus paradas pasan al programa y se reparten en tus días.</p>
+   ${R.map(ru=>{const vs=ru.v||[],cur=vs.find(x=>x.k===E.rv[cid+":"+ru.id])||vs[0];if(!cur)return "";const d=datosRuta(ctx,cid,cur),todo=cur.ids.every(i=>S.has(i));
+    return `<div class="ruta"><h3>${ru.e||"🚶"} ${ctx.esc(ru.n)}</h3>${ru.d?`<p>${ctx.esc(ru.d)}</p>`:""}
+     <div class="seg" role="group" aria-label="Tiempo disponible">${vs.map(x=>{const t2=datosRuta(ctx,cid,x).tot,hh=Math.round(t2/30)/2;return `<button type="button" data-rv="${cid}:${ru.id}:${x.k}" aria-pressed="${x.k===cur.k}">${ctx.esc(x.n)} · ~${String(hh).replace(".",",")} h</button>`}).join("")}</div>
+     <p class="rtot">⏱ <b>~${hmin(d.tot)}</b> en total · ${hmin(d.vis*60)} de visitas + ${hmin(d.cam)} caminando · ${d.km.toFixed(1).replace(".",",")} km · ${d.T.length} paradas</p>
+     <ol class="rstops">${d.T.map(({a,w},i)=>`<li>${i?`<span class="rwalk">🚶 ${w} min a pie</span>`:""}<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.arq&&a.arq.t?" · "+ctx.esc(a.arq.t):""}</small>${cur.n2&&cur.n2[a.id]?`<em>${ctx.esc(cur.n2[a.id])}</em>`:""}</li>`).join("")}</ol>
+     ${(ru.comb&&ru.comb.length)?`<p class="muted rcomb">Para completar el día: ${ru.comb.map(i=>{const a=(M.ATRACCIONES||[]).find(z=>z.id===i);return a?`<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button>`:""}).join(" · ")}</p>`:""}
+     ${ru.aviso?`<p class="note">${ctx.esc(ru.aviso)}</p>`:""}
+     <button type="button" class="btn sm${todo?" alt":""}" data-rtadd="${cid}:${ru.id}:${cur.k}:${todo?0:1}">${todo?"✕ Quitar este recorrido del programa":"＋ Agregar este recorrido al programa"}</button></div>`}).join("")}
+   </div></details>`}
 
 // ---------- 3 · Atracciones
 const limpiaN=n=>String(n).replace(/\s*\(.*?\)\s*$/,"");
@@ -48,7 +80,11 @@ function ficha(ctx,cid,a,i,on){const CI=ctx.M[cid].CIUDAD,cod=cid.slice(0,3).toU
   return `<article class="ficha" id="fa-${cid}-${a.id}"><div class="ftab">EXP. ${cod}-${String(i+1).padStart(2,"0")}${z?" · "+ctx.esc(z.toUpperCase()):""}</div>
    <header><h3>${ctx.esc(a.n)}</h3>${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${on?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
    ${a.s?`<p class="flead">${ctx.esc(a.s)}</p>`:""}
+   ${a.y?`<p class="fyear">${ctx.esc(a.y)}</p>`:""}
+   ${a.arq?arqHTML(a.arq):""}
    ${a.v?`<div class="fwhy"><span class="flab">Qué van a ver</span><p>${ctx.esc(a.v)}</p></div>`:""}
+   ${a.mir&&a.mir.length?`<div class="fmir"><span class="flab">Qué mirar desde la calle</span><ul>${a.mir.map(x=>`<li>${ctx.esc(x)}</li>`).join("")}</ul></div>`:""}
+   ${a.his&&a.his.length?`<div class="fhist"><span class="flab">Historia</span>${a.his.map(x=>`<p>${ctx.esc(x)}</p>`).join("")}</div>`:""}
    ${a.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${ctx.esc(a.d)}</p></div>`:""}
    <p class="fmeta">🕐 visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${dias?` · cerrado ${dias}`:""}${a.in?" · 🏛 techado":""}</p>
    <div class="fphotos"><a class="polaroid" href="${GIq(a.n+" "+CI.n)}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${ctx.esc(limpiaN(a.n))}" data-wc="${ctx.esc(CI.n)}" alt="${ctx.esc(a.n)}" loading="lazy"><span class="cap">${ctx.esc(limpiaN(a.n).split(/:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons</p>
@@ -64,7 +100,8 @@ export function atracciones(ctx){
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"]];
   const sin=hs>cap*1.05;
   return `${guia("att")}${ctabs(ctx,cid,c=>`${(ctx.M[c].ATRACCIONES||[]).length} atracciones`)}
-   <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}</div></details>
+   <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}${contextoHTML(ctx,cid)}</div></details>
+   ${rutasHTML(ctx,cid)}
    ${sin?`<a href="#" class="feasstat bad" data-gotab="prog">✕ ${ctx.esc(short(CI.n))}: lo elegido (${ctx.fh(hs)}) pasa de lo que cabe (${ctx.fh(cap)}) · ver en Programa →</a>`:`<span class="feasstat ok">✓ ${ctx.esc(short(CI.n))}: todo lo elegido cabe (${ctx.fh(hs)} de ${ctx.fh(cap)})</span>`}
    <div class="attfil"><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-afil="${k}" aria-pressed="${E.fil===k}">${t}</button>`).join("")}</div></div>
    ${zonas.length>1?`<div class="afrow"><span class="eyebrow">Zona</span><div class="filters"><button type="button" class="chip" data-azon="todas" aria-pressed="${E.zon==="todas"}">Todas</button>${zonas.map(z=>`<button type="button" class="chip" data-azon="${ctx.esc(z)}" aria-pressed="${E.zon===z}">${ctx.esc(z)}</button>`).join("")}</div></div>`:""}</div>
@@ -80,6 +117,9 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
   Q("[data-afil]",b=>b.onclick=()=>{E.fil=b.dataset.afil;ctx.render()});
   Q("[data-azon]",b=>b.onclick=()=>{E.zon=b.dataset.azon;ctx.render()});
   Q("details.ctxd",d=>d.ontoggle=()=>{E.ctx=d.open});
+  Q("details[data-cx]",d=>d.ontoggle=e=>{if(e.target!==d)return;const k=d.dataset.cx;d.open?E.cx.add(k):E.cx.delete(k);if(k.endsWith(":rutas")){d.open?E.cx.delete(k+"x"):E.cx.add(k+"x")}});
+  Q("[data-rv]",b=>b.onclick=()=>{const [c,r2,k]=b.dataset.rv.split(":");E.rv[c+":"+r2]=k;ctx.render()});
+  Q("[data-rtadd]",b=>b.onclick=()=>{const [c,r2,k,on]=b.dataset.rtadd.split(":"),ru=(ctx.M[c].RUTAS||[]).find(x=>x.id===r2),v=ru&&(ru.v||[]).find(x=>x.k===k);if(!v)return;v.ids.forEach(i=>alternarAtr(ctx,c,i,on==="1"));R()});
   Q("details[data-attlist]",d=>d.ontoggle=()=>{E.lst=d.open});
   Q("[data-asel]",c=>c.onchange=()=>{const [cid,aid]=c.dataset.asel.split("|");alternarAtr(ctx,cid,aid,c.checked);R()});
   Q("[data-acdel]",b=>b.onclick=()=>{const [cid,aid]=b.dataset.acdel.split("|");quitarCustom(ctx,cid,aid)});

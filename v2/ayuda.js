@@ -37,6 +37,9 @@ const SECC=[
   ["Elegir ciudad","Toca «Atracciones» (1) y elige la ciudad en las pestañas (2).","13-atracciones"],
   ["Filtrar","Por «En el programa», «★ Imperdibles», «Techadas» (útil con lluvia) o por zona (3)."],
   ["Leer una ficha","Cada ficha (1) trae historia, qué ver, horario, precio y cierres. Desliza hacia el lado para pasar a la siguiente. El botón de la ficha la suma o la quita del programa.","14-atracciones-ficha"],
+  ["Historia, un día en la ciudad y cultura","En «Sobre la ciudad» abre Historia (1), con la línea de tiempo; «Si vienes por un día» (2), con idioma y modismos, comida típica, escudo y bandera, curiosidades y tips; y «Cine, música y libros» (3), para conocerla antes de ir. Hoy están completas en las ciudades con guía ampliada, como Belfast.","36-historia-ciudad"],
+  ["Recorridos a pie","En «Recorridos a pie» elige tu caminata y cuánto tiempo tienes (1): mañana, tarde o día completo. Verás el tiempo total (2) y las paradas en orden con los minutos a pie entre cada una. «＋ Agregar este recorrido al programa» (3) pasa todas las paradas a tu programa para que se repartan en tus días. Puedes combinar un recorrido con otras atracciones, como el museo del Titanic.","37-recorridos"],
+  ["Estilo arquitectónico","Las fichas de edificios traen el año, el arquitecto y el estilo. Toca el estilo (1) para ver qué es, cómo reconocerlo en un edificio, una escultura y una pintura, con una foto de Wikipedia y un enlace para leer más.","38-ficha-arquitectura"],
   ["Buscar y agregar","Si falta algo, búscalo por nombre o dirección y agrégalo a mano."]]}],
  ["esc","4 · Escapadas",{t:"Escapadas: salir de la ciudad base",i:"Paseos de un día o con noches desde tu ciudad base.",s:[
   ["Elegir","Toca «+ Agregar» en la idea que te guste; arriba queda la lista de lo elegido."],
