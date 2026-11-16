@@ -92,15 +92,22 @@ const SECC=[
   ["Reservas","Entradas y reservas que conviene comprar con anticipación."]]}]
 ];
 const ic=p=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
-const CSS=`.ayfig{margin:8px 0 12px;text-align:center}.ayfig img{width:min(320px,100%);height:auto;border:2px solid var(--ink);border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.2)}`;
-if(typeof document!=="undefined"&&!document.getElementById("ay-css")){const st=document.createElement("style");st.id="ay-css";st.textContent=CSS;document.head.appendChild(st)}
+const COL=["#a8352b","#c9730f","#b8860b","#4f7a2e","#2a7d6b","#2e6c9e","#4b4a9a","#8a3f8e","#b03a6e","#7a5230","#3f6b52","#5b6770","#c2477f","#2f5f8a"];
+const CSS=`.aytabs{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;margin:4px 0 14px;padding:2px 3px 6px}
+.aytab{position:relative;font:700 13px/1.15 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;text-align:left;cursor:pointer;color:var(--ink);padding:10px 10px 10px 14px;min-height:46px;display:flex;align-items:center;
+ background:color-mix(in srgb,var(--c) 14%,var(--card));border:2px solid var(--c);border-left-width:9px;border-radius:9px;box-shadow:3px 4px 0 color-mix(in srgb,var(--c) 55%,transparent),0 5px 8px rgba(0,0,0,.12);transition:transform .12s,box-shadow .12s}
+.aytab:active{transform:translate(2px,3px);box-shadow:1px 1px 0 color-mix(in srgb,var(--c) 55%,transparent)}
+.aytab[aria-selected="true"]{background:var(--c);color:#fff;transform:translate(2px,3px);box-shadow:inset 0 3px 6px rgba(0,0,0,.28),0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
+.aytab[aria-selected="true"]::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-7px;border:7px solid transparent;border-top-color:var(--c);border-bottom:0}`;
+const CSS2=`.ayfig{margin:8px 0 12px;text-align:center}.ayfig img{width:min(320px,100%);height:auto;border:2px solid var(--ink);border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.2)}`;
+if(typeof document!=="undefined"&&!document.getElementById("ay-css")){const st=document.createElement("style");st.id="ay-css";st.textContent=CSS+CSS2;document.head.appendChild(st)}
 export const ICO_AYUDA=ic('<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');
 export function ayudaBtn(){return `<button type="button" class="cib" data-ayuda title="Ayuda: cómo funciona" aria-label="Ayuda">${ICO_AYUDA}</button>`}
 export function ayudaHTML(ctx){if(!AY.open)return "";
   const hay=SECC.find(s=>s[0]===AY.sec)||SECC[0];
   return `<div class="calov gov" data-ayclose-bg><div class="calsheet" role="dialog" aria-modal="true" aria-label="Ayuda">
   <div class="ms-head"><div><span class="eyebrow">Marco Polo · Ayuda</span><h3>${hay[0]==="hola"?"Bienvenida":"Manual de uso"}</h3></div><button type="button" class="ms-x" data-ayclose aria-label="Cerrar ayuda">✕</button></div>
-  <div class="daytabs" role="tablist" aria-label="Secciones de ayuda" style="margin-bottom:10px">${SECC.map(([k,t])=>`<button type="button" role="tab" class="dtab" data-aysec="${k}" aria-selected="${k===hay[0]}"><b>${t}</b></button>`).join("")}</div>
+  <div class="aytabs" role="tablist" aria-label="Secciones de ayuda">${SECC.map(([k,t],i)=>`<button type="button" role="tab" class="aytab" style="--c:${COL[i%COL.length]}" data-aysec="${k}" aria-selected="${k===hay[0]}">${t}</button>`).join("")}</div>
   <section class="gsec"><h4>${hay[2].t}</h4><p class="gi">${hay[2].i}</p><ol class="gsteps">${hay[2].s.map(([h,x,im])=>`<li><b>${h}.</b> ${x}${im?`<figure class="ayfig"><img src="img/ayuda/${im}.jpg" alt="${h}" loading="lazy"></figure>`:""}</li>`).join("")}</ol>${hay[2].tip?`<p class="gtip">💡 ${hay[2].tip}</p>`:""}
   ${hay[0]!=="hola"&&hay[0]!=="cfg"?`<button type="button" class="lnkb" data-aygo="${hay[0]}">Ir a esta sección →</button>`:hay[0]==="cfg"?`<button type="button" class="lnkb" data-aygo="cfg">Ir a Configurar →</button>`:`<button type="button" class="lnkb" data-aygo="cfg">Empezar por Configurar →</button>`}</section>
   </div></div>`}
