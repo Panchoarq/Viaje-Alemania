@@ -4,7 +4,7 @@ import {PAISES,cargar,cargarTraslados} from "./ciudades/index.js";
 import {cfgExtremos,bindExtremos} from "./extremos.js";
 import * as NUBE from "./nube.js";
 import {dibujar} from "./motor.js";
-import {aplicarCustom} from "./programa.js";
+import {aplicarCustom,costosDias} from "./programa.js";
 import {mlStyle} from "./mlstyle.js";
 import {ayudaBtn,ayudaHTML,bindAyuda,ayudaPrimera} from "./ayuda.js";
 
@@ -78,7 +78,7 @@ function go(t){tab=t;try{localStorage.setItem("mp_tab_"+id,t)}catch(e){}if(locat
 function headerCab(){
   const uniq=[...new Set(W.ciudades.map(c=>short(nombre(c.id))))],a=fechas()?W.inicio:"",b=a?add(a,noches()):"";
   return `<header class="cabh"><div class="cr1"><div class="seg" role="group">${[["retro","Retro","1"],["mod","Moderno","2"],["papel","Cuaderno","3"]].map(([k,t,i])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}" title="${t}" aria-label="${t}">${i}</button>`).join("")}</div>
-   <div class="cusr">${ayudaBtn()}<button type="button" class="cib" data-gotab="gas" title="Gastos del viaje" aria-label="Gastos">${CABIC.gas}</button><button type="button" class="cib" id="logoBtn" title="Volver a Mis viajes" aria-label="Volver a Mis viajes">${CABIC.back}</button></div></div>
+   <div class="cusr">${ayudaBtn()}<button type="button" class="cib" data-cartera title="Mi billetera: registrar gastos en el momento" aria-label="Mi billetera">${CABIC.gas}</button><button type="button" class="cib" id="logoBtn" title="Volver a Mis viajes" aria-label="Volver a Mis viajes">${CABIC.back}</button></div></div>
    <div class="cttl"><h1>${esc(uniq.join("·"))}</h1>${a?`<small>${pretty(a).replace(/^\S+\s/,"")} – ${pretty(b).replace(/^\S+\s/,"")}</small>`:`<small>${noches()} noches · sin fechas</small>`}</div></header>`;
 }
 
@@ -152,11 +152,16 @@ function render(){
   cabH();
 }
 function cabH(){const n=$(".tabs");if(n&&R0.classList.contains("navb")){const s=n.querySelector("[aria-selected=true]");if(s)n.scrollLeft=s.offsetLeft-(n.clientWidth-s.offsetWidth)/2}if(n)R0.style.setProperty("--cabH",(R0.classList.contains("navb")?0:n.offsetHeight)+"px")}
+// Billetera (gastos.html): le dejo el presupuesto por día y la abro con este mismo viaje.
+function presupuestoDias(){try{const D=costosDias(CTX);return {days:D.filter(x=>x.d.d).map(({d,c})=>({d:d.d,city:short(nombre(d.cid)),cid:d.cid,meal:c.meal,act:c.act,loc:c.loc,hot:c.hot})),shop:+W.shopBud||0}}catch(e){console.warn("presupuesto",e);return {days:[]}}}
+function abrirCartera(){W._bud=presupuestoDias();guardar();location.href="gastos.html?trip="+encodeURIComponent(id)+(DEMO?"&demo":"")}
+CTX.abrirCartera=abrirCartera;
 function bindAll(){
   const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   Q("[data-stysel]",b=>b.onclick=()=>{setSty(b.dataset.stysel);render()});
   Q("[data-tab]",b=>b.onclick=()=>go(b.dataset.tab));
   Q("[data-gotab]",b=>b.onclick=()=>go(b.dataset.gotab));
+  Q("[data-cartera]",b=>b.onclick=abrirCartera);
   bindAyuda(CTX);
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/"+(DEMO?"?demo":"");
   if(tab!=="cfg")return;

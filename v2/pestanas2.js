@@ -33,16 +33,16 @@ const gbar=(bud,real)=>{const p=bud>0?Math.min(100,real/bud*100):(real>0?100:0);
 const gst=(bud,real,hay)=>!hay&&real<=0?`<small class="gs">sin gastos todavía</small>`:real>bud+0.005?`<small class="gs bad">✕ ${FM(real-bud)} sobre el presupuesto</small>`:`<small class="gs ok">✓ dentro del presupuesto · quedan ${FM(bud-real)}</small>`;
 export function gastos(ctx){
   if(!GAS||GASID!==ctx.viaje.id){GAS=null;cargarGastos(ctx).then(()=>{if(ctx.actual()==="gas")ctx.render()});return '<div class="card"><p class="muted">Cargando gastos…</p></div>'}
-  const W=ctx.W,P=W.personas||2,L=[...GAS],D=costosDias(ctx),dias=D.map(x=>x.d);
-  const pp=g=>(+g.eur||0)/P,real=f=>L.filter(f).reduce((t,g)=>t+pp(g),0),hay=L.length>0;
+  const W=ctx.W,P=W.personas||2,L=[...GAS].filter(g=>!g.retiro),D=costosDias(ctx),dias=D.map(x=>x.d);
+  const pp=g=>g.pp!=null?+g.pp:(+g.eur||0)/P,real=f=>L.filter(f).reduce((t,g)=>t+pp(g),0),hay=L.length>0;
   const G=[];D.forEach(({d,c})=>{let g=G.find(x=>x.cid===d.cid);if(!g){g={cid:d.cid,n:short(ctx.M[d.cid].CIUDAD.n),c:colDe(ctx,d.cid),days:0,bud:0};G.push(g)}g.days++;g.bud+=c.total});
-  G.forEach(g=>g.real=real(x=>x.c===g.cid&&x.cat!=="Compras"));
-  const SB=+W.shopBud||0,SR=real(x=>x.cat==="Compras"),EST=G.reduce((t,g)=>t+g.bud,0)+SB,OFF=+W.presupuesto||0,TB=OFF>0?OFF:EST,TR=real(()=>true);
+  G.forEach(g=>g.real=real(x=>x.c===g.cid&&(x.tcat||x.cat)!=="Compras"));
+  const SB=+W.shopBud||0,SR=real(x=>(x.tcat||x.cat)==="Compras"),EST=G.reduce((t,g)=>t+g.bud,0)+SB,OFF=+W.presupuesto||0,TB=OFF>0?OFF:EST,TR=real(()=>true);
   const lost=TR-G.reduce((t,g)=>t+g.real,0)-SR,today=hoy(),fe=ctx.fechas(),first=fe?dias[0].d:"",last=fe?dias[dias.length-1].d:"";
   const left=fe?dias.filter(d=>d.d>=today):[],nL=left.length,rest=TB-TR,perDay=nL?rest/nL:0,over=TR>TB+0.005;
   let when=`el viaje tiene ${dias.length} días`;
   if(fe){if(today<first){const f=Math.round((new Date(first)-new Date(today))/864e5);when=`Faltan <b>${f}</b> día${f===1?"":"s"} para viajar · el viaje tiene ${dias.length} días`}else if(today>last)when=`El viaje terminó (${dias.length} días)`;else when=`Quedan <b>${nL}</b> día${nL===1?"":"s"} de ${dias.length}`}
-  const cats=[["Alojamiento","hot","Alojamiento"],["Comidas","meal","Comida"],["Entradas","act","Entradas"],["Transporte","loc","Transporte"],["Compras","shop","Compras"]].map(([n,k,cat])=>{const b=k==="shop"?SB:D.reduce((t,x)=>t+(x.c[k]||0),0),r=real(g=>g.cat===cat);return `<div class="gcat"><span>${n}</span><span class="num">${FM(b)}</span><span class="num rd">${FM(r)}</span></div>`}).join("");
+  const cats=[["Alojamiento","hot","Alojamiento"],["Comidas","meal","Comida"],["Entradas","act","Entradas"],["Transporte","loc","Transporte"],["Compras","shop","Compras"]].map(([n,k,cat])=>{const b=k==="shop"?SB:D.reduce((t,x)=>t+(x.c[k]||0),0),r=real(g=>(g.tcat||g.cat)===cat);return `<div class="gcat"><span>${n}</span><span class="num">${FM(b)}</span><span class="num rd">${FM(r)}</span></div>`}).join("");
   const mon=ctx.M[ctx.ids[0]].CIUDAD.moneda||{code:"EUR",sym:"€",eur:1};
   const porDia={};L.forEach(g=>{(porDia[g.f||"sin fecha"]=porDia[g.f||"sin fecha"]||[]).push(g)});
   const fechasG=Object.keys(porDia).sort().reverse();
@@ -57,6 +57,7 @@ export function gastos(ctx){
   <div class="card"><span class="eyebrow">Presupuesto del viaje</span><label class="shopin" style="margin-top:6px">Presupuesto total por persona (€, opcional)<input type="number" inputmode="decimal" min="0" step="50" value="${OFF||""}" placeholder="${Math.round(EST)}" data-bud></label></div>
   <details class="card gdays"><summary><span class="eyebrow">Día a día · estimado y gastado</span></summary><div class="gdl">${D.map(({d,c})=>{const r=real(g=>d.d&&g.f===d.d),t=d.d===today;return `<div class="gday${t?" today":""}${r>c.total+0.005?" over":""}"><span>${d.d?ctx.pretty(d.d):"Día "+(d.g+1)}</span><small class="muted">${ctx.esc(short(ctx.M[d.cid].CIUDAD.n))}</small><span class="num">${FM(c.total)}</span><span class="num rd">${r?FM(r):"—"}</span></div>`}).join("")}</div></details>
   <details class="card gdays"><summary><span class="eyebrow">Por categoría · estimado y gastado</span></summary><div class="gdl"><div class="gcat head"><span></span><span>estimado</span><span>gastado</span></div>${cats}<div class="gcat tot"><span>Total</span><span class="num">${FM(EST)}</span><span class="num rd">${FM(TR)}</span></div></div></details>
+  <div class="card"><span class="eyebrow">Mi billetera</span><p class="muted" style="margin:4px 0 8px;font-size:14px">Registra cada gasto en el momento: por voz o escribiendo, con la ubicación del lugar (GPS), medio de pago, gastos compartidos, retiros de cajero y mapa de lo gastado.</p><button type="button" class="btn sm" data-cartera>👛 Abrir mi billetera</button></div>
   <div class="card"><span class="eyebrow">Anotar un gasto</span><form id="fGas" class="fform" style="margin-top:8px">
    <label class="f">Fecha<input type="date" name="f" required value="${today}"></label>
    <label class="f">Ciudad<select name="c">${ctx.ids.map(i=>`<option value="${i}">${ctx.esc(ctx.M[i].CIUDAD.n)}</option>`).join("")}</select></label>

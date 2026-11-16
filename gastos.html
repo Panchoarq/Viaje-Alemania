@@ -107,11 +107,16 @@ nav.tb svg{width:22px;height:22px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script type="module">
 const FBC={apiKey:"AIzaSyBJefyy5hhRQHK4EWbmZFC15h2Fgb55w68",authDomain:"viaje-a-alemania-60001.firebaseapp.com",projectId:"viaje-a-alemania-60001",storageBucket:"viaje-a-alemania-60001.firebasestorage.app",messagingSenderId:"1061928899634",appId:"1:1061928899634:web:d5ffc52cb53edebe71182b"};
-const TK=new URLSearchParams(location.search).get("trip")==="alemania"?"alemania":"paris";
-const T=TK==="alemania"?{nom:"Viaje a Alemania",c2:{code:"CZK",sym:"Kč",rk:"rateCZK",ck:"cashCZK",def:0.04,city:"Praga",pl:"Coronas checas",re:/corona|koruna|kč|czk/i},n:5,back:"/alemania",ctr:[50.5,11],who:"los cinco",ellos:"entre los cinco",pres:"1500"}
+const TKQ=new URLSearchParams(location.search).get("trip")||"";
+const NV=/^nv_/.test(TKQ);   // viaje creado con el motor nuevo: mismos datos de la app, guardados en viajes/{id}/gastos
+const TK=NV?TKQ:(TKQ==="alemania"?"alemania":"paris");
+let T=NV?{nom:"Mi viaje",c2:{code:"EUR",sym:"€",rk:"rateC2",ck:"cashC2",def:1,city:"",cities:[],pl:"",re:/^$/},solo:true,n:1,back:"viaje.html?id="+TK+"#gas",ctr:[48.86,2.35],who:"solo yo",ellos:"",pres:""}
+ :TK==="alemania"?{nom:"Viaje a Alemania",c2:{code:"CZK",sym:"Kč",rk:"rateCZK",ck:"cashCZK",def:0.04,city:"Praga",pl:"Coronas checas",re:/corona|koruna|kč|czk/i},n:5,back:"/alemania",ctr:[50.5,11],who:"los cinco",ellos:"entre los cinco",pres:"1500"}
  :{nom:"Viaje a París",c2:{code:"GBP",sym:"£",rk:"rateGBP",ck:"cashGBP",def:1.17,city:"Londres",pl:"Libras",re:/libra|pound|£/i},n:2,back:"/paris",ctr:[48.8566,2.3522],who:"las dos",ellos:"entre las dos",pres:"2000"};
 const sy=c=>c==="EUR"?"€":T.c2.sym;
+const VJK="mp_viajes";
 const DEMO=location.protocol==="file:"||new URLSearchParams(location.search).has("demo");
+if(NV&&DEMO)T.back+="&demo";
 const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const DOW=["dom","lun","mar","mié","jue","vie","sáb"],MON=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -161,36 +166,76 @@ function deCity(d){let cfg={start:"2027-02-21",order:["H","B","P","M"],nights:{M
   for(let i=0;i<cfg.order.length;i++){const c=cfg.order[i];acc+=+(cfg.nights[c]||0);if(k<acc||i===cfg.order.length-1&&k<=acc)return CN[c]||c}
   return "Fuera del programa"}
 function cityOn(d){if(TK==="alemania"&&!(BUD&&BUD.days&&BUD.days.length))return deCity(d);const x=BUD&&BUD.days&&BUD.days.find(z=>z.d===d);return x?x.city:(BUD&&BUD.days&&BUD.days.length&&d<BUD.days[0].d?"Antes del viaje":"Fuera del programa")}
-const curOfCity=c=>c===T.c2.city?T.c2.code:"EUR";
+const curOfCity=c=>(T.c2.cities?T.c2.cities.includes(c):c===T.c2.city)?T.c2.code:"EUR";
 
 // demo store
-const LS={get(k,d){try{return JSON.parse(localStorage.getItem("gdemo_"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("gdemo_"+k,JSON.stringify(v))}catch(e){}}};
-async function saveProf(p){P={...P,...p};if(DEMO){LS.set("prof",P);render();return}await F.setDoc(F.doc(db,"trips",TK,"users",em()),P,{merge:true})}
-async function addGasto(g){if(DEMO){if(g.shared){J=[...J,{...g,id:"j"+Date.now(),by:em(),byName:P.nombre||"Yo"}];LS.set("juntas",J)}else{G=[...G,{...g,id:"g"+Date.now()}];LS.set("gastos",G)}render();return}
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem("gdemo_"+(NV?TK+"_":"")+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("gdemo_"+(NV?TK+"_":"")+k,JSON.stringify(v))}catch(e){}}};
+// ---- viajes nuevos: el viaje (con su billetera y su presupuesto) vive en mp_viajes y en viajes/{id}
+let VJ=null,NVN=null;
+const nvLeer=()=>{try{return JSON.parse(localStorage.getItem(VJK)||"[]")}catch(e){return[]}};
+const nvEscribirLocal=()=>{try{const l=nvLeer(),i=l.findIndex(v=>v.id===TK);if(i>=0)l[i]=VJ;else l.push(VJ);localStorage.setItem(VJK,JSON.stringify(l))}catch(e){}};
+const TABMAP={Alojamiento:"Alojamiento",Transporte:"Transporte",Comida:"Almuerzo",Entradas:"Entradas",Compras:"Compras",Otros:"Otros"};
+const TABCAT={com:"Comida",ent:"Entradas",tra:"Transporte",alo:"Alojamiento",shop:"Compras",fue:"Otros"};
+// Los gastos anotados en la pestaña Gastos del viaje (sin GPS ni hora) se muestran aquí como gastos compartidos del grupo.
+function nvNorm(g){if(g.amt!=null&&g.ts&&g.d)return g;const eur=+g.eur||0,ts=g.t||(g.f?new Date(g.f+"T12:00:00").getTime():0);
+  const cn=BUD&&BUD.days&&(BUD.days.find(z=>z.cid===g.c)||{}).city;
+  return {...g,amt:eur,cur:"EUR",eur,d:g.f||g.d,ts,pay:g.pay||g.pago||"Otros",com:g.com||g.n||"",cat:TABMAP[g.cat]||g.cat||"Otros",city:g.city||cn||"",shared:true,by:g.by||em(),byName:g.byName||"Grupo"}}
+function nvSplit(list){const all=list.map(nvNorm);G=all.filter(g=>!g.shared);J=all.filter(g=>g.shared)}
+async function nvBuildT(){const c=VJ.cfg||{},n=Math.max(1,+c.personas||2),ids=(c.ciudades||[]).map(x=>x),names=[];let c2=null,ll=null;
+  try{const idx=await import("./v2/ciudades/index.js");
+    for(const x of ids){try{const m=await idx.cargar(x.pais||c.pais,x.id),C=m.CIUDAD,nm=String(C.n).split(/ y |:/)[0];names.push(nm);if(!ll)ll=C.ll;const mo=C.moneda||{code:"EUR",sym:"€",eur:1};
+      if(mo.code!=="EUR"){if(!c2)c2={code:mo.code,sym:mo.sym,rk:"rate"+mo.code,ck:"cash"+mo.code,def:mo.eur,city:nm,cities:[nm],pl:mo.code,re:{test:t=>String(t).toUpperCase().includes(mo.code)||String(t).includes(mo.sym)}};else if(mo.code===c2.code)c2.cities.push(nm)}}catch(e){}}}catch(e){}
+  T={...T,nom:names.length?names.join(" · "):"Mi viaje",n,solo:!c2,who:n===1?"solo yo":n===2?"las dos":"los "+n,ellos:n===1?"":n===2?"entre las dos":"entre los "+n,ctr:ll||T.ctr};
+  if(c2)T.c2=c2}
+async function nvGuardar(){VJ.act=Date.now();nvEscribirLocal();if(!DEMO&&VJ.owner&&NVN){try{await NVN.subir(VJ)}catch(e){console.warn("viaje nube",e)}}}
+async function saveProf(p){P={...P,...p};if(NV){VJ.cfg=VJ.cfg||{};VJ.cfg.wallet=P;if(DEMO)LS.set("prof",P);await nvGuardar();render();return}if(DEMO){LS.set("prof",P);render();return}await F.setDoc(F.doc(db,"trips",TK,"users",em()),P,{merge:true})}
+const nvId=()=>"w_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const nvLimpio=o=>JSON.parse(JSON.stringify(o));
+async function nvAdd(g){const d={...g,id:nvId(),f:g.d,pago:g.pay,n:g.com,t:g.ts};
+  const cid=BUD&&BUD.days&&(BUD.days.find(z=>z.city===g.city)||{}).cid;if(cid)d.c=cid;
+  if(!g.retiro){const grp=catOf(g.cat)[2];d.cat=g.cat;d.tcat=TABCAT[grp]||"Otros";d.pp=g.shared?g.eur/T.n:g.eur}
+  if(g.shared){d.by=em();d.byName=P.nombre||(user&&user.displayName)||em()}
+  if(DEMO){const l=JSON.parse(localStorage.getItem("mp_gastos_"+TK)||"[]");l.push(nvLimpio(d));try{localStorage.setItem("mp_gastos_"+TK,JSON.stringify(l))}catch(e){}nvSplit(l);render();return}
+  await F.setDoc(F.doc(db,"viajes",TK,"gastos",d.id),nvLimpio(d))}
+async function nvDel(x){if(DEMO){const l=JSON.parse(localStorage.getItem("mp_gastos_"+TK)||"[]").filter(z=>z.id!==x.id);try{localStorage.setItem("mp_gastos_"+TK,JSON.stringify(l))}catch(e){}nvSplit(l);render();return}
+  await F.deleteDoc(F.doc(db,"viajes",TK,"gastos",x.id))}
+async function addGasto(g){if(NV)return nvAdd(g);if(DEMO){if(g.shared){J=[...J,{...g,id:"j"+Date.now(),by:em(),byName:P.nombre||"Yo"}];LS.set("juntas",J)}else{G=[...G,{...g,id:"g"+Date.now()}];LS.set("gastos",G)}render();return}
   if(g.shared)await F.addDoc(F.collection(db,"trips",TK,"juntas"),{...g,by:em(),byName:P.nombre||user.displayName||em()});
   else await F.addDoc(F.collection(db,"trips",TK,"users",em(),"gastos"),g)}
-async function delGasto(x){if(DEMO){if(x.by){J=J.filter(z=>z.id!==x.id);LS.set("juntas",J)}else{G=G.filter(z=>z.id!==x.id);LS.set("gastos",G)}render();return}
+async function delGasto(x){if(NV)return nvDel(x);if(DEMO){if(x.by){J=J.filter(z=>z.id!==x.id);LS.set("juntas",J)}else{G=G.filter(z=>z.id!==x.id);LS.set("gastos",G)}render();return}
   if(x.by)await F.deleteDoc(F.doc(db,"trips",TK,"juntas",x.id));else await F.deleteDoc(F.doc(db,"trips",TK,"users",em(),"gastos",x.id))}
 
+async function nvCargarViaje(){VJ=nvLeer().find(v=>v.id===TK)||null;
+  if(!VJ&&NVN&&!DEMO){try{VJ=await NVN.traer(TK)}catch(e){}}
+  if(!VJ)return false;await nvBuildT();BUD=(VJ.cfg&&VJ.cfg._bud)||{days:[]};return true}
 async function boot(){
+  if(NV&&DEMO){user={email:"demo@local",displayName:"Modo demo"};
+    if(!await nvCargarViaje()){app.innerHTML='<div class="gate"><h1 class="h1">Mis gastos</h1><p class="sub">No encontré ese viaje en este dispositivo.</p><a href="index.html?demo">← Mis viajes</a></div>';return}
+    P=LS.get("prof",(VJ.cfg&&VJ.cfg.wallet)||{});nvSplit(JSON.parse(localStorage.getItem("mp_gastos_"+TK)||"[]"));render();return}
   if(DEMO){user={email:"demo@local",displayName:"Modo demo"};P=LS.get("prof",{});G=LS.get("gastos",[]);J=LS.get("juntas",[]);
     BUD=LS.get("bud",null)||{days:[]};render();return}
   const B="https://www.gstatic.com/firebasejs/10.12.2/";
-  const [A,U,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
-  F=FS;const fa=A.initializeApp(FBC);const auth=U.getAuth(fa);
-  try{db=FS.initializeFirestore(fa,{localCache:FS.persistentLocalCache({tabManager:FS.persistentMultipleTabManager()})})}catch(e){db=FS.getFirestore(fa)}
+  let U,auth;
+  if(NV){NVN=await import("./v2/nube.js");const cx=await NVN.conectar();F=cx.FS;db=cx.db;U=cx.U;auth=cx.auth}
+  else{const [A,U0,FS]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+    U=U0;F=FS;const fa=A.initializeApp(FBC);auth=U.getAuth(fa);
+    try{db=FS.initializeFirestore(fa,{localCache:FS.persistentLocalCache({tabManager:FS.persistentMultipleTabManager()})})}catch(e){db=FS.getFirestore(fa)}}
   window._au={U,auth};
   if(U.isSignInWithEmailLink(auth,location.href)){let e2="";try{e2=localStorage.getItem("g_email")||""}catch(e){}if(!e2)e2=prompt("Confirma el correo al que llegó el link")||"";
     try{await U.signInWithEmailLink(auth,e2,location.href);history.replaceState(null,"",location.pathname+"?trip="+TK)}catch(e){window._autherr=e&&e.code}}
   U.getRedirectResult(auth).then(r=>{let f=false;try{f=sessionStorage.getItem("g_redir")==="1";sessionStorage.removeItem("g_redir")}catch(e){}if(f&&(!r||!r.user)){window._autherr="redirect-sin-sesion";if(!user)gate()}}).catch(e=>{window._autherr=e&&e.code});
   U.onAuthStateChanged(auth,u=>{window._authu=u?(u.isAnonymous?"anónima":u.email):"ninguna";unsubs.forEach(f=>f());unsubs=[];if(!u||u.isAnonymous){user=null;return gate()}user=u;listen()})}
-function listen(){const den=e=>{window._autherr=e&&e.code;gate(true)};
+async function listenNV(){const den=e=>{window._autherr=e&&e.code;gate(true)};
+  if(!await nvCargarViaje()||(VJ.owner&&VJ.owner!==em())){return gate(true)}
+  P={...((VJ.cfg&&VJ.cfg.wallet)||{})};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];
+  unsubs.push(F.onSnapshot(F.collection(db,"viajes",TK,"gastos"),s=>{nvSplit(s.docs.map(d=>({id:d.id,...d.data()})));render()},den));render()}
+function listen(){if(NV)return listenNV();const den=e=>{window._autherr=e&&e.code;gate(true)};
   unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"users",em()),s=>{P=s.exists()?s.data():{};if(!P.nombre&&user.displayName)P.nombre=user.displayName.split(" ")[0];render()},den));
   unsubs.push(F.onSnapshot(F.collection(db,"trips",TK,"users",em(),"gastos"),s=>{G=s.docs.map(d=>({id:d.id,...d.data()}));render()},den));
   unsubs.push(F.onSnapshot(F.collection(db,"trips",TK,"juntas"),s=>{J=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
   unsubs.push(F.onSnapshot(F.doc(db,"trips",TK,"meta","presupuesto"),s=>{BUD=s.exists()?s.data():{days:[]};render()},()=>{}))}
 function gate(denied){app.innerHTML=`<div class="gate"><img src="img/logo-marcopolo.jpg" alt="Marco Polo"><span class="eb">${T.nom}</span><h1 class="h1">Mis gastos</h1>
-  ${denied?`<p class="alert">${esc(em())} no tiene acceso. Pídele a Francisco que agregue tu correo.</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada persona ve solo sus gastos.</p>`}
+  ${denied?`<p class="alert">${esc(em())} no tiene acceso${NV?" a este viaje: solo lo ve quien lo creó. Entra con ese correo.":". Pídele a Francisco que agregue tu correo."}</p>`:`<p class="sub">Entra con tu cuenta de Google. Cada persona ve solo sus gastos.</p>`}
   ${/FBAN|FBAV|Instagram|WhatsApp|Line\/|Messenger/i.test(navigator.userAgent)?`<p class="alert">Estás en el navegador interno de otra app (WhatsApp, Instagram…). Google suele bloquear el ingreso ahí: abre este enlace en Chrome o Safari.</p>`:""}
   ${window._autherr==="redirect-sin-sesion"?`<p class="alert">Tu navegador no completó el ingreso con Google (pasa en Safari y en algunos celulares). Usa el link por correo de más abajo.</p>`:""}
   <button class="go" id="g" style="max-width:320px">Entrar con Google</button>
@@ -221,21 +266,21 @@ function bdHTML(){const B=sumBud((BUD&&BUD.days)||[]),SB=shopBud();if(!tot(B)&&!
 // ---------- vistas ----------
 const IC={add:'<path d="M12 5v14M5 12h14"/>',res:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',map:'<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',jun:'<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 20c1-4 4-5 6-5s5 1 6 5M12 17c1-1.5 2.5-2 4-2 2 0 5 1 6 5"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'};
 const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
-function nav(){return `<nav class="tb">${[["add","Gasto"],["res","Resumen"],["map","Mapa"],["jun","Juntas"],["set","Ajustes"]].map(([k,t])=>`<button data-tab="${k}" ${tab===k?'aria-current="page"':""}>${svg(k)}${t}</button>`).join("")}</nav>`}
+function nav(){return `<nav class="tb">${[["add","Gasto"],["res","Resumen"],["map","Mapa"],...(T.n<2?[]:[["jun","Juntas"]]),["set","Ajustes"]].map(([k,t])=>`<button data-tab="${k}" ${tab===k?'aria-current="page"':""}>${svg(k)}${t}</button>`).join("")}</nav>`}
 function vAdd(){const today=todayISO(),city=cityOn(today);const cur=form.cur||curOfCity(city);const m=mine().filter(g=>g.d===today);const spent=m.reduce((t,g)=>t+g.mineEur,0);const bd=budDay(today);
   const cat=form.cat||suggest(form.com);const pays=allPays().filter(p=>!P.medios||P.medios.includes(p));const pay=form.pay||(pays.includes("Global66")?"Global66":pays[0]);
   const a=parseFloat(String(form.amt).replace(",","."))||0;const e=toEUR(a,cur);
   return `<div class="top"><div><span class="eb">${pretty(today)} · ${esc(city)}</span><h1 class="h1">Nuevo gasto</h1></div><div style="text-align:right"><span class="eb">Hoy llevas</span><div style="font:700 18px var(--mono);color:var(--red)">${fe(spent)}${bd?` <span class="sub">/ ${fe(tot(bd))}</span>`:""}</div></div></div>
   <button class="mic" id="mic"><i>${'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fffdf6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>'}</i><span><b id="micT">Dictar el gasto</b><small>«café en Flore cuatro cincuenta»</small></span></button>
   <div class="box"><label class="eb" for="amt">Monto</label>
-   <div class="amt"><input id="amt" inputmode="decimal" placeholder="0" value="${esc(form.amt)}" autocomplete="off"><div class="cur"><button data-cur="EUR" aria-pressed="${cur==="EUR"}">€</button><button data-cur="${T.c2.code}" aria-pressed="${cur!=="EUR"}">${T.c2.sym}</button></div></div>
+   <div class="amt"><input id="amt" inputmode="decimal" placeholder="0" value="${esc(form.amt)}" autocomplete="off"><div class="cur"><button data-cur="EUR" aria-pressed="${cur==="EUR"}">€</button>${T.solo?"":`<button data-cur="${T.c2.code}" aria-pressed="${cur!=="EUR"}">${T.c2.sym}</button>`}</div></div>
    <label class="eb" for="com" style="margin-top:4px">Comercio o detalle</label><input id="com" class="line" value="${esc(form.com)}" placeholder="Ej.: Café de Flore" autocomplete="off">
    <span class="sub" id="conv">${a?(cur!=="EUR"?`= ${fe(e)} · `:"")+clp(e):"Toca el micrófono o escribe el monto"}</span></div>
   <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Categoría${form.cat?"":" · sugerida"}</span><div class="chips">${cats().map(c=>`<button class="chip" data-cat="${esc(c[0])}" aria-pressed="${cat===c[0]}"><i style="background:${c[1]}"></i>${esc(c[0])}</button>`).join("")}<button class="chip add" id="addcat">+ Nueva</button></div></div>
   ${catOf(cat)[2]==="shop"?`<div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Compras · ¿qué fue? (opcional)</span><div class="chips">${cats().filter(c=>c[2]==="shop").map(c=>`<button class="chip" data-cat="${esc(c[0])}" aria-pressed="${cat===c[0]}"><i style="background:${c[1]}"></i>${esc(c[0])}</button>`).join("")}<button class="chip add" id="addsub">+ Subcategoría</button></div></div>`:""}
   <div style="display:flex;flex-direction:column;gap:6px"><span class="eb">Pagado con</span><div class="seg">${pays.map(p=>`<button data-pay="${p}" aria-pressed="${pay===p}">${p}</button>`).join("")}</div></div>
   <div class="box" style="padding:4px 12px;gap:0"><label class="tg"><input type="checkbox" id="loc" ${form.loc?"checked":""}><span>Guardar ubicación</span><small class="sub" id="locT">${form.loc?(form.ll?`±${Math.round(form.acc||0)} m`:"buscando…"):"sin ubicación"}</small></label>
-   <label class="tg"><input type="checkbox" id="shr" ${form.shared?"checked":""}><span>Gasto compartido (${T.who})</span><small class="sub">${form.shared&&a?num(a/T.n)+" "+sy(cur)+" c/u":form.shared?"partes iguales":"solo mío"}</small></label></div>
+   ${T.n<2?"":`<label class="tg"><input type="checkbox" id="shr" ${form.shared?"checked":""}><span>Gasto compartido (${T.who})</span><small class="sub">${form.shared&&a?num(a/T.n)+" "+sy(cur)+" c/u":form.shared?"partes iguales":"solo mío"}</small></label>`}</div>
   <button class="go" id="save" ${a>0?"":"disabled"}>Guardar gasto</button>
   <button class="btn" id="retiro" style="align-self:center">Registrar retiro de efectivo (cajero)</button>
   ${G.length+J.length?`<div><span class="eb">Últimos</span><div class="gl">${mine().slice(0,5).map(gRow).join("")}</div></div>`:""}`}
@@ -306,9 +351,9 @@ function vSet(){const pays=P.medios||allPays();
    <label class="fld">Presupuesto total del viaje (€)<input id="s-pres" inputmode="decimal" value="${esc(P.pres||"")}" placeholder="${T.pres}"></label>
    <span class="sub">${P.pres?clp(+P.pres):""}${BUD&&BUD.days&&BUD.days.length?` · el programa estima ${fe(tot(sumBud(BUD.days)))} en comidas, entradas, transporte y alojamiento`:""}</span></div>
   ${bdHTML()}
-  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label><label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label></div></div>
+  <div class="box"><span class="eb">Efectivo que llevo al partir</span><div class="k2"><label class="fld">Euros<input id="s-ce" inputmode="decimal" value="${esc(P.cashEUR||"")}" placeholder="150"></label>${T.solo?"":`<label class="fld">${T.c2.pl}<input id="s-cg" inputmode="decimal" value="${esc(P[T.c2.ck]||"")}" placeholder="40"></label>`}</div></div>
   <div class="box" style="gap:0"><span class="eb" style="margin-bottom:4px">Mis medios de pago</span>${allPays().map(p=>`<label class="tg"><input type="checkbox" data-med="${esc(p)}" ${pays.includes(p)?"checked":""}><span>${esc(p)}</span>${(P.paysX||[]).includes(p)?`<button type="button" class="chip" data-delpay="${esc(p)}" style="margin-left:auto">✕</button>`:""}</label>`).join("")}<button type="button" class="chip add" id="addpay" style="align-self:flex-start;margin-top:8px">+ Agregar medio de pago</button></div>
-  <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label><label class="fld">1 ${T.c2.sym} en €<input id="s-rg" inputmode="decimal" value="${esc(P[T.c2.rk]||T.c2.def)}"></label></div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
+  <div class="box"><span class="eb">Tasas de cambio</span><div class="k2"><label class="fld">1 € en CLP<input id="s-rc" inputmode="decimal" value="${esc(P.rateCLP||1100)}"></label>${T.solo?"":`<label class="fld">1 ${T.c2.sym} en €<input id="s-rg" inputmode="decimal" value="${esc(P[T.c2.rk]||T.c2.def)}"></label>`}</div><span class="sub">Si cambian pesos a euros en Global66, pongan aquí esa tasa.</span></div>
   <div class="box"><span class="eb">Mis categorías</span><div class="chips">${(P.cats||[]).map(c=>`<button class="chip" data-delcat="${esc(c)}">${esc(c)}${(P.catsShop||[]).includes(c)?" · compras":""} ✕</button>`).join("")||'<span class="sub">Ninguna todavía: se agregan con «+ Nueva» al registrar.</span>'}</div></div>
   <button class="go" id="s-save">Guardar</button>
   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit" href="${T.back}">← ${T.nom}</a>${DEMO?"":`<button class="btn" id="out">Salir</button>`}</div>`}
@@ -369,7 +414,7 @@ function bind(){const Q=(s,f)=>document.querySelectorAll(s).forEach(f);
   const shi=$("#s-shop");if(shi)shi.oninput=()=>{const v=parseFloat(shi.value.replace(",","."))||0;$("#bdtot").textContent=fe(tot(sumBud((BUD&&BUD.days)||[]))+v)};
   const ss=$("#s-save");if(ss)ss.onclick=async()=>{const n=v=>parseFloat(String(v).replace(/\./g,"").replace(",","."))||0;const f=v=>parseFloat(String(v).replace(",","."))||0;
     const sh=$("#s-shop");
-    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),...(sh?{shopBud:n(sh.value)}:{}),cashEUR:f($("#s-ce").value),[T.c2.ck]:f($("#s-cg").value),rateCLP:n($("#s-rc").value)||1100,[T.c2.rk]:f($("#s-rg").value)||T.c2.def,
+    await saveProf({nombre:$("#s-nom").value.trim(),pres:n($("#s-pres").value),...(sh?{shopBud:n(sh.value)}:{}),cashEUR:f($("#s-ce").value),...(T.solo?{}:{[T.c2.ck]:f($("#s-cg").value),[T.c2.rk]:f($("#s-rg").value)||T.c2.def}),rateCLP:n($("#s-rc").value)||1100,
       medios:[...document.querySelectorAll("[data-med]")].filter(x=>x.checked).map(x=>x.dataset.med)});toast("✓ Guardado")};
   Q("[data-delcat]",b=>b.onclick=()=>saveProf({cats:(P.cats||[]).filter(c=>c!==b.dataset.delcat),catsShop:(P.catsShop||[]).filter(c=>c!==b.dataset.delcat)}));
   const out=$("#out");if(out)out.onclick=()=>window._au.U.signOut(window._au.auth)}
