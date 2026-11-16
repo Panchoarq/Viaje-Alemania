@@ -6,6 +6,7 @@ import * as NUBE from "./nube.js";
 import {dibujar} from "./motor.js";
 import {aplicarCustom} from "./programa.js";
 import {mlStyle} from "./mlstyle.js";
+import {ayudaBtn,ayudaHTML,bindAyuda,ayudaPrimera} from "./ayuda.js";
 
 const q=new URLSearchParams(location.search),id=q.get("id"),DEMO=q.has("demo");
 const $=s=>document.querySelector(s),app=$("#app");
@@ -77,7 +78,7 @@ function go(t){tab=t;try{localStorage.setItem("mp_tab_"+id,t)}catch(e){}if(locat
 function headerCab(){
   const uniq=[...new Set(W.ciudades.map(c=>short(nombre(c.id))))],a=fechas()?W.inicio:"",b=a?add(a,noches()):"";
   return `<header class="cabh"><div class="cr1"><div class="seg" role="group">${[["retro","Retro","1"],["mod","Moderno","2"],["papel","Cuaderno","3"]].map(([k,t,i])=>`<button type="button" data-stysel="${k}" aria-pressed="${sty===k}" title="${t}" aria-label="${t}">${i}</button>`).join("")}</div>
-   <div class="cusr"><button type="button" class="cib" data-gotab="gas" title="Gastos del viaje" aria-label="Gastos">${CABIC.gas}</button><button type="button" class="cib" id="logoBtn" title="Volver a Mis viajes" aria-label="Volver a Mis viajes">${CABIC.back}</button></div></div>
+   <div class="cusr">${ayudaBtn()}<button type="button" class="cib" data-gotab="gas" title="Gastos del viaje" aria-label="Gastos">${CABIC.gas}</button><button type="button" class="cib" id="logoBtn" title="Volver a Mis viajes" aria-label="Volver a Mis viajes">${CABIC.back}</button></div></div>
    <div class="cttl"><h1>${esc(uniq.join("·"))}</h1>${a?`<small>${pretty(a).replace(/^\S+\s/,"")} – ${pretty(b).replace(/^\S+\s/,"")}</small>`:`<small>${noches()} noches · sin fechas</small>`}</div></header>`;
 }
 
@@ -89,7 +90,7 @@ function cfgRoute(){
     if(i){const e=eleccion(ids[i-1],ids[i]);h+=`<div class="arr">↓ <b>${MODO[e.m]}</b> · ${fh(e.min/60)}${e.eur?` · ~${e.eur} €`:""}${e.rec?" · recomendado":""}</div>`}
     const rango=fechas()?`Llega ${pretty(add(W.inicio,a))} · sale ${pretty(add(W.inicio,b))}`:`Día ${a+1} → día ${b+1}`;
     h+=`<div class="n" style="--c:${COL[i%COL.length]}"><span style="flex:1;min-width:0"><b>${i+1}.</b> ${esc(nombre(x.id))}<br><small class="muted num">${rango}</small></span>
-      <span class="nn" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn sm" data-up="${i}" ${i?"":"disabled"} aria-label="Subir">▲</button><button class="btn sm" data-dn="${i}" ${i<ids.length-1?"":"disabled"} aria-label="Bajar">▼</button><button class="btn sm" data-mn="${i}" aria-label="Menos noches">−</button><b class="num">${x.noches}</b> noches<button class="btn sm" data-mas="${i}" aria-label="Más noches">+</button></span></div>`});
+      <span class="nn" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn sm" data-up="${i}" ${i?"":"disabled"} aria-label="Subir">▲</button><button class="btn sm" data-dn="${i}" ${i<ids.length-1?"":"disabled"} aria-label="Bajar">▼</button><button class="btn sm" data-mn="${i}" aria-label="Menos noches">−</button><b class="num">${x.noches}</b> ${x.noches===0?"(de un día)":x.noches===1?"noche":"noches"}<button class="btn sm" data-mas="${i}" aria-label="Más noches">+</button></span></div>`});
   h+=`<div class="end">✈ Fin: salida desde ${esc(nombre(ids[ids.length-1]))}${(W.sale||{}).a?" hacia "+esc(W.sale.a):""}${(W.sale||{}).hora?" · "+esc(W.sale.hora)+" h":""}${fechas()?` · ${pretty(add(W.inicio,noches()))}`:""}</div>`;
   return `<div class="routegrid">
    <div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0"><span class="eyebrow">Noches en cada ciudad · orden de visita</span><div class="nights">${h}</div>
@@ -100,7 +101,7 @@ function cfgRoute(){
 function timeline(){
   const ids=W.ciudades.map(c=>c.id),it=[];let d=0;
   W.ciudades.forEach((x,i)=>{const dia=fechas()?add(W.inicio,d):null;
-    it.push([dia,fechas()?pretty(dia).replace(" ","<br>"):"Día<br>"+(d+1),i?`${MODO[eleccion(ids[i-1],x.id).m]} a ${nombre(x.id)}`:`✈ Llegada a ${nombre(x.id)}`,i?`${fh(eleccion(ids[i-1],x.id).min/60)} · ${x.noches} noche${x.noches>1?"s":""} en ${nombre(x.id)}`:`${x.noches} noche${x.noches>1?"s":""}${W.hora?" · llegas a las "+W.hora:""}`]);d+=x.noches});
+    it.push([dia,fechas()?pretty(dia).replace(" ","<br>"):"Día<br>"+(d+1),i?`${MODO[eleccion(ids[i-1],x.id).m]} a ${nombre(x.id)}`:`✈ Llegada a ${nombre(x.id)}`,i?`${fh(eleccion(ids[i-1],x.id).min/60)} · ${x.noches===0?"excursión de un día":x.noches+" noche"+(x.noches===1?"":"s")} en ${nombre(x.id)}`:`${x.noches===0?"excursión de un día":x.noches+" noche"+(x.noches===1?"":"s")}${W.hora?" · llegas a las "+W.hora:""}`]);d+=x.noches});
   it.push([null,fechas()?pretty(add(W.inicio,d)).replace(" ","<br>"):"Día<br>"+(d+1),`✈ Salida desde ${nombre(ids[ids.length-1])}`,""]);
   return `<ol class="ptl">${it.map(([,f,t,s])=>`<li><span class="d">${f}</span><span><b>${esc(t)}</b><small>${esc(s)}</small></span></li>`).join("")}</ol>`;
 }
@@ -144,7 +145,7 @@ function render(){
   CTX.ids=W.ciudades.map(c=>c.id);
   const y=scrollY;
   app.innerHTML=headerCab()+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CABIC[k]}<span>${CABSH[k]}</span></button>`).join("")}</nav>
-   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg():`<div id="vista"></div>`}</section>`;
+   <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg():`<div id="vista"></div>`}</section>`+ayudaHTML(CTX);
   if(tab!=="cfg")dibujar(tab,CTX,$("#vista"));
   scrollTo(0,y);bindAll();
   if(tab==="cfg")setTimeout(initMap,0);
@@ -156,6 +157,7 @@ function bindAll(){
   Q("[data-stysel]",b=>b.onclick=()=>{setSty(b.dataset.stysel);render()});
   Q("[data-tab]",b=>b.onclick=()=>go(b.dataset.tab));
   Q("[data-gotab]",b=>b.onclick=()=>go(b.dataset.gotab));
+  bindAyuda(CTX);
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/"+(DEMO?"?demo":"");
   if(tab!=="cfg")return;
   Q("[data-w]",x=>x.onchange=()=>{W[x.dataset.w]=x.value;if(x.dataset.w==="inicio")W.cuando=x.value?"fecha":"generico";guardar();render()});
@@ -163,11 +165,11 @@ function bindAll(){
   Q("[data-rit]",b=>b.onclick=()=>{const [c,r]=b.dataset.rit.split("|");W.ritmo=W.ritmo||{};W.ritmo[c]=r;if(W.prog)delete W.prog[c];guardar();render()});
   Q("[data-up]",b=>b.onclick=()=>{const i=+b.dataset.up,a=W.ciudades;[a[i-1],a[i]]=[a[i],a[i-1]];guardar();render()});
   Q("[data-dn]",b=>b.onclick=()=>{const i=+b.dataset.dn,a=W.ciudades;[a[i+1],a[i]]=[a[i],a[i+1]];guardar();render()});
-  Q("[data-mn]",b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mn];x.noches=Math.max(1,x.noches-1);guardar();render()});
+  Q("[data-mn]",b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mn];x.noches=Math.max(0,x.noches-1);guardar();render()});
   Q("[data-mas]",b=>b.onclick=()=>{const x=W.ciudades[+b.dataset.mas];x.noches=Math.min(30,x.noches+1);guardar();render()});
   const br=$("#borrar");if(br)br.onclick=async()=>{if(br.dataset.arm!=="1"){br.dataset.arm="1";br.textContent="¿Seguro? Toca de nuevo";return}
     if(viaje.owner&&!DEMO){br.textContent="Eliminando…";try{await NUBE.borrar(id)}catch(e){console.warn("nube",e);br.textContent="No pude eliminarlo de tu cuenta. Revisa tu conexión.";br.dataset.arm="";return}}
     escribir(leer().filter(v=>v.id!==id));location.href="/"+(DEMO?"?demo":"")};
 }
 addEventListener("hashchange",()=>{const k=tabDeHash();if(k&&k!==tab){tab=k;render();scrollTo(0,0)}});
-render();
+render();if(!DEMO)ayudaPrimera(CTX);

@@ -115,7 +115,7 @@ function mealSel(ctx,day,k){const o=ctx.M[day.cid].COMIDAS||{},L=o[k]||[];const 
   const on=W.meal&&W.meal[key]!=null?!!W.meal[key]:!!ONMEAL[k];const i=Math.min((W.mealOpt||{})[key]||0,Math.max(0,L.length-1));return {on,i,L}}
 function costOf(ctx,day,S){const W=ctx.W,CI=ctx.M[day.cid].CIUDAD,pers=W.personas||2,metro=CI.metro||2.4;
   const al=(W.alo||{})[day.cid]||{},nn=(W.ciudades.find(x=>x.id===day.cid)||{noches:1}).noches||1;
-  const hot=al.p?(+al.p/nn)/pers:0;
+  const hot=al.p&&(W.ciudades.find(x=>x.id===day.cid)||{}).noches!==0?(+al.p/nn)/pers:0;
   let meal=0;for(const k of ["d","a","m","c"]){const m=mealSel(ctx,day,k);if(m.on&&m.L[m.i])meal+=+m.L[m.i][1]||0}
   const act=S?S.seq.reduce((t,a)=>t+(a.p||0),0):0;
   const legs=S?S.legs:[];const loc=legs.filter(l=>l.metro&&!l.noloc).length*metro;

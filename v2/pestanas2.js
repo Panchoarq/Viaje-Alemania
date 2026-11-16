@@ -111,17 +111,19 @@ export function bindTransporte(ctx){
 const HS={c:""};
 const optsDe=(ctx,cid)=>{const W=ctx.W;W.hot=W.hot||{};if(!W.hot[cid]){const a=(W.alo||{})[cid];W.hot[cid]=a&&(a.n||a.p)?[{id:"h0",n:a.n||"Mi alojamiento",addr:"",bf:"",price:a.p||"",mode:"t",note:"",url:"",r:a.r||"",ok:!!a.ok,sel:true}]:[]}return W.hot[cid]};
 function sincAlo(ctx,cid){const W=ctx.W,o=optsDe(ctx,cid).find(x=>x.sel),nn=W.ciudades.find(c=>c.id===cid).noches||1;W.alo=W.alo||{};
-  if(!o){delete W.alo[cid];return}const tot=o.price?(o.mode==="t"?+o.price:+o.price*nn):0;W.alo[cid]={n:o.n,p:tot,r:o.r||"",ok:!!o.ok}}
+  if(!o){delete W.alo[cid];return}const tot=o.price&&W.ciudades.find(c=>c.id===cid).noches!==0?(o.mode==="t"?+o.price:+o.price*nn):0;W.alo[cid]={n:o.n,p:tot,r:o.r||"",ok:!!o.ok}}
 export function alojamiento(ctx){
-  const W=ctx.W,cid=ctx.ids.includes(HS.c)?HS.c:ctx.ids[0];HS.c=cid;
+  const W=ctx.W,IDS=ctx.ids.filter(c=>(W.ciudades.find(z=>z.id===c)||{}).noches!==0);
+  if(!IDS.length)return `<div class="card"><p class="muted">Todas las ciudades de este viaje son excursiones de un día: no hace falta alojamiento.</p></div>`;
+  const cid=IDS.includes(HS.c)?HS.c:IDS[0];HS.c=cid;
   const P=W.personas||2,res=W.hoteles==="reservado";
-  const tabs=`<div class="daytabs" role="tablist" aria-label="Ciudad">${ctx.ids.map(c=>{const o=optsDe(ctx,c).find(x=>x.sel),x=W.ciudades.find(z=>z.id===c);return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-sub="${c}" aria-selected="${c===cid}"><b>${ctx.esc(short(ctx.M[c].CIUDAD.n))}</b><small>${x.noches} ${x.noches===1?"noche":"noches"} · ${ctx.esc(o?o.n:"sin elegir")}</small></button>`}).join("")}</div>`;
+  const tabs=`<div class="daytabs" role="tablist" aria-label="Ciudad">${IDS.map(c=>{const o=optsDe(ctx,c).find(x=>x.sel),x=W.ciudades.find(z=>z.id===c);return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-sub="${c}" aria-selected="${c===cid}"><b>${ctx.esc(short(ctx.M[c].CIUDAD.n))}</b><small>${x.noches} ${x.noches===1?"noche":"noches"} · ${ctx.esc(o?o.n:"sin elegir")}</small></button>`}).join("")}</div>`;
   const M=ctx.M[cid],x=W.ciudades.find(z=>z.id===cid),i0=inicioCiudad(ctx,cid),ini=ctx.fechas()?ctx.add(W.inicio,i0):"",fin=ctx.fechas()?ctx.add(W.inicio,i0+x.noches):"",L=optsDe(ctx,cid);
   const bk=(t)=>`https://www.booking.com/searchresults.html?ss=${q(t)}${ini?"&checkin="+ini+"&checkout="+fin+"&group_adults="+P:""}`;
-  const tot=ctx.ids.reduce((t,i)=>t+(+((W.alo||{})[i]||{}).p||0),0);
+  const tot=IDS.reduce((t,i)=>t+(+((W.alo||{})[i]||{}).p||0),0);
   return `<div class="opt on" style="margin-bottom:10px"><div class="opt-top"><span class="name">🛏 ${res?"Ya tienen reservas: anótenlas para que queden con el viaje.":"Recomendaciones ("+({eco:"económico",medio:"medio",conf:"confort"}[W.estandar]||"medio")+"): busquen por barrio y anoten lo que reserven."}</span><span class="pill sel">Total anotado ${FM(tot)}</span></div></div>
-  ${tabs}<div id="hotels" style="display:flex;flex-direction:column;gap:22px"><div class="city" style="--c:${colDe(ctx,cid)}"><h3>${ctx.esc(M.CIUDAD.n)} · ${x.noches} ${x.noches===1?"noche":"noches"}${ini?" · "+ctx.pretty(ini)+" → "+ctx.pretty(fin):""}</h3>
-   ${(M.BARRIOS||[]).length?`<p class="note"><b>Dónde conviene:</b> ${M.BARRIOS.map(b=>`<b>${ctx.esc(b.n)}</b>: ${ctx.esc(b.d)}`).join(" · ")}</p>`:""}
+  ${tabs}<div id="hotels" style="display:flex;flex-direction:column;gap:22px"><div class="city" style="--c:${colDe(ctx,cid)}"><h3>${ctx.esc(M.CIUDAD.n)} · ${x.noches===0?"excursión de un día":x.noches+" "+(x.noches===1?"noche":"noches")}${ini?" · "+ctx.pretty(ini)+" → "+ctx.pretty(fin):""}</h3>
+   ${x.noches===0?`<p class="note"><b>Excursión de un día:</b> no duermes en ${ctx.esc(short(M.CIUDAD.n))}, así que no suma costo de alojamiento. Si prefieres quedarte a dormir, ponle 1 noche o más en Configurar.</p>`:""}${(M.BARRIOS||[]).length?`<p class="note"><b>Dónde conviene:</b> ${M.BARRIOS.map(b=>`<b>${ctx.esc(b.n)}</b>: ${ctx.esc(b.d)}`).join(" · ")}</p>`:""}
    <div class="hotels">${L.map(o=>{const nn=x.noches||1,tt=o.price?(o.mode==="t"?+o.price:+o.price*nn):0,pp=tt/P;
     return `<div class="opt${o.sel?" on":""}"><div class="opt-top"><input type="radio" name="h-${cid}" data-hsel="${cid}|${o.id}" ${o.sel?"checked":""} aria-label="Elegir ${ctx.esc(o.n)}"><span class="name">${ctx.esc(o.n)}</span><span class="pill ${o.sel?"sel":""}">${o.sel?"✔ Elegido":"Alternativa"}</span></div>
      <dl class="facts"><dt>Dirección</dt><dd><input class="hin" data-hf="${cid}|${o.id}|addr" value="${ctx.esc(o.addr||"")}" placeholder="Calle, número, barrio"></dd>
