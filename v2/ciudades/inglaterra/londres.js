@@ -1,12 +1,16 @@
 // Paquete de ciudad: Londres (Inglaterra). Adaptador: reutiliza los datos del viaje a París/Londres (v2/trips/paris.data.js).
 import {LON,GBP,TIPS} from "../../trips/paris.data.js";
+import {EXTRA,RUTAS as RUTAS_X,MAPAS as MAPAS_X} from "./londres-rutas.js";
+const LOALL=[...LON,...EXTRA];
 const zonas=A=>Object.fromEntries([...new Set(A.map(a=>a.z))].map(z=>[z,z]));
 export const CIUDAD={id:"londres",n:"Londres",pais:"inglaterra",p:"🇬🇧",ll:[51.5074,-0.1278],geo:", London",
   moneda:{code:"GBP",sym:"£",eur:GBP},transit:"metro (Tube), buses y Elizabeth line",idioma:"inglés",verificado:false,fuente:"Datos del viaje a Londres de la app",
   resumen:"Museos gratuitos de primer nivel, palacios, parques enormes y teatro. Muy grande: conviene agrupar por barrio y usar el metro.",
   mejorEpoca:"Mayo–septiembre; diciembre por el ambiente navideño. Llevar siempre paraguas.",dias:{ideal:4,minimo:3}};
-export const ZONAS=zonas(LON);
-export const ATRACCIONES=LON;
+export const ZONAS=zonas(LOALL);
+export const ATRACCIONES=LOALL;
+export const RUTAS=RUTAS_X;
+export const MAPAS=MAPAS_X;
 export const ESCAPADAS=[];
 export const COMIDAS={d:[["Desayuno inglés o café + pastel",10],["En el alojamiento",0]],a:[["Meal deal de supermercado",6],["Pub: fish & chips",17]],m:[["Té o café con scone",9]],c:[["Pub con plato principal",22],["Restaurante casual",28]]};
 export const GUIA_COMIDA=[];

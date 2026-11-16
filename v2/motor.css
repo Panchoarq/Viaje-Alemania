@@ -202,3 +202,9 @@ figure.ilu img{cursor:zoom-in}
 .rrnav{margin:4px 0 8px}.rrnav .rp{font-weight:700}.rrnav button:disabled{opacity:.35}
 /* El filtro de sombra del panel atrapa a los overlays fijos (plano del día, calendario): se quita mientras estén abiertos */
 .panel:has(.mapov),.panel:has(.calov){filter:none!important}
+
+/* Mapa histórico de zonas */
+.hmap{display:block;width:100%;margin:10px 0 8px;transform:none;cursor:default}.hmap .lmap{height:min(58vh,420px)}
+.hmap .mc-cap{display:block;position:static;margin-top:4px}
+.hzl{list-style:none;margin:8px 0;padding:0}.hzl li{display:flex;gap:10px;align-items:flex-start;margin:7px 0}.hzl small{display:block;color:var(--muted)}
+.lm-a.hz{background:#b3261e}

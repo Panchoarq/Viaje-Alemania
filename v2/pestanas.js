@@ -3,6 +3,7 @@
 import {SUB,selDe,diasDe,CAP,GRUPOS,grupoDe,agrupar} from "./motor.js";
 import {alternarAtr,formNueva,quitarCustom,bindNueva,diasCiudad} from "./programa.js";
 import {arqHTML} from "./estilos.js";
+import {mapaZonas} from "./mapa.js";
 import {mlStyle} from "./mlstyle.js";
 
 const COL=["#2e4f8f","#1d6f7a","#a8352b","#2e6b4f","#b8860b","#7b4ba0","#c2477f"];
@@ -72,6 +73,17 @@ function initMapasRuta(ctx){if(!window.maplibregl)return;
   document.querySelectorAll(".lmap[data-rmap]").forEach(el=>{if(el._m||!el.offsetParent)return;const [cid,rid,k]=el.dataset.rmap.split(":"),ru=(ctx.M[cid].RUTAS||[]).find(x=>x.id===rid),v=ru&&(ru.v||[]).find(x=>x.k===k);if(!v)return;
     const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),P=v.ids.map(i=>A[i]).filter(a=>a&&a.ll);if(P.length<1)return;
     try{el.classList.add("ml");mapaRuta(ctx,el,P)}catch(e){console.warn("mapa ruta",e);el.classList.remove("ml")}})}
+// ---------- mapas históricos de la ciudad (zonas rayadas), p. ej. el Blitz
+function mapasHistHTML(ctx,cid){const MH=ctx.M[cid].MAPAS||[];if(!MH.length)return "";
+  return MH.map(mp=>`<details class="card rutas hmapc" data-cx="${cid}:mh${mp.id}"${E.cx.has(cid+":mh"+mp.id)?" open":""}><summary><span class="eyebrow">Mapa histórico</span><h2>${ctx.esc(mp.n)}</h2></summary><div class="ctxb">
+   ${mp.d?`<p>${ctx.esc(mp.d)}</p>`:""}
+   ${window.maplibregl?`<div class="mapclip lclip hmap"><span class="clip" aria-hidden="true"></span><div class="lmap" data-hmap="${cid}:${mp.id}"></div><span class="mc-cap">Zonas rayadas = áreas muy dañadas o arrasadas (aproximadas)</span></div>`:""}
+   <ol class="hzl">${(mp.zonas||[]).map((z,i)=>`<li><span class="anum num">${i+1}</span><div><b>${ctx.esc(z.n)}</b>${z.nota?`<small>${ctx.esc(z.nota)}</small>`:""}</div></li>`).join("")}</ol>
+   ${mp.nota?`<p class="note">${ctx.esc(mp.nota)}</p>`:""}</div></details>`).join("")}
+function initMapasHist(ctx){if(!window.maplibregl)return;
+  document.querySelectorAll(".lmap[data-hmap]").forEach(el=>{if(el._m||!el.offsetParent)return;const [cid,id]=el.dataset.hmap.split(":"),mp=(ctx.M[cid].MAPAS||[]).find(x=>x.id===id);if(!mp)return;
+    const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),pts=(mp.pts||[]).map(i=>A[i]).filter(a=>a&&a.ll);
+    try{mapaZonas(el,{zonas:mp.zonas,pts})}catch(e){console.warn("mapa hist",e);el.classList.remove("ml")}})}
 // ---------- recorridos a pie temáticos, según el tiempo disponible
 const hmin=m=>{m=Math.round(m);const h=Math.floor(m/60),x=m%60;return h?`${h} h${x?" "+x+" min":""}`:`${x} min`};
 function datosRuta(ctx,cid,v){const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),P=(v.ids||[]).map(i=>A[i]).filter(Boolean);
@@ -124,6 +136,7 @@ export function atracciones(ctx){
   return `${guia("att")}${ctabs(ctx,cid,c=>`${(ctx.M[c].ATRACCIONES||[]).length} atracciones`)}
    <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${ilu(ctx,CI.portada)}${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}${contextoHTML(ctx,cid)}</div></details>
    ${rutasHTML(ctx,cid)}
+   ${mapasHistHTML(ctx,cid)}
    ${sin?`<a href="#" class="feasstat bad" data-gotab="prog">✕ ${ctx.esc(short(CI.n))}: lo elegido (${ctx.fh(hs)}) pasa de lo que cabe (${ctx.fh(cap)}) · ver en Programa →</a>`:`<span class="feasstat ok">✓ ${ctx.esc(short(CI.n))}: todo lo elegido cabe (${ctx.fh(hs)} de ${ctx.fh(cap)})</span>`}
    <div class="attfil"><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-afil="${k}" aria-pressed="${E.fil===k}">${t}</button>`).join("")}</div></div>
    ${grps.length>1?`<div class="afrow"><span class="eyebrow">Tipo</span><div class="filters"><button type="button" class="chip" data-atip="todos" aria-pressed="${E.tip==="todos"}">Todos</button>${grps.map(g=>`<button type="button" class="chip" data-atip="${g.k}" aria-pressed="${E.tip===g.k}">${ctx.esc(g.n)} <small>${g.L.length}</small></button>`).join("")}</div></div>`:""}
@@ -141,8 +154,8 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
   Q(".rmapclip",c=>{const tog=()=>{const big=c.classList.toggle("rbig"),m=c.querySelector(".lmap")._m;c.querySelector(".mc-cap").textContent=big?"Plano de la caminata · reducir":"Plano de la caminata · ampliar";
       if(m){setTimeout(()=>{m.resize();const b=m.getBounds();m.fitBounds(b,{padding:30,duration:0});if(big){m.dragPan.enable();m.touchZoomRotate.enable();m.scrollZoom.disable()}else{m.dragPan.disable();m.touchZoomRotate.disable()}},60)}};
     c.onclick=tog;c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}}});
-  setTimeout(()=>initMapasRuta(ctx),0);
-  Q("details.rutas",d=>d.addEventListener("toggle",()=>{if(d.open)setTimeout(()=>initMapasRuta(ctx),0)}));
+  setTimeout(()=>{initMapasRuta(ctx);initMapasHist(ctx)},0);
+  Q("details.rutas",d=>d.addEventListener("toggle",()=>{if(d.open)setTimeout(()=>{initMapasRuta(ctx);initMapasHist(ctx)},0)}));
   Q("[data-afil]",b=>b.onclick=()=>{E.fil=b.dataset.afil;ctx.render()});
   Q("[data-azon]",b=>b.onclick=()=>{E.zon=b.dataset.azon;ctx.render()});
   Q("[data-atip]",b=>b.onclick=()=>{E.tip=b.dataset.atip;ctx.render()});
