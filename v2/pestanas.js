@@ -159,9 +159,10 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
     f.classList.add("flash");setTimeout(()=>f.classList.remove("flash"),1600)});
   Q(".rutarail",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("rrnav"))return;const cs=[...rail.children],rp=nav.querySelector(".rp"),bar=nav.querySelector("i");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
-    const upd=()=>{const i=cur();rp.textContent=`Caminata ${i+1} de ${cs.length} · desliza ⇆`;bar.style.width=(100*(i+1)/cs.length)+"%";nav.querySelector('[data-rr="-1"]').disabled=i===0;nav.querySelector('[data-rr="1"]').disabled=i===cs.length-1};
+    const fit=()=>{const f=cs[cur()];rail.style.height=(f.offsetHeight+14)+"px"};
+    const upd=()=>{const i=cur();fit();rp.textContent=`Caminata ${i+1} de ${cs.length} · desliza ⇆`;bar.style.width=(100*(i+1)/cs.length)+"%";nav.querySelector('[data-rr="-1"]').disabled=i===0;nav.querySelector('[data-rr="1"]').disabled=i===cs.length-1};
     rail.addEventListener("scroll",()=>requestAnimationFrame(upd),{passive:true});
-    nav.querySelectorAll("[data-rr]").forEach(b=>b.onclick=()=>{const j=Math.max(0,Math.min(cs.length-1,cur()+ +b.dataset.rr));rail.scrollTo({left:cs[j].offsetLeft-rail.offsetLeft,behavior:"smooth"})});upd()});
+    nav.querySelectorAll("[data-rr]").forEach(b=>b.onclick=()=>{const j=Math.max(0,Math.min(cs.length-1,cur()+ +b.dataset.rr));rail.scrollTo({left:cs[j].offsetLeft-rail.offsetLeft,behavior:"smooth"})});upd();setTimeout(upd,600);addEventListener("resize",upd)});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;
     const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
