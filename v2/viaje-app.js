@@ -181,3 +181,11 @@ function bindAll(){
 }
 addEventListener("hashchange",()=>{const k=tabDeHash();if(k&&k!==tab){tab=k;render();scrollTo(0,0)}});
 render();if(!DEMO)ayudaPrimera(CTX);
+
+// Ilustraciones: clic para verlas a pantalla completa; otro clic o Esc para volver
+function cierraLuz(){const l=document.getElementById("luz");if(l){l.remove();document.documentElement.style.overflow=""}}
+document.addEventListener("click",e=>{const im=e.target.closest&&e.target.closest("figure.ilu img");if(!im)return;
+  const cap=im.closest("figure").querySelector("figcaption"),l=document.createElement("div");l.id="luz";l.setAttribute("role","dialog");l.setAttribute("aria-label","Ilustración ampliada");
+  l.innerHTML=`<button type="button" aria-label="Cerrar">✕</button><img alt=""><p></p>`;l.querySelector("img").src=im.currentSrc||im.src;l.querySelector("img").alt=im.alt;l.querySelector("p").textContent=cap?cap.textContent:"";
+  l.onclick=cierraLuz;document.body.appendChild(l);document.documentElement.style.overflow="hidden"});
+addEventListener("keydown",e=>{if(e.key==="Escape")cierraLuz()});
