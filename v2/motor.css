@@ -164,7 +164,7 @@ li.lgh small{font-weight:400}
 .chip small{opacity:.7}
 /* recorridos a pie en carrusel horizontal */
 .rutarail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;-webkit-overflow-scrolling:touch}
-.rutarail>.ruta{flex:0 0 min(88%,430px);scroll-snap-align:start;margin:0;min-width:0}
+.rutarail>.ruta{flex:0 0 min(84%,430px);scroll-snap-align:start;margin:0;min-width:0}
 .rhint{font-size:12.5px;margin:0}
 /* aire entre los bloques de Atracciones */
 #p-att .feasstat{display:block;margin:16px 0 14px}
@@ -198,3 +198,5 @@ figure.ilu img{cursor:zoom-in}
 #luz img{max-width:100%;max-height:calc(100% - 44px);object-fit:contain;border-radius:4px;box-shadow:0 6px 30px rgba(0,0,0,.6)}
 #luz p{color:#f3ead8;font:italic 14px var(--f-body,serif);margin:10px 0 0;text-align:center;max-width:720px}
 #luz button{position:absolute;top:10px;right:12px;width:44px;height:44px;border-radius:50%;border:2px solid #f3ead8;background:rgba(0,0,0,.4);color:#f3ead8;font-size:22px;line-height:1;cursor:pointer}
+
+.rrnav{margin:4px 0 8px}.rrnav .rp{font-weight:700}.rrnav button:disabled{opacity:.35}

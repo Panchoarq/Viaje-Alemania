@@ -80,6 +80,7 @@ function datosRuta(ctx,cid,v){const A=Object.fromEntries((ctx.M[cid].ATRACCIONES
 function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return "";const S=selDe(ctx,cid);
   return `<details class="card rutas" data-cx="${cid}:rutas"${E.cx.has(cid+":rutas")||!E.cx.has(cid+":rutasx")?" open":""}><summary><span class="eyebrow">Recorridos a pie</span><h2>Elige tu caminata</h2></summary><div class="ctxb">
    <p class="muted" style="margin-top:0">Cada recorrido viene en versiones según el tiempo que tengas. Al agregarlo, sus paradas pasan al programa y se reparten en tus días.</p>
+   ${R.length>1?`<div class="railnav rrnav"><button type="button" data-rr="-1" aria-label="Caminata anterior">‹</button><span class="rp">Caminata 1 de ${R.length} · desliza ⇆</span><span class="railbar"><i style="width:${100/R.length}%"></i></span><button type="button" data-rr="1" aria-label="Caminata siguiente">›</button></div>`:""}
    <div class="rutarail">${R.map(ru=>{const vs=ru.v||[],cur=vs.find(x=>x.k===E.rv[cid+":"+ru.id])||vs[0];if(!cur)return "";const d=datosRuta(ctx,cid,cur),todo=cur.ids.every(i=>S.has(i));
     return `<div class="ruta"><h3>${ru.e||"🚶"} ${ctx.esc(ru.n)}</h3>${ru.d?`<p>${ctx.esc(ru.d)}</p>`:""}${ilu(ctx,ru.img)}
      ${window.maplibregl?`<div class="mapclip lclip rmapclip" data-rclip="${cid}:${ru.id}:${cur.k}" role="button" tabindex="0" aria-label="Ampliar el plano de la caminata"><span class="clip" aria-hidden="true"></span><div class="lmap" data-rmap="${cid}:${ru.id}:${cur.k}"></div><span class="mc-cap">Plano de la caminata · ampliar</span><span class="mc-cr">© OpenFreeMap · OSM</span></div>`:""}
@@ -89,7 +90,6 @@ function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return
      ${(ru.comb&&ru.comb.length)?`<p class="muted rcomb">Para completar el día: ${ru.comb.map(i=>{const a=(M.ATRACCIONES||[]).find(z=>z.id===i);return a?`<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button>`:""}).join(" · ")}</p>`:""}
      ${ru.aviso?`<p class="note">${ctx.esc(ru.aviso)}</p>`:""}
      <button type="button" class="btn sm${todo?" alt":""}" data-rtadd="${cid}:${ru.id}:${cur.k}:${todo?0:1}">${todo?"✕ Quitar este recorrido del programa":"＋ Agregar este recorrido al programa"}</button></div>`}).join("")}</div>
-   <p class="muted rhint">Desliza hacia el lado para ver más recorridos ›</p>
    </div></details>`}
 
 // ---------- 3 · Atracciones
@@ -157,6 +157,11 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
   Q("[data-fjump]",b=>b.onclick=()=>{const f=document.getElementById(b.dataset.fjump);if(!f)return;const rail=f.closest(".fichas.att");f.classList.add("open");E.open.add(f.id);const lst=b.closest("details");if(lst){lst.open=false;E.lst=false}
     if(rail&&getComputedStyle(rail).display==="flex"){rail.scrollBy({left:f.getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"});scrollTo({top:rail.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})}else f.scrollIntoView({behavior:"smooth",block:"start"});
     f.classList.add("flash");setTimeout(()=>f.classList.remove("flash"),1600)});
+  Q(".rutarail",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("rrnav"))return;const cs=[...rail.children],rp=nav.querySelector(".rp"),bar=nav.querySelector("i");
+    const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
+    const upd=()=>{const i=cur();rp.textContent=`Caminata ${i+1} de ${cs.length} · desliza ⇆`;bar.style.width=(100*(i+1)/cs.length)+"%";nav.querySelector('[data-rr="-1"]').disabled=i===0;nav.querySelector('[data-rr="1"]').disabled=i===cs.length-1};
+    rail.addEventListener("scroll",()=>requestAnimationFrame(upd),{passive:true});
+    nav.querySelectorAll("[data-rr]").forEach(b=>b.onclick=()=>{const j=Math.max(0,Math.min(cs.length-1,cur()+ +b.dataset.rr));rail.scrollTo({left:cs[j].offsetLeft-rail.offsetLeft,behavior:"smooth"})});upd()});
   Q(".fichas.att",rail=>{const nav=rail.previousElementSibling;if(!nav||!nav.classList.contains("railnav"))return;const cs=[...rail.children];if(!cs.length)return;
     const rp=nav.querySelector(".rp"),bar=nav.querySelector("i"),bs=nav.querySelectorAll("[data-rail]");
     const cur=()=>{if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)return cs.length-1;const l=rail.getBoundingClientRect().left;const i=cs.findIndex(c=>c.getBoundingClientRect().right-l>40);return i<0?0:i};
