@@ -1,7 +1,7 @@
 // Pestañas Atracciones, Escapadas, Espectáculos y Comidas del motor, con el diseño de /paris
 // (fichas tipo expediente con clip y polaroid, filtros, lista, carrusel en celular, mapa/ideas, tarjetas).
 import {SUB,selDe,diasDe,CAP,GRUPOS,grupoDe,agrupar} from "./motor.js";
-import {alternarAtr,formNueva,quitarCustom,bindNueva,diasCiudad} from "./programa.js";
+import {alternarAtr,formNueva,quitarCustom,bindNueva,diasCiudad,selectorDia,asignarDia} from "./programa.js";
 import {arqHTML} from "./estilos.js";
 import {mapaZonas} from "./mapa.js";
 import {mlStyle} from "./mlstyle.js";
@@ -126,7 +126,7 @@ function ficha(ctx,cid,a,i,on){const CI=ctx.M[cid].CIUDAD,cod=cid.slice(0,3).toU
    ${a.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${ctx.esc(a.d)}</p></div>`:""}
    <p class="fmeta">🕐 visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${dias?` · cerrado ${dias}`:""}${a.in?" · 🏛 techado":""}</p>
    <div class="fphotos"><a class="polaroid" href="${GIq(a.n+" "+CI.n)}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${ctx.esc(limpiaN(a.n))}" data-wc="${ctx.esc(CI.n)}" alt="${ctx.esc(a.n)}" loading="lazy"><span class="cap">${ctx.esc(limpiaN(a.n).split(/:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons</p>
-   <div class="flinks">${a.u?`<a href="${ctx.esc(a.u)}" target="_blank" rel="noopener">Sitio oficial ↗</a>`:""}<a href="${mapa}" target="_blank" rel="noopener">Mapa ↗</a><button type="button" class="btn ${on?"alt ":""}sm" data-abtn="${cid}|${a.id}">${on?"✕ Quitar del programa":"+ Agregar al programa"}</button>${a.custom?`<button type="button" class="lnkb" data-acdel="${cid}|${a.id}">quitar de la lista</button>`:""}</div>
+   <div class="flinks">${a.u?`<a href="${ctx.esc(a.u)}" target="_blank" rel="noopener">Sitio oficial ↗</a>`:""}<a href="${mapa}" target="_blank" rel="noopener">Mapa ↗</a>${on?`<button type="button" class="btn alt sm" data-abtn="${cid}|${a.id}">✕ Quitar del programa</button>`:""}${selectorDia(ctx,cid,a)}${a.custom?`<button type="button" class="lnkb" data-acdel="${cid}|${a.id}">quitar de la lista</button>`:""}</div>
    <span class="fcue"><i class="c1">Ver ficha completa ▾</i><i class="c2">Tocar para cerrar ▴</i></span></article>`}
 export function atracciones(ctx){
   const cid=ciudadActual(ctx),M=ctx.M[cid],A=M.ATRACCIONES||[],S=selDe(ctx,cid),W=ctx.W,CI=M.CIUDAD;
@@ -171,6 +171,7 @@ export function bindAtracciones(ctx){const Q=(s,f)=>document.querySelectorAll(s)
   Q("details[data-attlist]",d=>d.ontoggle=()=>{E.lst=d.open});
   Q("[data-asel]",c=>c.onchange=()=>{const [cid,aid]=c.dataset.asel.split("|");alternarAtr(ctx,cid,aid,c.checked);R()});
   Q("[data-acdel]",b=>b.onclick=()=>{const [cid,aid]=b.dataset.acdel.split("|");quitarCustom(ctx,cid,aid)});
+  Q("[data-fday]",s=>s.onchange=()=>{const [cid,aid]=s.dataset.fday.split("|");asignarDia(ctx,cid,aid,s.value);R()});
   Q("[data-abtn]",b=>b.onclick=()=>{const [cid,aid]=b.dataset.abtn.split("|");alternarAtr(ctx,cid,aid,!selDe(ctx,cid).has(aid));R()});
   Q("[data-fjump]",b=>b.onclick=()=>{const f=document.getElementById(b.dataset.fjump);if(!f)return;const rail=f.closest(".fichas.att");f.classList.add("open");E.open.add(f.id);const lst=b.closest("details");if(lst){lst.open=false;E.lst=false}
     if(rail&&getComputedStyle(rail).display==="flex"){rail.scrollBy({left:f.getBoundingClientRect().left-rail.getBoundingClientRect().left-2,behavior:"smooth"});scrollTo({top:rail.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})}else f.scrollIntoView({behavior:"smooth",block:"start"});

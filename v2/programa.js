@@ -374,6 +374,16 @@ function goDay(ctx,id){const d=todosDias(ctx).find(x=>x.id===id);if(!d)return;P.
   setTimeout(()=>{const dv=document.querySelector(`#days > .day[data-day="${id}"]`);if(dv)dayScroll(dv)},80)}
 function dayScroll(dv){const ch=document.querySelector(".dchipw"),cb=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cabH"))||0;scrollTo({top:dv.getBoundingClientRect().top+scrollY-cb-(ch&&ch.offsetHeight||0)-6,behavior:"smooth"})}
 
+// Selector «Agregar al programa: elegir día» / «cambiar de día» para una ficha (pestaña Atracciones)
+export function selectorDia(ctx,cid,a){const W=ctx.W,on=selDe(ctx,cid).has(a.id),days=diasCiudad(ctx,cid),pr=(W.prog&&W.prog[cid])||[],pin=(W.pin||{})[a.id];
+  const cur=pr.findIndex(d=>d.includes(a.id)),al=cur>=0?days[cur]:null,At=atrDe(ctx,cid);
+  const cnt=i=>(pr[i]||[]).filter(x=>x!==a.id).length;
+  return `<select class="daysel addsel${on?"":" new"}" data-fday="${cid}|${a.id}" aria-label="${on?"Cambiar de día":"Agregar a un día"}">${on?`<option value="auto"${pin==null?" selected":""}>📅 ${al?"Día automático → "+diaTxt(ctx,al):"Día automático"}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar al programa: elegir día…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.i}"${on&&pin===x.i?" selected":""}>${on&&cur===x.i&&pin==null?"✔ ":""}${diaTxt(ctx,x)} · ${cnt(x.i)} actividad${cnt(x.i)===1?"":"es"}</option>`).join("")}</select>`}
+export function asignarDia(ctx,cid,aid,v){const W=ctx.W;W.pin=W.pin||{};
+  if(v==="off"){alternarAtr(ctx,cid,aid,false);delete W.pin[aid];return}
+  if(v==="auto"){delete W.pin[aid];if(W.prog&&W.prog[cid])quitarDe(ctx,cid,aid);alternarAtr(ctx,cid,aid,true);return}
+  if(v==="")return;W.pin[aid]=+v;const S=selDe(ctx,cid);if(!S.has(aid)){S.add(aid);W.sel[cid]=[...S]}if(W.sinLugar)W.sinLugar[cid]=(W.sinLugar[cid]||[]).filter(x=>x!==aid);
+  if(W.prog&&W.prog[cid]){quitarDe(ctx,cid,aid);enlazar(ctx,cid,aid,+v)}}
 // Marca o desmarca una atracción desde otra pestaña (Atracciones): si el programa de la ciudad ya existe, la coloca o la quita del día.
 export function alternarAtr(ctx,cid,aid,on){const W=ctx.W,S=selDe(ctx,cid);
   if(on){S.add(aid);W.sel[cid]=[...S];if(W.prog&&W.prog[cid]){const a=(ctx.M[cid].ATRACCIONES||[]).find(x=>x.id===aid),pin=(W.pin||{})[aid];enlazar(ctx,cid,aid,pin!=null?pin:menosCargado(ctx,cid,a))}}
