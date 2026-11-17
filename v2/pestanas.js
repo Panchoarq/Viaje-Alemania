@@ -60,11 +60,13 @@ function historiaCards(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,A=M.ALICE;let h=
    <div class="aideas">${A.ideas.map(([t,x,u,l])=>`<details class="aitem"><summary><b>${ctx.esc(t)}</b></summary><p>${ctx.esc(x)} <a href="${ctx.esc(u)}" target="_blank" rel="noopener">▶ ${ctx.esc(l)}</a></p></details>`).join("")}</div>
    ${A.canal?`<p><a href="${ctx.esc(A.canal)}" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p>`:""}</div></details>`;
   return h}
-function contextoHTML(ctx,cid){const M=ctx.M[cid],U=M.UNDIA||[],ME=M.MEDIA||[];let h="";
-  if(U.length)h+=`<details class="ctx card ctxd" data-cx="${cid}:dia"${E.cx.has(cid+":dia")?" open":""}><summary><span class="eyebrow">Para llegar sabiendo</span><h2>Si vienes por un día</h2></summary><div class="ctxb">
-   ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${(u.fig||[]).map(f=>ilu(ctx,f)).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</div></details>`;
+function mediaHTML(ctx,cid){const M=ctx.M[cid],ME=M.MEDIA||[];let h="";
   if(ME.length)h+=`<details class="ctx card ctxd" data-cx="${cid}:med"${E.cx.has(cid+":med")?" open":""}><summary><span class="eyebrow">Para llegar sabiendo</span><h2>Cine, música y libros</h2></summary><div class="ctxb">
    <div class="media">${ME.map(([t,tipo,d,ed])=>`<div class="mi"><b>${ctx.esc(t)}</b><small>${ctx.esc(tipo)}${ed?" · "+ctx.esc(ed):""}</small><p>${ctx.esc(d)}</p></div>`).join("")}</div></div></details>`;
+  return h}
+function contextoHTML(ctx,cid){const M=ctx.M[cid],U=M.UNDIA||[];let h="";
+  if(U.length)h+=`<details class="ctx card ctxd" data-cx="${cid}:dia"${E.cx.has(cid+":dia")?" open":""}><summary><span class="eyebrow">Para llegar sabiendo</span><h2>Si vienes por un día</h2></summary><div class="ctxb">
+   ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${(u.fig||[]).map(f=>ilu(ctx,f)).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</div></details>`;
   return h}
 // ---------- plano de cada caminata (mismo estilo que el plano del día del Programa)
 let RM=[];
@@ -157,6 +159,7 @@ export function atracciones(ctx){
    ${L.length?`<details class="attlist" data-attlist${E.lst?" open":""}><summary>☰ Lista de ${L.length} (tocar para ir)</summary><ol>${agrupar(L).map(g=>`<li class="lgh">${ctx.esc(g.n)} <small>${g.L.length}</small></li>`+g.L.map(a=>`<li><label class="alchk" title="Agregar al programa"><input type="checkbox" data-asel="${cid}|${a.id}" ${S.has(a.id)?"checked":""}></label><button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>${a.p?FM(a.p):"gratis"}</small></li>`).join("")).join("")}</ol></details>
    <div class="railnav"><button type="button" data-rail="-1" aria-label="Ficha anterior">‹</button><span class="rp">1 de ${L.length}</span><span class="railbar"><i style="width:${100/L.length}%"></i></span><button type="button" data-rail="1" aria-label="Ficha siguiente">›</button></div>
    <div class="fichas att">${L.map(a=>ficha(ctx,cid,a,A.indexOf(a),S.has(a.id))).join("")}</div>`:`<div class="card"><p class="muted">${A.length?"Ninguna atracción coincide con el filtro.":"Esta ciudad aún no tiene atracciones precargadas."}</p></div>`}
+   ${mediaHTML(ctx,cid)}
    <div class="card"><span class="eyebrow">Agregar a mano</span>${formNueva(ctx,cid,"")}</div>
    <p class="note">Atracciones de ${ctx.esc(CI.n)}. Precios y horarios aproximados: confirmar en el sitio oficial antes de ir. Fotos de Wikipedia, cuando hay.</p>`;
 }

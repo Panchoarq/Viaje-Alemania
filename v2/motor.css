@@ -225,3 +225,10 @@ details.ctxd>summary,details.rutas>summary,details.alicecard>summary{position:re
 .tdet>summary,.aitem>summary,details.pgrp>summary,details.alice>summary{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .tdet>summary::after,.aitem>summary::after,details.pgrp>summary::after,details.alice>summary::after{content:"▾";color:#b3261e;font-weight:700;font-size:16px;flex:none}
 .tdet[open]>summary::after,.aitem[open]>summary::after,details.pgrp[open]>summary::after,details.alice[open]>summary::after{content:"▴"}
+
+/* más de 2 ciudades: pestañas en una sola fila con desplazamiento lateral (misma estética de carpeta) */
+.daytabs.hs,#p-prog #daytabs.hs,#p-hot #hottabs.hs{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;overflow-y:hidden;gap:4px!important;padding:26px 6px 0!important;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.daytabs.hs::-webkit-scrollbar{display:none}
+.daytabs.hs .dtab{flex:0 0 auto!important;min-width:118px;max-width:165px;scroll-snap-align:start}
+.daytabs.hs .dtab b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+#p-att details.ctxd{margin-bottom:22px}#p-att details.rutas{margin-bottom:22px}

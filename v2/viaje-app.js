@@ -149,6 +149,7 @@ function render(){
   app.innerHTML=headerCab()+`<nav class="tabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}" title="${t}">${CABIC[k]}<span>${CABSH[k]}</span></button>`).join("")}</nav>
    <section class="panel" id="p-${tab}">${tab==="cfg"?pCfg():`<div id="vista"></div>`}</section>`+ayudaHTML(CTX);
   if(tab!=="cfg")dibujar(tab,CTX,$("#vista"));
+  document.querySelectorAll(".daytabs").forEach(t=>{t.classList.toggle("hs",CTX.ids.length>2);const s=t.querySelector('[aria-selected="true"]');if(s&&t.classList.contains("hs"))t.scrollLeft=Math.max(0,s.offsetLeft-12)});
   scrollTo(0,y);bindAll();quitaDientes();
   if(tab==="cfg")setTimeout(initMap,0);
   cabH();
