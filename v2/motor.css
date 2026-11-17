@@ -232,3 +232,6 @@ details.ctxd>summary,details.rutas>summary,details.alicecard>summary{position:re
 .daytabs.hs .dtab{flex:0 0 auto!important;min-width:118px;max-width:165px;scroll-snap-align:start}
 .daytabs.hs .dtab b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
 #p-att details.ctxd{margin-bottom:22px}#p-att details.rutas{margin-bottom:22px}
+
+/* misma separación entre todos los papeles (como en París-Londres) */
+#p-att details.ctxd,#p-att details.rutas,#p-att details.hmapc,#p-att details.alicecard{margin:0 0 6px!important}
