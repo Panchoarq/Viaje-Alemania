@@ -139,10 +139,10 @@ export function atracciones(ctx){
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"]];
   const sin=hs>cap*1.05;
   return `${guia("att")}${ctabs(ctx,cid,c=>`${(ctx.M[c].ATRACCIONES||[]).length} atracciones`)}
+   ${sin?`<a href="#" class="feasstat bad" data-gotab="prog">✕ ${ctx.esc(short(CI.n))}: lo elegido (${ctx.fh(hs)}) pasa de lo que cabe (${ctx.fh(cap)}) · ver en Programa →</a>`:`<span class="feasstat ok">✓ ${ctx.esc(short(CI.n))}: todo lo elegido cabe (${ctx.fh(hs)} de ${ctx.fh(cap)})</span>`}
    <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${ilu(ctx,CI.portada)}${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}${contextoHTML(ctx,cid)}</div></details>
    ${rutasHTML(ctx,cid)}
    ${mapasHistHTML(ctx,cid)}
-   ${sin?`<a href="#" class="feasstat bad" data-gotab="prog">✕ ${ctx.esc(short(CI.n))}: lo elegido (${ctx.fh(hs)}) pasa de lo que cabe (${ctx.fh(cap)}) · ver en Programa →</a>`:`<span class="feasstat ok">✓ ${ctx.esc(short(CI.n))}: todo lo elegido cabe (${ctx.fh(hs)} de ${ctx.fh(cap)})</span>`}
    <div class="attfil"><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-afil="${k}" aria-pressed="${E.fil===k}">${t}</button>`).join("")}</div></div>
    ${grps.length>1?`<div class="afrow"><span class="eyebrow">Tipo</span><div class="filters"><button type="button" class="chip" data-atip="todos" aria-pressed="${E.tip==="todos"}">Todos</button>${grps.map(g=>`<button type="button" class="chip" data-atip="${g.k}" aria-pressed="${E.tip===g.k}">${ctx.esc(g.n)} <small>${g.L.length}</small></button>`).join("")}</div></div>`:""}
    ${zonas.length>1?`<div class="afrow"><span class="eyebrow">Zona</span><div class="filters"><button type="button" class="chip" data-azon="todas" aria-pressed="${E.zon==="todas"}">Todas</button>${zonas.map(z=>`<button type="button" class="chip" data-azon="${ctx.esc(z)}" aria-pressed="${E.zon===z}">${ctx.esc(z)}</button>`).join("")}</div></div>`:""}</div>
