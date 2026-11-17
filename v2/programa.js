@@ -32,7 +32,7 @@ const NOMC={d:"Desayuno",a:"Almuerzo",m:"Merienda",c:"Cena"};
 const ONMEAL={d:1,a:1,m:0,c:1};
 
 // estado de la vista (no se guarda)
-const P={pool:{},poolOpen:{},grp:{},day:{},cal:false,pop:null,leg:false,add:null,map:null,fich:null,open:new Set()};
+const P={feas:{},pool:{},poolOpen:{},grp:{},day:{},cal:false,pop:null,leg:false,add:null,map:null,fich:null,open:new Set()};
 let ML=[];
 
 // ---------- sol (hora local de la ciudad)
@@ -158,7 +158,7 @@ function dayHTML(ctx,day,S){const W=ctx.W,cid=day.cid,M=ctx.M[cid],CI=M.CIUDAD,c
   {const ex=ctx.ids.length===1?(M.ESCAPADAS||[]).filter(e=>(W.esc||[]).includes(e.id)&&(W.escF||{})[e.id]===day.g):[];
    if(ex.length)tl+=(tl?" · ":"")+ex.map(e=>`🚆 Escapada: <b>${ctx.esc(e.n)}</b> (${ctx.esc(e.tr)})`).join(" · ")}
   let foot="";
-  let h=`<div class="dtabrow"><span class="dftab"><b>${diaTxt(ctx,day)}</b><span class="fc">${ctx.esc(short(CI.n))}</span></span>${ctx.fechas()?`<button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button>`:""}<button type="button" class="daycal" data-legend aria-pressed="${P.leg}" title="Leyenda de símbolos" aria-label="Leyenda de símbolos">${IC.q}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div>${P.leg?`<div class="legpop"><div class="legendtr"><span class="eyebrow">Leyenda</span><span style="font-size:13px">↑↓ cambia el orden del día · ✕ quita del programa · 📅 fija la atracción a un día</span><span class="tr pie">a pie</span><span class="tr metro">${ctx.esc(CI.transit?"transporte público":"metro")}</span><span class="top">★ imperdible</span><span>🏛 techada</span><span>🌙 de noche</span><span>🌇 poca luz</span></div></div>`:""}
+  let h=`<div class="dtabrow"><span class="dftab"><b>${diaTxt(ctx,day)}</b><span class="fc">${ctx.esc(short(CI.n))}</span>${(()=>{const w=day.d&&wxOf(cid,day.d);return w?`<span class="wxm" title="Pronóstico: ${Math.round(w.mn)}–${Math.round(w.mx)} °C · lluvia ${w.pp}%">${WXI(w.c)} ${Math.round(w.mx)}°</span>`:""})()}</span>${ctx.fechas()?`<button type="button" class="daycal" data-calopen title="Calendario del viaje" aria-label="Abrir calendario del viaje">${CAL}</button>`:""}<button type="button" class="daycal" data-legend aria-pressed="${P.leg}" title="Leyenda de símbolos" aria-label="Leyenda de símbolos">${IC.q}</button><button type="button" class="totop" data-totop aria-label="Volver arriba de la página">↑ arriba</button></div>${P.leg?`<div class="legpop"><div class="legendtr"><span class="eyebrow">Leyenda</span><span style="font-size:13px">↑↓ cambia el orden del día · ✕ quita del programa · 📅 fija la atracción a un día</span><span class="tr pie">a pie</span><span class="tr metro">${ctx.esc(CI.transit?"transporte público":"metro")}</span><span class="top">★ imperdible</span><span>🏛 techada</span><span>🌙 de noche</span><span>🌇 poca luz</span></div></div>`:""}
   <div class="day-head"><h3>${ctx.esc(dayTitle(ctx,day))}</h3><span class="muted" style="font-size:13px">${night}</span>${SUN?`<span class="sunline">🌇 Se pone el sol ${hm(SUN.set)} · 🌙 oscuro desde ${hm(SUN.dusk)}</span>`:""}</div>
   ${costStrip(ctx,c,day)}<div class="day-total"><span class="eyebrow">Presupuesto / real</span><span class="big">${FM(c.total)}<span class="sl"> / </span><span class="rd">${FM(realOf(ctx,day))}</span></span><span class="muted num las">las ${W.personas||2}: ${FM(c.total*(W.personas||2))}</span></div>${tl?`<span class="tl dtl">${tl}</span>`:""}
   <div class="day-body"><div class="blk blk-com${P.open.has(day.id+"|com")?" open":""}"><h4>Comidas · ${FM(c.meal)}</h4>`;
@@ -220,10 +220,10 @@ function fcard(ctx,cid){const W=ctx.W,M=ctx.M[cid],At=M.ATRACCIONES||[],S=selDe(
   const pr=W.prog[cid],A=atrDe(ctx,cid),need=pr.flat().reduce((t,i)=>t+(A[i]?A[i].h+0.3:0),0),avail=days.reduce((t,x)=>t+(x.first?Math.min(3,R.cap):R.cap),0),over=sin.length>0;
   const dia=a=>{for(let i=0;i<pr.length;i++)if(pr[i].includes(a.id))return days[i]};
   const CI=M.CIUDAD;
-  return `<div class="feas"><div class="fcard" style="--c:${cc}"><div style="display:flex;justify-content:space-between;gap:8px"><span><b>${ctx.esc(CI.n)} · ${days.length} ${days.length>1?"días":"día"}</b><br><small class="muted" style="font-size:13px">Ritmo ${R.n.toLowerCase()} · se cambia en <a href="#" data-gotab="cfg">Configurar</a></small></span><span class="num muted" style="font-size:13px;white-space:nowrap">${need.toFixed(1)} / ${avail.toFixed(1)} h</span></div>
-   <div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div>
-   <span class="status ${over?"bad":"ok"}">${over?`No alcanza: faltan ${sin.length} actividad(es) → ritmo intenso, más noches o quitar otras`:"✓ Todo cabe"}</span>
-   ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora</span>`+sin.map(a=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-psel="${cid}|${a.id}" checked><span class="t">${ctx.esc(a.n)}<small>~${num1(a.h)} h</small></span></label>`).join(""):""}
+  const ab=P.feas&&P.feas[cid];
+  return `<div class="feas"><div class="fcard fthin ${over?"bad":"ok"}" style="--c:${cc}"><button type="button" class="fstrip" data-feasopen="${cid}" aria-expanded="${!!ab}"><span><b>${ctx.esc(short(CI.n))} · ${days.length} ${days.length>1?"días":"día"}</b> · ritmo ${R.n.toLowerCase()}</span><span class="status ${over?"bad":"ok"}">${over?`${sin.length} no caben`:"todo cabe"} ${ab?"▴":"▾"}</span></button>
+   ${ab?`<div class="fopen"><div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div><small class="muted" style="font-size:13px">${need.toFixed(1)} de ${avail.toFixed(1)} h · el ritmo se cambia en <a href="#" data-gotab="cfg">Configurar</a></small>
+   ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora · ritmo intenso, más noches o quitar otras</span>`+sin.map(a=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-psel="${cid}|${a.id}" checked><span class="t">${ctx.esc(a.n)}<small>~${num1(a.h)} h</small></span></label>`).join(""):""}</div>`:""}
    </div></div>`}
 
 // Elegir atracciones: lista por categoría (se abre con «Elegir atracciones»)
@@ -327,6 +327,7 @@ function initMaps(ctx){if(!window.maplibregl)return;const all=todosDias(ctx);
 export function bindPrograma(ctx){const W=ctx.W,Q=(s,f)=>document.querySelectorAll(s).forEach(f),R=()=>{ctx.guardar();ctx.render()};
   const cidAct=SUB.c;
   Q("details[data-poolc]",d=>d.ontoggle=()=>{P.pool[d.dataset.poolc]=d.open});
+  Q("[data-feasopen]",b=>b.onclick=()=>{const c=b.dataset.feasopen;P.feas[c]=!P.feas[c];ctx.render()});
   Q("[data-orgpick]",b=>b.onclick=()=>{const c=b.dataset.orgpick;P.poolOpen[c]=!P.poolOpen[c];ctx.render();if(P.poolOpen[c])setTimeout(()=>{const e=document.querySelector(".poolpanel");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},50)});
   Q("details[data-pgrp]",d=>d.ontoggle=()=>{P.grp[d.dataset.pgrp]=d.open});
   Q("[data-lunchpick]",x=>x.onchange=()=>{W.lunchAt=W.lunchAt||{};if(x.value==="-"||!x.value)delete W.lunchAt[x.dataset.lunchpick];else W.lunchAt[x.dataset.lunchpick]=x.value;R()});

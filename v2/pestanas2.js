@@ -3,6 +3,7 @@ import {inicioCiudad,diasDe,SUB} from "./motor.js";
 import {tarjetasTransporte} from "./extremos.js";
 import {costosDias} from "./programa.js";
 import {ctabs} from "./pestanas.js";
+import {TRAMITES_PAISES,TRAMITES_CRUCES} from "./ciudades/tramites-datos.js";
 
 const COL=["#2e4f8f","#1d6f7a","#a8352b","#2e6b4f","#b8860b","#7b4ba0","#c2477f"];
 const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -86,6 +87,15 @@ export function bindGastos(ctx){
 
 // ---------- 8 · Transporte
 const TDET=[["Llegada","llegada"],["En la ciudad","local"],["Pases","pases"],["Trenes","trenes"]];
+// Boleto de tren (mismo diseño antiguo que el viaje París-Londres)
+function tkMotor(ctx,k,e,na,nb,f,t,FM){const op=ctx.operador(k.split("-")[0],k.split("-")[1],"tren")||{n:"Operador del tren",u:"https://www.rome2rio.com/"},esc=ctx.esc,W=ctx.W,no=(f?f.slice(8,10)+f.slice(5,7):"----")+"-"+(k.replace(/[^a-z]/g,"").slice(0,3).toUpperCase());
+  return `<article class="ticket"><div class="tk-main"><div class="tk-band"><span class="tk-op">${esc(op.n)}</span><b>${esc(short(na))} → ${esc(short(nb))}</b></div>${t.n||t.r?`<div class="tk-ok">✓ Datos ingresados</div>`:""}
+   <div class="tk-body"><div class="tk-art"><img class="tk-img" src="img/train.png" alt="Locomotora a vapor"></div>
+    <dl class="tk-f"><div><dt>Fecha</dt><dd class="hi">${f?ctx.pretty(f):"por definir"}</dd></div><div><dt>Duración</dt><dd class="hi">${ctx.fh(e.min/60)}</dd></div><div><dt>Viajeros</dt><dd>${W.personas||2} · 2.ª clase</dd></div>
+     <div class="wide"><dt>Servicio</dt><dd class="hi">${esc(t.n||e.n||"tren (estimado)")}</dd></div><div class="wide"><dt>Estaciones</dt><dd class="hi">${esc(na)} → ${esc(nb)}</dd></div></dl>
+    <div class="tk-price"><small>Precio p/p</small><b>${e.eur?FM(e.eur):"—"}</b><small>estimado</small></div></div>
+   <div class="tk-foot"><span class="links-row"><a href="${esc(op.u)}" target="_blank" rel="noopener">Comprar en ${esc(op.n)} →</a></span></div></div>
+   <div class="tk-stub"><span class="tk-v">Billete · 2.ª clase</span><span class="tk-no">Nº ${no}</span></div></article>`}
 export function transporte(ctx){
   const W=ctx.W;W.tk=W.tk||{};
   const tramos=ctx.ids.slice(1).map((b,i)=>({a:ctx.ids[i],b})),tot=Object.values(W.tk).reduce((t,x)=>t+(+x.p||0),0);
@@ -95,13 +105,22 @@ export function transporte(ctx){
   ${tarjetasTransporte(ctx,FM)}
   ${tramos.map(({a,b})=>{const k=[a,b].sort().join("-"),e=ctx.eleccion(a,b),t=W.tk[k]||{},na=ctx.M[a].CIUDAD.n,nb=ctx.M[b].CIUDAD.n,f=ctx.fechas()?ctx.add(W.inicio,inicioCiudad(ctx,b)):"",ops=ctx.opciones(a,b);
    return `<div class="card buy" style="border-left:6px solid ${colDe(ctx,b)}"><span class="eyebrow">${f?ctx.pretty(f):"Traslado"}</span><h3>${ctx.esc(short(na))} → ${ctx.esc(short(nb))}</h3>
-    <p><b>${ctx.MODO[e.m]}</b> · ${ctx.fh(e.min/60)}${e.eur?` · ~${FM(e.eur)} por persona`:""}${e.rec?" · recomendado":""}</p>${e.n?`<p class="muted">${ctx.esc(e.n)}</p>`:""}
+    ${e.m==="tren"?tkMotor(ctx,k,e,na,nb,f,t,FM):`<p><b>${ctx.MODO[e.m]}</b> · ${ctx.fh(e.min/60)}${e.eur?` · ~${FM(e.eur)} por persona`:""}${e.rec?" · recomendado":""}</p>${e.n?`<p class="muted">${ctx.esc(e.n)}</p>`:""}`}
     ${ops.length>1?`<div class="seg" role="group" aria-label="Medio de transporte">${ops.map(o=>`<button type="button" data-trm="${k}|${o.m}" aria-pressed="${o.m===e.m}">${ctx.MODO[o.m]} · ${ctx.fh(o.min/60)}${o.eur?" · ~"+o.eur+" €":""}</button>`).join("")}</div>`:""}
     <div class="links-row"><a href="https://www.google.com/maps/dir/?api=1&origin=${q(na)}&destination=${q(nb)}&travelmode=${e.m==="auto"?"driving":"transit"}" target="_blank" rel="noopener">Google Maps →</a><a href="https://www.rome2rio.com/map/${q(na)}/${q(nb)}" target="_blank" rel="noopener">Rome2rio →</a>${e.m==="avion"?`<a href="https://www.google.com/travel/flights?q=${q("Flights from "+na+" to "+nb+(f?" on "+f:""))}" target="_blank" rel="noopener">Vuelos →</a>`:""}</div>
     <span class="eyebrow" style="margin-top:10px">Lo que compré</span>
     <div class="fform" data-tk="${k}" style="margin-top:6px"><label class="f wide">Qué compré<input data-f="n" value="${ctx.esc(t.n||"")}" maxlength="80" placeholder="Ej.: Tren 10:15, asientos 24A-B"></label><label class="f">Reserva / código<input data-f="r" value="${ctx.esc(t.r||"")}" maxlength="40"></label><label class="f">Costo total (€)<input data-f="p" type="number" min="0" value="${t.p||""}"></label></div></div>`}).join("")}
   ${tramos.length?`<div class="card buy"><span class="eyebrow">Resumen de traslados</span><div class="tbl-wrap"><table><tbody><tr><td>Estimado por persona</td><td class="r num">${FM(est)}</td></tr><tr><td>Estimado para ${W.personas||2} personas</td><td class="r num">${FM(est*(W.personas||2))}</td></tr><tr><td><b>Comprado hasta ahora</b></td><td class="r num"><b>${FM(tot)}</b></td></tr></tbody></table></div></div>`:""}
-  ${ctx.ids.map(cid=>{const T=ctx.M[cid].TRANSPORTE||{},it=TDET.filter(([,k])=>T[k]);return `<div class="card buy" style="border-left:6px solid ${colDe(ctx,cid)}"><span class="eyebrow">${ctx.esc(short(ctx.M[cid].CIUDAD.n))} · llegar y moverse</span><h3>Pases y consejos</h3>${it.length?it.map(([t,k],i)=>`<details class="tdet"${i===0?" open":""}><summary>${t}</summary><p>${ctx.esc(T[k])}</p></details>`).join(""):'<p class="muted">Sin datos de transporte para esta ciudad.</p>'}</div>`}).join("")}
+  ${ctx.ids.map(cid=>{const M=ctx.M[cid],X=M.TRANSP,T=M.TRANSPORTE||{},it=TDET.filter(([,k])=>T[k]),nm=ctx.esc(short(M.CIUDAD.n));
+   if(X)return `<div class="card buy hoja" style="border-left:6px solid ${colDe(ctx,cid)}"><span class="eyebrow">${nm} · llegar y moverse${X.operador?" · "+ctx.esc(X.operador):""}</span><h3>Boletos y pases</h3>
+    ${X.llegada?`<p><b>Llegada.</b> ${ctx.esc(X.llegada)}</p>`:""}${X.local?`<p><b>En la ciudad.</b> ${ctx.esc(X.local)}</p>`:""}
+    <div class="tbl-wrap"><table><tbody>${(X.tarifas||[]).map(r=>`<tr><td>${ctx.esc(r[0])}</td><td class="r num">${ctx.esc(r[1])}</td></tr>`).join("")}</tbody></table></div>
+    <span class="eyebrow" style="margin-top:8px">Qué es cada uno · toca para ver</span>
+    ${(X.pases||[]).map(p=>`<details class="tdet"><summary>${ctx.esc(p.t)}</summary><p>${ctx.esc(p.p)}</p>${p.u?`<p><a href="${ctx.esc(p.u)}" target="_blank" rel="noopener">Sitio oficial ↗</a></p>`:""}</details>`).join("")}
+    ${(X.consejos||[]).length?`<ul class="brief">${X.consejos.map(c=>`<li>${ctx.esc(c)}</li>`).join("")}</ul>`:""}
+    ${X.trenes?`<p><b>Trenes.</b> ${ctx.esc(X.trenes)}</p>`:""}
+    <p class="note">${(X.fuentes||[]).slice(0,3).map(u=>`<a href="${ctx.esc(u)}" target="_blank" rel="noopener">${ctx.esc(u.replace(/^https?:\/\/(www\.)?/,"").split("/")[0])}</a>`).join(" · ")}${(X.fuentes||[]).length?". ":""}Verifica en el sitio del operador antes de comprar${(X.dudas||[]).length?"; dudas: "+ctx.esc(X.dudas.join(" · ")):""}.</p></div>`;
+   return `<div class="card buy" style="border-left:6px solid ${colDe(ctx,cid)}"><span class="eyebrow">${nm} · llegar y moverse</span><h3>Pases y consejos</h3>${it.length?it.map(([t,k],i)=>`<details class="tdet"${i===0?" open":""}><summary>${t}</summary><p>${ctx.esc(T[k])}</p></details>`).join(""):'<p class="muted">Sin datos de transporte para esta ciudad.</p>'}</div>`}).join("")}
   <div class="card buy"><span class="eyebrow">Consejos</span><ul class="brief"><li>Comprar con anticipación los trenes y aviones: los precios suben cerca de la fecha.</li><li>Guardar el código de reserva y una captura del boleto en el celular.</li><li>Los tiempos y precios son referenciales: confirmar en la web del operador antes de comprar.</li></ul></div>`;
 }
 export function bindTransporte(ctx){
@@ -164,7 +183,12 @@ export function tramites(ctx){
   const T=[...new Map(ctx.ids.map(i=>[(ctx.M[i].TRAMITES||{}).pais||i,ctx.M[i].TRAMITES||{}])).entries()];
   const esp=[];T.forEach(([p,t])=>{[["eta","Entrada y visa","OBLIGATORIO",1],["seguro","Seguro","RECOMENDADO"],["moneda","Moneda y pagos","SABER"]].forEach(([k,n,g,u])=>{if(t[k])esp.push({k:"p_"+p+"_"+k,t:n+" · "+p,g,u,p:t[k]})})});
   const L=[...esp,...BASE],n=L.filter(t=>W.tram[t.k]).length,C=[...new Set(ctx.ids.flatMap(i=>ctx.M[i].CONSEJOS||[]))];
-  return `<div class="card buy"><span class="eyebrow">Paso 1 · Antes de viajar · ${n} de ${L.length} listos</span><h3>Comprar, inscribir o tramitar</h3>
+  const GP={inglaterra:"reinounido",escocia:"reinounido",irlanda:"irlanda",francia:"francia",alemania:"alemania",chequia:"chequia","corea-del-sur":"corea"},gDe=cid=>cid==="belfast"?"reinounido":GP[ctx.M[cid].CIUDAD.pais]||ctx.M[cid].CIUDAD.pais;
+  const gp=[...new Set(ctx.ids.map(gDe))].filter(g=>TRAMITES_PAISES[g]),cr=[];
+  ctx.ids.slice(1).forEach((b,k)=>{const x=gDe(ctx.ids[k]),y=gDe(b);if(x===y)return;const s=new Set([x,y]),has=(...g)=>g.some(z=>s.has(z)),id=has("reinounido")&&has("francia")?"reinounido-francia":has("reinounido")&&has("irlanda")?"reinounido-irlanda":has("reinounido","irlanda")&&has("alemania","chequia")?"reinounido-alemania":has("francia")&&has("alemania","chequia")?"francia-alemania":has("alemania")&&has("chequia")?"alemania-chequia":"";if(id&&TRAMITES_CRUCES[id]&&!cr.includes(id))cr.push(id)});
+  const paisCard=g=>{const p=TRAMITES_PAISES[g];return `<div class="card buy hoja"><span class="eyebrow">Reglas de entrada · ${ctx.esc(p.n)}</span><h3>Entrada, aduana, salud y conexión</h3>${[["Entrada y visa","entrada"],["Aduana","aduana"],["Seguro","seguro"],["Salud","salud"],["Moneda y pagos","moneda"],["Conectividad","conectividad"]].filter(([,k])=>p[k]).map(([n,k],i)=>`<details class="tdet"${i===0?" open":""}><summary>${n}</summary><p>${ctx.esc(p[k])}</p></details>`).join("")}${(p.otros||[]).length?`<ul class="brief">${p.otros.map(o=>`<li>${ctx.esc(o)}</li>`).join("")}</ul>`:""}${(p.fuentes||[]).length?`<p class="note">Fuentes: ${p.fuentes.slice(0,3).map(u=>`<a href="${ctx.esc(u)}" target="_blank" rel="noopener">${ctx.esc(u.replace(/^https?:\/\/(www\.)?/,"").split("/")[0])}</a>`).join(" · ")}</p>`:""}</div>`};
+  const cruces=cr.map(id=>{const c=TRAMITES_CRUCES[id];return `<div class="card buy hoja"><span class="eyebrow">Al cruzar de país</span><h3>${ctx.esc(c.n)}</h3><p>${ctx.esc(c.texto)}</p>${(c.fuentes||[]).length?`<p class="note">${c.fuentes.slice(0,3).map(u=>`<a href="${ctx.esc(u)}" target="_blank" rel="noopener">${ctx.esc(u.replace(/^https?:\/\/(www\.)?/,"").split("/")[0])}</a>`).join(" · ")}</p>`:""}</div>`}).join("");
+  return `${cruces}${gp.map(paisCard).join("")}<div class="card buy"><span class="eyebrow">Paso 1 · Antes de viajar · ${n} de ${L.length} listos</span><h3>Comprar, inscribir o tramitar</h3>
     <ol class="buylist">${L.map(t=>`<li class="${t.u?"urg":""}"><label><input type="checkbox" data-t="${ctx.esc(t.k)}" ${W.tram[t.k]?"checked":""}> <b>${ctx.esc(t.t)}</b> <span class="tag ${t.u?"urgt":""}">${t.g}</span></label><p>${ctx.esc(t.p)}</p></li>`).join("")}</ol></div>
   ${C.length?`<div class="card buy"><span class="eyebrow">Consejos</span><h3>Para ${ctx.ids.length>1?"las ciudades del viaje":"tu destino"}</h3><ul class="brief">${C.map(c=>`<li>${ctx.esc(c)}</li>`).join("")}</ul></div>`:""}
   <p class="note">Información general sin verificar: confírmenla en el sitio oficial del país antes de viajar (visas, autorizaciones y requisitos cambian).</p>`;

@@ -208,3 +208,5 @@ figure.ilu img{cursor:zoom-in}
 .hmap .mc-cap{display:block;position:static;margin-top:4px}
 .hzl{list-style:none;margin:8px 0;padding:0}.hzl li{display:flex;gap:10px;align-items:flex-start;margin:7px 0}.hzl small{display:block;color:var(--muted)}
 .lm-a.hz{background:#b3261e}
+
+.fthin{padding:6px 10px!important}.fthin .fstrip{display:flex;width:100%;justify-content:space-between;gap:8px;align-items:center;background:none;border:0;padding:2px 0;font:inherit;color:inherit;text-align:left;cursor:pointer}.fthin .fopen{margin-top:6px}.fthin.bad{border-color:var(--bad)}

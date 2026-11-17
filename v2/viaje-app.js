@@ -53,7 +53,9 @@ const W=viaje.cfg,PAIS=PAISES.find(p=>p.id===viaje.pais),M={};let TR={};
 // paquetes de todas las ciudades del viaje (y traslados de su país)
 await Promise.all(W.ciudades.map(async x=>{try{M[x.id]=await cargar(x.pais||PAIS.id,x.id)}catch(e){console.warn("paquete",x.id,e)}}));
 W.ciudades=W.ciudades.filter(x=>M[x.id]);
-for(const pid of new Set([PAIS.id,...W.ciudades.map(x=>x.pais).filter(Boolean)])){try{TR=Object.assign({},(await cargarTraslados(pid)).TRASLADOS,TR)}catch(e){}}
+const OPS={};
+for(const pid of new Set([PAIS.id,...W.ciudades.map(x=>x.pais).filter(Boolean)])){try{const mt=await cargarTraslados(pid);TR=Object.assign({},mt.TRASLADOS,TR);OPS[pid]=mt.OPERADORES||{}}catch(e){}}
+const operador=(a,b,m)=>{if(m==="tren"&&[a,b].sort().join("-")==="londres-paris")return {n:"Eurostar",u:"https://www.eurostar.com/"};const o=OPS[(M[a]||{}).CIUDAD&&M[a].CIUDAD.pais]||OPS[PAIS.id]||{};return o[m]||null};
 aplicarCustom({W,M});
 const nombre=i=>M[i].CIUDAD.n,ll=i=>M[i].CIUDAD.ll;
 const llave=(a,b)=>[a,b].sort().join("-");
@@ -140,7 +142,7 @@ function initMap(){
 }
 
 // ---- render
-const CTX={W,viaje,ids:[],M,PAIS,esc,pretty,add,km,fh,DEMO,nube:NUBE,MODO,eleccion,opciones:(x,y)=>TR[llave(x,y)]||[],fechas,guardar,render:()=>render(),ir:k=>go(k),actual:()=>tab};
+const CTX={W,viaje,ids:[],M,PAIS,esc,pretty,add,km,fh,DEMO,nube:NUBE,MODO,eleccion,operador,opciones:(x,y)=>TR[llave(x,y)]||[],fechas,guardar,render:()=>render(),ir:k=>go(k),actual:()=>tab};
 function render(){
   CTX.ids=W.ciudades.map(c=>c.id);
   const y=scrollY;

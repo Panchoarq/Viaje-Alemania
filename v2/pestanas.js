@@ -223,8 +223,20 @@ export function espectaculos(ctx){
   const L=ctx.W.shows||[],a=ctx.fechas()?ctx.W.inicio:"",b=a?ctx.add(a,ctx.W.ciudades.reduce((t,x)=>t+x.noches,0)):"";
   const en=s=>a&&s.f&&s.f>=a&&s.f<=b;
   const sorted=L.map((s,i)=>({...s,i})).sort((x,y)=>(en(y)-en(x))||((x.f||"9")<(y.f||"9")?-1:1));
+  const cur=ctx.ids.flatMap(cid=>(ctx.M[cid].SHOWS||[]).map(s=>({...s,cid}))).map(s=>({...s,ok:!!(a&&s.ini<=b&&s.fin>=a)})).sort((x,y)=>(y.ok-x.ok)||((y.top|0)-(x.top|0))||((x.al|0)-(y.al|0))||(x.ini<y.ini?-1:1));
+  const mlq=z=>`https://www.google.com/maps/search/?api=1&query=${q(z)}`;
+  const sugeridos=cur.length?`<span class="eyebrow" style="display:block;margin:10px 0 2px">Sugeridos para sus fechas${a?` (${ctx.pretty(a)} → ${ctx.pretty(b)})`:""}</span><div class="fichas">${cur.map((s,k)=>{const M=ctx.M[s.cid],x=(M.SHOW_X||{})[s.n]||{},ac=s.act&&(M.ATRACCIONES||[]).find(z=>z.id===s.act),on=ac&&selDe(ctx,s.cid).has(ac.id);
+    return `<article class="ficha${s.ok||!a?"":" off"}"><div class="ftab">EXP. EVT-${String(k+1).padStart(2,"0")} · ${ctx.esc(short(M.CIUDAD.n).toUpperCase())}</div>
+     <header><h3>${s.e||"🎟"} ${ctx.esc(s.n)}</h3>${x.y?`<span class="fy">${ctx.esc(x.y)}</span>`:""}${s.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${a?(s.ok?'<span class="fstamp ok">EN SUS FECHAS</span>':'<span class="fstamp">FUERA DE FECHAS</span>'):""}</header>
+     <p class="flead">${ctx.esc(s.t)}</p>
+     ${x.h?`<div class="fhist"><span class="flab">Historia</span>${x.h.map(p=>`<p>${ctx.esc(p)}</p>`).join("")}</div>`:""}
+     ${x.v?`<div><span class="flab">Qué van a ver</span><p>${ctx.esc(x.v)}</p></div>`:""}
+     ${s.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${ctx.esc(s.d)}</p></div>`:""}
+     <p class="fmeta">📍 ${ctx.esc(short(M.CIUDAD.n))} · 📅 ${s.al?"todas las noches":`${ctx.pretty(s.ini)} → ${ctx.pretty(s.fin)}${s.ap?" (aprox.)":""}`}${x.q?" · 🎟 "+ctx.esc(x.q):""}</p>
+     <div class="flinks">${s.u?`<a href="${ctx.esc(s.u)}" target="_blank" rel="noopener">Sitio oficial ↗</a>`:""}${x.m?`<a href="${mlq(x.m)}" target="_blank" rel="noopener">Mapa ↗</a>`:""}${ac?`<button type="button" class="btn ${on?"alt ":""}sm" data-abtn="${s.cid}|${ac.id}">${on?"✕ Quitar del programa":"＋ Agregar al programa"}</button>`:""}</div></article>`}).join("")}</div>`:"";
   return `${guia("show")}<div class="card"><span class="eyebrow">Buscar eventos</span><p class="muted" style="font-size:14px;margin:4px 0 8px">Conciertos, teatro, deportes, festivales y ferias. Busquen lo que haya en sus fechas${a?` (${ctx.pretty(a)} → ${ctx.pretty(b)})`:""} y anoten lo que compren.</p>
    <div class="filters">${ctx.ids.map(i=>{const n=ctx.M[i].CIUDAD.n;return `<a class="chip" target="_blank" rel="noopener" href="https://www.google.com/search?q=${q("espectáculos conciertos eventos en "+n+(a?" "+ctx.pretty(a):""))}">🔎 ${ctx.esc(short(n))}</a>`}).join("")}</div></div>
+   ${sugeridos}
    <div class="card"><span class="eyebrow">Anotar un evento</span><form id="fShow" class="fform" style="margin-top:8px">
     <label class="f wide">Qué<input name="n" required maxlength="80" placeholder="Ej.: Concierto en el Usher Hall"></label>
     <label class="f">Ciudad<select name="c">${ctx.ids.map(i=>`<option value="${i}">${ctx.esc(ctx.M[i].CIUDAD.n)}</option>`).join("")}</select></label>
@@ -259,6 +271,9 @@ export function comidas(ctx){
     <table class="ftbl"><tbody>${C[k].map(r=>`<tr><td>${ctx.esc(r[0])}</td><td class="num">${FM(r[1])}</td></tr>`).join("")}</tbody></table>
     <div class="flinks"><a href="${ml(({d:"desayuno",a:"almuerzo",m:"merienda café",c:"cena restaurante"})[k]+(pref[0]?" "+pref[0]:""))}" target="_blank" rel="noopener">Buscar en el mapa ↗</a></div></article>`).join("")}
     ${G.map(g=>`<article class="ficha"><div class="ftab">GUÍA · ${ctx.esc(String(g.t).toUpperCase())}</div><header><h3>${ctx.esc(g.t)}</h3></header><table class="ftbl"><tbody>${g.r.map(r=>`<tr><td>${ctx.esc(r[0])}</td><td class="num">${ctx.esc(r[1])}</td></tr>`).join("")}</tbody></table>${g.n?`<div class="fnote"><span class="flab">Consejo</span><p>${ctx.esc(g.n)}</p></div>`:""}</article>`).join("")}</div>
+   ${M.LUGARES_COMIDA?`<div class="card buy fguide"><span class="eyebrow">Comer bien y barato · precios aproximados por persona</span>${M.LUGARES_COMIDA.p?`<p>${ctx.esc(M.LUGARES_COMIDA.p)}</p>`:""}
+    ${M.LUGARES_COMIDA.c.map(([t,L])=>`<h4 style="margin:12px 0 4px">${ctx.esc(t)}</h4><div class="tbl-wrap"><table class="ftbl lunch"><tbody>${L.map(r=>`<tr><td><b>${ctx.esc(r[0])}</b><br><small class="muted">${ctx.esc(r[1])}</small><br><a href="${ml(r[3]||r[0])}" target="_blank" rel="noopener">mapa</a></td><td class="r num"><b>${ctx.esc(r[2])}</b></td></tr>`).join("")}</tbody></table></div>`).join("")}
+    <p class="note">Selección de lugares conocidos y económicos; precios aproximados, verificar en el lugar.</p></div>`:""}
    <div class="card buy"><span class="eyebrow">Dónde comer</span><h3>Buscar en el mapa</h3><ul class="brief">${[["Desayuno y café","cafeterías para desayunar"],["Almuerzo económico","almuerzo menú del día"],["Cocina local","restaurante de cocina local"],["Mercados y comida al paso","mercado de comida"],["Cena","restaurantes para cenar"],["Dulces y postres","pastelería"],...pref.slice(0,3).map(p=>["Tu preferencia: "+p,p])].map(([t,s])=>`<li><b>${ctx.esc(t)}</b> · <a href="${ml(s)}" target="_blank" rel="noopener">mapa</a></li>`).join("")}</ul></div>
    <div class="card buy"><span class="eyebrow">Lugares agregados por ustedes</span><h3>${ctx.esc(short(CI.n))}</h3>
     ${mis.length?`<ul class="brief">${mis.map((l,i)=>`<li><b>${ctx.esc(l.n)}</b>${l.t?` <span class="tag">${ctx.esc(l.t)}</span>`:""}${l.p?` <span class="tag">${FM(l.p)}</span>`:""}${l.b?` <span class="tag">${ctx.esc(l.b)}</span>`:""} <a href="${ml(l.n)}" target="_blank" rel="noopener">mapa</a> <button type="button" class="lnkb" data-lugdel="${cid}|${i}">quitar</button></li>`).join("")}</ul>`:'<p class="muted">Aún no agregan lugares.</p>'}

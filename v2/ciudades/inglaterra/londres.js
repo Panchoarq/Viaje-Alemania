@@ -1,5 +1,5 @@
 // Paquete de ciudad: Londres (Inglaterra). Adaptador: reutiliza los datos del viaje a París/Londres (v2/trips/paris.data.js).
-import {LON,GBP,TIPS,LO_F,CTX_LO,MEDIA_LO} from "../../trips/paris.data.js";
+import {LON,GBP,TIPS,LO_F,CTX_LO,MEDIA_LO,SHOWS as SH_ALL,SHOW_X as SHX_ALL,LON_MEAL,FOOD_G} from "../../trips/paris.data.js";
 import {ALICE_V,ALICE_IDEAS} from "./londres-alice.js";
 import {EXTRA,RUTAS as RUTAS_X,MAPAS as MAPAS_X} from "./londres-rutas.js";
 const LOALL=[...LON.map(a=>LO_F[a.id]?{...a,y:LO_F[a.id].y,his:LO_F[a.id].h}:a),...EXTRA];
@@ -16,7 +16,10 @@ export const ALICE={videos:ALICE_V,ideas:ALICE_IDEAS,canal:"https://www.youtube.
 export const RUTAS=RUTAS_X;
 export const MAPAS=MAPAS_X;
 export const ESCAPADAS=[];
-export const COMIDAS={d:[["Desayuno inglés o café + pastel",10],["En el alojamiento",0]],a:[["Meal deal de supermercado",6],["Pub: fish & chips",17]],m:[["Té o café con scone",9]],c:[["Pub con plato principal",22],["Restaurante casual",28]]};
+export const COMIDAS=LON_MEAL;
+export const LUGARES_COMIDA=FOOD_G.LO;
+export const SHOWS=SH_ALL.filter(s=>s.w==="Londres");
+export const SHOW_X=Object.fromEntries(SHOWS.filter(s=>SHX_ALL[s.n]).map(s=>[s.n,SHX_ALL[s.n]]));
 export const GUIA_COMIDA=[];
 export const BARRIOS=[{n:"Zona 1 (Westminster, South Bank, Bloomsbury)",d:"Lo más cómodo para el turismo, y lo más caro."},{n:"Kensington y Chelsea",d:"Residencial y elegante, cerca de museos y parques."},{n:"Shoreditch y Camden",d:"Ambiente joven, mercados y vida nocturna."}];
 export const TRANSPORTE={llegada:"Heathrow → centro: Elizabeth line (~14 £, 35 min) o Piccadilly line (~6 £). Gatwick: Gatwick Express o Thameslink.",local:"Se paga con tarjeta sin contacto en metro y bus (tope diario ~9 £ en zonas 1–2). El Oyster no es necesario.",trenes:"Eurostar a París desde St Pancras en ~2 h 20; National Rail para otras ciudades."};

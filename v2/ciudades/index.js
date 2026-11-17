@@ -30,5 +30,5 @@ export const anexasDe=paisId=>(ANEXAS[paisId]||[]).map(([p,c])=>{const P=PAISES.
 // Buscador simple por texto (sin tildes) para el asistente.
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 export function buscar(q){q=norm(q||"");return PAISES.flatMap(p=>p.ciudades.map(c=>({...c,pais:p.n,paisId:p.id,p:p.p}))).filter(c=>norm(c.n+" "+c.pais).includes(q))}
-export const cargar=(paisId,ciudadId)=>import(`./${paisId}/${ciudadId}.js`);
+export const cargar=async(paisId,ciudadId)=>{const m=await import(`./${paisId}/${ciudadId}.js`);try{const t=(await import("./transporte-datos.js")).TRANSPORTE_DATOS[ciudadId];return t?{...m,TRANSP:t}:m}catch(e){return m}};
 export const cargarTraslados=paisId=>import(`./${paisId}/traslados.js`);
