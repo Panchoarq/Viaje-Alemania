@@ -235,3 +235,7 @@ details.ctxd>summary,details.rutas>summary,details.alicecard>summary{position:re
 
 /* misma separación entre todos los papeles (como en París-Londres) */
 #p-att details.ctxd,#p-att details.rutas,#p-att details.hmapc,#p-att details.alicecard{margin:0 0 6px!important}
+
+/* la ilustración de la ficha se ve también con la ficha cerrada (celular) */
+.fichas.att .ficha:not(.open)>figure.ilu{display:block!important;margin:8px 0}
+.fichas.att .ficha>figure.ilu img{max-height:190px;object-fit:cover}

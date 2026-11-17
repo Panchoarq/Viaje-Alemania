@@ -123,9 +123,9 @@ function ficha(ctx,cid,a,i,on){const CI=ctx.M[cid].CIUDAD,cod=cid.slice(0,3).toU
   const mapa=`https://www.google.com/maps/search/?api=1&query=${a.ll?a.ll.join(","):q(a.n+" "+CI.n)}`;
   return `<article class="ficha" id="fa-${cid}-${a.id}"><div class="ftab">EXP. ${cod}-${String(i+1).padStart(2,"0")}${z?" · "+ctx.esc(z.toUpperCase()):""}</div>
    <header><h3>${ctx.esc(a.n)}</h3>${a.top?'<span class="fstamp">★ IMPERDIBLE</span>':""}${on?'<span class="fstamp ok">EN EL PROGRAMA</span>':""}</header>
+   ${ilu(ctx,a.ilu)}
    ${a.s?`<p class="flead">${ctx.esc(a.s)}</p>`:""}
    ${a.y?`<p class="fyear">${ctx.esc(a.y)}</p>`:""}
-   ${ilu(ctx,a.ilu)}
    ${a.arq?arqHTML(a.arq):""}
    ${a.v?`<div class="fwhy"><span class="flab">Qué van a ver</span><p>${ctx.esc(a.v)}</p></div>`:""}
    ${a.mir&&a.mir.length?`<div class="fmir"><span class="flab">Qué mirar desde la calle</span><ul>${a.mir.map(x=>`<li>${ctx.esc(x)}</li>`).join("")}</ul></div>`:""}
