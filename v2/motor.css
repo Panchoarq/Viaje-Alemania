@@ -216,3 +216,12 @@ figure.ilu img{cursor:zoom-in}
 .rutarail .route{display:block;margin:6px 0;font-weight:700}
 
 #p-att details.ctxd{margin-bottom:12px}#p-att details.rutas{margin-bottom:14px}
+
+/* triángulo rojo en todo desplegable */
+details.ctxd>summary,details.rutas>summary,details.alicecard>summary{position:relative}
+#p-att details.ctxd>summary,#p-att details.rutas>summary,#p-att details.alicecard>summary{padding-right:46px!important}
+#p-att details.ctxd>summary::after,#p-att details.rutas>summary::after,#p-att details.alicecard>summary::after,details.ctxd>summary::after,details.rutas>summary::after,details.alicecard>summary::after{content:"▾"!important;position:absolute!important;right:16px!important;top:50%!important;transform:translateY(-50%)!important;font:700 20px/1 "Courier Prime",ui-monospace,monospace!important;color:#b3261e!important;margin:0!important;display:block!important}
+#p-att details.ctxd[open]>summary::after,#p-att details.rutas[open]>summary::after,#p-att details.alicecard[open]>summary::after,details.ctxd[open]>summary::after,details.rutas[open]>summary::after,details.alicecard[open]>summary::after{content:"▴"!important}
+.tdet>summary,.aitem>summary,details.pgrp>summary,details.alice>summary{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tdet>summary::after,.aitem>summary::after,details.pgrp>summary::after,details.alice>summary::after{content:"▾";color:#b3261e;font-weight:700;font-size:16px;flex:none}
+.tdet[open]>summary::after,.aitem[open]>summary::after,details.pgrp[open]>summary::after,details.alice[open]>summary::after{content:"▴"}
