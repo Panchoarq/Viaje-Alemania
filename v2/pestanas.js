@@ -11,6 +11,7 @@ const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
 const num1=h=>String(h).replace(".",",");
 const q=s=>encodeURIComponent(s);
 const short=n=>String(n).split(/ y |:/)[0];
+const tabNom=n=>short(n).replace(/\s*\(([^)]+)\)/,(m,g)=>" ("+g.split(/\s+/).map(w=>w[0]).join("").toUpperCase()+")");
 const GIq=s=>"https://www.google.com/search?tbm=isch&q="+q(s);
 const colDe=(ctx,cid)=>COL[Math.max(0,ctx.ids.indexOf(cid))%COL.length];
 const DOW=["dom","lun","mar","mié","jue","vie","sáb"];
@@ -23,7 +24,7 @@ const E={fil:"todas",zon:"todas",tip:"todos",open:new Set(),lst:false,food:"",ct
 
 // ---------- piezas comunes
 export function ctabs(ctx,cid,nota){
-  return `<div class="daytabs ctabs" role="tablist" aria-label="Ciudad">${ctx.ids.map(c=>`<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-sub="${c}" aria-selected="${c===cid}"><b>${ctx.esc(short(ctx.M[c].CIUDAD.n))}</b><small>${nota?nota(c):""}</small></button>`).join("")}</div>`}
+  return `<div class="daytabs ctabs" role="tablist" aria-label="Ciudad">${ctx.ids.map(c=>`<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-sub="${c}" aria-selected="${c===cid}"><b title="${ctx.esc(ctx.M[c].CIUDAD.n)}">${ctx.esc(tabNom(ctx.M[c].CIUDAD.n))}</b><small>${nota?nota(c):""}</small></button>`).join("")}</div>`}
 const GUIA={
  att:["Atracciones: conocer cada lugar","Fichas de cada atracción para llegar sabiendo qué van a ver.",["Elegir ciudad|Pestañas de arriba.","Filtrar|«En el programa», «★ Imperdibles», «Techadas» (útil si llueve) o por zona.","Agregar al programa|El botón de cada ficha, o las casillas de la lista, la agrega o la quita del programa del día que corresponda.","Ver la ficha|En el celular, toquen la ficha para abrirla y deslicen para ver las demás."]],
  esc:["Escapadas: salir de la ciudad base","Paseos de un día o con noches desde su ciudad base.",["Elegir|Toquen «+ Agregar» en la idea que les guste.","Orden de visita|Arriba queda la lista de lo elegido, con ✕ para quitar.","Disponible|Solo con una ciudad base; con varias ciudades esta sección queda en blanco."]],

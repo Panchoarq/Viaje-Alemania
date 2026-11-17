@@ -9,6 +9,7 @@ const COL=["#2e4f8f","#1d6f7a","#a8352b","#2e6b4f","#b8860b","#7b4ba0","#c2477f"
 const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
 const q=s=>encodeURIComponent(s);
 const short=n=>String(n).split(/ y |:/)[0];
+const tabNom=n=>short(n).replace(/\s*\(([^)]+)\)/,(m,g)=>" ("+g.split(/\s+/).map(w=>w[0]).join("").toUpperCase()+")");
 const colDe=(ctx,cid)=>COL[Math.max(0,ctx.ids.indexOf(cid))%COL.length];
 const GIq=s=>"https://www.google.com/search?tbm=isch&q="+q(s);
 const hoy=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
@@ -137,7 +138,7 @@ export function alojamiento(ctx){
   if(!IDS.length)return `<div class="card"><p class="muted">Todas las ciudades de este viaje son excursiones de un día: no hace falta alojamiento.</p></div>`;
   const cid=IDS.includes(HS.c)?HS.c:IDS[0];HS.c=cid;
   const P=W.personas||2,res=W.hoteles==="reservado";
-  const tabs=`<div class="daytabs" role="tablist" aria-label="Ciudad">${IDS.map(c=>{const o=optsDe(ctx,c).find(x=>x.sel),x=W.ciudades.find(z=>z.id===c);return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-sub="${c}" aria-selected="${c===cid}"><b>${ctx.esc(short(ctx.M[c].CIUDAD.n))}</b><small>${x.noches} ${x.noches===1?"noche":"noches"} · ${ctx.esc(o?o.n:"sin elegir")}</small></button>`}).join("")}</div>`;
+  const tabs=`<div class="daytabs" role="tablist" aria-label="Ciudad">${IDS.map(c=>{const o=optsDe(ctx,c).find(x=>x.sel),x=W.ciudades.find(z=>z.id===c);return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-sub="${c}" aria-selected="${c===cid}"><b title="${ctx.esc(ctx.M[c].CIUDAD.n)}">${ctx.esc(tabNom(ctx.M[c].CIUDAD.n))}</b><small>${x.noches} ${x.noches===1?"noche":"noches"} · ${ctx.esc(o?o.n:"sin elegir")}</small></button>`}).join("")}</div>`;
   const M=ctx.M[cid],x=W.ciudades.find(z=>z.id===cid),i0=inicioCiudad(ctx,cid),ini=ctx.fechas()?ctx.add(W.inicio,i0):"",fin=ctx.fechas()?ctx.add(W.inicio,i0+x.noches):"",L=optsDe(ctx,cid);
   const bk=(t)=>`https://www.booking.com/searchresults.html?ss=${q(t)}${ini?"&checkin="+ini+"&checkout="+fin+"&group_adults="+P:""}`;
   const tot=IDS.reduce((t,i)=>t+(+((W.alo||{})[i]||{}).p||0),0);

@@ -28,6 +28,7 @@ const mv=(a,b,km)=>{const k=km(a,b);return k<=1.2?k*0.22:0.25+k*0.06};
 const num1=h=>String(h).replace(".",",");
 const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
 const short=n=>String(n).split(/ y |:/)[0];
+const tabNom=n=>short(n).replace(/\s*\(([^)]+)\)/,(m,g)=>" ("+g.split(/\s+/).map(w=>w[0]).join("").toUpperCase()+")");
 const NOMC={d:"Desayuno",a:"Almuerzo",m:"Merienda",c:"Cena"};
 const ONMEAL={d:1,a:1,m:0,c:1};
 
@@ -296,13 +297,13 @@ export function programa(ctx){
   ctx.ids.forEach(c=>asegurar(ctx,c));
   const ds=diasCiudad(ctx,cid);if(!P.day[cid]||!ds.some(x=>x.id===P.day[cid]))P.day[cid]=ds[0].id;
   const all=todosDias(ctx),W=ctx.W,cc=colDe(ctx,cid);
-  const tabs=`<div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad">${ctx.fechas()?`<button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>`:""}${ctx.ids.map(c=>{const cd=diasCiudad(ctx,c),a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-dtab="${c}" aria-selected="${c===cid}"><b>${ctx.esc(short(ctx.M[c].CIUDAD.n))}</b><small>${a.d?ctx.pretty(a.d)+(b!==a?" – "+ctx.pretty(b.d):"")+" · ":""}${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}</div>`;
+  const tabs=`<div class="daytabs" id="daytabs" role="tablist" aria-label="Ciudad">${ctx.fechas()?`<button type="button" role="tab" class="dtab calopen" style="--c:var(--ink)" data-calopen aria-label="Abrir calendario del viaje"><b>${IC.cal} Cal</b><small>del viaje</small></button>`:""}${ctx.ids.map(c=>{const cd=diasCiudad(ctx,c),a=cd[0],b=cd[cd.length-1];return `<button type="button" role="tab" class="dtab" style="--c:${colDe(ctx,c)}" data-dtab="${c}" aria-selected="${c===cid}"><b title="${ctx.esc(ctx.M[c].CIUDAD.n)}">${ctx.esc(tabNom(ctx.M[c].CIUDAD.n))}</b><small>${a.d?ctx.pretty(a.d)+(b!==a?" – "+ctx.pretty(b.d):"")+" · ":""}${cd.length} ${cd.length>1?"días":"día"}</small></button>`}).join("")}</div>`;
   const org=`<div class="orgbar"><span class="eyebrow">Organizar</span><button type="button" class="orgb" data-orgrun="${cid}" title="Repartir las atracciones elegidas por días, agrupando por cercanía y ritmo"><span>🧭</span>Reorganizar</button><button type="button" class="orgb" data-orgpick="${cid}" aria-pressed="${!!P.poolOpen[cid]}" title="Elegir atracciones por categoría"><span>🏛</span>Elegir atracciones</button><button type="button" class="orgb clr" data-clrcity="${cid}" title="Quitar todas las actividades"><span>🗑</span>Vaciar</button></div>`;
   const chips=`<div class="dchipw" style="--cc:${cc}"><div class="dchips">${ds.map(d=>{const q=(d.d?ctx.pretty(d.d):"Día "+(d.g+1)).split(" "),tg=d.kind==="first"||d.kind==="go"?"llegada":d.d?q[2]||"":"";
     return `<button type="button" class="dchip" data-dchip="${d.id}" aria-pressed="${d.id===P.day[cid]}"><i>${d.d?q[0]:"día"}</i><b>${d.d?q[1]:d.g+1}</b><small>${tg}</small></button>`}).join("")}</div></div>`;
   const days=all.map(d=>{const S=planDe(ctx,d);const sel=d.cid===cid&&d.id===P.day[cid];
     return dayHTML(ctx,d,S).replace(/<article class="day"([^>]*)>/,(m,a)=>`<article class="day${sel?" sel":""}"${d.cid===cid?"":" hidden"}${a}>`)}).join("");
-  return `${fcard(ctx,cid)}${wxCard(ctx,cid)}${tabs}${org}${P.poolOpen[cid]?poolPanel(ctx,cid):""}${chips}<div class="days" id="days">${days}</div>${cid===ctx.ids[ctx.ids.length-1]?tarjetaSalida(ctx):""}${tripCal(ctx)}${mapOverlay(ctx)}`}
+  return `${wxCard(ctx,cid)}${tabs}${org}${P.poolOpen[cid]?poolPanel(ctx,cid):""}${chips}<div class="days" id="days">${days}</div>${cid===ctx.ids[ctx.ids.length-1]?tarjetaSalida(ctx):""}${tripCal(ctx)}${mapOverlay(ctx)}`}
 
 // ---------- mapas MapLibre (plano del día)
 const circ=(c,r)=>{const o=[];for(let i=0;i<=24;i++){const a=i/24*2*Math.PI;o.push([c[1]+r/111320/Math.cos(c[0]*Math.PI/180)*Math.cos(a),c[0]+r/110574*Math.sin(a)])}return o};
