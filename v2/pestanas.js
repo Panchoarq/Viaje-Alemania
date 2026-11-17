@@ -96,6 +96,7 @@ const hmin=m=>{m=Math.round(m);const h=Math.floor(m/60),x=m%60;return h?`${h} h$
 function datosRuta(ctx,cid,v){const A=Object.fromEntries((ctx.M[cid].ATRACCIONES||[]).map(a=>[a.id,a])),P=(v.ids||[]).map(i=>A[i]).filter(Boolean);
   let vis=0,cam=0,km=0;const T=P.map((a,i)=>{vis+=a.h;let w=0;if(i&&a.ll&&P[i-1].ll){const d=ctx.km(P[i-1].ll,a.ll)*1.3;km+=d;w=Math.max(1,Math.round(d/4.8*60));cam+=w}return {a,w}});
   return {T,vis,cam,km,tot:vis*60+cam}}
+const gmRuta=P=>{const Q=P.filter(a=>a&&a.ll).slice(0,11);if(Q.length<2)return "";const f=a=>a.ll[0]+","+a.ll[1];return "https://www.google.com/maps/dir/?api=1&travelmode=walking&origin="+f(Q[0])+"&destination="+f(Q[Q.length-1])+(Q.length>2?"&waypoints="+Q.slice(1,-1).map(f).join("%7C"):"")};
 function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return "";const S=selDe(ctx,cid);
   return `<details class="card rutas" data-cx="${cid}:rutas"${E.cx.has(cid+":rutas")||!E.cx.has(cid+":rutasx")?" open":""}><summary><span class="eyebrow">Recorridos a pie</span><h2>Elige tu caminata</h2></summary><div class="ctxb">
    <p class="muted" style="margin-top:0">Cada recorrido viene en versiones según el tiempo que tengas. Al agregarlo, sus paradas pasan al programa y se reparten en tus días.</p>
@@ -103,6 +104,7 @@ function rutasHTML(ctx,cid){const M=ctx.M[cid],R=M.RUTAS||[];if(!R.length)return
    <div class="rutarail">${R.map(ru=>{const vs=ru.v||[],cur=vs.find(x=>x.k===E.rv[cid+":"+ru.id])||vs[0];if(!cur)return "";const d=datosRuta(ctx,cid,cur),todo=cur.ids.every(i=>S.has(i));
     return `<div class="ruta"><h3>${ru.e||"🚶"} ${ctx.esc(ru.n)}</h3>${ru.d?`<p>${ctx.esc(ru.d)}</p>`:""}${ilu(ctx,ru.img)}
      ${window.maplibregl?`<div class="mapclip lclip rmapclip" data-rclip="${cid}:${ru.id}:${cur.k}" role="button" tabindex="0" aria-label="Ampliar el plano de la caminata"><span class="clip" aria-hidden="true"></span><div class="lmap" data-rmap="${cid}:${ru.id}:${cur.k}"></div><span class="mc-cap">Plano de la caminata · ampliar</span><span class="mc-cr">© OpenFreeMap · OSM</span></div>`:""}
+     ${gmRuta(d.T.map(x=>x.a))?`<a class="route" href="${gmRuta(d.T.map(x=>x.a))}" target="_blank" rel="noopener">🗺 Ver recorrido en Google Maps${d.T.length>11?" (primeras 11 paradas)":""}</a>`:""}
      <div class="seg" role="group" aria-label="Tiempo disponible">${vs.map(x=>{const t2=datosRuta(ctx,cid,x).tot,hh=Math.round(t2/30)/2;return `<button type="button" data-rv="${cid}:${ru.id}:${x.k}" aria-pressed="${x.k===cur.k}">${ctx.esc(x.n)} · ~${String(hh).replace(".",",")} h</button>`}).join("")}</div>
      <p class="rtot">⏱ <b>~${hmin(d.tot)}</b> en total · ${hmin(d.vis*60)} de visitas + ${hmin(d.cam)} caminando · ${d.km.toFixed(1).replace(".",",")} km · ${d.T.length} paradas</p>
      <ol class="rstops">${d.T.map(({a,w},i)=>`<li>${i?`<span class="rwalk">🚶 ${w} min a pie</span>`:""}<button type="button" class="aln" data-fjump="fa-${cid}-${a.id}">${ctx.esc(limpiaN(a.n))}</button><small>visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}</small>${a.arq?arqHTML(a.arq):""}${cur.n2&&cur.n2[a.id]?`<em>${ctx.esc(cur.n2[a.id])}</em>`:""}</li>`).join("")}</ol>

@@ -212,3 +212,5 @@ figure.ilu img{cursor:zoom-in}
 .fthin{padding:6px 10px!important}.fthin .fstrip{display:flex;width:100%;justify-content:space-between;gap:8px;align-items:center;background:none;border:0;padding:2px 0;font:inherit;color:inherit;text-align:left;cursor:pointer}.fthin .fopen{margin-top:6px}.fthin.bad{border-color:var(--bad)}
 
 .overload{margin:6px 0;padding:8px 10px;border:1.5px solid var(--bad);border-radius:6px;background:color-mix(in srgb,var(--bad) 10%,transparent);font-size:13.5px}
+
+.rutarail .route{display:block;margin:6px 0;font-weight:700}
