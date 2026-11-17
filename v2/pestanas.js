@@ -49,14 +49,17 @@ export function hidratar(){document.querySelectorAll("img[data-wk]:not([src])").
 const ilu=(ctx,f)=>f&&f[0]?`<figure class="ilu"><img src="${ctx.esc(f[0])}" alt="${ctx.esc(f[1]||"")}" loading="lazy" onerror="this.closest('figure').remove()">${f[1]?`<figcaption>${ctx.esc(f[1])}</figcaption>`:""}</figure>`:"";
 // ---------- contexto de la ciudad: historia, un día en la ciudad y cultura
 const cxOpen=k=>E.cx.has(k)?" open":"";
-function contextoHTML(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,U=M.UNDIA||[],ME=M.MEDIA||[];let h="";
-  if(C)h+=`<details class="cxs" data-cx="${cid}:his"${cxOpen(cid+":his")}><summary>📜 ${ctx.esc(C.t||"Historia")}</summary>
+// Historia de la ciudad y Alice Loxton: cada una en su propio papel (como en el viaje París-Londres)
+function historiaCards(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,A=M.ALICE;let h="";
+  if(C)h+=`<details class="ctx card ctxd" data-cx="${cid}:his"${E.cx.has(cid+":his")?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${ctx.esc(C.t||"Historia")}</h2></summary><div class="ctxb">
    ${C.tl&&C.tl.length?`<ol class="cxtl">${C.tl.map(([y,t])=>`<li><b>${ctx.esc(y)}</b><span>${ctx.esc(t)}</span></li>`).join("")}</ol>`:""}
-   ${(C.p||[]).map((x,i)=>`<p>${ctx.esc(x)}</p>`+(C.fig||[]).filter(f=>f[0]===i).map(f=>ilu(ctx,f.slice(1))).join("")).join("")}</details>`;
-  if(M.ALICE&&(M.ALICE.ideas||[]).length)h+=`<details class="cxs" data-cx="${cid}:ali"${cxOpen(cid+":ali")}><summary>▶ Historia de ${ctx.esc(short(M.CIUDAD.n))} con Alice Loxton</summary>
+   ${(C.p||[]).map((x,i)=>`<p>${ctx.esc(x)}</p>`+(C.fig||[]).filter(f=>f[0]===i).map(f=>ilu(ctx,f.slice(1))).join("")).join("")}</div></details>`;
+  if(A&&(A.ideas||[]).length)h+=`<details class="ctx card ctxd" data-cx="${cid}:ali"${E.cx.has(cid+":ali")?" open":""}><summary><span class="eyebrow">Historia de ${ctx.esc(short(M.CIUDAD.n))} con Alice Loxton</span><h2>Ideas de sus videos</h2></summary><div class="ctxb">
    <p class="muted" style="font-size:13px">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p>
-   ${M.ALICE.ideas.map(([t,x,u,l])=>`<div class="undia"><h4>${ctx.esc(t)}</h4><p>${ctx.esc(x)} <a href="${ctx.esc(u)}" target="_blank" rel="noopener">▶ ${ctx.esc(l)}</a></p></div>`).join("")}
-   ${M.ALICE.canal?`<p><a href="${ctx.esc(M.ALICE.canal)}" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p>`:""}</details>`;
+   ${A.ideas.map(([t,x,u,l])=>`<div class="undia"><h4>${ctx.esc(t)}</h4><p>${ctx.esc(x)} <a href="${ctx.esc(u)}" target="_blank" rel="noopener">▶ ${ctx.esc(l)}</a></p></div>`).join("")}
+   ${A.canal?`<p><a href="${ctx.esc(A.canal)}" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p>`:""}</div></details>`;
+  return h}
+function contextoHTML(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,U=M.UNDIA||[],ME=M.MEDIA||[];let h="";
   if(U.length)h+=`<details class="cxs" data-cx="${cid}:dia"${cxOpen(cid+":dia")}><summary>🧭 Si vienes por un día: lo que conviene saber</summary>
    ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${(u.fig||[]).map(f=>ilu(ctx,f)).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</details>`;
   if(ME.length)h+=`<details class="cxs" data-cx="${cid}:med"${cxOpen(cid+":med")}><summary>🎬 Cine, música y libros para conocerla</summary>
@@ -141,6 +144,7 @@ export function atracciones(ctx){
   return `${guia("att")}${ctabs(ctx,cid,c=>`${(ctx.M[c].ATRACCIONES||[]).length} atracciones`)}
    ${sin?`<a href="#" class="feasstat bad" data-gotab="prog">✕ ${ctx.esc(short(CI.n))}: lo elegido (${ctx.fh(hs)}) pasa de lo que cabe (${ctx.fh(cap)}) · ver en Programa →</a>`:`<span class="feasstat ok">✓ ${ctx.esc(short(CI.n))}: todo lo elegido cabe (${ctx.fh(hs)} de ${ctx.fh(cap)})</span>`}
    <details class="ctx card ctxd"${E.ctx?" open":""}><summary><span class="eyebrow">Sobre ${ctx.esc(CI.n)}</span><h2>${ctx.esc(CI.n)}</h2></summary><div class="ctxb">${ilu(ctx,CI.portada)}${CI.resumen?`<p>${ctx.esc(CI.resumen)}</p>`:""}${CI.mejorEpoca?`<p><b>Mejor época:</b> ${ctx.esc(CI.mejorEpoca)}</p>`:""}${CI.dias?`<p><b>Días recomendados:</b> ${CI.dias.ideal} (mínimo ${CI.dias.minimo}). Ustedes tienen ${diasDe(ctx,cid)}.</p>`:""}${contextoHTML(ctx,cid)}</div></details>
+   ${historiaCards(ctx,cid)}
    ${rutasHTML(ctx,cid)}
    ${mapasHistHTML(ctx,cid)}
    <div class="attfil"><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-afil="${k}" aria-pressed="${E.fil===k}">${t}</button>`).join("")}</div></div>
