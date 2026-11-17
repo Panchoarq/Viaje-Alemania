@@ -54,7 +54,7 @@ function historiaCards(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,A=M.ALICE;let h=
   if(C)h+=`<details class="ctx card ctxd" data-cx="${cid}:his"${E.cx.has(cid+":his")?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${ctx.esc(C.t||"Historia")}</h2></summary><div class="ctxb">${ilu(ctx,M.CIUDAD.portada)}
    ${C.tl&&C.tl.length?`<ol class="cxtl">${C.tl.map(([y,t])=>`<li><b>${ctx.esc(y)}</b><span>${ctx.esc(t)}</span></li>`).join("")}</ol>`:""}
    ${(C.p||[]).map((x,i)=>`<p>${ctx.esc(x)}</p>`+(C.fig||[]).filter(f=>f[0]===i).map(f=>ilu(ctx,f.slice(1))).join("")).join("")}</div></details>`;
-  if(A&&(A.ideas||[]).length)h+=`<details class="ctx card ctxd" data-cx="${cid}:ali"${E.cx.has(cid+":ali")?" open":""}><summary><span class="eyebrow">Historia de ${ctx.esc(short(M.CIUDAD.n))} con Alice Loxton</span><h2>Ideas de sus videos</h2></summary><div class="ctxb">
+  if(A&&(A.ideas||[]).length)h+=`<details class="ctx card ctxd" data-cx="${cid}:ali"${E.cx.has(cid+":ali")?" open":""}><summary><span class="eyebrow">Historia de ${ctx.esc(short(M.CIUDAD.n))} con Alice Loxton</span></summary><div class="ctxb">
    <p class="muted" style="font-size:13px">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p>
    ${A.ideas.map(([t,x,u,l])=>`<div class="undia"><h4>${ctx.esc(t)}</h4><p>${ctx.esc(x)} <a href="${ctx.esc(u)}" target="_blank" rel="noopener">▶ ${ctx.esc(l)}</a></p></div>`).join("")}
    ${A.canal?`<p><a href="${ctx.esc(A.canal)}" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p>`:""}</div></details>`;

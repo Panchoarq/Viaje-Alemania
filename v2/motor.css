@@ -176,8 +176,8 @@ li.lgh small{font-weight:400}
 /* Las tarjetas muy altas no se inclinan: el giro del estilo «cuaderno» ensancha la página en el celular */
 #p-att details.ctxd,#p-att details.rutas,.poolpanel,#p-att .card{transform:none!important}
 /* El borde «rasgado» del cuaderno se calcula en % de la altura: en tarjetas muy altas da dientes enormes y tapa el texto. */
-:root[data-paper="1"] #p-att details.ctxd,:root[data-paper="1"] #p-att details.rutas,:root[data-paper="1"] .poolpanel{clip-path:none!important;border:1.5px solid var(--line);border-bottom:4px double var(--ink);border-radius:4px}
-:root[data-paper="1"] #p-att details.ctxd::before,:root[data-paper="1"] #p-att details.rutas::before{display:none}
+:root[data-paper="1"] #p-att details.ctxd[open],:root[data-paper="1"] #p-att details.rutas[open],:root[data-paper="1"] .poolpanel{clip-path:none!important;border:1.5px solid var(--line);border-bottom:4px double var(--ink);border-radius:4px}
+:root[data-paper="1"] #p-att details.ctxd[open]::before,:root[data-paper="1"] #p-att details.rutas[open]::before{display:none}
 .media .mi{background:var(--card)!important;clip-path:none!important;transform:none!important}
 
 /* Ilustraciones de la ciudad */
@@ -214,3 +214,5 @@ figure.ilu img{cursor:zoom-in}
 .overload{margin:6px 0;padding:8px 10px;border:1.5px solid var(--bad);border-radius:6px;background:color-mix(in srgb,var(--bad) 10%,transparent);font-size:13.5px}
 
 .rutarail .route{display:block;margin:6px 0;font-weight:700}
+
+#p-att details.ctxd{margin-bottom:12px}#p-att details.rutas{margin-bottom:14px}
