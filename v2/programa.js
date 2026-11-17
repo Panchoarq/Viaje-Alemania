@@ -23,7 +23,7 @@ const CAL='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fi
 
 const D=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-const hm=x=>{const t=Math.round(x*60);return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
+const hm=x=>{const t=Math.round(x*60),h=Math.floor(t/60);return String(h%24).padStart(2,"0")+":"+String(t%60).padStart(2,"0")+(h>=24?" (+1 día)":"")};
 const mv=(a,b,km)=>{const k=km(a,b);return k<=1.2?k*0.22:0.25+k*0.06};
 const num1=h=>String(h).replace(".",",");
 const FM=v=>(+v).toLocaleString("es-CL",{maximumFractionDigits:2})+" €";
@@ -136,7 +136,7 @@ function dayTitle(ctx,day){const CI=ctx.M[day.cid].CIUDAD;
   return "Día completo en "+short(CI.n)}
 const diaTxt=(ctx,day)=>day.d?ctx.pretty(day.d):"Día "+(day.g+1);
 
-function actRow(ctx,day,a,k,S,pool){const op=P.open.has(day.id+"|"+a.id);const late=a.closed?"cerrado ese día":a.late?"cierra "+hm(a.close):"";
+function actRow(ctx,day,a,k,S,pool){const op=P.open.has(day.id+"|"+a.id);const late=a.closed?"cerrado ese día":a.late?(a.st>=a.close-0.05?"llegas con el lugar cerrado (cierra "+hm(a.close)+")":"cierra "+hm(a.close)):"";
   const CI=ctx.M[day.cid].CIUDAD,SUN=S.sun;
   const sun=!SUN||a.in?"":a.st>=SUN.dusk-0.05?'<span class="sun nite" title="Ya es de noche">🌙</span>':a.st+a.h>SUN.set+0.15?'<span class="sun dusk" title="Termina con poca luz">🌇</span>':"";
   const nonEve=S.seq.filter(x=>!x.night),canMv=!a.night&&nonEve.length>1;
@@ -166,6 +166,8 @@ function dayHTML(ctx,day,S){const W=ctx.W,cid=day.cid,M=ctx.M[cid],CI=M.CIUDAD,c
     h+=`<label class="chk"><input type="checkbox" data-meal="${day.id}|${k}" ${m.on?"checked":""}><span class="t">${NOMC[k]}<small>${ctx.esc(o[0])}</small></span><span class="p">${FM(o[1])}</span></label>${m.L.length>1?`<select class="msel" data-mopt="${day.id}|${k}" aria-label="Opción ${NOMC[k]}">${m.L.map((x,j)=>`<option value="${j}" ${j===m.i?"selected":""}>${ctx.esc(x[0])} · ${FM(x[1])}</option>`).join("")}</select>`:""}`});
   h+=`<span class="muted" style="font-size:12px">Precios aproximados por persona.</span></div><div class="blk blk-att"><h4>Atracciones</h4>`;
   if(S&&S.seq.length){const legs=S.legs;let lp=false,cp=null;
+    {const cap=ritDe(ctx,cid).cap,us=S.seq.reduce((t,a)=>t+a.h,0)+legs.slice(0,-1).reduce((t,l)=>t+(l.noloc?0:mv(l.from,l.to,ctx.km)),0),cer=S.seq.filter(a=>a.closed||(a.late&&a.st>=a.close-0.05)).length,noche=S.end>=22;
+     if(us>cap*1.1||cer||noche)h+=`<div class="overload" role="alert">⚠ <b>Día sobrecargado.</b> ${us>cap*1.1?`Hay ~${us.toFixed(1)} h de visitas y traslados para ${cap.toFixed(1)} h disponibles. `:""}${noche?`Termina a las ${hm(S.end)}: de noche casi todo está cerrado. `:""}${cer?`${cer} lugar${cer>1?"es":""} estaría${cer>1?"n":""} cerrado${cer>1?"s":""} cuando llegues. `:""}Cambia actividades a otro día (📅 en cada una) o quita algunas.</div>`}
     const per=a=>a.night||a.st>=19?"n":a.st>(S.lunch||13)?"t":"m",PH={m:"🌅 Mañana",t:"☀ Tarde",n:"🌙 Noche"};
     const lunch=()=>{const lr=(W.lunchAt||{})[day.id],CA=(M.COMIDAS||{}).a||[];
       return `<div class="lunch">🍽 <b>${hm(S.lunch)}–${hm(S.lunch+1)}</b> ${lr?"Almuerzo en <b>"+ctx.esc(lr)+"</b>":"Almuerzo (1 h)"}${CA.length?`<span class="ffs">${CA.slice(0,2).map(x=>ctx.esc(x[0])+" ("+FM(x[1])+")").join(" · ")} · <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("restaurantes cerca de "+(S.lunchPos||CI.ll).join(","))}" target="_blank" rel="noopener">buscar cerca</a></span>`:""}
@@ -217,13 +219,15 @@ export function quitarCustom(ctx,cid,aid){const W=ctx.W;alternarAtr(ctx,cid,aid,
 
 // tarjeta de factibilidad y lista de atracciones (equivale al «fcard» de París)
 function fcard(ctx,cid){const W=ctx.W,M=ctx.M[cid],At=M.ATRACCIONES||[],S=selDe(ctx,cid),days=diasCiudad(ctx,cid),R=ritDe(ctx,cid),cc=colDe(ctx,cid),sin=((W.sinLugar||{})[cid]||[]).map(i=>At.find(a=>a.id===i)).filter(Boolean);
-  const pr=W.prog[cid],A=atrDe(ctx,cid),need=pr.flat().reduce((t,i)=>t+(A[i]?A[i].h+0.3:0),0),avail=days.reduce((t,x)=>t+(x.first?Math.min(3,R.cap):R.cap),0),over=sin.length>0;
+  const pr=W.prog[cid],A=atrDe(ctx,cid),need=pr.flat().reduce((t,i)=>t+(A[i]?A[i].h+0.3:0),0),avail=days.reduce((t,x)=>t+(x.first?Math.min(3,R.cap):R.cap),0);
+  const exc=[];pr.forEach((ids,i)=>{const cp=days[i]&&days[i].first?Math.min(3,R.cap):R.cap;let c=0;ids.forEach(id=>{const a=A[id];if(!a)return;c+=a.h+0.3;if(c>cp+0.3)exc.push({a,d:days[i]})})});
+  const lista=[...sin.map(a=>({a})),...exc],over=lista.length>0;
   const dia=a=>{for(let i=0;i<pr.length;i++)if(pr[i].includes(a.id))return days[i]};
   const CI=M.CIUDAD;
   const ab=P.feas&&P.feas[cid];
-  return `<div class="feas"><div class="fcard fthin ${over?"bad":"ok"}" style="--c:${cc}"><button type="button" class="fstrip" data-feasopen="${cid}" aria-expanded="${!!ab}"><span><b>${ctx.esc(short(CI.n))} · ${days.length} ${days.length>1?"días":"día"}</b> · ritmo ${R.n.toLowerCase()}</span><span class="status ${over?"bad":"ok"}">${over?`${sin.length} no caben`:"todo cabe"} ${ab?"▴":"▾"}</span></button>
+  return `<div class="feas"><div class="fcard fthin ${over?"bad":"ok"}" style="--c:${cc}"><button type="button" class="fstrip" data-feasopen="${cid}" aria-expanded="${!!ab}"><span><b>${ctx.esc(short(CI.n))} · ${days.length} ${days.length>1?"días":"día"}</b> · ritmo ${R.n.toLowerCase()}</span><span class="status ${over?"bad":"ok"}">${over?`${lista.length} no caben`:"todo cabe"} ${ab?"▴":"▾"}</span></button>
    ${ab?`<div class="fopen"><div class="meter"><span style="width:${Math.min(100,need/Math.max(avail,0.1)*100)}%;background:var(${over?"--bad":"--ok"})"></span></div><small class="muted" style="font-size:13px">${need.toFixed(1)} de ${avail.toFixed(1)} h · el ritmo se cambia en <a href="#" data-gotab="cfg">Configurar</a></small>
-   ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora · ritmo intenso, más noches o quitar otras</span>`+sin.map(a=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-psel="${cid}|${a.id}" checked><span class="t">${ctx.esc(a.n)}<small>~${num1(a.h)} h</small></span></label>`).join(""):""}</div>`:""}
+   ${over?`<span class="eyebrow" style="margin-top:6px">No caben ahora · ritmo intenso, más noches o quitar otras (desmarca para quitar)</span>`+lista.map(({a,d})=>`<label class="chk" style="--c:var(--bad)"><input type="checkbox" data-psel="${cid}|${a.id}" checked><span class="t">${ctx.esc(a.n)}<small>~${num1(a.h)} h${d?" · pasa de lo que cabe el "+diaTxt(ctx,d):" · sin día"}</small></span></label>`).join(""):""}</div>`:""}
    </div></div>`}
 
 // Elegir atracciones: lista por categoría (se abre con «Elegir atracciones»)
