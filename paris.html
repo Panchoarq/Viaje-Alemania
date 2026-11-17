@@ -1310,6 +1310,7 @@ html:root[data-paper="1"] #p-prog #days{margin-top:-18px!important}
 <div class="wrap" id="app"><p class="muted" style="text-align:center;margin-top:20vh">Cargando…</p></div>
 <div class="sync hide" id="sync"></div>
 <script type="module">
+import {ALICE_V,ALICE_IDEAS} from "./v2/ciudades/inglaterra/londres-alice.js";
 import {EXTRA as LOX,RUTAS as LORU,MAPAS as LOMAP} from "./v2/ciudades/inglaterra/londres-rutas.js";
 // ===== Datos: escapadas desde París (tiempos de tren directos típicos; verificar horarios al comprar) =====
 const ESC=[
@@ -2646,43 +2647,17 @@ function loFicha(a,i){const LF=LO_F[a.id]||(a.his?{y:a.y||"",h:a.his}:null);cons
    ${w?`<div class="fphotos"><a class="polaroid" href="${GIq(a.n+" London")}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span>${a.img?`<img class="ph" src="${a.img}" alt="${esc(a.n)}" loading="lazy">`:`<img class="ph" data-wk="${w}" alt="${esc(a.n)}" loading="lazy">`}<span class="cap">${esc(a.n.split(/ \(|:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons · <a href="${a.wkl==="en"?"https://en.wikipedia.org/wiki/"+encodeURIComponent(w.replace(/ /g,"_")):WKq(w)}" target="_blank" rel="noopener">${w}</a></p>`:""}
    ${aliceLinks(a.id)}
    <div class="flinks">${a.u?`<a href="${a.u}" target="_blank" rel="noopener">Sitio oficial ↗</a>`:""}<a href="https://www.google.com/maps/search/?api=1&query=${a.ll.join(",")}" target="_blank" rel="noopener">Mapa ↗</a>${sel?`<button type="button" class="btn alt sm" data-pasel-btn="${a.id}">✕ Quitar del programa</button>`:""}${daySelPA(a.id,"")}${cu?`<button type="button" class="lnkb" data-fdel="att|${a.id}">quitar de la lista</button>`:""}</div></article>`}
-let attCat="todas";
+let attCat="todas",attZon="todas";
 function attFilters(items){const cnt=k=>items.filter(a=>typOf(a)===k).length;const cats=TYP.filter(t=>cnt(t[0])>0&&!["esp","com","cen","via"].includes(t[0]));
   if(attCat!=="todas"&&!cats.some(c=>c[0]===attCat))attCat="todas";
   const fl=[["todas","Todas"],["prog","En el programa"],["top","★ Imperdibles"],["in","Techadas"]];
-  return `<div class="attfil"><div class="afrow"><span class="eyebrow">Categoría</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todas (${items.length})</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} (${cnt(k)})</button>`).join("")}</div></div>
-   <div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div></div>`}
-const attPass=(a,sel)=>(attCat==="todas"||typOf(a)===attCat)&&(attFilt==="todas"||(attFilt==="prog"&&sel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
+  const zs=[...new Set(items.map(a=>a.z).filter(Boolean))].sort(),zc=z=>items.filter(a=>a.z===z).length;if(attZon!=="todas"&&!zs.includes(attZon))attZon="todas";
+  return `<div class="attfil"><div class="afrow"><span class="eyebrow">Mostrar</span><div class="filters">${fl.map(([k,t])=>`<button type="button" class="chip" data-attf="${k}" aria-pressed="${attFilt===k}">${t}</button>`).join("")}</div></div>
+   <div class="afrow"><span class="eyebrow">Tipo</span><div class="filters"><button type="button" class="chip" data-attcat="todas" aria-pressed="${attCat==="todas"}">Todos</button>${cats.map(([k,t])=>`<button type="button" class="chip" data-attcat="${k}" aria-pressed="${attCat===k}">${t} <small>${cnt(k)}</small></button>`).join("")}</div></div>
+   ${zs.length>1?`<div class="afrow"><span class="eyebrow">Zona</span><div class="filters"><button type="button" class="chip" data-attzon="todas" aria-pressed="${attZon==="todas"}">Todas</button>${zs.map(z=>`<button type="button" class="chip" data-attzon="${esc(z)}" aria-pressed="${attZon===z}">${esc(z)} <small>${zc(z)}</small></button>`).join("")}</div></div>`:""}</div>`}
+const attPass=(a,sel)=>(attCat==="todas"||typOf(a)===attCat)&&(attZon==="todas"||a.z===attZon)&&(attFilt==="todas"||(attFilt==="prog"&&sel(a))||(attFilt==="top"&&a.top)||(attFilt==="in"&&a.in));
 // ---- Historia de Londres con Alice Loxton (videos cortos de su canal de YouTube) ----
-const AL="https://www.youtube.com/";
-const alS=q=>AL+"@history_alice/search?query="+encodeURIComponent(q),alV=id=>AL+"watch?v="+id;
-const ALICE_V={
- lo_tower:[["La Torre Blanca",alS("White Tower")],["La Bloody Tower",alV("ZFP8LiAH0gM")],["Dónde se ejecutaba en Tower Green",alV("udoHfhO65DU")],["Diseño de la Torre",alS("Tower of London design")]],
- lo_tb:[["Un dato de Tower Bridge",alV("yN2wu2HQzqw")]],
- lo_wa:[["La puerta más antigua de Gran Bretaña",alS("Britain's oldest door")],["La Silla de Coronación",alS("Coronation Chair")],["El pavimento Cosmati",alS("Cosmati Pavement")],["La tumba de Isabel I",alS("tomb of Elizabeth I")]],
- lo_wm:[["Big Ben",alS("Big Ben")],["La Cámara de los Comunes",alS("House of Commons chamber")]],
- lo_guard:[["El cambio de guardia",alS("Changing of the Guard")],["Tras bambalinas de la Caballería",alV("sRIO4Qod_Q0")]],
- lo_leighton:[["El Arab Hall de Leighton House",alS("Arab Hall")]],
- lo_vgh:[["La casa de Van Gogh en Londres",alS("Van Gogh London house")]],
- lo_hcm:[["Tesoros de Waterloo de la Caballería",alV("A5hZZ2GakbI")],["Tras bambalinas de la Caballería",alV("sRIO4Qod_Q0")]],
- lo_ragged:[["La Ragged School",alV("cQIZ163ZaK0")]],
- lo_marsh:[["Los restos de Marshalsea",alV("ysmIkhFJDIQ")]],
- lo_water:[["La historia de Waterstones Piccadilly",alS("Waterstones Piccadilly")]],
- lo_hand:[["Una visita a Hand & Lock",alS("Hand & Lock")]],
- lo_stanne:[["El cementerio de St Anne Limehouse",alS("St Anne Limehouse")]],
- lo_wash:[["La estatua de George Washington",alS("George Washington statue")]],
- lo_nhm:[["El Museo de Historia Natural",alS("The Natural History Museum")],["Los jardines nuevos",alS("new gardens Natural History Museum")]]
-};
 const aliceLinks=id=>{const L=ALICE_V[id];return L?`<details class="alice"><summary>▶ <b>Alice Loxton</b>: ${L.length} ${L.length>1?"videos":"video"} de historia</summary><p>${L.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(" · ")}</p></details>`:""};
-const ALICE_IDEAS=[
- ["Barandas de acero de la guerra","En algunas calles de Londres todavía quedan barandas que, según cuenta Alice, se podían sacar de su base y usar como camilla para llevar heridos durante los bombardeos. Mira las barandas de las calles residenciales: algunas están allí desde entonces.",alV("c33rKeSxPEc"),"video: WWII Railings"],
- ["Postes de calle que fueron cañones","En varias calles, los postes que protegen las esquinas fueron cañones antiguos enterrados boca abajo. Fíjate en la base de los postes al caminar.",alV("TcpqMGNOSKY"),"video: bollards napoleónicos"],
- ["The London Library (St James's Square)","Una biblioteca privada fundada en 1841, con estanterías de varios pisos separadas por suelos de rejilla de hierro. Es de socios, así que la entrada es limitada: conviene revisar si ofrecen visitas o eventos antes de ir.",alV("RI7o_Dm8pNI"),"video: The London Library"],
- ["Restos de la prisión de Marshalsea (Southwark)","Un muro que queda de la cárcel de deudores donde estuvo preso el padre de Dickens. Está en la calle, se ve gratis y queda cerca de Borough Market.",alV("ysmIkhFJDIQ"),"video: Marshalsea"],
- ["Ragged School Museum (Mile End)","Una escuela para niños muy pobres del siglo XIX, con una sala de clases victoriana. Abre pocos días a la semana: revisar horarios.",alV("cQIZ163ZaK0"),"video: Ragged School"],
- ["Household Cavalry Museum (Horse Guards)","Tesoros de Waterloo y la vida de la caballería que escolta al rey, junto al cambio de guardia.",alV("A5hZZ2GakbI"),"video: Waterloo y la Caballería"],
- ["Lugares para visitar","La casa de Van Gogh en Brixton, el Arab Hall de Leighton House, la librería Waterstones de Piccadilly, el taller Hand & Lock, la iglesia de St Anne en Limehouse, la estatua de Washington, la prisión de Marshalsea, la Ragged School y el museo de la Caballería ya están agregados abajo como atracciones, con su ficha, horarios y precio aproximado.",alS("London"),"buscar más en su canal"]
-];
 const aliceCard=()=>`<details class="card alicecard"><summary><span class="eyebrow">Historia de Londres con Alice Loxton</span></summary><p class="muted" style="font-size:13px;margin:6px 0">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p><div class="aideas">${ALICE_IDEAS.map(([t,x,u,l])=>`<details class="aitem"><summary><b>${t}</b></summary><p>${x} <a href="${u}" target="_blank" rel="noopener">▶ ${l}</a></p></details>`).join("")}</div><p class="note"><a href="https://www.youtube.com/@history_alice/videos" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p></details>`;
 let ctxOpen=false,attListOpen=false;const openFic=new Set();
 const ctxCard=(X,tl)=>`<details class="ctx card ctxd"${ctxOpen?" open":""}><summary><span class="eyebrow">Contexto histórico</span><h2>${X.t}</h2></summary><div class="ctxb">${tl(X.tl)}${X.p.map(p=>`<p>${p}</p>`).join("")}</div></details>`;
@@ -2917,7 +2892,7 @@ const PA_T={louvre:"mus",orsay:"mus",orang:"mus",rodin:"mus",picasso:"mus",carna
  notre:"igl",chapelle:"igl",sacre:"igl",
  catac:"ent",lumi:"ent",seine:"ent",evol:"ent",lafay:"ent",moulin:"ent"};
 const typOf=a=>a.t||PA_T[a.id]||"pas";
-const TYP=[["pas","Paseos y barrios"],["mus","Museos"],["mon","Monumentos y miradores"],["igl","Iglesias"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["tie","Tiendas"],["otr","Personales y otros"],["cen","Cenas entretenidas"],["per","Personalizada"],["com","Restaurantes"],["via","Viajes"]];
+const TYP=[["pas","Paseos, barrios y mercados"],["mus","Museos y ciencia"],["mon","Monumentos, historia y miradores"],["igl","Iglesias y catedrales"],["ent","Atracciones entretenidas"],["esp","Espectáculos"],["tie","Tiendas"],["otr","Personales y otros"],["cen","Cenas entretenidas"],["per","Personalizada"],["com","Restaurantes"],["via","Viajes"]];
 function nearDays(id){const a=actById(id);const A=window.LAST_A;if(!a||!A)return{};const out={};A.days.forEach(d=>{if(!d.pa)return;let best=null;d.pa.seq.forEach(b=>{if(b.id===id)return;const k=km(a.ll,b.ll);if(k<=1.3&&(!best||k<best.k))best={k,n:b.n.replace(/\s*\(.*?\)/,"")}});if(best){const free=d.pa.cap-d.pa.seq.reduce((t,x)=>t+x.h+0.3,0);out[d.d]={...best,min:Math.max(5,Math.round(best.k*13/5)*5),fits:free>=a.h}}});return out}
 function daySelPA(id,cls){const days=isLO(id)?lonDays():parisDays();const pin=(ST.paPin||{})[id]||"";const on=selOf(actById(id));const N=nearDays(id);
   return `<select class="daysel addsel ${cls}${on?"":" new"}" data-paday="${id}" aria-label="Agregar a un día">${on?`<option value="auto">📅 Automático${!pin&&ACTDAY[id]?" → "+pretty(ACTDAY[id]):""}</option><option value="off">✕ Quitar del programa</option>`:`<option value="" selected>+ Agregar al programa: elegir día…</option><option value="auto">Día automático</option>`}${days.map(x=>`<option value="${x.d}" ${pin===x.d?"selected":""}>${pretty(x.d)}${N[x.d]?` · ★ a ~${N[x.d].min} min de ${N[x.d].n}${N[x.d].fits?"":" (día lleno)"}`:""}</option>`).join("")}</select>`}
@@ -3486,7 +3461,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-hdel]",x=>x.onclick=()=>{const [k,id]=x.dataset.hdel.split("|");if(x.dataset.arm!=="1"){x.dataset.arm="1";x.textContent="¿Eliminar? toca de nuevo";return}ST.hot[k]=get(k).filter(q=>q.id!==id);if(ST.hot[k].length&&!ST.hot[k].some(q=>q.sel))ST.hot[k][0].sel=true;save();render()});
   // trámites, atracciones, espectáculos
   Q("[data-chk]",x=>x.onchange=()=>{ST.chk=ST.chk||{};ST.chk[x.dataset.chk]=x.checked;save();render()});
-  Q("[data-attc]",x=>x.onclick=()=>{attCity=x.dataset.attc;attFilt="todas";attCat="todas";render()});
+  Q("[data-attc]",x=>x.onclick=()=>{attCity=x.dataset.attc;attFilt="todas";attCat="todas";attZon="todas";render()});
   Q("[data-showc]",x=>x.onclick=()=>{showCity=x.dataset.showc;render()});
   Q("[data-pasel-btn]",x=>x.onclick=()=>{const id=x.dataset.paselBtn;ST.paSel=ST.paSel||{};const on=!selOf(actById(id));ST.paSel[id]=on;if(!on&&ST.paPin)delete ST.paPin[id];save();render();toast(selMsg(id))});
   Q("[data-attf]",x=>x.onclick=()=>{attFilt=x.dataset.attf;render()});
@@ -3496,6 +3471,7 @@ function bindAll(A){const W=ST.wiz,Q=(s,f)=>document.querySelectorAll(s).forEach
   Q("[data-ruadd]",x=>x.onclick=()=>{const r=LORU.find(q=>q.id===x.dataset.ruadd),v=ruVer(r);ST.paSel=ST.paSel||{};v.ids.forEach(id=>{ST.paSel[id]=true});save();render();toast("＋ "+v.ids.length+" paradas de «"+r.n+"» agregadas a Londres en el programa")});
   Q("details[data-hmd]",d=>d.ontoggle=()=>{hmOpen=d.open;if(d.open)setTimeout(initMapasLO,30)});initMapasLO();
   Q("[data-attcat]",x=>x.onclick=()=>{attCat=x.dataset.attcat;render()});
+  Q("[data-attzon]",x=>x.onclick=()=>{attZon=x.dataset.attzon;render()});
   Q("[data-fsel]",x=>x.onclick=()=>{const a=PA.find(q=>q.id===x.dataset.fsel);ST.paSel=ST.paSel||{};ST.paSel[a.id]=!paSel(a);save();render()});
   Q("[data-goesc]",x=>x.onclick=e=>{e.preventDefault();escPick=x.dataset.goesc;go("esc")})}
 

@@ -53,6 +53,10 @@ function contextoHTML(ctx,cid){const M=ctx.M[cid],C=M.CONTEXTO,U=M.UNDIA||[],ME=
   if(C)h+=`<details class="cxs" data-cx="${cid}:his"${cxOpen(cid+":his")}><summary>📜 ${ctx.esc(C.t||"Historia")}</summary>
    ${C.tl&&C.tl.length?`<ol class="cxtl">${C.tl.map(([y,t])=>`<li><b>${ctx.esc(y)}</b><span>${ctx.esc(t)}</span></li>`).join("")}</ol>`:""}
    ${(C.p||[]).map((x,i)=>`<p>${ctx.esc(x)}</p>`+(C.fig||[]).filter(f=>f[0]===i).map(f=>ilu(ctx,f.slice(1))).join("")).join("")}</details>`;
+  if(M.ALICE&&(M.ALICE.ideas||[]).length)h+=`<details class="cxs" data-cx="${cid}:ali"${cxOpen(cid+":ali")}><summary>▶ Historia de ${ctx.esc(short(M.CIUDAD.n))} con Alice Loxton</summary>
+   <p class="muted" style="font-size:13px">Ideas sacadas de los títulos de sus videos cortos de YouTube y de datos generales. Los detalles completos los cuenta ella en cada video.</p>
+   ${M.ALICE.ideas.map(([t,x,u,l])=>`<div class="undia"><h4>${ctx.esc(t)}</h4><p>${ctx.esc(x)} <a href="${ctx.esc(u)}" target="_blank" rel="noopener">▶ ${ctx.esc(l)}</a></p></div>`).join("")}
+   ${M.ALICE.canal?`<p><a href="${ctx.esc(M.ALICE.canal)}" target="_blank" rel="noopener">Ver el canal de Alice Loxton ↗</a></p>`:""}</details>`;
   if(U.length)h+=`<details class="cxs" data-cx="${cid}:dia"${cxOpen(cid+":dia")}><summary>🧭 Si vienes por un día: lo que conviene saber</summary>
    ${U.map(u=>`<div class="undia"><h4>${ctx.esc(u.t)}</h4>${(u.p||[]).map(x=>`<p>${ctx.esc(x)}</p>`).join("")}${(u.fig||[]).map(f=>ilu(ctx,f)).join("")}${u.l&&u.l.length?`<ul>${u.l.map(([k,v])=>`<li><b>${ctx.esc(k)}</b>${v?" — "+ctx.esc(v):""}</li>`).join("")}</ul>`:""}</div>`).join("")}</details>`;
   if(ME.length)h+=`<details class="cxs" data-cx="${cid}:med"${cxOpen(cid+":med")}><summary>🎬 Cine, música y libros para conocerla</summary>
@@ -118,6 +122,7 @@ function ficha(ctx,cid,a,i,on){const CI=ctx.M[cid].CIUDAD,cod=cid.slice(0,3).toU
    ${a.v?`<div class="fwhy"><span class="flab">Qué van a ver</span><p>${ctx.esc(a.v)}</p></div>`:""}
    ${a.mir&&a.mir.length?`<div class="fmir"><span class="flab">Qué mirar desde la calle</span><ul>${a.mir.map(x=>`<li>${ctx.esc(x)}</li>`).join("")}</ul></div>`:""}
    ${a.his&&a.his.length?`<div class="fhist"><span class="flab">Historia</span>${a.his.map(x=>`<p>${ctx.esc(x)}</p>`).join("")}</div>`:""}
+   ${((ctx.M[cid].ALICE||{}).videos||{})[a.id]?`<details class="alice"><summary>▶ <b>Alice Loxton</b>: ${ctx.M[cid].ALICE.videos[a.id].length} ${ctx.M[cid].ALICE.videos[a.id].length>1?"videos":"video"} de historia</summary><p>${ctx.M[cid].ALICE.videos[a.id].map(([t,u])=>`<a href="${ctx.esc(u)}" target="_blank" rel="noopener">${ctx.esc(t)}</a>`).join(" · ")}</p></details>`:""}
    ${a.d?`<div class="fnote"><span class="flab">Dato / consejo</span><p>${ctx.esc(a.d)}</p></div>`:""}
    <p class="fmeta">🕐 visita ~${num1(a.h)} h · ${a.p?FM(a.p):"gratis"}${a.close&&!a.eve?` · cierra ${hm(a.close)}`:""}${dias?` · cerrado ${dias}`:""}${a.in?" · 🏛 techado":""}</p>
    <div class="fphotos"><a class="polaroid" href="${GIq(a.n+" "+CI.n)}" target="_blank" rel="noopener"><span class="clip" aria-hidden="true"></span><img class="ph" data-wk="${ctx.esc(limpiaN(a.n))}" data-wc="${ctx.esc(CI.n)}" alt="${ctx.esc(a.n)}" loading="lazy"><span class="cap">${ctx.esc(limpiaN(a.n).split(/:/)[0])}</span><span class="go">más fotos →</span></a></div><p class="credit">Foto: Wikipedia / Wikimedia Commons</p>
