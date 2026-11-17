@@ -64,7 +64,7 @@ export function mapaZonas(el,{zonas,pts=[]}){
   m.scrollZoom.disable();m.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-left");el.classList.add("ml");el._m=m;
   m.on("load",()=>{m.addImage("hatch",hatchImg());
     m.addSource("hz",{type:"geojson",data:{type:"FeatureCollection",features:zonas.map((z,i)=>({type:"Feature",properties:{n:z.n},geometry:{type:"Polygon",coordinates:[circ(z.ll,z.r)]}}))}});
-    m.addLayer({id:"hz-f",type:"fill",source:"hz",paint:{"fill-color":"#b3261e","fill-opacity":.28}});m.addLayer({id:"hz",type:"fill",source:"hz",paint:{"fill-pattern":"hatch"}});m.addLayer({id:"hz-l",type:"line",source:"hz",paint:{"line-color":"#b3261e","line-width":1.6,"line-dasharray":[3,2]}})});
+    m.addLayer({id:"hz-f",type:"fill",source:"hz",paint:{"fill-color":"#b3261e","fill-opacity":["interpolate",["linear"],["zoom"],11,.26,14,.09,16,.04]}});m.addLayer({id:"hz",type:"fill",source:"hz",paint:{"fill-pattern":"hatch","fill-opacity":["interpolate",["linear"],["zoom"],11,.75,14,.28,16,.1]}});m.addLayer({id:"hz-l",type:"line",source:"hz",paint:{"line-color":"#b3261e","line-width":1.6,"line-dasharray":[3,2]}})});
   zonas.forEach((z,i)=>{const w=document.createElement("div");w.className="mlmk";w.innerHTML=`<div class="lm-a hz">${i+1}</div>`;w.title=z.n;new maplibregl.Marker({element:w,anchor:"center"}).setLngLat([z.ll[1],z.ll[0]]).addTo(m)});
   pts.forEach(p=>{const w=document.createElement("div");w.className="mlmk";w.innerHTML=`<div class="lm-h">★</div>`;w.title=p.n;new maplibregl.Marker({element:w,anchor:"center"}).setLngLat([p.ll[1],p.ll[0]]).addTo(m)});
   return m}

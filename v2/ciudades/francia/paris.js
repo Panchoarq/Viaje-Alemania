@@ -1,7 +1,7 @@
 // Paquete de ciudad: París (Francia). Adaptador: reutiliza los datos del viaje a París (v2/trips/paris.data.js),
 // así que cualquier corrección que se haga allí se refleja aquí. Comidas y transporte: cifras generales sin verificar.
 import {ZONES_PA} from "../../trips/paris.data.js";
-import {PA,ESC,BASES,TIPS,FOOD_PA,FOOD_G,SHOWS as SH_ALL,SHOW_X as SHX_ALL} from "../../trips/paris.data.js";
+import {PA,ESC,BASES,TIPS,FOOD_PA,FOOD_G,SHOWS as SH_ALL,SHOW_X as SHX_ALL,CTX_PA,MEDIA_PA} from "../../trips/paris.data.js";
 const zonas=A=>Object.fromEntries([...new Set(A.map(a=>a.z))].map(z=>[z,z]));
 export const CIUDAD={id:"paris",n:"París",pais:"francia",p:"🇫🇷",ll:[48.8566,2.3522],geo:", Paris",
   moneda:{code:"EUR",sym:"€",eur:1},transit:"metro, RER y buses RATP",idioma:"francés",verificado:false,fuente:"Datos del viaje a París de la app",
@@ -20,3 +20,6 @@ export const TRANSPORTE={llegada:"Aeropuerto Charles de Gaulle → centro: RER B
 export const CONSEJOS=TIPS.slice(1,5).flatMap(t=>t[2]).slice(0,10);
 export const TRAMITES={pais:"Francia (espacio Schengen)",eta:TIPS[0][2][0],seguro:(TIPS[0][2].find(x=>/Seguro/i.test(x))||"Seguro de viaje con cobertura médica."),moneda:"Euro (€). Se paga casi todo con tarjeta sin contacto."};
 export const PRECAUCION=ZONES_PA;
+
+export const CONTEXTO=CTX_PA;
+export const MEDIA=MEDIA_PA;
