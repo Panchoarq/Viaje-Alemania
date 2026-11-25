@@ -1,6 +1,7 @@
 // Motor de viajes nuevos con el diseño de París (cabecera, pestañas, tarjetas, mapa «cuaderno»).
 // Fase 1: cabecera + pestañas + Configurar. Las demás pestañas usan v2/motor.js hasta portarlas al diseño de París.
 import {PAISES,cargar,cargarTraslados} from "./ciudades/index.js";
+import {iniciarLlegada} from "./llegadas.js";
 import {cfgExtremos,bindExtremos} from "./extremos.js";
 import * as NUBE from "./nube.js";
 import {dibujar} from "./motor.js";
@@ -169,6 +170,7 @@ function bindAll(){
   Q("[data-gotab]",b=>b.onclick=()=>go(b.dataset.gotab));
   Q("[data-cartera]",b=>b.onclick=abrirCartera);
   bindAyuda(CTX);
+  setTimeout(()=>iniciarLlegada(CTX),0);
   const lb=$("#logoBtn");if(lb)lb.onclick=()=>location.href="/"+(DEMO?"?demo":"");
   if(tab!=="cfg")return;
   Q("[data-w]",x=>x.onchange=()=>{W[x.dataset.w]=x.value;if(x.dataset.w==="inicio")W.cuando=x.value?"fecha":"generico";guardar();render()});

@@ -239,3 +239,9 @@ details.ctxd>summary,details.rutas>summary,details.alicecard>summary{position:re
 /* la ilustración de la ficha se ve también con la ficha cerrada (celular) */
 .fichas.att .ficha:not(.open)>figure.ilu{display:block!important;margin:8px 0}
 .fichas.att .ficha>figure.ilu img{max-height:190px;object-fit:cover}
+
+.lleg{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line,#c9bda6)}.lleg h4{margin:2px 0 6px;font-size:16px}
+.lsteps{margin:6px 0 8px;padding-left:20px;font-size:14px;line-height:1.5}.lsteps li{margin:5px 0}.lsteps .ltr{list-style:none;margin-left:-20px;font-size:13px;color:var(--muted,#6b6252)}
+.lchip{display:inline-block;min-width:22px;padding:1px 7px;border-radius:12px;font-weight:700;font-size:13px;text-align:center}
+.lopt{margin:8px 0}.lopt.alt{opacity:.92;border-top:1px dotted var(--line,#c9bda6);padding-top:8px}.lleg .route{display:block;margin:8px 0;font-weight:700}
+.lleg .mapclip .lmap{height:200px}

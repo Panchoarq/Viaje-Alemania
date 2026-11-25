@@ -30,5 +30,5 @@ export const anexasDe=paisId=>(ANEXAS[paisId]||[]).map(([p,c])=>{const P=PAISES.
 // Buscador simple por texto (sin tildes) para el asistente.
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 export function buscar(q){q=norm(q||"");return PAISES.flatMap(p=>p.ciudades.map(c=>({...c,pais:p.n,paisId:p.id,p:p.p}))).filter(c=>norm(c.n+" "+c.pais).includes(q))}
-export const cargar=async(paisId,ciudadId)=>{let m=await import(`./${paisId}/${ciudadId}.js`);try{const t=(await import("./transporte-datos.js")).TRANSPORTE_DATOS[ciudadId];if(t)m={...m,TRANSP:t}}catch(e){}try{const h=(await import("./historias-datos.js")).HISTORIAS[ciudadId];if(h&&!m.CONTEXTO)m={...m,CONTEXTO:h}}catch(e){}return m};
+export const cargar=async(paisId,ciudadId)=>{let m=await import(`./${paisId}/${ciudadId}.js`);try{const t=(await import("./transporte-datos.js")).TRANSPORTE_DATOS[ciudadId];if(t)m={...m,TRANSP:t}}catch(e){}try{const h=(await import("./historias-datos.js")).HISTORIAS[ciudadId];if(h&&!m.CONTEXTO)m={...m,CONTEXTO:h}}catch(e){}try{const l=(await import("./llegadas-datos.js")).LLEGADAS[ciudadId];if(l)m={...m,LLEGADAS:l}}catch(e){}return m};
 export const cargarTraslados=paisId=>import(`./${paisId}/traslados.js`);
